@@ -46,12 +46,12 @@ its first real consumer.
 - Test: `app/src/test/java/com/ppnam/station2aa/ui/home/HomeViewModelTest.kt`
 
 **Interfaces:**
-- Consumes: `MqttRepository` (`com.ppnam.station2aa.domain.repository.MqttRepository`) —
+- Consumes: `MqttRepository` (`com.mitas.ppnam.station2aa.domain.repository.MqttRepository`) —
   `connectionState: StateFlow<MqttConnectionState>`, `stationOnline: StateFlow<Boolean>`,
-  `clockSkewMillis: StateFlow<Long?>`. `AuthUseCase` (`com.ppnam.station2aa.domain.usecase.AuthUseCase`)
+  `clockSkewMillis: StateFlow<Long?>`. `AuthUseCase` (`com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase`)
   — `suspend fun logout()`. `OperatorSessionHolder`
-  (`com.ppnam.station2aa.data.session.OperatorSessionHolder`) — `session: StateFlow<OperatorSession?>`.
-  `connectionStatusFlow(...)` (`com.ppnam.station2aa.ui.components.connectionStatusFlow`) — existing
+  (`com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder`) — `session: StateFlow<OperatorSession?>`.
+  `connectionStatusFlow(...)` (`com.mitas.ppnam.station2aa.ui.components.connectionStatusFlow`) — existing
   utility, exact signature and usage copied from `MixingViewModel.kt` lines 143–147.
 - Produces: `HomeViewModel.session: StateFlow<OperatorSession?>`,
   `HomeViewModel.connectionStatus: StateFlow<ConnectionStatus>`, `HomeViewModel.logoutEvent: Flow<Unit>`,
@@ -60,13 +60,13 @@ its first real consumer.
 - [ ] **Step 1: Write the failing tests**
 
 ```kotlin
-package com.ppnam.station2aa.ui.home
+package com.mitas.ppnam.station2aa.ui.home
 
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -148,22 +148,22 @@ class HomeViewModelTest {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.home.HomeViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.home.HomeViewModelTest"`
 Expected: FAIL — `HomeViewModel` class does not exist yet (compile error).
 
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package com.ppnam.station2aa.ui.home
+package com.mitas.ppnam.station2aa.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.AuthUseCase
-import com.ppnam.station2aa.ui.components.ConnectionStatus
-import com.ppnam.station2aa.ui.components.connectionStatusFlow
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
+import com.mitas.ppnam.station2aa.ui.components.connectionStatusFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -203,7 +203,7 @@ class HomeViewModel @Inject constructor(
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.home.HomeViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.home.HomeViewModelTest"`
 Expected: PASS (2 tests).
 
 - [ ] **Step 5: Commit**
@@ -222,7 +222,7 @@ git commit -m "feat(home): add HomeViewModel with session, connection status, an
 
 **Interfaces:**
 - Consumes: `HomeViewModel` from Task 1 (`session`, `connectionStatus`, `logoutEvent`, `logout()`).
-  `AppScaffold` (`com.ppnam.station2aa.ui.components.AppScaffold`) — signature confirmed from current
+  `AppScaffold` (`com.mitas.ppnam.station2aa.ui.components.AppScaffold`) — signature confirmed from current
   source: `AppScaffold(title: String, status: ConnectionStatus, onBack: (() -> Unit)? = null,
   onRfidLookup: (() -> Unit)? = null, onSettings: (() -> Unit)? = null, operatorName: String? = null,
   operatorRole: String? = null, onLogout: (() -> Unit)? = null, loading: Boolean = false, content:
@@ -244,7 +244,7 @@ Design decisions (from the spec, made explicit here since the spec describes int
 - [ ] **Step 1: Write the implementation**
 
 ```kotlin
-package com.ppnam.station2aa.ui.home
+package com.mitas.ppnam.station2aa.ui.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -274,11 +274,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.GraphiteBorder
-import com.ppnam.station2aa.ui.theme.GraphiteSurface
-import com.ppnam.station2aa.ui.theme.TextMuted
-import com.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
+import com.mitas.ppnam.station2aa.ui.theme.TextMuted
+import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 
 @Composable
 fun HomeScreen(
@@ -427,10 +427,10 @@ object NavRoutes {
 
 In `app/src/main/java/com/ppnam/station2aa/navigation/AppNavGraph.kt`:
 
-Add this import alongside the existing `com.ppnam.station2aa.ui.mixing.*` imports:
+Add this import alongside the existing `com.mitas.ppnam.station2aa.ui.mixing.*` imports:
 
 ```kotlin
-import com.ppnam.station2aa.ui.home.HomeScreen
+import com.mitas.ppnam.station2aa.ui.home.HomeScreen
 ```
 
 Replace:

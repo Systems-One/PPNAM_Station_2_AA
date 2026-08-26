@@ -540,18 +540,18 @@ git commit -m "feat(ingredient-scan): add scan-this-next guided card, auto-arm f
 - Test: `app/src/test/java/com/ppnam/station2aa/ui/mixing/IngredientScanScreenKtTest.kt`
 
 **Interfaces:**
-- Consumes: `StatusCard`/`StatusTone` (Phase 2, `com.ppnam.station2aa.ui.components`) and `BomLine`
-  (`com.ppnam.station2aa.domain.model.BomLine:27` — `isSatisfied: Boolean` is a *computed*
+- Consumes: `StatusCard`/`StatusTone` (Phase 2, `com.mitas.ppnam.station2aa.ui.components`) and `BomLine`
+  (`com.mitas.ppnam.station2aa.domain.model.BomLine:27` — `isSatisfied: Boolean` is a *computed*
   property, not a stored field: `get() = isFullyAllocated && (!isBagged || (remainingBags ?: 0.0) <= 0.0)`).
 - Produces: `internal fun BomLine.checklistTone(armed: Boolean, pending: Boolean): StatusTone`.
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
-import com.ppnam.station2aa.domain.model.BomLine
-import com.ppnam.station2aa.ui.components.StatusTone
+import com.mitas.ppnam.station2aa.domain.model.BomLine
+import com.mitas.ppnam.station2aa.ui.components.StatusTone
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -596,7 +596,7 @@ class IngredientScanScreenKtTest {
 
 - [ ] **Step 2: Run the test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.IngredientScanScreenKtTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.IngredientScanScreenKtTest"`
 Expected: FAIL — `checklistTone()` does not exist yet (compile error).
 
 - [ ] **Step 3: Add imports and the `checklistTone()` function**
@@ -604,9 +604,9 @@ Expected: FAIL — `checklistTone()` does not exist yet (compile error).
 In `app/src/main/java/com/ppnam/station2aa/ui/mixing/IngredientScanScreen.kt`, add to the imports:
 
 ```kotlin
-import com.ppnam.station2aa.domain.model.BomLine
-import com.ppnam.station2aa.ui.components.StatusCard
-import com.ppnam.station2aa.ui.components.StatusTone
+import com.mitas.ppnam.station2aa.domain.model.BomLine
+import com.mitas.ppnam.station2aa.ui.components.StatusCard
+import com.mitas.ppnam.station2aa.ui.components.StatusTone
 ```
 
 Add this function near the top of the file, after the imports and before `IngredientScanScreen`:
@@ -628,7 +628,7 @@ internal fun BomLine.checklistTone(armed: Boolean, pending: Boolean): StatusTone
 
 - [ ] **Step 4: Run the test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.IngredientScanScreenKtTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.IngredientScanScreenKtTest"`
 Expected: PASS (5 tests).
 
 - [ ] **Step 5: Swap the checklist row's `Card` for `StatusCard`**

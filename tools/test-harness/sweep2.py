@@ -73,15 +73,15 @@ def shot(name):
 
 def app_foreground():
     out = sh("shell", "dumpsys activity activities")
-    return "com.ppnam.station2aa/.MainActivity" in out and "topResumedActivity" in out
+    return "com.mitas.ppnam.station2aa/.MainActivity" in out and "topResumedActivity" in out
 
 
 def ensure_app():
     """Relaunch the app (and log back in) if it is not in the foreground."""
     out = sh("shell", "dumpsys activity activities | grep -m1 topResumedActivity")
-    if "com.ppnam.station2aa" in out:
+    if "com.mitas.ppnam.station2aa" in out:
         return
-    sh("shell", "monkey", "-p", "com.ppnam.station2aa",
+    sh("shell", "monkey", "-p", "com.mitas.ppnam.station2aa",
        "-c", "android.intent.category.LAUNCHER", "1")
     time.sleep(9)
     ns = nodes(dump())

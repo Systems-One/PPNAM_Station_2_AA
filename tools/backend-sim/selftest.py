@@ -41,12 +41,12 @@ class Handheld:
         self.rx = queue.Queue()
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2,
                                   client_id=DEVICE, protocol=mqtt.MQTTv5)
-        self.client.will_set(f"PPNAM/{DEVICE}/status", "offline", qos=1, retain=True)
+        self.client.will_set(f"PPNAM/station_2/{DEVICE}", "offline", qos=1, retain=True)
         self.client.on_message = lambda c, u, m: self.rx.put(m)
         self.client.connect(host, port, keepalive=30)
         self.client.loop_start()
-        self.client.subscribe([(f"PPNAM/{DEVICE}/res/+", 1)])
-        self.client.publish(f"PPNAM/{DEVICE}/status", "online", qos=1, retain=True)
+        self.client.subscribe([(f"PPNAM/station_2/{DEVICE}/res/+", 1)])
+        self.client.publish(f"PPNAM/station_2/{DEVICE}", "online", qos=1, retain=True)
         time.sleep(0.5)
         self.session = ""
         self.msg_seq = 0
@@ -56,7 +56,7 @@ class Handheld:
         return f"{prefix}-{uuid.uuid4().hex[:8]}-{self.msg_seq:04d}"
 
     def send_raw(self, request_type, payload):
-        self.client.publish(f"PPNAM/{DEVICE}/req/{request_type}",
+        self.client.publish(f"PPNAM/station_2/{DEVICE}/req/{request_type}",
                             json.dumps(payload), qos=1)
 
     def request(self, request_type, fields=None, msg_id=None, session=None,
@@ -135,7 +135,7 @@ class Handheld:
         return proof_r
 
     def close(self):
-        self.client.publish(f"PPNAM/{DEVICE}/status", "offline", qos=1, retain=True)
+        self.client.publish(f"PPNAM/station_2/{DEVICE}", "offline", qos=1, retain=True)
         time.sleep(0.3)
         self.client.loop_stop()
         self.client.disconnect()

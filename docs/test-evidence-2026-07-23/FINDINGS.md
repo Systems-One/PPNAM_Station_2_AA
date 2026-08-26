@@ -1,6 +1,6 @@
 # PPNAM Station 2 — Live Test Findings Log
 
-Environment: Chainway C72 (`handheld_1`), Android 13, app `com.ppnam.station2aa`.
+Environment: Chainway C72 (`handheld_1`), Android 13, app `com.mitas.ppnam.station2aa`.
 Broker: `wss://mqtt.sysone.co.za:443/mqtt`, mosquitto 2.0.22, auth `admin/admin`.
 Backend: **real Station 2** (`PPNAM/station_2/status` = retained `online`). Simulator NOT used.
 Captures: `capture/wire.jsonl` (MQTT), `logcat.txt`, `shots/`.

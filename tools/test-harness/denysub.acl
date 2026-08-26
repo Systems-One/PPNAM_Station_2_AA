@@ -7,13 +7,14 @@
 # not explicitly granted is DENIED. We grant publish everywhere under PPNAM/ and read on
 # station presence, but we deliberately grant NO read on any .../res/+ topic:
 #
-#   - publish req/# and the retained status presence  -> allowed
-#   - subscribe PPNAM/{deviceId}/res/+                 -> DENIED  (the whole point of A3)
-#   - subscribe PPNAM/station_2/status                 -> allowed (station presence still works)
+#   - publish req/# and the retained base-node presence     -> allowed
+#   - subscribe PPNAM/station_2/{deviceId}/res/+            -> DENIED  (the whole point of A3)
+#   - subscribe PPNAM/station_2 (station base-node presence) -> allowed
 
 # The handheld publishes its retained presence and all requests. Allow all PPNAM publishes.
 pattern write PPNAM/#
 
-# The handheld may read station presence. This is the ONLY read granted — note there is no
-# `pattern read PPNAM/%u/res/+` (or PPNAM/#) line, so the response subscription is refused.
-pattern read PPNAM/station_2/status
+# The handheld may read station presence (retained online/offline on the station base topic).
+# This is the ONLY read granted — note there is no `pattern read PPNAM/station_2/%u/res/+`
+# (or PPNAM/#) line, so the response subscription is refused.
+pattern read PPNAM/station_2

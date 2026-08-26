@@ -53,7 +53,7 @@ rather than inventing a status value that doesn't exist on the wire. See Task 2'
 - Test: `app/src/test/java/com/ppnam/station2aa/ui/components/StatusCardTest.kt`
 
 **Interfaces:**
-- Consumes: existing theme colors from `com.ppnam.station2aa.ui.theme` — `AmberPrimary`,
+- Consumes: existing theme colors from `com.mitas.ppnam.station2aa.ui.theme` — `AmberPrimary`,
   `DangerRed`, `GraphiteBorder`, `GraphiteSurface`, `SuccessGreen`, `TextMuted`, `WarningOrange`
   (all already exist, confirmed unchanged since Phase 1).
 - Produces: `enum class StatusTone { Ready, Running, Warning, Danger, Idle }` with a
@@ -65,13 +65,13 @@ rather than inventing a status value that doesn't exist on the wire. See Task 2'
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package com.ppnam.station2aa.ui.components
+package com.mitas.ppnam.station2aa.ui.components
 
-import com.ppnam.station2aa.ui.theme.AmberPrimary
-import com.ppnam.station2aa.ui.theme.DangerRed
-import com.ppnam.station2aa.ui.theme.SuccessGreen
-import com.ppnam.station2aa.ui.theme.TextMuted
-import com.ppnam.station2aa.ui.theme.WarningOrange
+import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
+import com.mitas.ppnam.station2aa.ui.theme.TextMuted
+import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -90,13 +90,13 @@ class StatusCardTest {
 
 - [ ] **Step 2: Run the test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.components.StatusCardTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.components.StatusCardTest"`
 Expected: FAIL — `StatusTone` does not exist yet (compile error).
 
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package com.ppnam.station2aa.ui.components
+package com.mitas.ppnam.station2aa.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -111,13 +111,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.ppnam.station2aa.ui.theme.AmberPrimary
-import com.ppnam.station2aa.ui.theme.DangerRed
-import com.ppnam.station2aa.ui.theme.GraphiteBorder
-import com.ppnam.station2aa.ui.theme.GraphiteSurface
-import com.ppnam.station2aa.ui.theme.SuccessGreen
-import com.ppnam.station2aa.ui.theme.TextMuted
-import com.ppnam.station2aa.ui.theme.WarningOrange
+import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
+import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
+import com.mitas.ppnam.station2aa.ui.theme.TextMuted
+import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 
 /**
  * The five states a status-driven card can be in, shared across every screen that shows job
@@ -170,7 +170,7 @@ fun StatusCard(
 
 - [ ] **Step 4: Run the test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.components.StatusCardTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.components.StatusCardTest"`
 Expected: PASS (1 test).
 
 - [ ] **Step 5: Verify the composable compiles**
@@ -196,7 +196,7 @@ git commit -m "feat(ui): add shared StatusCard component"
 
 **Interfaces:**
 - Consumes: `StatusCard`/`StatusTone` from Task 1 (exact signature above).
-  `ActiveJobCardSummary` (`com.ppnam.station2aa.data.mqtt.dto.JobCardMessages.kt:142`) — real
+  `ActiveJobCardSummary` (`com.mitas.ppnam.station2aa.data.mqtt.dto.JobCardMessages.kt:142`) — real
   fields used: `jobCardNumber: String`, `collectionId: String`, `status: String`,
   `statusLabel: String` (computed property), `productName: String`,
   `progressPercent: Double?`, `completedIngredientCount: Int?`, `requiredIngredientCount: Int?`,
@@ -209,10 +209,10 @@ git commit -m "feat(ui): add shared StatusCard component"
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
-import com.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary
-import com.ppnam.station2aa.ui.components.StatusTone
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary
+import com.mitas.ppnam.station2aa.ui.components.StatusTone
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -262,16 +262,16 @@ class JobLookupScreenKtTest {
 
 - [ ] **Step 2: Run the test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.JobLookupScreenKtTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.JobLookupScreenKtTest"`
 Expected: FAIL — `cardTone()` does not exist yet (compile error).
 
 - [ ] **Step 3: Update imports and add `cardTone()`**
 
 In `app/src/main/java/com/ppnam/station2aa/ui/mixing/JobLookupScreen.kt`, replace the import block
-(everything from `package com.ppnam.station2aa.ui.mixing` down to the last import) with:
+(everything from `package com.mitas.ppnam.station2aa.ui.mixing` down to the last import) with:
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -295,15 +295,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.components.StatusCard
-import com.ppnam.station2aa.ui.components.StatusTone
-import com.ppnam.station2aa.ui.theme.AmberPrimary
-import com.ppnam.station2aa.ui.theme.DangerRed
-import com.ppnam.station2aa.ui.theme.TextMuted
-import com.ppnam.station2aa.ui.theme.TextPrimary
-import com.ppnam.station2aa.ui.theme.WarningOrange
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.components.StatusCard
+import com.mitas.ppnam.station2aa.ui.components.StatusTone
+import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.theme.TextMuted
+import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 
 /**
  * Maps a job's wire status (plus its pending-approval flag) to the shared color language.
@@ -325,7 +325,7 @@ old `Card`'s styling, which `StatusCard` now encapsulates internally) and adds
 
 - [ ] **Step 4: Run the test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.JobLookupScreenKtTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.JobLookupScreenKtTest"`
 Expected: PASS (6 tests).
 
 - [ ] **Step 5: Rename the screen title**

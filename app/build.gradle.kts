@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ppnam.station2aa"
+    namespace = "com.mitas.ppnam.station2aa"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.ppnam.station2aa"
+        applicationId = "com.mitas.ppnam.station2aa"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

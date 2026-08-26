@@ -52,7 +52,7 @@ The contract returns *"the full refreshed `ingredients[]`"* in `ingredient_scan_
 Create `app/src/test/java/com/ppnam/station2aa/domain/model/BomLineTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -134,7 +134,7 @@ class BomLineTest {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `./gradlew.bat testDebugUnitTest --tests "com.ppnam.station2aa.domain.model.BomLineTest"`
+Run: `./gradlew.bat testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.model.BomLineTest"`
 Expected: FAIL — `BomLine` has no `lineNumber`, no `bagSize`, no `isBagged`, no `isSatisfied`; bag fields are non-null.
 
 - [ ] **Step 3: Rewrite the BOM line DTO**
@@ -209,7 +209,7 @@ data class BomLoadedResponse(
 )
 ```
 
-Add `import com.ppnam.station2aa.domain.model.HopperBoardEntry`.
+Add `import com.mitas.ppnam.station2aa.domain.model.HopperBoardEntry`.
 
 In `IngredientMessages.kt`, **delete `BomProgressLineResponse` entirely** — `BomLineResponse` replaces it.
 
@@ -267,7 +267,7 @@ Delete the old `isBagFullyAllocated` and `scannedQty`. Follow the compiler to ev
 
 - [ ] **Step 5: Run, then commit**
 
-Run: `./gradlew.bat testDebugUnitTest --tests "com.ppnam.station2aa.domain.model.BomLineTest"` then the full suite. Callers will break — Task 2 fixes `MixingUseCase`; fix any other call site minimally to compile and report it.
+Run: `./gradlew.bat testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.model.BomLineTest"` then the full suite. Callers will break — Task 2 fixes `MixingUseCase`; fix any other call site minimally to compile and report it.
 
 ```bash
 git add app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/JobCardMessages.kt \
@@ -375,7 +375,7 @@ Adapt to the file's existing setup (`mqtt`, `useCase`, its stubbing style). Add 
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `./gradlew.bat testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
+Run: `./gradlew.bat testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
 Expected: FAIL — `lineNumber`/`bagSize`/`availableQty` unresolved on the mapping.
 
 - [ ] **Step 3: Rewrite the mapping**
@@ -483,7 +483,7 @@ remains required after an approved waiver."
 Create `app/src/test/java/com/ppnam/station2aa/data/mqtt/dto/IngredientScanResultTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt.dto
+package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 import com.google.gson.Gson
 import org.junit.Assert.assertEquals
@@ -565,7 +565,7 @@ class IngredientScanResultTest {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `./gradlew.bat testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.dto.IngredientScanResultTest"`
+Run: `./gradlew.bat testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.dto.IngredientScanResultTest"`
 Expected: FAIL — `overCollectionToleranceBags`, `approverUserId`, `ingredients`, `hoppers` unresolved.
 
 - [ ] **Step 3: Rewrite the response**

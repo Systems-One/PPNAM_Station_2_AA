@@ -10,13 +10,13 @@
 
 ## Global Constraints
 
-- Package root: `com.ppnam.station2aa`.
+- Package root: `com.mitas.ppnam.station2aa`.
 - Contract envelope defaults: `schemaVersion = "1.0"`, `operatorSessionId = ""` when absent.
 - Default configured device identity: `deviceId = "handheld_1"` (`AppSettings.deviceId`).
 - Login and logout are never offline-queued (`allowOfflineQueue = false` always) — see spec §1.5.
 - Operator session lives in memory only (`OperatorSessionHolder`); nothing is persisted to disk. A fresh app process always starts at `LoginScreen`.
 - Correlate a typed response to its request by response topic suffix only (next message whose topic ends in the expected `responseType` wins) — login/logout are single-in-flight per screen, so this is sufficient for this phase. Stricter `messageId` matching is deferred (spec §8).
-- Test command: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.<FullyQualifiedClassName>"` (run the whole suite with `./gradlew testDebugUnitTest` before the final commit of the plan).
+- Test command: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.<FullyQualifiedClassName>"` (run the whole suite with `./gradlew testDebugUnitTest` before the final commit of the plan).
 - Source spec: `docs/superpowers/specs/2026-07-01-mqtt-contract-foundation-login-design.md`. Two deviations from that spec, discovered during planning:
   1. `MqttTopics`' existing `request(stationName)` / `response(stationName, deviceId)` functions are kept as-is (still used by the old kebab-case `send()` path) and the new contract topic functions are added under distinct names (`contractRequest`, `contractResponse`, `contractResponseWildcard`, `deviceStatus`, `stationStatus`) rather than reusing the old names — reusing them would have created a duplicate-signature compile error between the old `response(String, String)` and a same-shaped new one.
   2. Spec §4.3's app-wide "session-loss observer" (a `SessionViewModel` that redirects to `Login` if the session unexpectedly clears) is **not** built in this plan. Nothing in this phase — or any use case that exists yet — can trigger that condition (no later-phase message can invalidate a session server-side), so the observer would be unreachable dead code. Build it in the phase that first adds a use case capable of clearing the session unexpectedly.
@@ -46,7 +46,7 @@ Add to `app/src/test/java/com/ppnam/station2aa/domain/model/AppSettingsTest.kt` 
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.model.AppSettingsTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.model.AppSettingsTest"`
 Expected: FAIL — `deviceId` is not a member of `AppSettings`.
 
 - [ ] **Step 3: Add the field to `AppSettings`**
@@ -54,7 +54,7 @@ Expected: FAIL — `deviceId` is not a member of `AppSettings`.
 `app/src/main/java/com/ppnam/station2aa/domain/model/AppSettings.kt` — full file:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 data class AppSettings(
     val stationName: String = "Station 2",
@@ -73,7 +73,7 @@ data class AppSettings(
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.model.AppSettingsTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.model.AppSettingsTest"`
 Expected: PASS
 
 - [ ] **Step 5: Persist the field in `SettingsRepository`**
@@ -81,12 +81,12 @@ Expected: PASS
 `app/src/main/java/com/ppnam/station2aa/data/settings/SettingsRepository.kt` — full file:
 
 ```kotlin
-package com.ppnam.station2aa.data.settings
+package com.mitas.ppnam.station2aa.data.settings
 
 import android.content.Context
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import com.ppnam.station2aa.domain.model.AppSettings
+import com.mitas.ppnam.station2aa.domain.model.AppSettings
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -220,7 +220,7 @@ Append to `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttTopicsTest.kt` (
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttTopicsTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttTopicsTest"`
 Expected: FAIL — `contractRequest`, `contractResponse`, `contractResponseWildcard`, `deviceStatus`, `stationStatus`, `responseTypeOf` are unresolved references.
 
 - [ ] **Step 3: Implement the new functions**
@@ -228,7 +228,7 @@ Expected: FAIL — `contractRequest`, `contractResponse`, `contractResponseWildc
 `app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttTopics.kt` — full file:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 object MqttTopics {
     fun request(stationName: String): String =
@@ -262,7 +262,7 @@ object MqttTopics {
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttTopicsTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttTopicsTest"`
 Expected: PASS (11 tests total, including the 4 pre-existing ones, all green)
 
 - [ ] **Step 5: Commit**
@@ -288,7 +288,7 @@ git commit -m "feat(mqtt): add RFID contract topic functions to MqttTopics"
 `app/src/test/java/com/ppnam/station2aa/data/mqtt/dto/AuthMessagesTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt.dto
+package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 import com.google.gson.Gson
 import com.google.gson.JsonParser
@@ -396,15 +396,15 @@ class AuthMessagesTest {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.dto.AuthMessagesTest"`
-Expected: FAIL — the `com.ppnam.station2aa.data.mqtt.dto` package and its classes don't exist yet.
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.dto.AuthMessagesTest"`
+Expected: FAIL — the `com.mitas.ppnam.station2aa.data.mqtt.dto` package and its classes don't exist yet.
 
 - [ ] **Step 3: Implement the DTOs**
 
 `app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/AuthMessages.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt.dto
+package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 data class ReaderLoginRequest(
     val messageId: String,
@@ -455,7 +455,7 @@ data class OperatorContextResponse(
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.dto.AuthMessagesTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.dto.AuthMessagesTest"`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -484,14 +484,14 @@ git commit -m "feat(mqtt): add typed request/response DTOs for reader login and 
 `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttRepositoryImplTest.kt` — full file (constructor call updated to 3 args; two new `sendTyped` tests added):
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
-import com.ppnam.station2aa.data.local.OfflineQueueDao
-import com.ppnam.station2aa.data.local.OfflineQueueEntity
-import com.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
-import com.ppnam.station2aa.data.settings.SettingsRepository
-import com.ppnam.station2aa.domain.model.HopperAvailability
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueDao
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueEntity
+import com.mitas.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
+import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
+import com.mitas.ppnam.station2aa.domain.model.HopperAvailability
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
@@ -588,7 +588,7 @@ class MqttRepositoryImplTest {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
 Expected: FAIL — `MqttRepositoryImpl` still has a 4-arg constructor, `sendTyped`/`MqttTypedResult` don't exist.
 
 - [ ] **Step 3: Create `MqttTypedResult`**
@@ -596,7 +596,7 @@ Expected: FAIL — `MqttRepositoryImpl` still has a 4-arg constructor, `sendType
 `app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttTypedResult.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 sealed class MqttTypedResult<out T> {
     data class Success<T>(val response: T) : MqttTypedResult<T>()
@@ -611,12 +611,12 @@ sealed class MqttTypedResult<out T> {
 `app/src/main/java/com/ppnam/station2aa/domain/repository/MqttRepository.kt` — full file:
 
 ```kotlin
-package com.ppnam.station2aa.domain.repository
+package com.mitas.ppnam.station2aa.domain.repository
 
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.data.mqtt.MqttTypedResult
-import com.ppnam.station2aa.domain.model.AppSettings
-import com.ppnam.station2aa.domain.model.HopperStatus
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.data.mqtt.MqttTypedResult
+import com.mitas.ppnam.station2aa.domain.model.AppSettings
+import com.mitas.ppnam.station2aa.domain.model.HopperStatus
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -644,17 +644,17 @@ interface MqttRepository {
 `app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttRepositoryImpl.kt` — full file:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.google.gson.Gson
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
-import com.ppnam.station2aa.data.local.OfflineQueueDao
-import com.ppnam.station2aa.data.local.OfflineQueueEntity
-import com.ppnam.station2aa.data.settings.SettingsRepository
-import com.ppnam.station2aa.domain.model.AppSettings
-import com.ppnam.station2aa.domain.model.HopperStatus
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueDao
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueEntity
+import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
+import com.mitas.ppnam.station2aa.domain.model.AppSettings
+import com.mitas.ppnam.station2aa.domain.model.HopperStatus
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.future.await
@@ -889,7 +889,7 @@ class MqttRepositoryImpl @Inject constructor(
 
 - [ ] **Step 6: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
 Expected: PASS (8 tests)
 
 - [ ] **Step 7: Run the full suite to confirm no other test broke**
@@ -920,7 +920,7 @@ git commit -m "feat(mqtt): add typed sendTyped transport and source device id fr
 `app/src/test/java/com/ppnam/station2aa/data/session/OperatorSessionHolderTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.session
+package com.mitas.ppnam.station2aa.data.session
 
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -973,15 +973,15 @@ class OperatorSessionHolderTest {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.session.OperatorSessionHolderTest"`
-Expected: FAIL — the `com.ppnam.station2aa.data.session` package doesn't exist yet.
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.session.OperatorSessionHolderTest"`
+Expected: FAIL — the `com.mitas.ppnam.station2aa.data.session` package doesn't exist yet.
 
 - [ ] **Step 3: Implement**
 
 `app/src/main/java/com/ppnam/station2aa/data/session/OperatorSessionHolder.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.session
+package com.mitas.ppnam.station2aa.data.session
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -1017,7 +1017,7 @@ class OperatorSessionHolder @Inject constructor() {
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.session.OperatorSessionHolderTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.session.OperatorSessionHolderTest"`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -1044,14 +1044,14 @@ git commit -m "feat(session): add in-memory OperatorSessionHolder"
 `app/src/test/java/com/ppnam/station2aa/domain/usecase/AuthUseCaseTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.MqttTypedResult
-import com.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.data.settings.SettingsRepository
-import com.ppnam.station2aa.domain.model.AppSettings
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.MqttTypedResult
+import com.mitas.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
+import com.mitas.ppnam.station2aa.domain.model.AppSettings
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -1169,7 +1169,7 @@ class AuthUseCaseTest {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.AuthUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.AuthUseCaseTest"`
 Expected: FAIL — `AuthUseCase` and `LoginMethod` don't exist yet.
 
 - [ ] **Step 3: Implement**
@@ -1177,18 +1177,18 @@ Expected: FAIL — `AuthUseCase` and `LoginMethod` don't exist yet.
 `app/src/main/java/com/ppnam/station2aa/domain/usecase/AuthUseCase.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
 import com.google.gson.Gson
-import com.ppnam.station2aa.data.mqtt.MqttTypedResult
-import com.ppnam.station2aa.data.mqtt.dto.LoginTagScannedRequest
-import com.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
-import com.ppnam.station2aa.data.mqtt.dto.ReaderLoginRequest
-import com.ppnam.station2aa.data.mqtt.dto.ReaderLogoutRequest
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.data.settings.SettingsRepository
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.MqttTypedResult
+import com.mitas.ppnam.station2aa.data.mqtt.dto.LoginTagScannedRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ReaderLoginRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ReaderLogoutRequest
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
@@ -1300,7 +1300,7 @@ class AuthUseCase @Inject constructor(
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.AuthUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.AuthUseCaseTest"`
 Expected: PASS (5 tests)
 
 - [ ] **Step 5: Commit**
@@ -1327,16 +1327,16 @@ git commit -m "feat(auth): add AuthUseCase for reader login and logout"
 `app/src/test/java/com/ppnam/station2aa/ui/login/LoginViewModelTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.login
+package com.mitas.ppnam.station2aa.ui.login
 
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.AuthUseCase
-import com.ppnam.station2aa.domain.usecase.LoginMethod
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.LoginMethod
 import java.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -1453,7 +1453,7 @@ class LoginViewModelTest {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.login.LoginViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.login.LoginViewModelTest"`
 Expected: FAIL — `LoginViewModel`, `LoginUiState` don't exist yet.
 
 - [ ] **Step 3: Implement**
@@ -1461,17 +1461,17 @@ Expected: FAIL — `LoginViewModel`, `LoginUiState` don't exist yet.
 `app/src/main/java/com/ppnam/station2aa/ui/login/LoginViewModel.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.login
+package com.mitas.ppnam.station2aa.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.AuthUseCase
-import com.ppnam.station2aa.domain.usecase.LoginMethod
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.LoginMethod
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -1553,7 +1553,7 @@ class LoginViewModel @Inject constructor(
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.login.LoginViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.login.LoginViewModelTest"`
 Expected: PASS (5 tests)
 
 - [ ] **Step 5: Commit**
@@ -1579,7 +1579,7 @@ git commit -m "feat(login): add LoginViewModel with credentials and badge-scan l
 `app/src/main/java/com/ppnam/station2aa/ui/login/LoginScreen.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.login
+package com.mitas.ppnam.station2aa.ui.login
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -1594,8 +1594,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.*
 
 @Composable
 fun LoginScreen(
@@ -1737,7 +1737,7 @@ git commit -m "feat(login): add LoginScreen with credentials form and badge-scan
 `app/src/main/java/com/ppnam/station2aa/navigation/NavRoutes.kt` — full file:
 
 ```kotlin
-package com.ppnam.station2aa.navigation
+package com.mitas.ppnam.station2aa.navigation
 
 object NavRoutes {
     const val LOGIN = "login"
@@ -1764,7 +1764,7 @@ object NavRoutes {
 `app/src/main/java/com/ppnam/station2aa/navigation/AppNavGraph.kt` — modify the top of the file (imports and the `NavHost` opening):
 
 ```kotlin
-package com.ppnam.station2aa.navigation
+package com.mitas.ppnam.station2aa.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -1773,18 +1773,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.ppnam.station2aa.ui.dashboard.DashboardScreen
-import com.ppnam.station2aa.ui.home.HomeScreen
-import com.ppnam.station2aa.ui.login.LoginScreen
-import com.ppnam.station2aa.ui.mixing.HopperScanScreen
-import com.ppnam.station2aa.ui.mixing.IngredientScanScreen
-import com.ppnam.station2aa.ui.mixing.JobLookupScreen
-import com.ppnam.station2aa.ui.mixing.MixingViewModel
-import com.ppnam.station2aa.ui.mixing.PreMixCompleteScreen
-import com.ppnam.station2aa.ui.rajoo.MachineSelectScreen
-import com.ppnam.station2aa.ui.rajoo.PalletAllocScreen
-import com.ppnam.station2aa.ui.rfid.RfidRecoveryScreen
-import com.ppnam.station2aa.ui.settings.SettingsScreen
+import com.mitas.ppnam.station2aa.ui.dashboard.DashboardScreen
+import com.mitas.ppnam.station2aa.ui.home.HomeScreen
+import com.mitas.ppnam.station2aa.ui.login.LoginScreen
+import com.mitas.ppnam.station2aa.ui.mixing.HopperScanScreen
+import com.mitas.ppnam.station2aa.ui.mixing.IngredientScanScreen
+import com.mitas.ppnam.station2aa.ui.mixing.JobLookupScreen
+import com.mitas.ppnam.station2aa.ui.mixing.MixingViewModel
+import com.mitas.ppnam.station2aa.ui.mixing.PreMixCompleteScreen
+import com.mitas.ppnam.station2aa.ui.rajoo.MachineSelectScreen
+import com.mitas.ppnam.station2aa.ui.rajoo.PalletAllocScreen
+import com.mitas.ppnam.station2aa.ui.rfid.RfidRecoveryScreen
+import com.mitas.ppnam.station2aa.ui.settings.SettingsScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController = rememberNavController()) {
@@ -1841,14 +1841,14 @@ Do not commit yet. Proceed directly to Task 10.
 `app/src/test/java/com/ppnam/station2aa/ui/home/HomeViewModelTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.home
+package com.mitas.ppnam.station2aa.ui.home
 
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -1915,7 +1915,7 @@ class HomeViewModelTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.home.HomeViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.home.HomeViewModelTest"`
 Expected: FAIL — `HomeViewModel` doesn't take `AuthUseCase`/`OperatorSessionHolder`, has no `session`/`logout()`/`logoutEvent`.
 
 - [ ] **Step 3: Add optional operator identity + logout to `AppScaffold`**
@@ -1923,7 +1923,7 @@ Expected: FAIL — `HomeViewModel` doesn't take `AuthUseCase`/`OperatorSessionHo
 `app/src/main/java/com/ppnam/station2aa/ui/components/AppScaffold.kt` — full file:
 
 ```kotlin
-package com.ppnam.station2aa.ui.components
+package com.mitas.ppnam.station2aa.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -1942,8 +1942,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -2056,16 +2056,16 @@ fun AppScaffold(
 `app/src/main/java/com/ppnam/station2aa/ui/home/HomeViewModel.kt` — full file:
 
 ```kotlin
-package com.ppnam.station2aa.ui.home
+package com.mitas.ppnam.station2aa.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -2103,7 +2103,7 @@ Note `mqttRepository.connect()` is no longer called here — `LoginViewModel.ini
 
 - [ ] **Step 5: Run `HomeViewModelTest` to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.home.HomeViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.home.HomeViewModelTest"`
 Expected: PASS (2 tests)
 
 - [ ] **Step 6: Wire operator identity + logout into `HomeScreen`**

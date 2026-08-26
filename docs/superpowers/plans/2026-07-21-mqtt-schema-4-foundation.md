@@ -1705,7 +1705,7 @@ git commit -m "feat(sim): v4 selftest — five-area mixing flows, drum gate, str
 - `MqttRequestCorrelationTest.kt:62`: `"schemaVersion":"3.0"` → `"schemaVersion":"4.0"` in the `respond()` template.
 - `ResponseEnvelopeTest.kt:19` and `:34`: `"3.0"` → `"4.0"`.
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.*"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.*"`
 Expected: FAIL (`MqttSchema.VERSION` still "3.0").
 
 - [ ] **Step 2: Bump the constant**
@@ -1713,7 +1713,7 @@ Expected: FAIL (`MqttSchema.VERSION` still "3.0").
 `MqttSchema.kt` becomes:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 /**
  * The one place the wire schema version is defined. Contract v4.0 rejects any request whose
@@ -1732,7 +1732,7 @@ Run the same tests. Expected: PASS.
 `MqttVocabulary.kt` becomes:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 /**
  * Contract v4.0 `errorCode`. A value class rather than an enum: codes are shared across message
@@ -1799,7 +1799,7 @@ value class NextAction(val raw: String) {
 - [ ] **Step 4: Remove the hopper board and other retired tokens**
 
 1. `git rm app/src/main/java/com/ppnam/station2aa/domain/model/HopperBoard.kt`
-2. `IngredientMessages.kt`: delete `import com.ppnam.station2aa.domain.model.HopperBoardEntry` and the `hoppers` field (with its doc line) from `IngredientScanResultResponse`.
+2. `IngredientMessages.kt`: delete `import com.mitas.ppnam.station2aa.domain.model.HopperBoardEntry` and the `hoppers` field (with its doc line) from `IngredientScanResultResponse`.
 3. `JobCardMessages.kt`: delete the same import and the `hoppers` field from `BomLoadedResponse`; change the `collectionStatus` doc to `/** Collecting | ReadyForMixing | Mixing | Cancelled */`; rename `IngredientCollectionCancelResultResponse.preMixId` → `collectionId` and `preMixStatus` → `collectionStatus` (grep `preMixId`/`preMixStatus` under `app/src` — expected: no other usages; fix any found).
 4. `ProductionOrder.kt:10`: doc becomes `/** Collecting | ReadyForMixing | Mixing | Cancelled. */`
 5. `MixingViewModel.kt:482-485`: reword the comment to v4 — replace the three lines starting `// Waits for premix_cancel_result ...` with:
@@ -1910,7 +1910,7 @@ Add to `MixingUseCaseTest.kt`:
 
 Note: this test already uses the Task 8 parameter order (`requestedMaterialCode` third, bag fields named). Until Task 8 lands, write the call as the current signature `useCase.scanIngredient("COL_000001", "TAG-1", "full", 2.0, "MAT-001")` and update it in Task 8's mechanical sweep.
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
 Expected: FAIL (compile — `Accepted` has no such fields).
 
 - [ ] **Step 2: Enrich the DTO and the outcome**
@@ -1925,7 +1925,7 @@ Expected: FAIL (compile — `Accepted` has no such fields).
 `IngredientScanOutcome.kt` — replace the `Accepted` class and add the import:
 
 ```kotlin
-import com.ppnam.station2aa.data.mqtt.NextAction
+import com.mitas.ppnam.station2aa.data.mqtt.NextAction
 ```
 
 ```kotlin
@@ -2007,7 +2007,7 @@ Add to `MixingViewModelTest.kt`:
                 collectionSummary = "All products collected.",
                 collectionStatus = "ReadyForMixing",
                 overCollectionToleranceBags = 1.0,
-                nextAction = com.ppnam.station2aa.data.mqtt.NextAction.START_MIXING,
+                nextAction = com.mitas.ppnam.station2aa.data.mqtt.NextAction.START_MIXING,
             )))
         viewModel.confirmIngredientScan("TAG-1", "full", 2.0)
         advanceUntilIdle()
@@ -2020,7 +2020,7 @@ Add to `MixingViewModelTest.kt`:
 
 (Until Task 8 lands, match the current mock signature: `scanIngredient(any(), any(), any(), any(), any())` with the five current parameters; Task 8's sweep updates it.)
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: PASS. Then run the full unit suite — existing `Accepted(...)` constructions in tests need the new named fields added; give them `collectionSummary = ""`, `collectionStatus = "Collecting"`, `overCollectionToleranceBags = null`, `nextAction = NextAction.SCAN_INGREDIENT` unless the test asserts otherwise.
 
 - [ ] **Step 6: Commit**
@@ -2296,7 +2296,7 @@ Add to `MixingViewModelTest.kt` (the bulk sample order):
 
     @Test
     fun `a scan with a bulk line armed opens quantity entry, not the bag picker`() = runTest {
-        val events = MutableSharedFlow<com.ppnam.station2aa.data.rfid.ScanEvent>()
+        val events = MutableSharedFlow<com.mitas.ppnam.station2aa.data.rfid.ScanEvent>()
         whenever(mockScanEventBus.events).thenReturn(events)
         val vm = MixingViewModel(mockUseCase, mockScanEventBus, mockMqttRepository, mockAuthUseCase, mockSessionHolder)
         whenever(mockUseCase.lookupJob("510019068")).thenReturn(Result.success(bulkOrder))
@@ -2304,7 +2304,7 @@ Add to `MixingViewModelTest.kt` (the bulk sample order):
         advanceUntilIdle()
         vm.selectLine(0)
         vm.startListeningForPalletScans("510019068")
-        events.emit(com.ppnam.station2aa.data.rfid.ScanEvent.RfidTag("EPC:1", java.time.Instant.now()))
+        events.emit(com.mitas.ppnam.station2aa.data.rfid.ScanEvent.RfidTag("EPC:1", java.time.Instant.now()))
         advanceUntilIdle()
         assertTrue(vm.uiState.value is MixingUiState.EnteringQuantityDetails)
     }
@@ -2336,7 +2336,7 @@ Add to `MixingViewModelTest.kt` (the bulk sample order):
     }
 ```
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: PASS.
 
 - [ ] **Step 6: The quantity dialog**
@@ -2436,7 +2436,7 @@ Add to `MixingViewModelTest.kt`:
 
     @Test
     fun `a stray scan while the first-attempt waiver dialog is open is ignored`() = runTest {
-        val events = MutableSharedFlow<com.ppnam.station2aa.data.rfid.ScanEvent>()
+        val events = MutableSharedFlow<com.mitas.ppnam.station2aa.data.rfid.ScanEvent>()
         whenever(mockScanEventBus.events).thenReturn(events)
         val vm = MixingViewModel(mockUseCase, mockScanEventBus, mockMqttRepository, mockAuthUseCase, mockSessionHolder)
         val baggedOrder = sampleOrder.copy(lines = listOf(
@@ -2448,7 +2448,7 @@ Add to `MixingViewModelTest.kt`:
         vm.startListeningForPalletScans("510019068")
         vm.openShortBagWaiver("MAT-001")
 
-        events.emit(com.ppnam.station2aa.data.rfid.ScanEvent.RfidTag("EPC:STRAY", java.time.Instant.now()))
+        events.emit(com.mitas.ppnam.station2aa.data.rfid.ScanEvent.RfidTag("EPC:STRAY", java.time.Instant.now()))
         advanceUntilIdle()
 
         assertTrue("dialog must survive a stray scan",
@@ -2456,7 +2456,7 @@ Add to `MixingViewModelTest.kt`:
     }
 ```
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: FAIL (no such state/functions).
 
 - [ ] **Step 2: Add the state and the open/dismiss pair**

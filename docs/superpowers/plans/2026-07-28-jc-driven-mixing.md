@@ -6,7 +6,7 @@
 
 **Architecture:** Hard cutover — plan and reservation code is deleted, not flagged off. The wire layer (`MixingMessages.kt`) is reshaped first, then the domain and use case, then the ViewModel and Compose screen. The one safety property worth naming: `MachineCycleStartPayload` gains six optional fields that could be combined illegally, so nothing constructs it directly — six named use-case functions are the only builders.
 
-**Tech Stack:** Kotlin, Jetpack Compose, Hilt, Gson, Coroutines, JUnit4 + Mockito-Kotlin. Package `com.ppnam.station2aa`.
+**Tech Stack:** Kotlin, Jetpack Compose, Hilt, Gson, Coroutines, JUnit4 + Mockito-Kotlin. Package `com.mitas.ppnam.station2aa`.
 
 **Spec:** `docs/superpowers/specs/2026-07-28-jc-driven-mixing-design.md`
 
@@ -181,7 +181,7 @@ In `NextAction`: delete `START_MIXING`, `SELECT_COLLECTION_MIX_OR_MACHINE`, `SAV
         }
 ```
 
-Also delete the now-unused `import com.ppnam.station2aa.data.mqtt.ErrorCode` from that file if nothing else references it. (This function is deleted entirely in Task 5; it is kept compiling here only so this task ends green.)
+Also delete the now-unused `import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode` from that file if nothing else references it. (This function is deleted entirely in Task 5; it is kept compiling here only so this task ends green.)
 
 In the two test files, replace `NextAction.START_MIXING` with `NextAction.OPEN_MIXING` and `NextAction.SELECT_COLLECTION_MIX_OR_MACHINE` with `NextAction.SELECT_COLLECTION` (stub values — the assertions do not depend on which action it is).
 
@@ -522,7 +522,7 @@ Delete `assignOrStartDownstream` entirely and, in `confirmStart`, call `useCase.
             }
 ```
 
-Delete `import com.ppnam.station2aa.domain.model.EquipmentRole` if unused, and the `AssignedDestination` import.
+Delete `import com.mitas.ppnam.station2aa.domain.model.EquipmentRole` if unused, and the `AssignedDestination` import.
 
 - [ ] **Step 7: Update the remaining tests**
 
@@ -899,7 +899,7 @@ object JandiRoute {
  * `machine_cycle_start_requested` — one payload covering six variants.
  *
  * The optional fields could be combined illegally, so nothing constructs this directly: the six
- * named functions on [com.ppnam.station2aa.domain.usecase.MixingBoardUseCase] are the only
+ * named functions on [com.mitas.ppnam.station2aa.domain.usecase.MixingBoardUseCase] are the only
  * builders, and each populates exactly one legal combination.
  *
  * | Variant | Fields sent |
@@ -1047,7 +1047,7 @@ In `MixingBoardUseCase.kt`, delete `startMixer`, `startRajoo` and `startDownstre
         MachineCycleOutcome.Rejected(errorCode = null, reason = reason, areaStatus = null)
 ```
 
-Add `import com.ppnam.station2aa.data.mqtt.dto.JandiRoute`.
+Add `import com.mitas.ppnam.station2aa.data.mqtt.dto.JandiRoute`.
 
 - [ ] **Step 5: Route the ViewModel's dispatch**
 
@@ -1091,7 +1091,7 @@ In `MixingBoardViewModel.kt`, replace `confirmStart`'s outcome `when` with a dis
 
 `sheet.selectedRoute` is added in Task 7; for this task add it to `BoardSheet.StartConfirm` as `val selectedRoute: String? = null` so this compiles, and leave the picker UI to Task 7.
 
-Restore `import com.ppnam.station2aa.domain.model.EquipmentRole` if Task 3 removed it.
+Restore `import com.mitas.ppnam.station2aa.domain.model.EquipmentRole` if Task 3 removed it.
 
 - [ ] **Step 6: Run the full suite**
 
@@ -1552,7 +1552,7 @@ machine is the JANDI shared mixer:
                 }
 ```
 
-Add `import com.ppnam.station2aa.data.mqtt.dto.JandiRoute`.
+Add `import com.mitas.ppnam.station2aa.data.mqtt.dto.JandiRoute`.
 
 In `confirmStart`, add the JANDI 4 branch ahead of the selection `when`:
 

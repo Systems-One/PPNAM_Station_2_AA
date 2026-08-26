@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Package: `com.ppnam.station2aa` · minSdk 26 · targetSdk 35 · Kotlin 2.0.0
+- Package: `com.mitas.ppnam.station2aa` · minSdk 26 · targetSdk 35 · Kotlin 2.0.0
 - No SAP calls from Android — all SAP goes through WPF via MQTT
 - Door/fixed-reader events are local to WPF — never triggered from this app
 - SAP production orders are **never closed** from this app
@@ -199,7 +199,7 @@ androidTestImplementation(libs.room.testing)
 - [ ] **Step 4: Create `PpnamApplication.kt`**
 
 ```kotlin
-package com.ppnam.station2aa
+package com.mitas.ppnam.station2aa
 
 import android.app.Application
 import androidx.work.Configuration
@@ -258,7 +258,7 @@ git commit -m "feat: add Hilt, Room, MQTT, WorkManager, Navigation dependencies"
 - [ ] **Step 1: Create `domain/model/Pallet.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 data class Pallet(
     val tagId: String,
@@ -271,7 +271,7 @@ data class Pallet(
 - [ ] **Step 2: Create `domain/model/ProductionOrder.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 data class ProductionOrder(
     val docNo: String,
@@ -291,7 +291,7 @@ data class BomLine(
 - [ ] **Step 3: Create `domain/model/PreMix.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 import java.time.Instant
 
@@ -316,7 +316,7 @@ enum class PreMixStatus { IN_PROGRESS, COMPLETE, ALLOCATED }
 - [ ] **Step 4: Create `domain/model/AllocationRecord.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 import java.time.Instant
 
@@ -358,7 +358,7 @@ git commit -m "feat: add domain models (Pallet, ProductionOrder, PreMix, Allocat
 - [ ] **Step 1: Create `OfflineQueueEntity.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.local
+package com.mitas.ppnam.station2aa.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -377,7 +377,7 @@ data class OfflineQueueEntity(
 - [ ] **Step 2: Create `OfflineQueueDao.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.local
+package com.mitas.ppnam.station2aa.data.local
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
@@ -410,7 +410,7 @@ interface OfflineQueueDao {
 - [ ] **Step 3: Create `BomCacheEntity.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.local
+package com.mitas.ppnam.station2aa.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -426,7 +426,7 @@ data class BomCacheEntity(
 - [ ] **Step 4: Create `BomCacheDao.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.local
+package com.mitas.ppnam.station2aa.data.local
 
 import androidx.room.*
 
@@ -446,7 +446,7 @@ interface BomCacheDao {
 - [ ] **Step 5: Create `AppDatabase.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.local
+package com.mitas.ppnam.station2aa.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
@@ -465,7 +465,7 @@ abstract class AppDatabase : RoomDatabase() {
 - [ ] **Step 6: Write `OfflineQueueDaoTest.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.local
+package com.mitas.ppnam.station2aa.data.local
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -530,7 +530,7 @@ class OfflineQueueDaoTest {
 - [ ] **Step 7: Write `BomCacheDaoTest.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.local
+package com.mitas.ppnam.station2aa.data.local
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -608,7 +608,7 @@ git commit -m "feat: add Room database (OfflineQueueDao, BomCacheDao) with DAO t
 - [ ] **Step 1: Create `ScanEventBus.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.rfid
+package com.mitas.ppnam.station2aa.data.rfid
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -634,9 +634,9 @@ class ScanEventBus @Inject constructor() {
 - [ ] **Step 2: Create `ScanRepository.kt` interface**
 
 ```kotlin
-package com.ppnam.station2aa.domain.repository
+package com.mitas.ppnam.station2aa.domain.repository
 
-import com.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import kotlinx.coroutines.flow.SharedFlow
 
 interface ScanRepository {
@@ -649,7 +649,7 @@ interface ScanRepository {
 DataWedge broadcasts scan results as intents. The action and data key strings below are standard DataWedge defaults; update them if OI-2 supplies device-specific values.
 
 ```kotlin
-package com.ppnam.station2aa.data.rfid
+package com.mitas.ppnam.station2aa.data.rfid
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -682,7 +682,7 @@ class DataWedgeReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val ACTION_SCAN = "com.ppnam.station2aa.ACTION_SCAN"
+        const val ACTION_SCAN = "com.mitas.ppnam.station2aa.ACTION_SCAN"
         const val EXTRA_DATA = "com.symbol.datawedge.data_string"
         const val EXTRA_SOURCE = "com.symbol.datawedge.source"
         const val EXTRA_LABEL_TYPE = "com.symbol.datawedge.label_type"
@@ -698,7 +698,7 @@ Inside `<application>`, add:
     android:name=".data.rfid.DataWedgeReceiver"
     android:exported="false">
     <intent-filter>
-        <action android:name="com.ppnam.station2aa.ACTION_SCAN" />
+        <action android:name="com.mitas.ppnam.station2aa.ACTION_SCAN" />
     </intent-filter>
 </receiver>
 ```
@@ -731,9 +731,9 @@ git commit -m "feat: add DataWedge RFID/barcode integration via ScanEventBus"
 - [ ] **Step 1: Create `MqttTopics.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
-import com.ppnam.station2aa.BuildConfig
+import com.mitas.ppnam.station2aa.BuildConfig
 
 object MqttTopics {
     const val BROKER_HOST: String = BuildConfig.MQTT_HOST
@@ -746,7 +746,7 @@ object MqttTopics {
 - [ ] **Step 2: Create `MqttMessages.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 data class MqttRequest(
     val correlationId: String,
@@ -793,9 +793,9 @@ git commit -m "feat: add MQTT topic constants and message models"
 - [ ] **Step 1: Create `MqttRepository.kt` interface**
 
 ```kotlin
-package com.ppnam.station2aa.domain.repository
+package com.mitas.ppnam.station2aa.domain.repository
 
-import com.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
 import kotlinx.coroutines.flow.StateFlow
 
 enum class MqttConnectionState { CONNECTED, RECONNECTING, DISCONNECTED }
@@ -811,12 +811,12 @@ interface MqttRepository {
 - [ ] **Step 2: Write the failing tests**
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
-import com.ppnam.station2aa.data.local.OfflineQueueDao
-import com.ppnam.station2aa.data.local.OfflineQueueEntity
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueDao
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
@@ -861,7 +861,7 @@ class MqttRepositoryImplTest {
     @Test
     fun `initial connection state is DISCONNECTED`() = runTest {
         assertEquals(
-            com.ppnam.station2aa.domain.repository.MqttConnectionState.DISCONNECTED,
+            com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState.DISCONNECTED,
             repo.connectionState.first()
         )
     }
@@ -876,16 +876,16 @@ Expected: Compilation failure — `MqttRepositoryImpl` does not exist yet.
 - [ ] **Step 4: Create `MqttRepositoryImpl.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 import android.content.Context
 import android.provider.Settings
 import com.google.gson.Gson
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
-import com.ppnam.station2aa.data.local.OfflineQueueDao
-import com.ppnam.station2aa.data.local.OfflineQueueEntity
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueDao
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueEntity
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -1027,10 +1027,10 @@ git commit -m "feat: add MqttRepository with correlation-ID request/response and
 - [ ] **Step 1: Create `OfflineQueueRepository.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.data.local
+package com.mitas.ppnam.station2aa.data.local
 
-import com.ppnam.station2aa.data.mqtt.MqttRepositoryImpl
-import com.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImpl
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -1065,13 +1065,13 @@ class OfflineQueueRepository @Inject constructor(
 - [ ] **Step 2: Create `OfflineQueueWorker.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.worker
+package com.mitas.ppnam.station2aa.worker
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -1120,20 +1120,20 @@ git commit -m "feat: add OfflineQueueRepository drain logic and WorkManager retr
 - [ ] **Step 1: Create `AppModule.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.di
+package com.mitas.ppnam.station2aa.di
 
 import android.content.Context
 import androidx.room.Room
 import androidx.work.*
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
-import com.ppnam.station2aa.data.local.AppDatabase
-import com.ppnam.station2aa.data.local.BomCacheDao
-import com.ppnam.station2aa.data.local.OfflineQueueDao
-import com.ppnam.station2aa.data.mqtt.MqttRepositoryImpl
-import com.ppnam.station2aa.data.mqtt.MqttTopics
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.worker.OfflineQueueWorker
+import com.mitas.ppnam.station2aa.data.local.AppDatabase
+import com.mitas.ppnam.station2aa.data.local.BomCacheDao
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueDao
+import com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImpl
+import com.mitas.ppnam.station2aa.data.mqtt.MqttTopics
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.worker.OfflineQueueWorker
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -1220,7 +1220,7 @@ git commit -m "feat: wire Hilt DI module (Room, MQTT client, WorkManager)"
 - [ ] **Step 1: Create `NavRoutes.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.navigation
+package com.mitas.ppnam.station2aa.navigation
 
 object NavRoutes {
     const val HOME = "home"
@@ -1243,7 +1243,7 @@ object NavRoutes {
 - [ ] **Step 2: Create `ConnectionStatusBar.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.components
+package com.mitas.ppnam.station2aa.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -1255,7 +1255,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 
 @Composable
 fun ConnectionStatusBar(state: MqttConnectionState, pendingCount: Int) {
@@ -1280,13 +1280,13 @@ fun ConnectionStatusBar(state: MqttConnectionState, pendingCount: Int) {
 - [ ] **Step 3: Create `HomeViewModel.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.home
+package com.mitas.ppnam.station2aa.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -1312,7 +1312,7 @@ class HomeViewModel @Inject constructor(
 - [ ] **Step 4: Create `HomeScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.home
+package com.mitas.ppnam.station2aa.ui.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -1321,7 +1321,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.ui.components.ConnectionStatusBar
+import com.mitas.ppnam.station2aa.ui.components.ConnectionStatusBar
 
 @Composable
 fun HomeScreen(
@@ -1363,14 +1363,14 @@ fun HomeScreen(
 - [ ] **Step 5: Create `AppNavGraph.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.navigation
+package com.mitas.ppnam.station2aa.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.ppnam.station2aa.ui.home.HomeScreen
+import com.mitas.ppnam.station2aa.ui.home.HomeScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController = rememberNavController()) {
@@ -1396,14 +1396,14 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
 
 Replace the file content with:
 ```kotlin
-package com.ppnam.station2aa
+package com.mitas.ppnam.station2aa
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.ppnam.station2aa.navigation.AppNavGraph
-import com.ppnam.station2aa.ui.theme.PPNAMStation2AATheme
+import com.mitas.ppnam.station2aa.navigation.AppNavGraph
+import com.mitas.ppnam.station2aa.ui.theme.PPNAMStation2AATheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -1452,12 +1452,12 @@ git commit -m "feat: navigation scaffold, home screen, connection status bar"
 - [ ] **Step 1: Write the failing tests**
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.local.BomCacheDao
-import com.ppnam.station2aa.data.local.BomCacheEntity
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.local.BomCacheDao
+import com.mitas.ppnam.station2aa.data.local.BomCacheEntity
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -1531,7 +1531,7 @@ class MixingUseCaseTest {
             orderNo = "510019068",
             mixerCode = "MIX-01",
             ingredients = listOf(
-                com.ppnam.station2aa.domain.model.ScannedIngredient("TAG-001", "MAT-001", 50.0)
+                com.mitas.ppnam.station2aa.domain.model.ScannedIngredient("TAG-001", "MAT-001", 50.0)
             )
         )
         assertTrue(result.isSuccess)
@@ -1547,15 +1547,15 @@ Expected: Compilation failure — `MixingUseCase` does not exist yet.
 - [ ] **Step 3: Create `MixingUseCase.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
 import com.google.gson.Gson
-import com.ppnam.station2aa.data.local.BomCacheDao
-import com.ppnam.station2aa.data.local.BomCacheEntity
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.model.ProductionOrder
-import com.ppnam.station2aa.domain.model.ScannedIngredient
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.local.BomCacheDao
+import com.mitas.ppnam.station2aa.data.local.BomCacheEntity
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.model.ProductionOrder
+import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import java.time.Instant
 import javax.inject.Inject
 
@@ -1609,15 +1609,15 @@ Expected: All 5 tests pass.
 - [ ] **Step 5: Create `MixingViewModel.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.model.ProductionOrder
-import com.ppnam.station2aa.domain.model.ScannedIngredient
-import com.ppnam.station2aa.domain.usecase.MixingUseCase
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.model.ProductionOrder
+import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient
+import com.mitas.ppnam.station2aa.domain.usecase.MixingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -1688,7 +1688,7 @@ class MixingViewModel @Inject constructor(
 - [ ] **Step 6: Create `JobLookupScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -1788,7 +1788,7 @@ git commit -m "feat: MixingUseCase (lookupJob, validateIngredient, completePremi
 - [ ] **Step 1: Create `IngredientScanScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -1836,7 +1836,7 @@ fun IngredientScanScreen(
 - [ ] **Step 2: Create `MixerCodeScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -1886,7 +1886,7 @@ fun MixerCodeScreen(
 - [ ] **Step 3: Create `PreMixCompleteScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -1990,10 +1990,10 @@ git commit -m "feat: complete mixing flow screens (IngredientScan, MixerCode, Pr
 - [ ] **Step 1: Write failing tests**
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -2043,10 +2043,10 @@ Expected: Compilation failure.
 - [ ] **Step 3: Create `RajooUseCase.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import javax.inject.Inject
 
 class RajooUseCase @Inject constructor(private val mqttRepository: MqttRepository) {
@@ -2070,13 +2070,13 @@ Expected: All 3 tests pass.
 - [ ] **Step 5: Create `RajooViewModel.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.rajoo
+package com.mitas.ppnam.station2aa.ui.rajoo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.usecase.RajooUseCase
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.usecase.RajooUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -2136,7 +2136,7 @@ class RajooViewModel @Inject constructor(
 - [ ] **Step 6: Create `MachineSelectScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.rajoo
+package com.mitas.ppnam.station2aa.ui.rajoo
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -2185,7 +2185,7 @@ fun MachineSelectScreen(
 - [ ] **Step 7: Create `PalletAllocScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.rajoo
+package com.mitas.ppnam.station2aa.ui.rajoo
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -2275,10 +2275,10 @@ git commit -m "feat: Rajoo allocation flow (MachineSelect, PalletAlloc) with use
 - [ ] **Step 1: Write failing tests**
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -2321,10 +2321,10 @@ Expected: Compilation failure.
 - [ ] **Step 3: Create `RfidUseCase.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import javax.inject.Inject
 
 class RfidUseCase @Inject constructor(private val mqttRepository: MqttRepository) {
@@ -2348,13 +2348,13 @@ Expected: Both tests pass.
 - [ ] **Step 5: Create `RfidViewModel.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.rfid
+package com.mitas.ppnam.station2aa.ui.rfid
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.usecase.RfidUseCase
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.usecase.RfidUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -2399,7 +2399,7 @@ class RfidViewModel @Inject constructor(
 - [ ] **Step 6: Create `RfidRecoveryScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.rfid
+package com.mitas.ppnam.station2aa.ui.rfid
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -2492,10 +2492,10 @@ git commit -m "feat: RFID recovery flow with use case tests"
 - [ ] **Step 1: Write failing tests**
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -2540,10 +2540,10 @@ Expected: Compilation failure.
 - [ ] **Step 3: Create `DashboardUseCase.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import javax.inject.Inject
 
 class DashboardUseCase @Inject constructor(private val mqttRepository: MqttRepository) {
@@ -2583,11 +2583,11 @@ Expected: Both tests pass.
 - [ ] **Step 5: Create `DashboardViewModel.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.dashboard
+package com.mitas.ppnam.station2aa.ui.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.domain.usecase.DashboardUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.DashboardUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -2645,7 +2645,7 @@ class DashboardViewModel @Inject constructor(
 - [ ] **Step 6: Create `DashboardScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.dashboard
+package com.mitas.ppnam.station2aa.ui.dashboard
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

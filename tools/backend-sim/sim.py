@@ -14,9 +14,9 @@ disagrees with this; reconcile with whichever is actually live before
 testing against the real broker. For a plain factory broker (e.g.
 10.1.50.1:1883, no TLS/auth), pass --transport tcp --no-tls --username "".
 
-The simulator plays the role of station_2:
-  - retained `online` on PPNAM/station_2/status (LWT: retained `offline`)
-  - subscribes PPNAM/+/req/+ and PPNAM/+/status
+The simulator plays the role of station_2 (per-station namespace, 2026-08-17):
+  - retained `online` on the base topic PPNAM/station_2 (LWT: retained `offline`)
+  - subscribes PPNAM/station_2/+/req/+ and PPNAM/station_2/+ (device presence)
   - one worker thread processes requests strictly in arrival order, which is
     exactly the serialization the contract requires of Station 2.
 """
@@ -43,7 +43,9 @@ from state import World
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATION_ID = "station_2"
-STATUS_TOPIC = f"PPNAM/{STATION_ID}/status"
+STATION_BASE = f"PPNAM/{STATION_ID}"
+# Presence lives on the base topic node — no /status sub-topic (2026-08-17 restructure).
+STATUS_TOPIC = STATION_BASE
 
 # --- Fault injection (§4.1b / §4.4c / E24 test support) -------------------------------------
 # A guarded, opt-in control plane: the sim subscribes to CONTROL_TOPIC and the harness publishes
@@ -116,11 +118,11 @@ class Simulator:
     def announce(self):
         self.client.publish(STATUS_TOPIC, "online", qos=1, retain=True)
         self.log.wire("out", STATUS_TOPIC, "online")
-        self.client.subscribe([("PPNAM/+/req/+", 1), ("PPNAM/+/status", 1),
+        self.client.subscribe([(f"{STATION_BASE}/+/req/+", 1), (f"{STATION_BASE}/+", 1),
                                (CONTROL_TOPIC, 1)])
         self.announced = True
         self.log.ok("presence 'online' published (retained, LWT registered); "
-                    "subscribed PPNAM/+/req/+ and PPNAM/+/status — simulating station_2")
+                    f"subscribed {STATION_BASE}/+/req/+ and {STATION_BASE}/+ — simulating {STATION_ID}")
 
     def on_disconnect(self, client, userdata, flags, reason_code, properties):
         self.log.warn(f"disconnected from broker (rc={reason_code}); paho will auto-reconnect")
@@ -132,24 +134,28 @@ class Simulator:
             # instant it is published, before the request it is meant to affect can arrive.
             self._apply_control(msg.payload)
             return
-        is_req = len(parts) == 4 and parts[0] == "PPNAM" and parts[2] == "req"
+        is_req = (len(parts) == 5 and parts[0] == "PPNAM" and parts[1] == STATION_ID
+                  and parts[3] == "req")
         if not is_req:
             # req messages are wire-logged in handle_request (shared with the
             # selftest's direct in-process transport)
             self.log.wire("in", msg.topic, msg.payload, qos=msg.qos)
-        if len(parts) == 3 and parts[0] == "PPNAM" and parts[2] == "status":
-            if parts[1] == STATION_ID:
-                if not self.announced and msg.payload.decode(errors="replace") == "online":
-                    self.real_station_seen.set()
-                return
-            self.queue.put(("status", parts[1], msg.payload))
-        elif len(parts) == 4 and parts[0] == "PPNAM" and parts[2] == "req":
-            self.queue.put(("req", parts[1], parts[3], msg.payload))
+        if msg.topic == STATUS_TOPIC:
+            # Our own base-node presence (collision guard for a real Station 2).
+            if not self.announced and msg.payload.decode(errors="replace") == "online":
+                self.real_station_seen.set()
+            return
+        if (len(parts) == 3 and parts[0] == "PPNAM" and parts[1] == STATION_ID
+                and parts[2] not in ("req", "res")):
+            # Device presence on the device's base node (PPNAM/station_2/{deviceId}).
+            self.queue.put(("status", parts[2], msg.payload))
+        elif is_req:
+            self.queue.put(("req", parts[2], parts[4], msg.payload))
         else:
             self.log.warn(f"unknown topic '{msg.topic}' — no workflow side effect (per contract)")
 
     def publish_response(self, device_id, response_type, response):
-        topic = f"PPNAM/{device_id}/res/{response_type}"
+        topic = f"{STATION_BASE}/{device_id}/res/{response_type}"
         payload = json.dumps(response, ensure_ascii=False)
         self.client.publish(topic, payload, qos=1, retain=False)
         self.log.wire("out", topic, response)
@@ -295,7 +301,7 @@ class Simulator:
                 self.log.fail("unhandled error in worker:\n" + traceback.format_exc())
 
     def handle_request(self, device_id, request_type, payload):
-        self.log.wire("in", f"PPNAM/{device_id}/req/{request_type}", _redacted(payload))
+        self.log.wire("in", f"{STATION_BASE}/{device_id}/req/{request_type}", _redacted(payload))
 
         # -- fault injection (opt-in; no faults armed -> this block is a no-op) --------------
         if self._faults:
@@ -308,7 +314,7 @@ class Simulator:
                 if fault["cmd"] == "malformed":
                     entry = REGISTRY.get(request_type)
                     response_type = entry["response"] if entry else request_type
-                    topic = f"PPNAM/{device_id}/res/{response_type}"
+                    topic = f"{STATION_BASE}/{device_id}/res/{response_type}"
                     # The app correlates ONLY on inResponseToMessageId, so a totally broken frame is
                     # dropped as uncorrelated and the request just times out. To exercise
                     # FailureKind.MalformedResponse the frame must correlate (valid envelope) but
@@ -343,7 +349,7 @@ class Simulator:
                 # one for an unknown id. The real response then follows normally.
                 entry = REGISTRY.get(request_type)
                 response_type = entry["response"] if entry else request_type
-                topic = f"PPNAM/{device_id}/res/{response_type}"
+                topic = f"{STATION_BASE}/{device_id}/res/{response_type}"
                 self.client.publish(topic, json.dumps({
                     "messageId": "S2-UNCORR-1", "accepted": True,
                     "schemaVersion": envelope.SCHEMA_VERSION, "deviceId": device_id,

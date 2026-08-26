@@ -18,7 +18,7 @@
 - Between-card gap: 12dp
 - Connection status visible on every screen via `AppScaffold` TopBar
 - No changes to business logic, UseCases, Room entities, MQTT layer, or nav routes
-- Package: `com.ppnam.station2aa`
+- Package: `com.mitas.ppnam.station2aa`
 - All commits: `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`
 
 ---
@@ -62,7 +62,7 @@ Expected: BUILD SUCCESSFUL (library resolves from BOM)
 - [ ] **Step 4: Rewrite `Color.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.theme
+package com.mitas.ppnam.station2aa.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -86,7 +86,7 @@ val IndigoAccent = Color(0xFF6366F1)
 - [ ] **Step 5: Rewrite `Theme.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.theme
+package com.mitas.ppnam.station2aa.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -121,7 +121,7 @@ fun PPNAMStation2AATheme(content: @Composable () -> Unit) {
 - [ ] **Step 6: Rewrite `Type.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.theme
+package com.mitas.ppnam.station2aa.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -164,7 +164,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 - Create: `app/src/main/java/com/ppnam/station2aa/ui/components/LabelValueRow.kt`
 
 **Interfaces:**
-- Consumes: theme colours from Task 1; `MqttConnectionState` enum from `com.ppnam.station2aa.domain.repository`
+- Consumes: theme colours from Task 1; `MqttConnectionState` enum from `com.mitas.ppnam.station2aa.domain.repository`
 - Produces:
   - `AppScaffold(title: String, connectionState: MqttConnectionState, pendingCount: Int, onBack: (() -> Unit)? = null, content: @Composable (PaddingValues) -> Unit)`
   - `LabelValueRow(label: String, value: String)`
@@ -172,7 +172,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 - [ ] **Step 1: Create `AppScaffold.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.components
+package com.mitas.ppnam.station2aa.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
@@ -183,8 +183,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -253,7 +253,7 @@ fun AppScaffold(
 - [ ] **Step 2: Create `LabelValueRow.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.components
+package com.mitas.ppnam.station2aa.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -261,8 +261,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ppnam.station2aa.ui.theme.TextMuted
-import com.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.ui.theme.TextMuted
+import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 
 @Composable
 fun LabelValueRow(label: String, value: String) {
@@ -329,18 +329,18 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 Full file (all existing logic preserved, two new constructor params + two new StateFlows added):
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.model.ProductionOrder
-import com.ppnam.station2aa.domain.model.ScannedIngredient
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.MixingUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.model.ProductionOrder
+import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.MixingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -461,17 +461,17 @@ class MixingViewModel @Inject constructor(
 Full file — note `startListeningForScans` now resets state to Idle before subscribing:
 
 ```kotlin
-package com.ppnam.station2aa.ui.rajoo
+package com.mitas.ppnam.station2aa.ui.rajoo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.model.AllocationRecord
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.RajooUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.model.AllocationRecord
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.RajooUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -552,17 +552,17 @@ class RajooViewModel @Inject constructor(
 Full file:
 
 ```kotlin
-package com.ppnam.station2aa.ui.rfid
+package com.mitas.ppnam.station2aa.ui.rfid
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.model.Pallet
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.RfidUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.model.Pallet
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.RfidUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
@@ -629,14 +629,14 @@ class RfidViewModel @Inject constructor(
 Full file:
 
 ```kotlin
-package com.ppnam.station2aa.ui.dashboard
+package com.mitas.ppnam.station2aa.ui.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.DashboardUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.DashboardUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -729,7 +729,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 - [ ] **Step 1: Rewrite `HomeScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.home
+package com.mitas.ppnam.station2aa.ui.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -747,8 +747,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.*
 
 @Composable
 fun HomeScreen(
@@ -937,7 +937,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 - [ ] **Step 1: Rewrite `JobLookupScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -948,9 +948,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.AmberPrimary
-import com.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 
 @Composable
 fun JobLookupScreen(
@@ -1022,7 +1022,7 @@ fun JobLookupScreen(
 Each BOM line is an `ElevatedCard` with a `LinearProgressIndicator`. When satisfied, `containerColor` becomes `SuccessGreen.copy(alpha = 0.12f)` and a `CheckCircle` icon appears. The progress lambda form `progress = { fraction }` avoids unnecessary recomposition.
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -1035,8 +1035,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.*
 
 @Composable
 fun IngredientScanScreen(
@@ -1170,7 +1170,7 @@ fun IngredientScanScreen(
 - [ ] **Step 3: Rewrite `MixerCodeScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -1178,10 +1178,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.AmberPrimary
-import com.ppnam.station2aa.ui.theme.GraphiteSurfaceVariant
-import com.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurfaceVariant
+import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 
 @Composable
 fun MixerCodeScreen(
@@ -1251,7 +1251,7 @@ fun MixerCodeScreen(
 `PremixConfirmedContent` is a private composable rendered inline when `showConfirmation = true`. The `return` after calling it prevents the review content from rendering simultaneously.
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -1265,10 +1265,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.components.LabelValueRow
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.components.LabelValueRow
+import com.mitas.ppnam.station2aa.ui.theme.*
 
 @Composable
 fun PreMixCompleteScreen(
@@ -1469,7 +1469,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 - [ ] **Step 1: Rewrite `MachineSelectScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.rajoo
+package com.mitas.ppnam.station2aa.ui.rajoo
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -1483,8 +1483,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.*
 
 @Composable
 fun MachineSelectScreen(
@@ -1579,7 +1579,7 @@ fun MachineSelectScreen(
 - [ ] **Step 2: Rewrite `PalletAllocScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.rajoo
+package com.mitas.ppnam.station2aa.ui.rajoo
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
@@ -1594,10 +1594,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.navigation.NavRoutes
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.components.LabelValueRow
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.navigation.NavRoutes
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.components.LabelValueRow
+import com.mitas.ppnam.station2aa.ui.theme.*
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -1791,7 +1791,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 - [ ] **Step 1: Rewrite `RfidRecoveryScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.rfid
+package com.mitas.ppnam.station2aa.ui.rfid
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
@@ -1805,9 +1805,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.components.LabelValueRow
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.components.LabelValueRow
+import com.mitas.ppnam.station2aa.ui.theme.*
 
 @Composable
 fun RfidRecoveryScreen(
@@ -1980,7 +1980,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 - [ ] **Step 1: Rewrite `DashboardScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.dashboard
+package com.mitas.ppnam.station2aa.ui.dashboard
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -1990,9 +1990,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.components.LabelValueRow
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.components.LabelValueRow
+import com.mitas.ppnam.station2aa.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -32,20 +32,20 @@
 Add to `app/src/test/java/com/ppnam/station2aa/ui/mixing/MixingViewModelTest.kt`, replacing the import block at the top with (adding the `AuthUseCase` import):
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.domain.model.BomLine
-import com.ppnam.station2aa.domain.model.HopperAvailability
-import com.ppnam.station2aa.domain.model.HopperStatus
-import com.ppnam.station2aa.domain.model.ProductionOrder
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.AuthUseCase
-import com.ppnam.station2aa.domain.usecase.MixingUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.model.BomLine
+import com.mitas.ppnam.station2aa.domain.model.HopperAvailability
+import com.mitas.ppnam.station2aa.domain.model.HopperStatus
+import com.mitas.ppnam.station2aa.domain.model.ProductionOrder
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.MixingUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -136,7 +136,7 @@ Finally, append these three new tests at the end of the class, just before the c
 
     @Test
     fun `pauseScanning cancels the active scan job so further scans are ignored`() = runTest {
-        val events = MutableSharedFlow<com.ppnam.station2aa.data.rfid.ScanEvent>()
+        val events = MutableSharedFlow<com.mitas.ppnam.station2aa.data.rfid.ScanEvent>()
         whenever(mockScanEventBus.events).thenReturn(events)
         val vm = MixingViewModel(
             mockUseCase, mockScanEventBus, mockMqttRepository, mockOfflineQueueRepository, mockAuthUseCase, mockSessionHolder
@@ -147,7 +147,7 @@ Finally, append these three new tests at the end of the class, just before the c
 
         vm.startListeningForPalletScans("510019068")
         vm.pauseScanning()
-        events.emit(com.ppnam.station2aa.data.rfid.ScanEvent.RfidTag("EPC:300833", java.time.Instant.now()))
+        events.emit(com.mitas.ppnam.station2aa.data.rfid.ScanEvent.RfidTag("EPC:300833", java.time.Instant.now()))
         advanceUntilIdle()
 
         assertTrue(vm.uiState.value is MixingUiState.OrderLoaded)
@@ -156,7 +156,7 @@ Finally, append these three new tests at the end of the class, just before the c
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew.bat testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `./gradlew.bat testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: compilation FAILURE — `MixingViewModel` constructor doesn't accept `mockAuthUseCase`, and `session`/`logoutEvent`/`logout()`/`pauseScanning()` don't exist yet.
 
 - [ ] **Step 3: Implement `MixingViewModel` changes**
@@ -164,15 +164,15 @@ Expected: compilation FAILURE — `MixingViewModel` constructor doesn't accept `
 In `app/src/main/java/com/ppnam/station2aa/ui/mixing/MixingViewModel.kt`, update the imports (add two lines to the existing import block):
 
 ```kotlin
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 ```
 
 and
 
 ```kotlin
-import com.ppnam.station2aa.domain.usecase.AuthUseCase
-import com.ppnam.station2aa.domain.usecase.MixingUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.MixingUseCase
 ```
 
 Change the constructor:
@@ -224,7 +224,7 @@ Right before `fun startListeningForPalletScans(orderNo: String) {`, add:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `./gradlew.bat testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `./gradlew.bat testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: PASS (all existing tests plus the three new ones).
 
 - [ ] **Step 5: Commit**
@@ -823,7 +823,7 @@ git commit -m "feat(mixing): PreMixCompleteScreen gains RFID lookup button and s
 Replace the full contents of `app/src/main/java/com/ppnam/station2aa/navigation/NavRoutes.kt` with:
 
 ```kotlin
-package com.ppnam.station2aa.navigation
+package com.mitas.ppnam.station2aa.navigation
 
 object NavRoutes {
     const val LOGIN = "login"
@@ -849,7 +849,7 @@ object NavRoutes {
 Replace the full contents of `app/src/main/java/com/ppnam/station2aa/navigation/AppNavGraph.kt` with:
 
 ```kotlin
-package com.ppnam.station2aa.navigation
+package com.mitas.ppnam.station2aa.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -859,14 +859,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.ppnam.station2aa.ui.login.LoginScreen
-import com.ppnam.station2aa.ui.mixing.HopperScanScreen
-import com.ppnam.station2aa.ui.mixing.IngredientScanScreen
-import com.ppnam.station2aa.ui.mixing.JobLookupScreen
-import com.ppnam.station2aa.ui.mixing.MixingViewModel
-import com.ppnam.station2aa.ui.mixing.PreMixCompleteScreen
-import com.ppnam.station2aa.ui.rfid.RfidRecoveryScreen
-import com.ppnam.station2aa.ui.settings.SettingsScreen
+import com.mitas.ppnam.station2aa.ui.login.LoginScreen
+import com.mitas.ppnam.station2aa.ui.mixing.HopperScanScreen
+import com.mitas.ppnam.station2aa.ui.mixing.IngredientScanScreen
+import com.mitas.ppnam.station2aa.ui.mixing.JobLookupScreen
+import com.mitas.ppnam.station2aa.ui.mixing.MixingViewModel
+import com.mitas.ppnam.station2aa.ui.mixing.PreMixCompleteScreen
+import com.mitas.ppnam.station2aa.ui.rfid.RfidRecoveryScreen
+import com.mitas.ppnam.station2aa.ui.settings.SettingsScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController = rememberNavController()) {

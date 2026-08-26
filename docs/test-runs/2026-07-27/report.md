@@ -159,7 +159,7 @@ are **E14** (tap → start/assign sheet), **E10/E11** (mix intersection & same-J
 
 **Change under test (unchanged):** commit `b7d32ff` strict two-phase Mixing.
 **Backend:** MY backend-sim (this session) on `mqtt.sysone.co.za:443` WSS TLS; live Station 2 offline (sim is the only backend, per TEST_PLAN §0.5).
-**Device:** `HC720DE260100322`, app `com.ppnam.station2aa`, deviceId `handheld_1`. App pill = **Connected**.
+**Device:** `HC720DE260100322`, app `com.mitas.ppnam.station2aa`, deviceId `handheld_1`. App pill = **Connected**.
 **Sniffer:** `docs/test-runs/2026-07-27/capture/wire.jsonl`.
 
 ## TASK 1 — Sim mixer-plan fidelity fix — DONE

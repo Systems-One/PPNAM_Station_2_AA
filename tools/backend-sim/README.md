@@ -16,14 +16,15 @@ python sim.py --host 10.1.50.1     # or the factory broker
 ```
 
 Point the app at the same broker in its Settings screen. The simulator plays
-`station_2`: retained `online` presence with an `offline` LWT, subscribes to
-`PPNAM/+/req/+` and `PPNAM/+/status`, and answers on `PPNAM/{deviceId}/res/*`.
+`station_2`: retained `online` presence with an `offline` LWT on the base topic
+`PPNAM/station_2`, subscribes to `PPNAM/station_2/+/req/+` and `PPNAM/station_2/+`
+(device presence), and answers on `PPNAM/station_2/{deviceId}/res/*`.
 
 **Collision warning:** if the real Station 2 backend is online on the same
 broker, both backends will answer every request. The simulator checks the
-retained `PPNAM/station_2/status` at startup and warns loudly; pass
+retained presence on `PPNAM/station_2` at startup and warns loudly; pass
 `--yield-to-real` to make it exit instead. Note that the simulator also writes
-that retained status topic (`online` on start, `offline` on exit).
+that retained presence topic (`online` on start, `offline` on exit).
 
 ## Options
 

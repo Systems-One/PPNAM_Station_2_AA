@@ -184,9 +184,9 @@ git commit -m "feat(ui): add highlighted parameter to StatusCard, separate from 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing.board
+package com.mitas.ppnam.station2aa.ui.mixing.board
 
-import com.ppnam.station2aa.ui.components.StatusTone
+import com.mitas.ppnam.station2aa.ui.components.StatusTone
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -211,7 +211,7 @@ class MixingAreaPickerScreenKtTest {
 
 - [ ] **Step 2: Run the test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.board.MixingAreaPickerScreenKtTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.board.MixingAreaPickerScreenKtTest"`
 Expected: FAIL — `areaTone()` does not exist yet (compile error).
 
 - [ ] **Step 3: Update imports and add `areaTone()`**
@@ -231,15 +231,15 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.ppnam.station2aa.domain.model.MixingArea
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.AmberPrimary
-import com.ppnam.station2aa.ui.theme.DangerRed
-import com.ppnam.station2aa.ui.theme.GraphiteBorder
-import com.ppnam.station2aa.ui.theme.GraphiteSurface
-import com.ppnam.station2aa.ui.theme.SuccessGreen
-import com.ppnam.station2aa.ui.theme.TextMuted
-import com.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.domain.model.MixingArea
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
+import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
+import com.mitas.ppnam.station2aa.ui.theme.TextMuted
+import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 ```
 
 with:
@@ -256,15 +256,15 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.ppnam.station2aa.domain.model.MixingArea
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.components.StatusCard
-import com.ppnam.station2aa.ui.components.StatusTone
-import com.ppnam.station2aa.ui.theme.AmberPrimary
-import com.ppnam.station2aa.ui.theme.DangerRed
-import com.ppnam.station2aa.ui.theme.GraphiteSurface
-import com.ppnam.station2aa.ui.theme.TextMuted
-import com.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.domain.model.MixingArea
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.components.StatusCard
+import com.mitas.ppnam.station2aa.ui.components.StatusTone
+import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
+import com.mitas.ppnam.station2aa.ui.theme.TextMuted
+import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 
 /**
  * A ready mix waiting is the strongest signal (act now); active cycles alone mean the area is
@@ -286,7 +286,7 @@ drives that color) and remove it then if so.
 
 - [ ] **Step 4: Run the test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.board.MixingAreaPickerScreenKtTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.board.MixingAreaPickerScreenKtTest"`
 Expected: PASS (3 tests).
 
 - [ ] **Step 5: Restyle the per-area cards**
@@ -379,8 +379,8 @@ Task 2's `areaTone` and Task 4's tone function (which is genuinely reused).
 In `app/src/main/java/com/ppnam/station2aa/ui/mixing/board/MixingBoardScreen.kt`, add:
 
 ```kotlin
-import com.ppnam.station2aa.ui.components.StatusCard
-import com.ppnam.station2aa.ui.components.StatusTone
+import com.mitas.ppnam.station2aa.ui.components.StatusCard
+import com.mitas.ppnam.station2aa.ui.components.StatusTone
 ```
 
 - [ ] **Step 2: Restyle "Collections ready to mix"**
@@ -736,9 +736,9 @@ git commit -m "feat(mixing-board): restyle collection, mix, drum, cycle, and run
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing.board
+package com.mitas.ppnam.station2aa.ui.mixing.board
 
-import com.ppnam.station2aa.ui.components.StatusTone
+import com.mitas.ppnam.station2aa.ui.components.StatusTone
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -763,7 +763,7 @@ class MixingBoardScreenKtTest {
 
 - [ ] **Step 2: Run the test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.board.MixingBoardScreenKtTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.board.MixingBoardScreenKtTest"`
 Expected: FAIL — `machineStatusTone()` does not exist yet (compile error).
 
 - [ ] **Step 3: Add `machineStatusTone()` and restyle `MachineCard`**
@@ -848,7 +848,7 @@ private fun MachineCard(
 
 - [ ] **Step 4: Run the test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.board.MixingBoardScreenKtTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.board.MixingBoardScreenKtTest"`
 Expected: PASS (3 tests).
 
 - [ ] **Step 5: Verify the full build and clean up now-unused imports**
