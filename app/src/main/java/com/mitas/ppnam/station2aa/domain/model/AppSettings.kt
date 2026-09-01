@@ -3,6 +3,13 @@ package com.mitas.ppnam.station2aa.domain.model
 /**
  * Device configuration.
  *
+ * ### There is no deviceId here
+ *
+ * The scanner's device id used to be an editable Settings value (`handheld_1` by default) —
+ * exactly the manually assigned identity the fleet MQTT base standard retires. It is now derived
+ * from hardware once and persisted by
+ * [com.mitas.ppnam.station2aa.data.identity.DeviceIdentity], never configured.
+ *
  * ### Broker credentials have NO defaults
  *
  * [mqttUsername] and [mqttPassword] previously defaulted to `admin`/`admin`. The Schema 4.1
@@ -16,7 +23,6 @@ package com.mitas.ppnam.station2aa.domain.model
  * being read out of that store and being handed to the MQTT client.
  */
 data class AppSettings(
-    val deviceId: String = "handheld_1",
     val mqttHost: String = "mqtt.sysone.co.za",
     val mqttPort: Int = 443,
     val mqttUseWebSocket: Boolean = true,

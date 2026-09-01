@@ -108,6 +108,28 @@ fun SettingsScreen(
 
                     HorizontalDivider(color = GraphiteBorder, modifier = Modifier.padding(vertical = 10.dp))
 
+                    // Read-only by design (fleet MQTT base standard §2): the id is derived from
+                    // hardware once and persisted, never configured. Shown here so it can be
+                    // read off the device for enrolment at the station.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "DEVICE ID",
+                            style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
+                            color = TextMuted
+                        )
+                        Text(
+                            viewModel.deviceId.value,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Monospace),
+                            color = TextPrimary
+                        )
+                    }
+
+                    HorizontalDivider(color = GraphiteBorder, modifier = Modifier.padding(vertical = 10.dp))
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -187,14 +209,8 @@ fun SettingsScreen(
                 }
 
                 PinState.Unlocked -> {
-                    ConfigSection(title = "Station") {
-                        SettingsTextField(
-                            value = draft.deviceId,
-                            label = "Device ID",
-                            onValueChange = { viewModel.updateDraft(draft.copy(deviceId = it)) }
-                        )
-                    }
-
+                    // No "Station"/Device ID section any more: the device id is derived, not
+                    // configured — it lives in the Diagnostics card above as a read-only row.
                     ConfigSection(title = "Connection") {
                         SettingsTextField(
                             value = draft.mqttHost,

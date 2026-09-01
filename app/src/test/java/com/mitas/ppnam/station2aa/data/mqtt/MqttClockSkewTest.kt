@@ -22,6 +22,7 @@ class MqttClockSkewTest {
             clientFactory = mock(),
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = OperatorSessionHolder(),
+            deviceIdentity = mock(),
         )
         repo.nowFn = { deviceNow }
     }

@@ -1,5 +1,6 @@
 package com.mitas.ppnam.station2aa.data.mqtt
 
+import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
@@ -15,6 +16,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class MqttRequestRetryTest {
 
@@ -23,10 +25,13 @@ class MqttRequestRetryTest {
 
     @Before
     fun setup() {
+        val deviceIdentity = mock<DeviceIdentity>()
+        whenever(deviceIdentity.deviceId()).thenReturn("scanner_5c64df8d86a8")
         repo = MqttRepositoryImpl(
             clientFactory = mock(),
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = OperatorSessionHolder(),
+            deviceIdentity = deviceIdentity,
         )
         published.clear()
         repo.publishFn = { topic, bytes -> published += topic to bytes }
@@ -71,7 +76,7 @@ class MqttRequestRetryTest {
     @Test
     fun `every retry publishes to the same topic`() = runTest {
         repo.request("a_requested", "test_result", EmptyPayload, null, TestBody::class.java)
-        assertTrue(published.all { it.first == "PPNAM/station_2/handheld_1/req/a_requested" })
+        assertTrue(published.all { it.first == "PPNAM/station_2/scanner_5c64df8d86a8/req/a_requested" })
     }
 
     @Test

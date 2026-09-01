@@ -19,6 +19,7 @@ class MqttStationPresenceTest {
             clientFactory = mock(),
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = OperatorSessionHolder(),
+            deviceIdentity = mock(),
         )
     }
 

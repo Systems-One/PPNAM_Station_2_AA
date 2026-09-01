@@ -3,6 +3,7 @@ package com.mitas.ppnam.station2aa.ui.settings
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
@@ -13,6 +14,7 @@ import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
 import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
 import com.mitas.ppnam.station2aa.ui.components.connectionStatusFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -38,6 +40,7 @@ class SettingsViewModel @Inject constructor(
     private val mqttRepository: MqttRepository,
     private val authUseCase: AuthUseCase,
     sessionHolder: OperatorSessionHolder,
+    private val deviceIdentity: DeviceIdentity,
 ) : ViewModel() {
 
     /**
@@ -86,6 +89,14 @@ class SettingsViewModel @Inject constructor(
     var draftSettings = mutableStateOf(AppSettings())
         private set
 
+    /**
+     * The derived scanner identity (fleet MQTT base standard §2) — read-only diagnostics, shown
+     * so it can be read off the device for enrolment. Never editable: it is derived from
+     * hardware once by [DeviceIdentity] and persisted, replacing the old configurable Device ID.
+     */
+    var deviceId = mutableStateOf("")
+        private set
+
     val connectionState: StateFlow<MqttConnectionState> = mqttRepository.connectionState
 
     /**
@@ -104,6 +115,11 @@ class SettingsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             draftSettings.value = settingsRepository.current()
+        }
+        // Launched wholly on IO — the first derivation can touch SharedPreferences and
+        // NetworkInterface. Snapshot-state writes are thread-safe, so no hop back to Main.
+        viewModelScope.launch(Dispatchers.IO) {
+            deviceId.value = deviceIdentity.deviceId()
         }
     }
 

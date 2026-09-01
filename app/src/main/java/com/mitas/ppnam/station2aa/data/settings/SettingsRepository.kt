@@ -31,7 +31,9 @@ class SettingsRepository @Inject constructor(
     private val credentialStore: SecureCredentialStore,
 ) {
     private object Keys {
-        val DEVICE_ID               = stringPreferencesKey("device_id")
+        // The legacy editable "device_id" key is deliberately gone: the device id is now derived
+        // from hardware by DeviceIdentity (fleet MQTT base standard §2), never configured. Any
+        // value an old install left under that key is simply abandoned, not migrated.
         val MQTT_HOST               = stringPreferencesKey("mqtt_host")
         val MQTT_PORT               = intPreferencesKey("mqtt_port")
         val MQTT_USE_WEBSOCKET      = booleanPreferencesKey("mqtt_use_websocket")
@@ -47,7 +49,6 @@ class SettingsRepository @Inject constructor(
 
     val settingsFlow: Flow<AppSettings> = context.dataStore.data.map { prefs ->
         AppSettings(
-            deviceId             = prefs[Keys.DEVICE_ID]            ?: "handheld_1",
             mqttHost             = prefs[Keys.MQTT_HOST]            ?: "mqtt.sysone.co.za",
             mqttPort             = prefs[Keys.MQTT_PORT]            ?: 443,
             mqttUseWebSocket     = prefs[Keys.MQTT_USE_WEBSOCKET]   ?: true,
@@ -83,7 +84,6 @@ class SettingsRepository @Inject constructor(
             credentialStore.store(settings.mqttPassword)
         }
         context.dataStore.edit { prefs ->
-            prefs[Keys.DEVICE_ID]           = settings.deviceId
             prefs[Keys.MQTT_HOST]           = settings.mqttHost
             prefs[Keys.MQTT_PORT]           = settings.mqttPort
             prefs[Keys.MQTT_USE_WEBSOCKET]  = settings.mqttUseWebSocket

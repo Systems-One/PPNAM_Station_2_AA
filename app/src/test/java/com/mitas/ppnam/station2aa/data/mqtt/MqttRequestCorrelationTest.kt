@@ -1,6 +1,7 @@
 package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.google.gson.JsonParser
+import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
@@ -18,6 +19,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 data class TestBody(val value: String = "")
 
@@ -30,10 +32,15 @@ class MqttRequestCorrelationTest {
     @Before
     fun setup() {
         sessionHolder = OperatorSessionHolder()
+        // The transport stamps every topic and envelope with the DERIVED device id (base
+        // standard §2) — a fixed hash-shaped stand-in here, since no real hardware exists.
+        val deviceIdentity = mock<DeviceIdentity>()
+        whenever(deviceIdentity.deviceId()).thenReturn("scanner_5c64df8d86a8")
         repo = MqttRepositoryImpl(
             clientFactory = mock(),
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = sessionHolder,
+            deviceIdentity = deviceIdentity,
         )
         published.clear()
         repo.publishFn = { topic, bytes -> published += topic to bytes }
@@ -123,7 +130,7 @@ class MqttRequestCorrelationTest {
             repo.request("login_requested", "operator_context", EmptyPayload, null, TestBody::class.java)
         }
         while (published.isEmpty()) yield()
-        assertEquals("PPNAM/station_2/handheld_1/req/login_requested", published[0].first)
+        assertEquals("PPNAM/station_2/scanner_5c64df8d86a8/req/login_requested", published[0].first)
         respond(messageIdOf(0))
         call.await()
     }

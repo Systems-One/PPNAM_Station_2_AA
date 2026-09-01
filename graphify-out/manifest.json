@@ -10,268 +10,8 @@
     "semantic_hash": "761e04b3672b2ba11b8a7a408d04a225"
   },
   "app/build.gradle.kts": {
-    "mtime": 1784219555.4880812,
-    "ast_hash": "75755115f657091cf738ec5000d78b53",
-    "semantic_hash": ""
-  },
-  "app/src/androidTest/java/com/ppnam/station2aa/ExampleInstrumentedTest.kt": {
-    "mtime": 1782306296.7735994,
-    "ast_hash": "50962a9e02c6be4671292d68fa32700c",
-    "semantic_hash": ""
-  },
-  "app/src/androidTest/java/com/ppnam/station2aa/data/local/BomCacheDaoTest.kt": {
-    "mtime": 1782325934.9549658,
-    "ast_hash": "6753266c3417d3a409df8b2b9c53b636",
-    "semantic_hash": "6753266c3417d3a409df8b2b9c53b636"
-  },
-  "app/src/main/java/com/ppnam/station2aa/MainActivity.kt": {
-    "mtime": 1784809665.9496198,
-    "ast_hash": "38e9e13779b123e00fef5984008c7f88",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/PpnamApplication.kt": {
-    "mtime": 1784219555.4890819,
-    "ast_hash": "d81d001ea948ecb598e1aff97fe64b1d",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/local/AppDatabase.kt": {
-    "mtime": 1784219555.4890819,
-    "ast_hash": "3f5163c3f9294a4bd4a4c10267a6c8d0",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/local/BomCacheDao.kt": {
-    "mtime": 1782325934.9583764,
-    "ast_hash": "d3774f1bef8cdc46d3c383e47d7e3638",
-    "semantic_hash": "d3774f1bef8cdc46d3c383e47d7e3638"
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/local/BomCacheEntity.kt": {
-    "mtime": 1782325934.959352,
-    "ast_hash": "5508451df970a32ac0291e94bb2fd286",
-    "semantic_hash": "5508451df970a32ac0291e94bb2fd286"
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttClientFactory.kt": {
-    "mtime": 1783081606.3949823,
-    "ast_hash": "7c5812fd14be8d04c7a754acfdc6dde7",
-    "semantic_hash": "7c5812fd14be8d04c7a754acfdc6dde7"
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttRepositoryImpl.kt": {
-    "mtime": 1786967043.222613,
-    "ast_hash": "b17b56ed9b445135341c4a0aeff3a3ed",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttTopics.kt": {
-    "mtime": 1786967033.3404596,
-    "ast_hash": "e60350ae998e55e124feaeec622a7931",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/AuthMessages.kt": {
-    "mtime": 1784879021.9044955,
-    "ast_hash": "3603897067e59420680b3476df4dcaf5",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/JobCardMessages.kt": {
-    "mtime": 1785314503.8159506,
-    "ast_hash": "43e972b77a31e9a1f4ee371bfe229ab2",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/rfid/DataWedgeReceiver.kt": {
-    "mtime": 1783511041.2789333,
-    "ast_hash": "f3141dfff5ee7243956e332cd53f9124",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/rfid/ScanEventBus.kt": {
-    "mtime": 1783510466.2132263,
-    "ast_hash": "302a11e695a38aed567d7e87a68ed206",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/session/OperatorSessionHolder.kt": {
-    "mtime": 1784808704.4344559,
-    "ast_hash": "3682abc23747541c757fd0c05d55840e",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/settings/SettingsRepository.kt": {
-    "mtime": 1784879876.7755866,
-    "ast_hash": "5143dc381a37415a880a0f86fb4493a1",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/di/AppModule.kt": {
-    "mtime": 1784219555.4963522,
-    "ast_hash": "6dd795810f2b63e3c90375f248834d14",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/model/AppSettings.kt": {
-    "mtime": 1784879846.2580788,
-    "ast_hash": "21630a7bbb0a653b74d23ed24ab8e695",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/model/ProductionOrder.kt": {
-    "mtime": 1784635649.6130748,
-    "ast_hash": "55f8c6bd7540751d89bbf0c3331202a2",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/repository/MqttRepository.kt": {
-    "mtime": 1784878738.9941683,
-    "ast_hash": "63b8aa57d931ff1542d5dd0a79f9ac72",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/repository/ScanRepository.kt": {
-    "mtime": 1782325934.969778,
-    "ast_hash": "b4f234deec4dd0944c481519d7d7d2e6",
-    "semantic_hash": "b4f234deec4dd0944c481519d7d7d2e6"
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/usecase/AuthUseCase.kt": {
-    "mtime": 1784879078.4145966,
-    "ast_hash": "7b95a062854da854cde0f6cd823b9589",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/usecase/MixingUseCase.kt": {
-    "mtime": 1785320078.9466329,
-    "ast_hash": "8a2486c7678624aa36766ff756402967",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/navigation/AppNavGraph.kt": {
-    "mtime": 1786704076.2292466,
-    "ast_hash": "134ec9304b56af98bdc04ed10d11ca75",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/navigation/NavRoutes.kt": {
-    "mtime": 1785401907.92721,
-    "ast_hash": "456e48264f33f026722e9e5277ee8073",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/components/AppScaffold.kt": {
-    "mtime": 1785410221.507368,
-    "ast_hash": "41b83586d2f2ec245e490435b6d20eee",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/components/LabelValueRow.kt": {
-    "mtime": 1782453140.7088275,
-    "ast_hash": "42721b70249387f3a6d3934603dd8749",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/components/ScanPromptCard.kt": {
-    "mtime": 1786704032.240186,
-    "ast_hash": "0cd53741807f4d20c1533a6af6d76ff1",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/login/LoginScreen.kt": {
-    "mtime": 1784809843.6813407,
-    "ast_hash": "3bf674e2f6d83c70fc7e1fa9b382ae63",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/login/LoginViewModel.kt": {
-    "mtime": 1784798734.9903278,
-    "ast_hash": "858d314248a8b8fad4d46a9c06713098",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/mixing/IngredientScanScreen.kt": {
-    "mtime": 1786704142.2124631,
-    "ast_hash": "528c001beef69ae57217040913d740b2",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/mixing/JobLookupScreen.kt": {
-    "mtime": 1785404295.939108,
-    "ast_hash": "7c33353b49aef5e8e7cc1a929f0d5c4b",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/mixing/MixingViewModel.kt": {
-    "mtime": 1786704116.9629264,
-    "ast_hash": "2aa47ebd9a535dc106e781f12ca19a8b",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/rfid/RfidRecoveryScreen.kt": {
-    "mtime": 1785310595.893925,
-    "ast_hash": "e7044f3993273e835f36f1df7a1d1b38",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/rfid/RfidViewModel.kt": {
-    "mtime": 1784798761.385879,
-    "ast_hash": "7221d1320b1feec9b0349dd616074c4c",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/settings/SettingsScreen.kt": {
-    "mtime": 1785310387.0581994,
-    "ast_hash": "be34ec2fd51ac8710b27072620f07b5c",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/settings/SettingsViewModel.kt": {
-    "mtime": 1785310324.1669834,
-    "ast_hash": "5251a8d8d94366c96f989980e925a172",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/theme/Color.kt": {
-    "mtime": 1782548487.2797594,
-    "ast_hash": "fad35e019ed382d9fc7d2e4640951370",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/theme/Theme.kt": {
-    "mtime": 1782453101.7521799,
-    "ast_hash": "4f032ade4c353c323c3cf527e6f57ab3",
-    "semantic_hash": "4f032ade4c353c323c3cf527e6f57ab3"
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/theme/Type.kt": {
-    "mtime": 1786704090.5430882,
-    "ast_hash": "9ac33b8ff88c44084f75f3b32cc2ca14",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ExampleUnitTest.kt": {
-    "mtime": 1782306295.2508016,
-    "ast_hash": "a1bde64f9f9712a8f42481ab8b2a088e",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttClientFactoryTest.kt": {
-    "mtime": 1782457444.859514,
-    "ast_hash": "4485e94046a444df60bef9dafd23f4a6",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttRepositoryImplTest.kt": {
-    "mtime": 1784219555.510925,
-    "ast_hash": "80f1faf5801b40a3ba21c3c89fe0edbb",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttTopicsTest.kt": {
-    "mtime": 1786967053.96727,
-    "ast_hash": "47603fcaa8044074f55b7caad7c156ee",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/session/OperatorSessionHolderTest.kt": {
-    "mtime": 1782888972.5271673,
-    "ast_hash": "ac9aa623787bb7fa25de4e745f1e2146",
-    "semantic_hash": "ac9aa623787bb7fa25de4e745f1e2146"
-  },
-  "app/src/test/java/com/ppnam/station2aa/domain/model/AppSettingsTest.kt": {
-    "mtime": 1784880179.5745862,
-    "ast_hash": "26c9b47d711316f901bc004cf5b0abe6",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/domain/model/BomLineTest.kt": {
-    "mtime": 1784276624.929563,
-    "ast_hash": "fdc6ea110d767803895697c01b5c0568",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/domain/usecase/AuthUseCaseTest.kt": {
-    "mtime": 1784880036.1679134,
-    "ast_hash": "a14d6e60716e80036380dbfec3bc7f15",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/domain/usecase/MixingUseCaseTest.kt": {
-    "mtime": 1785228671.746397,
-    "ast_hash": "2a84d4a6895b94257abd0cc0f81187f8",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/login/LoginViewModelTest.kt": {
-    "mtime": 1784223439.8397071,
-    "ast_hash": "14e7255eac9f66f42b391c1c65585ff8",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/mixing/MixingViewModelTest.kt": {
-    "mtime": 1786704183.9382193,
-    "ast_hash": "6e8aa942e85106b91bfa687bdbd2f922",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/settings/SettingsViewModelTest.kt": {
-    "mtime": 1784809397.3878837,
-    "ast_hash": "a20e6a84a602e3a4ed6403c0029c1f8b",
+    "mtime": 1787752496.3335946,
+    "ast_hash": "db86afe045738343ce86937a42058ee2",
     "semantic_hash": ""
   },
   "build.gradle.kts": {
@@ -300,43 +40,43 @@
     "semantic_hash": "46a4b274ee5cbbd75a527bb6dcee1454"
   },
   "docs/superpowers/plans/2026-06-24-android-app.md": {
-    "mtime": 1782308104.409796,
-    "ast_hash": "e8b839d1e9e98840cc0b381d745a8355",
+    "mtime": 1787752496.337594,
+    "ast_hash": "6cea10985f64cc21ad2f71230958cf98",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-06-25-ui-modernisation.md": {
-    "mtime": 1782364925.783893,
-    "ast_hash": "66daa30a7830eac09bb866c5fbd23a41",
-    "semantic_hash": "66daa30a7830eac09bb866c5fbd23a41"
+    "mtime": 1787752496.372941,
+    "ast_hash": "e77c9302f4f429060e8c46e7699b8c24",
+    "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-06-26-settings.md": {
-    "mtime": 1782456406.6755638,
-    "ast_hash": "8a1687c98b1da960446c51073ff65753",
+    "mtime": 1787752496.3753953,
+    "ast_hash": "7ed28cd59f5c9037e35703f1a14ac427",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-06-30-mqtt-premix-hopper.md": {
-    "mtime": 1782801265.0744722,
-    "ast_hash": "1733e0b29712d7d2acbbaae639946f6c",
+    "mtime": 1787752496.3765554,
+    "ast_hash": "a488a93cce8e0f14ae0ed609afece301",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-07-01-mqtt-contract-foundation-login.md": {
-    "mtime": 1782881123.5792117,
-    "ast_hash": "a02ff939eff6286162992b1316c847a0",
+    "mtime": 1787752496.37907,
+    "ast_hash": "937b44b86de4fafffdb3d6fb41fd0b3b",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-07-03-job-card-android.md": {
-    "mtime": 1783065212.3912742,
-    "ast_hash": "18499047924a04c85e0830344aefacf8",
+    "mtime": 1787752496.3800688,
+    "ast_hash": "6cbea3a0962fea896e7e61d1a405eb3a",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-07-03-mqtt-reconnection-fix.md": {
-    "mtime": 1783064662.8602557,
-    "ast_hash": "10a3d3d937d1656f4c6fdb1385eb4063",
+    "mtime": 1787752496.3810709,
+    "ast_hash": "8123646873532c70112e4964ca84d7a3",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-06-24-android-app-design.md": {
-    "mtime": 1782307191.1905224,
-    "ast_hash": "ad2d652aa51167f3fce4c05cafb7ef1a",
+    "mtime": 1787752496.40633,
+    "ast_hash": "f6590893c68a178e77ba85afeab9905f",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-06-25-ui-modernisation-design.md": {
@@ -374,19 +114,9 @@
     "ast_hash": "f9a4c304db783c39a21f373361700d85",
     "semantic_hash": ""
   },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/IngredientMessages.kt": {
-    "mtime": 1784879148.5567617,
-    "ast_hash": "3efad3f63080a2fd30343279f1201da1",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/model/IngredientScanOutcome.kt": {
-    "mtime": 1784879424.6891801,
-    "ast_hash": "2ed65ee987ba0c2ab683ffdad1170ec7",
-    "semantic_hash": ""
-  },
   "docs/superpowers/plans/2026-07-08-ingredient-scanning-migration.md": {
-    "mtime": 1783507764.2038295,
-    "ast_hash": "9cb36dd5c8c106a06e268b368679a68d",
+    "mtime": 1787752496.3830707,
+    "ast_hash": "9ba79c96f7dc20ece7108b32cb1ae4e5",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-08-bom-ingredient-progress-display-design.md": {
@@ -400,8 +130,8 @@
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-07-14-app-redesign-navigation-plan.md": {
-    "mtime": 1784025293.0200057,
-    "ast_hash": "d8580e7defb735aba4ae8dd8e819900d",
+    "mtime": 1787752496.3845804,
+    "ast_hash": "cf052dd6147dd3b0910d38e3eff107c2",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-14-app-redesign-navigation-design.md": {
@@ -409,94 +139,9 @@
     "ast_hash": "aa38d438f3a7b562766f4fb73189b2d7",
     "semantic_hash": ""
   },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttOutcome.kt": {
-    "mtime": 1784878725.9540277,
-    "ast_hash": "6ecdfa14fdee22dc19a59c3b88238687",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttSchema.kt": {
-    "mtime": 1784878629.9862418,
-    "ast_hash": "a24c866aedf9f78cbc68258cbab6a86c",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttVocabulary.kt": {
-    "mtime": 1785225950.4255602,
-    "ast_hash": "b8a1ab9293013fdb09cda6856a05c390",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/RequestEnvelope.kt": {
-    "mtime": 1784219555.4914746,
-    "ast_hash": "f6be9effba6d93b5c1a267091d69507a",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/PalletMessages.kt": {
-    "mtime": 1784821088.0699303,
-    "ast_hash": "f578a55aa679ad500fb7dcbf7417efec",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/ResponseEnvelope.kt": {
-    "mtime": 1784878646.30766,
-    "ast_hash": "c4752800a06f2aa992f5fc0b2e302af7",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/model/PalletInfo.kt": {
-    "mtime": 1784821085.5510683,
-    "ast_hash": "c476a47818ddece39041fa35aeabdab9",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/usecase/PalletUseCase.kt": {
-    "mtime": 1784219555.4990623,
-    "ast_hash": "1f44c26a0171b391de878e51e986a333",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttClockSkewTest.kt": {
-    "mtime": 1786967068.129954,
-    "ast_hash": "af416a5ed6d72560ec631753b35db3d1",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttRequestCorrelationTest.kt": {
-    "mtime": 1786967068.1467378,
-    "ast_hash": "df8f451ae114c70a5c1848064673859e",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttRequestRetryTest.kt": {
-    "mtime": 1786967068.1620748,
-    "ast_hash": "e154abf20ed6e99b6205a32b7e86248b",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttStationPresenceTest.kt": {
-    "mtime": 1784219555.5122356,
-    "ast_hash": "593cecbc545df67b94c6ff309c37fe3f",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttVocabularyTest.kt": {
-    "mtime": 1785225837.2344062,
-    "ast_hash": "596bb7a4cf29007b72751c7b70c494f8",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/RequestEnvelopeTest.kt": {
-    "mtime": 1784880218.5664847,
-    "ast_hash": "0edf53d8b5f079a2e855c2cb31673d2e",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/dto/ResponseEnvelopeTest.kt": {
-    "mtime": 1784635649.6204605,
-    "ast_hash": "4dc2c82a71a1baa49cf0bda6c52c12e3",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/domain/usecase/PalletUseCaseTest.kt": {
-    "mtime": 1784821240.2507122,
-    "ast_hash": "e817f133954b9b4cef8a6609adde7429",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/rfid/RfidViewModelTest.kt": {
-    "mtime": 1784223439.8407075,
-    "ast_hash": "bab9a6092fd5f966df69e06b459a8a71",
-    "semantic_hash": ""
-  },
   "docs/superpowers/plans/2026-07-16-mqtt-schema-3-protocol-foundation.md": {
-    "mtime": 1784219555.5220292,
-    "ast_hash": "0dc41012e3daa42667242d6a6c673d75",
+    "mtime": 1787752496.3911462,
+    "ast_hash": "090338d75dec975a4c7453d7d6e6507f",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-16-mqtt-schema-3-protocol-foundation-design.md": {
@@ -504,49 +149,14 @@
     "ast_hash": "a12426470151100bf3d45248f88d7e62",
     "semantic_hash": ""
   },
-  "app/src/main/java/com/ppnam/station2aa/domain/model/SessionState.kt": {
-    "mtime": 1784223439.8256054,
-    "ast_hash": "90e9fb61105e6f6b286013c67a5f2dba",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/components/ConnectionStatus.kt": {
-    "mtime": 1784798868.0597289,
-    "ast_hash": "9986393c83c46e758441ee5334556931",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/session/SessionWatcher.kt": {
-    "mtime": 1784223439.8347182,
-    "ast_hash": "10d3a9d2919b53b6ab727a4fdc725e7b",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttSessionExpiryTest.kt": {
-    "mtime": 1786967068.194935,
-    "ast_hash": "50b577f386bdb52306285c585ed55acf",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/domain/model/SessionStateTest.kt": {
-    "mtime": 1784223439.8367143,
-    "ast_hash": "5ed88d6cdd8adc55b6d2125f3fa6aa7d",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/components/ConnectionStatusTest.kt": {
-    "mtime": 1784223439.8382208,
-    "ast_hash": "b4b84ad82512b6f3570b4af04cf2c03e",
-    "semantic_hash": ""
-  },
   "docs/superpowers/plans/2026-07-16-mqtt-schema-3-auth-session.md": {
-    "mtime": 1784223439.8419642,
-    "ast_hash": "18b0db06f0de82b22018963f1a89c889",
+    "mtime": 1787752496.386589,
+    "ast_hash": "145e6074823f8a768fa58a71fbcb1270",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-16-mqtt-schema-3-auth-session-design.md": {
     "mtime": 1784223439.8429625,
     "ast_hash": "7d9064e661b2beac6978e40e4c5b8a80",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/dto/IngredientScanResultTest.kt": {
-    "mtime": 1784635649.6204605,
-    "ast_hash": "35f53961bd4f6298ff1e97fd7ccebb8d",
     "semantic_hash": ""
   },
   "docs/backend/2026-07-16-timestamp-acceptance-window.md": {
@@ -555,8 +165,8 @@
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-07-16-mqtt-schema-3-collection-ingredients.md": {
-    "mtime": 1784276624.9325686,
-    "ast_hash": "60a871ff77fcf43169de5caf2768f429",
+    "mtime": 1787752496.388098,
+    "ast_hash": "a465981c7c7c4bcff44e301372386a9e",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-16-mqtt-schema-3-collection-ingredients-design.md": {
@@ -695,8 +305,8 @@
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-07-21-mqtt-schema-4-foundation.md": {
-    "mtime": 1784615428.481862,
-    "ast_hash": "57ca7db49c942f8a4822d852ad9b1913",
+    "mtime": 1787752496.3931487,
+    "ast_hash": "9fd581468dc5c61cc841c7130e20f7b1",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-20-mqtt-schema-4-foundation-design.md": {
@@ -709,79 +319,14 @@
     "ast_hash": "e19adad55cc197319dcaff74309c2408",
     "semantic_hash": ""
   },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/MixingMessages.kt": {
-    "mtime": 1785319038.5964334,
-    "ast_hash": "8afd0686247cc1ec57dac767f0bc3885",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/model/MixingBoard.kt": {
-    "mtime": 1785413654.242865,
-    "ast_hash": "da001cfc285b4973b97e175daeb1d588",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/usecase/MixingBoardUseCase.kt": {
-    "mtime": 1785438661.5870967,
-    "ast_hash": "40efd39d00fc4534887078eb5c2bf969",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/dto/MixingMessagesTest.kt": {
-    "mtime": 1785240455.859581,
-    "ast_hash": "95c5a026bff094b04748418fdabbfba0",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/domain/usecase/MixingBoardUseCaseTest.kt": {
-    "mtime": 1785438591.6118848,
-    "ast_hash": "b7303c7987c46c72e59dbd37fa556ab0",
-    "semantic_hash": ""
-  },
   "docs/superpowers/plans/2026-07-21-mqtt-schema-4-mixing-ui.md": {
-    "mtime": 1784642725.8484302,
-    "ast_hash": "06d0455496520feeaa8a1a42d0ba73e9",
+    "mtime": 1787752496.3971102,
+    "ast_hash": "771f91177972404292a3964903b34b08",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-21-mqtt-schema-4-mixing-ui-design.md": {
     "mtime": 1784641187.2233522,
     "ast_hash": "a12595a1cbe1f1cc088926c4aeacb27a",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/mixing/board/MixingBoardViewModel.kt": {
-    "mtime": 1785427750.388884,
-    "ast_hash": "088776774d26e927a86ae0394236c14d",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/mixing/board/MixingBoardViewModelTest.kt": {
-    "mtime": 1785427816.6995995,
-    "ast_hash": "87fc0a9f7dd423b451877b0427fb4c52",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/components/UpgradeGate.kt": {
-    "mtime": 1784726859.0176034,
-    "ast_hash": "b27a73ab36309a0920b400eb0761722f",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/mixing/board/MixingAreaPickerScreen.kt": {
-    "mtime": 1785413654.2438698,
-    "ast_hash": "16cb32d7fb6db4a81bc937913f595a54",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/mixing/board/MixingBoardScreen.kt": {
-    "mtime": 1785413654.2448704,
-    "ast_hash": "f90ab5bbeb0d423bb52d352e86c180bc",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/components/DialogContent.kt": {
-    "mtime": 1784808671.6212046,
-    "ast_hash": "4e33e859b11ec1c1839fbc85c8726140",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/util/TimeFormat.kt": {
-    "mtime": 1784809560.8810496,
-    "ast_hash": "cd45345b89409a338d51c5b7d75ba253",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/util/TimeFormatTest.kt": {
-    "mtime": 1784809570.4566307,
-    "ast_hash": "db2530d672f0a735f50fd2bb272e211d",
     "semantic_hash": ""
   },
   "docs/test-evidence-2026-07-23/analyze.py": {
@@ -805,13 +350,13 @@
     "semantic_hash": ""
   },
   "docs/test-evidence-2026-07-23/sweep2.py": {
-    "mtime": 1784807711.9941008,
-    "ast_hash": "c30fca6a0aaaa52e9bb1c2a8ebd704fd",
+    "mtime": 1787752496.4164784,
+    "ast_hash": "b7623939f91e7b860d9fd3a54aaa38f5",
     "semantic_hash": ""
   },
   "docs/ANDROID_APP_ISSUES_2026-07-23.md": {
-    "mtime": 1784808133.1425016,
-    "ast_hash": "6ee3cfd9c10677687fea4c3a81c2a573",
+    "mtime": 1787752496.420157,
+    "ast_hash": "3413a9d65d3a0a2ca595bb303747f3a6",
     "semantic_hash": ""
   },
   "docs/BACKEND_ISSUES_2026-07-23.md": {
@@ -820,13 +365,13 @@
     "semantic_hash": ""
   },
   "docs/TEST_REPORT_2026-07-23.md": {
-    "mtime": 1784807950.703887,
-    "ast_hash": "b953859508b22f1a89504523a9eeddaf",
+    "mtime": 1787752496.4226792,
+    "ast_hash": "54aa944d84f70922509eb951cb75b209",
     "semantic_hash": ""
   },
   "docs/test-evidence-2026-07-23/FINDINGS.md": {
-    "mtime": 1784807987.9453716,
-    "ast_hash": "7ab6836cf88d15091aaca7ec4770ed14",
+    "mtime": 1787752496.4153278,
+    "ast_hash": "b6074841e6c2f93533db443e63c9e613",
     "semantic_hash": ""
   },
   "docs/test-evidence-2026-07-23/shots/10-jc-337-result.png": {
@@ -935,58 +480,13 @@
     "semantic_hash": ""
   },
   "tools/test-harness/sweep2.py": {
-    "mtime": 1784811317.5564806,
-    "ast_hash": "c30fca6a0aaaa52e9bb1c2a8ebd704fd",
+    "mtime": 1787752498.320844,
+    "ast_hash": "b7623939f91e7b860d9fd3a54aaa38f5",
     "semantic_hash": ""
   },
   "docs/TEST_PLAN.md": {
-    "mtime": 1785430684.5343819,
-    "ast_hash": "a5640363728d3a1f35eae4b179e8ae4c",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/auth/ManagerAuthorization.kt": {
-    "mtime": 1784879107.2265596,
-    "ast_hash": "effafa34e2101de822d729c7ff59648c",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/auth/ScramCrypto.kt": {
-    "mtime": 1784878859.147968,
-    "ast_hash": "14bb7565b266fc159a825568de6eda7c",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/auth/ScramExchange.kt": {
-    "mtime": 1784879050.0538795,
-    "ast_hash": "9bde674a043aa0f97de71e393e5b2dda",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/security/SecureCredentialStore.kt": {
-    "mtime": 1784879834.3084712,
-    "ast_hash": "162f61d3e8c96f16915830f1619a7298",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/domain/model/ActiveJobsPage.kt": {
-    "mtime": 1784879675.7576995,
-    "ast_hash": "da4301482f4cf3c65061d80e22fc1fd9",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/auth/ScramCryptoTest.kt": {
-    "mtime": 1784878976.427077,
-    "ast_hash": "ffff7ce74b54003ac1b744514311589e",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttResponseDeduplicationTest.kt": {
-    "mtime": 1786967068.1772208,
-    "ast_hash": "801b057ea9feea059d0250aede68039b",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/Schema41EnvelopeTest.kt": {
-    "mtime": 1784880370.7356334,
-    "ast_hash": "d7990a0f23983222d94dbdaf27b33097",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/domain/model/PalletStateTest.kt": {
-    "mtime": 1784821256.7841532,
-    "ast_hash": "914a9c9e5a913cb3e0df1df346e95b56",
+    "mtime": 1787752496.4216733,
+    "ast_hash": "94d86e1e75edf7dad6c4a5f82f6054e5",
     "semantic_hash": ""
   },
   "tools/backend-sim/handlers/scram.py": {
@@ -1010,8 +510,8 @@
     "semantic_hash": ""
   },
   "docs/test-runs/2026-07-23/report.md": {
-    "mtime": 1784822303.4513834,
-    "ast_hash": "6b1fcc8fe7a381469b7276d31897570e",
+    "mtime": 1787752496.4164784,
+    "ast_hash": "f4f8dd1171e24058709e65edaac597f6",
     "semantic_hash": ""
   },
   "docs/test-runs/2026-07-23/shots/A1-connected.png": {
@@ -1100,8 +600,8 @@
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-07-28-jc-driven-mixing.md": {
-    "mtime": 1785227905.023943,
-    "ast_hash": "1258a5c429e4095689c0f1fedc1755f0",
+    "mtime": 1787752496.3986096,
+    "ast_hash": "67d2279a86fc83a23edce9206373401b",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-28-jc-driven-mixing-design.md": {
@@ -1110,8 +610,8 @@
     "semantic_hash": ""
   },
   "docs/test-runs/2026-07-27/report.md": {
-    "mtime": 1785149172.5648751,
-    "ast_hash": "84fcdb90714048b66d01477bf8a3ec4a",
+    "mtime": 1787752496.4184456,
+    "ast_hash": "43f45ba93f7c1ef7db719f7a6995c4e5",
     "semantic_hash": ""
   },
   "docs/test-runs/2026-07-27/shots/00-baseline-main-board.png": {
@@ -1469,49 +969,9 @@
     "ast_hash": "d72de074db2ff691281fe875baa87209",
     "semantic_hash": ""
   },
-  "app/src/androidTest/java/com/ppnam/station2aa/ui/HoverExitScrollCrashTest.kt": {
-    "mtime": 1785311261.6227274,
-    "ast_hash": "e160d9e3ae010293246eb6180e2e9746",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/dto/BomLoadedResponseTest.kt": {
-    "mtime": 1785314433.3523507,
-    "ast_hash": "16978ea7ba50d502fd61cbf21152a8d5",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/data/mqtt/WireJson.kt": {
-    "mtime": 1785319966.8939493,
-    "ast_hash": "51f18c8a4b0c7a1f5aff07ecb9d924ac",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/WireNullToleranceTest.kt": {
-    "mtime": 1785320136.0233796,
-    "ast_hash": "0d89f367bb607cb8f4e9a59ebb96cad3",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/data/mqtt/dto/MixingOverviewWireCaptureTest.kt": {
-    "mtime": 1786967068.2100108,
-    "ast_hash": "397f5d0fad894064d2216f9dea63d5e7",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/home/HomeScreen.kt": {
-    "mtime": 1785401907.9284863,
-    "ast_hash": "327e019443dcbc9d750b08fc46c1f5c2",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/ppnam/station2aa/ui/home/HomeViewModel.kt": {
-    "mtime": 1785401907.9289925,
-    "ast_hash": "10952352d50dfc67f8742161081cd567",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/home/HomeViewModelTest.kt": {
-    "mtime": 1785401907.9305148,
-    "ast_hash": "13e7c0acac32beed158e7a25ec4035e1",
-    "semantic_hash": ""
-  },
   "docs/superpowers/plans/2026-07-30-ui-overhaul-phase1-foundation-home.md": {
-    "mtime": 1785401907.931528,
-    "ast_hash": "c16d4f6cb129c6a74ac343ef5bf87a6d",
+    "mtime": 1787752496.400104,
+    "ast_hash": "fda0fde7370115d984e229e81313cdc3",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-30-android-ui-ux-overhaul-design.md": {
@@ -1519,49 +979,19 @@
     "ast_hash": "ff0e6bf8ffad71b450bec3f808e7814f",
     "semantic_hash": ""
   },
-  "app/src/main/java/com/ppnam/station2aa/ui/components/StatusCard.kt": {
-    "mtime": 1786704054.5462375,
-    "ast_hash": "a804e38bd14dc0339d9eaea2cb910777",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/components/StatusCardTest.kt": {
-    "mtime": 1785404295.939108,
-    "ast_hash": "d532ac2141c89a0d811a6cbbe5c36f4b",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/mixing/IngredientScanScreenKtTest.kt": {
-    "mtime": 1785410221.5098803,
-    "ast_hash": "23166314a991e782273dd960f1fdd344",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/mixing/JobLookupScreenKtTest.kt": {
-    "mtime": 1785404295.9405758,
-    "ast_hash": "5346ca92609da04f8d262200217f0e03",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/mixing/board/MixingAreaPickerScreenKtTest.kt": {
-    "mtime": 1785413654.24587,
-    "ast_hash": "cc5b99e80afe3727d69ac7f9d4f753c8",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/ppnam/station2aa/ui/mixing/board/MixingBoardScreenKtTest.kt": {
-    "mtime": 1785413654.2541,
-    "ast_hash": "3a3d86c70fcaa26002deb87f67c9b918",
-    "semantic_hash": ""
-  },
   "docs/superpowers/plans/2026-07-30-ui-overhaul-phase2-job-cards.md": {
-    "mtime": 1785404295.9420123,
-    "ast_hash": "04070cca6f406a5b5fd359e66ebfc515",
+    "mtime": 1787752496.4021022,
+    "ast_hash": "d6234259ae3b08ea720c104c3b7a4532",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-07-30-ui-overhaul-phase3-ingredient-scan.md": {
-    "mtime": 1785410221.510882,
-    "ast_hash": "947754c6738d6677c8ac1c8d7f2ecd32",
+    "mtime": 1787752496.403103,
+    "ast_hash": "f650826f3b760215b6f63530560de5f8",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-07-30-ui-overhaul-phase4-mixing-board.md": {
-    "mtime": 1785413654.255194,
-    "ast_hash": "7b8ead428a1d21fd5356e8ba06d598d9",
+    "mtime": 1787752496.4053283,
+    "ast_hash": "6164731bd93e6e302f91bdb4c4b31f9f",
     "semantic_hash": ""
   },
   "skills-lock.json": {
@@ -16274,11 +15704,6 @@
     "ast_hash": "7d47608000d7a141b6c0895d075a3e18",
     "semantic_hash": ""
   },
-  "app/src/main/java/com/ppnam/station2aa/ui/theme/Motion.kt": {
-    "mtime": 1786704017.2353618,
-    "ast_hash": "a72aff3d1de87b3de5d46f908453325c",
-    "semantic_hash": ""
-  },
   ".claude/skills/apple-design/SKILL.md": {
     "mtime": 1786703012.6383426,
     "ast_hash": "7ae1e8f9032a2d0bb66e4524cc907b5d",
@@ -16332,6 +15757,591 @@
   "app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png": {
     "mtime": 1787749133.926146,
     "ast_hash": "9ddd90172594154c06c1d3d904dff84b",
+    "semantic_hash": ""
+  },
+  "app/src/androidTest/java/com/mitas/ppnam/station2aa/ExampleInstrumentedTest.kt": {
+    "mtime": 1787752496.174586,
+    "ast_hash": "4e9f5b0ac9c0457bfe7dbd4996e3e75d",
+    "semantic_hash": ""
+  },
+  "app/src/androidTest/java/com/mitas/ppnam/station2aa/data/local/BomCacheDaoTest.kt": {
+    "mtime": 1787752496.173873,
+    "ast_hash": "9e90fd9f7783728349617791e89a8c25",
+    "semantic_hash": ""
+  },
+  "app/src/androidTest/java/com/mitas/ppnam/station2aa/ui/HoverExitScrollCrashTest.kt": {
+    "mtime": 1787752496.174586,
+    "ast_hash": "c74a527a867286c906c97f026993f34f",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/MainActivity.kt": {
+    "mtime": 1787752496.2729735,
+    "ast_hash": "991807febe2bad00ab0565b9e0ea893e",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/PpnamApplication.kt": {
+    "mtime": 1787752496.2739825,
+    "ast_hash": "92e5f0c7e87109465a5e5382a3d3c663",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/auth/ManagerAuthorization.kt": {
+    "mtime": 1787752496.1761599,
+    "ast_hash": "e15d9ea60dd9ba25b6be51ee78ceee12",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/auth/ScramCrypto.kt": {
+    "mtime": 1787752496.1777406,
+    "ast_hash": "249cc924ec5714d395ca7ab9ccbecd5d",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/auth/ScramExchange.kt": {
+    "mtime": 1787752496.1777406,
+    "ast_hash": "f38a0edb3d056c0b868c9840d75d1538",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/identity/DeviceIdentity.kt": {
+    "mtime": 1788246961.8280568,
+    "ast_hash": "b71b0745afa7e61737f6cb6f2e57c9c3",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/local/AppDatabase.kt": {
+    "mtime": 1787752496.179232,
+    "ast_hash": "8a6a4b91450a0bbedacd4d55a6a8fa18",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/local/BomCacheDao.kt": {
+    "mtime": 1787752496.179232,
+    "ast_hash": "81d38ad9de9b78d00b52331f82ac60d8",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/local/BomCacheEntity.kt": {
+    "mtime": 1787752496.1802351,
+    "ast_hash": "af56c23836e4d42b5a5da6520884444f",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/MqttClientFactory.kt": {
+    "mtime": 1788247155.5368168,
+    "ast_hash": "24560bf8a5b289ad4e3f592868c77ca3",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/MqttOutcome.kt": {
+    "mtime": 1787752496.1898513,
+    "ast_hash": "bc25eae2aebedbd7fd31bf68b5be2173",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/MqttRepositoryImpl.kt": {
+    "mtime": 1788247135.0007095,
+    "ast_hash": "011e01ce48900c18847db618fedca474",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/MqttSchema.kt": {
+    "mtime": 1787752496.1938584,
+    "ast_hash": "d1a985cd09a5c0cbd893754e23b81dfe",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/MqttTopics.kt": {
+    "mtime": 1787752496.1948588,
+    "ast_hash": "73166d32202e6d1de645c4ecbfafc857",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/MqttVocabulary.kt": {
+    "mtime": 1787752496.1988575,
+    "ast_hash": "380f9933c2dfd5eeb0eb9a2e0433d1f9",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/RequestEnvelope.kt": {
+    "mtime": 1787752496.1998596,
+    "ast_hash": "f25aff49ba659b7115ebddc1daa35712",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/WireJson.kt": {
+    "mtime": 1787752496.2008593,
+    "ast_hash": "2fe04bdbeae86d7c1e1703b0b523205c",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/dto/AuthMessages.kt": {
+    "mtime": 1787752496.181233,
+    "ast_hash": "b73de9848dfcca66c417fec6fb883e00",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/dto/IngredientMessages.kt": {
+    "mtime": 1787752496.1822321,
+    "ast_hash": "2474828fa0b5bd69af0855899c6c9afd",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/dto/JobCardMessages.kt": {
+    "mtime": 1787752496.184044,
+    "ast_hash": "7ff3cbce5415d8d0e1357975cbfda7ba",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/dto/MixingMessages.kt": {
+    "mtime": 1787752496.1850522,
+    "ast_hash": "4b271757cd11ec1e87a59a810b75f5b6",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/dto/PalletMessages.kt": {
+    "mtime": 1787752496.1870525,
+    "ast_hash": "bb7b286d2fd4968aff282b62d49ef8e6",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/dto/ResponseEnvelope.kt": {
+    "mtime": 1787752496.1870525,
+    "ast_hash": "a645854d88ac8a7e3fdfdf98deb09dfc",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/rfid/DataWedgeReceiver.kt": {
+    "mtime": 1787752496.2018602,
+    "ast_hash": "730b217ec8fa851a01b1ece6cd2d41e8",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/rfid/ScanEventBus.kt": {
+    "mtime": 1787752496.2028592,
+    "ast_hash": "fba158084b3a5f6824c71729bc49e9b2",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/security/SecureCredentialStore.kt": {
+    "mtime": 1787752496.2033675,
+    "ast_hash": "46314671a6a16e4aa103337923dfc0cf",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/session/OperatorSessionHolder.kt": {
+    "mtime": 1787752496.2063768,
+    "ast_hash": "2f2a8474c6b869bd6b98eef23a7242ec",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/settings/SettingsRepository.kt": {
+    "mtime": 1788247202.041079,
+    "ast_hash": "0f46d7db6106780125d855622c91320f",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/di/AppModule.kt": {
+    "mtime": 1787752496.2103772,
+    "ast_hash": "62acfea70221963a2fcc41abc2cb8612",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/model/ActiveJobsPage.kt": {
+    "mtime": 1787752496.2123764,
+    "ast_hash": "d2f4774646da368d1036e331a1baecdb",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/model/AppSettings.kt": {
+    "mtime": 1788247169.7546859,
+    "ast_hash": "e07bafd7af2db9e5e3610cbe522a2cb5",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/model/IngredientScanOutcome.kt": {
+    "mtime": 1787752496.2133768,
+    "ast_hash": "ea3f8fa242b3541771fb6d069a5eb13f",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/model/MixingBoard.kt": {
+    "mtime": 1787752496.214886,
+    "ast_hash": "dc5d2ced9ddd1c8d7e0fbd5e39d9ea83",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/model/PalletInfo.kt": {
+    "mtime": 1787752496.2158966,
+    "ast_hash": "5175c8da424a933ab0e3ebcd8ee5dd39",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/model/ProductionOrder.kt": {
+    "mtime": 1787752496.216898,
+    "ast_hash": "174ca096517b89d00cbb2727cdc214ff",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/model/SessionState.kt": {
+    "mtime": 1787752496.216898,
+    "ast_hash": "1c7c0f2e7b4572d845557e331bba07e1",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/repository/MqttRepository.kt": {
+    "mtime": 1787752496.217897,
+    "ast_hash": "c37290135fa9e9605252c732f58797b5",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/repository/ScanRepository.kt": {
+    "mtime": 1787752496.2188978,
+    "ast_hash": "01e5a325568376c245c414ac9c0305f0",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/AuthUseCase.kt": {
+    "mtime": 1787752496.2198946,
+    "ast_hash": "1d4381b9d7e673b5e2de72572307c742",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/MixingBoardUseCase.kt": {
+    "mtime": 1787752496.221896,
+    "ast_hash": "9294c66734ba849548ad83dc3d96e41b",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/MixingUseCase.kt": {
+    "mtime": 1787752496.224415,
+    "ast_hash": "c08312a6544766a0b39ec262d9e70622",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/PalletUseCase.kt": {
+    "mtime": 1787752496.2259598,
+    "ast_hash": "4cd4f51c054da42133324b215f2a9a18",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/navigation/AppNavGraph.kt": {
+    "mtime": 1787752496.2279675,
+    "ast_hash": "f39caed8944edf8ae2868f4432c37efa",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/navigation/NavRoutes.kt": {
+    "mtime": 1787752496.2289672,
+    "ast_hash": "8f6a76c6af62babb189a60b52b52e6dc",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/components/AppScaffold.kt": {
+    "mtime": 1787752496.2299664,
+    "ast_hash": "0d79eb80443de0c2b4190a89373954b1",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/components/ConnectionStatus.kt": {
+    "mtime": 1787752496.2309694,
+    "ast_hash": "46002842693375295687b19ec72716ce",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/components/DialogContent.kt": {
+    "mtime": 1787752496.231966,
+    "ast_hash": "13c79d360f786bc33ae2574691c49d19",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/components/LabelValueRow.kt": {
+    "mtime": 1787752496.23297,
+    "ast_hash": "5c3061b0c4c683afcc68b211fca45ac7",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/components/ScanPromptCard.kt": {
+    "mtime": 1787752496.2339678,
+    "ast_hash": "2ec1b8ee87bff84808cc1b118208e47f",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/components/StatusCard.kt": {
+    "mtime": 1787752496.238968,
+    "ast_hash": "ff27df351ef25b7d52c8dae37787d6c8",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/components/UpgradeGate.kt": {
+    "mtime": 1787752496.2399676,
+    "ast_hash": "c24ef8e6a4325067a2e59f489333cecc",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/home/HomeScreen.kt": {
+    "mtime": 1787752496.2439983,
+    "ast_hash": "27d5d7350315bdb92c9bca616cf70fe4",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/home/HomeViewModel.kt": {
+    "mtime": 1787752496.2450075,
+    "ast_hash": "f47e2b8fb954f77292a1413e39fb065a",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/login/LoginScreen.kt": {
+    "mtime": 1787752496.2475126,
+    "ast_hash": "c65ce38e8f000190066527843ce1865c",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/login/LoginViewModel.kt": {
+    "mtime": 1787752496.2493663,
+    "ast_hash": "6f1d1df1d56b7403c506bf60b338aa5f",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/mixing/IngredientScanScreen.kt": {
+    "mtime": 1787752496.2558837,
+    "ast_hash": "8c891a6de08d702844f1e6645a092a35",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/mixing/JobLookupScreen.kt": {
+    "mtime": 1787752496.256894,
+    "ast_hash": "94e3e812d9ed3514d7a52ebf5b924d1f",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/mixing/MixingViewModel.kt": {
+    "mtime": 1787752496.2608967,
+    "ast_hash": "d29d66dddd8638551d713f3251f9f63e",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/mixing/board/MixingAreaPickerScreen.kt": {
+    "mtime": 1787752496.2503793,
+    "ast_hash": "df3d06d54afb3e66553442923d82751a",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/mixing/board/MixingBoardScreen.kt": {
+    "mtime": 1787752496.2523775,
+    "ast_hash": "bcaa3eaef2ace3a31e653f21bec38e0d",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/mixing/board/MixingBoardViewModel.kt": {
+    "mtime": 1787752496.253376,
+    "ast_hash": "1c0df7a5b2d49b3c7c7d00fc2a0f27fb",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/rfid/RfidRecoveryScreen.kt": {
+    "mtime": 1787752496.2628958,
+    "ast_hash": "fc4d7f804cf99b54e3df6bb388e6a2d5",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/rfid/RfidViewModel.kt": {
+    "mtime": 1787752496.2638946,
+    "ast_hash": "d66a0f5df346c835074f6529ac7767ca",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/session/SessionWatcher.kt": {
+    "mtime": 1787752496.2644005,
+    "ast_hash": "e63f6067f80e836a825dcc9b2003c7fa",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/settings/SettingsScreen.kt": {
+    "mtime": 1788247278.2013247,
+    "ast_hash": "0a7b8a47aec26f7aacb3662fd23c46c9",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/settings/SettingsViewModel.kt": {
+    "mtime": 1788247507.9704857,
+    "ast_hash": "7edfbc85fab48e4262daa522d5bdb5de",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/theme/Color.kt": {
+    "mtime": 1787752496.2684538,
+    "ast_hash": "48c488bf8e5de78ca8e2ba195794f5a3",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/theme/Motion.kt": {
+    "mtime": 1787752496.2694545,
+    "ast_hash": "8ccfad51902609aba1d61e567e863f3e",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/theme/Theme.kt": {
+    "mtime": 1787752496.2694545,
+    "ast_hash": "12c730c859f00d98cedc2c1956c57e0c",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/theme/Type.kt": {
+    "mtime": 1787752496.270964,
+    "ast_hash": "eb79bb1c9df58484c92d9eca50b6b0e0",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/ui/util/TimeFormat.kt": {
+    "mtime": 1787752496.271972,
+    "ast_hash": "19b06e06f71e5bda501b0339349e47c8",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ExampleUnitTest.kt": {
+    "mtime": 1787752496.3325963,
+    "ast_hash": "6e7dbd94c36b000b21ed3fa3db37b2d0",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/auth/ScramCryptoTest.kt": {
+    "mtime": 1787752496.278984,
+    "ast_hash": "8ab093d38957787f2affce1024360b6a",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/MqttClientFactoryTest.kt": {
+    "mtime": 1787752496.2869816,
+    "ast_hash": "479e480aa7946e9f5267627c393acf2e",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/MqttClockSkewTest.kt": {
+    "mtime": 1788247334.6067884,
+    "ast_hash": "8bcc073877cacd232246ce1749c1736b",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/MqttRepositoryImplTest.kt": {
+    "mtime": 1788247327.775299,
+    "ast_hash": "95524d9a7dd792724993577da45363fc",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/MqttRequestCorrelationTest.kt": {
+    "mtime": 1788247364.0688815,
+    "ast_hash": "d00fd28379cb70ab017635d4af823897",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/MqttRequestRetryTest.kt": {
+    "mtime": 1788247378.3826237,
+    "ast_hash": "f4e04bbfe3d360f70a290a167bbc83aa",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/MqttResponseDeduplicationTest.kt": {
+    "mtime": 1788247338.7810946,
+    "ast_hash": "39e8dd67058d912b351554fe28147833",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/MqttSessionExpiryTest.kt": {
+    "mtime": 1788247392.4518318,
+    "ast_hash": "19bd86dfda88e2ebc4160aaae48b4abd",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/MqttStationPresenceTest.kt": {
+    "mtime": 1788247336.7278316,
+    "ast_hash": "08f0afcd5f84991df3beafd6f169930b",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/MqttTopicsTest.kt": {
+    "mtime": 1787752496.297548,
+    "ast_hash": "003bcff48c175fbcb5e78a5ba8b0efc8",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/MqttVocabularyTest.kt": {
+    "mtime": 1787752496.2985475,
+    "ast_hash": "0c040d27a1a1de61991d073dc003cc82",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/RequestEnvelopeTest.kt": {
+    "mtime": 1787752496.300556,
+    "ast_hash": "43eb22101bf483543ecda78e68e0a0d0",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/Schema41EnvelopeTest.kt": {
+    "mtime": 1787752496.3015544,
+    "ast_hash": "f30cb7551f230aa323f2f89774ef0768",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/WireNullToleranceTest.kt": {
+    "mtime": 1787752496.3025558,
+    "ast_hash": "3338d9f37845f149cff2e184887b366b",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/dto/BomLoadedResponseTest.kt": {
+    "mtime": 1787752496.2799816,
+    "ast_hash": "fdf80e32705a5af36096f01e24c54489",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/dto/IngredientScanResultTest.kt": {
+    "mtime": 1787752496.2809818,
+    "ast_hash": "47502d47e712ae433ad5be65d0e54d7c",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/dto/MixingMessagesTest.kt": {
+    "mtime": 1787752496.2839808,
+    "ast_hash": "bb001d1efbb4203715c59ec01b757932",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/dto/MixingOverviewWireCaptureTest.kt": {
+    "mtime": 1787752496.2859807,
+    "ast_hash": "5d4c8dc6343fa6d206118eb4fd45bb84",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/dto/ResponseEnvelopeTest.kt": {
+    "mtime": 1787752496.2869816,
+    "ast_hash": "a4ca34f9f623afc5c658096b5d6ccc0e",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/session/OperatorSessionHolderTest.kt": {
+    "mtime": 1787752496.304556,
+    "ast_hash": "c34d0650f263dbf1d009e81fb1f0510b",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/domain/model/AppSettingsTest.kt": {
+    "mtime": 1788247292.4677882,
+    "ast_hash": "320fe124e2a6d93be1dfc3d8a7b11d4d",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/domain/model/BomLineTest.kt": {
+    "mtime": 1787752496.3065567,
+    "ast_hash": "0567a3c78436ea84eb2f54c5f52eea02",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/domain/model/PalletStateTest.kt": {
+    "mtime": 1787752496.3065567,
+    "ast_hash": "76a576633a3568f7fe8ec6aab3a619dc",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/domain/model/SessionStateTest.kt": {
+    "mtime": 1787752496.3075552,
+    "ast_hash": "deaef796b0559be3e803597f70b7e978",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/AuthUseCaseTest.kt": {
+    "mtime": 1787752496.3095565,
+    "ast_hash": "fa87e7d71fbd34f17401ee12216f191e",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/MixingBoardUseCaseTest.kt": {
+    "mtime": 1787752496.3115563,
+    "ast_hash": "5aecb2300f23575a75843a00cf1f67ee",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/MixingUseCaseTest.kt": {
+    "mtime": 1787752496.3135576,
+    "ast_hash": "4e92728b53e2f4c3a9ec994d938f7656",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/PalletUseCaseTest.kt": {
+    "mtime": 1787752496.3160775,
+    "ast_hash": "37f18bbb14369561250cfee9b248fcaf",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/components/ConnectionStatusTest.kt": {
+    "mtime": 1787752496.3170755,
+    "ast_hash": "0c49677bcddc09ba67dc89d18551346e",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/components/StatusCardTest.kt": {
+    "mtime": 1787752496.3180778,
+    "ast_hash": "3a0c404fd33098267d8ced492e07d75e",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/home/HomeViewModelTest.kt": {
+    "mtime": 1787752496.3190753,
+    "ast_hash": "0da1540077084b235ca6c3032b54db83",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/login/LoginViewModelTest.kt": {
+    "mtime": 1787752496.3200772,
+    "ast_hash": "eee180dc073e941e4608a847e0339209",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/mixing/IngredientScanScreenKtTest.kt": {
+    "mtime": 1787752496.3235955,
+    "ast_hash": "7a9a0cc9ed301b621c6a085f15d803c8",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/mixing/JobLookupScreenKtTest.kt": {
+    "mtime": 1787752496.3245957,
+    "ast_hash": "209efa6c096733d47eb98554e2b2707a",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/mixing/MixingViewModelTest.kt": {
+    "mtime": 1787752496.3275948,
+    "ast_hash": "fd4009df90b620715597976b113862d9",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/mixing/board/MixingAreaPickerScreenKtTest.kt": {
+    "mtime": 1787752496.3210769,
+    "ast_hash": "36892564b17a9d3e1f27c9c0feb1350f",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/mixing/board/MixingBoardScreenKtTest.kt": {
+    "mtime": 1787752496.3210769,
+    "ast_hash": "4167d4b1b6b7f5eefb520f84f126d62d",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/mixing/board/MixingBoardViewModelTest.kt": {
+    "mtime": 1787752496.3225858,
+    "ast_hash": "0b68b776a085cd1154c63ed78c3d4ead",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/rfid/RfidViewModelTest.kt": {
+    "mtime": 1787752496.328595,
+    "ast_hash": "7f2f6e062c1a191d5e1244de0697af47",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/settings/SettingsViewModelTest.kt": {
+    "mtime": 1788247406.9170656,
+    "ast_hash": "13786179bc65b2829235d6f403c41d4f",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/ui/util/TimeFormatTest.kt": {
+    "mtime": 1787752496.3315957,
+    "ast_hash": "35159e4a4ce2c2198edaadac1653178b",
+    "semantic_hash": ""
+  },
+  ".github/workflows/release.yml": {
+    "mtime": 1788178394.8268614,
+    "ast_hash": "e28928d6eb36dfd9a23a65400f944f53",
     "semantic_hash": ""
   }
 }

@@ -5,10 +5,9 @@ import org.junit.Test
 
 class AppSettingsTest {
 
-    @Test
-    fun `default deviceId is handheld_1`() {
-        assertEquals("handheld_1", AppSettings().deviceId)
-    }
+    // There is deliberately no deviceId test here any more: the device id left AppSettings when
+    // the fleet MQTT base standard retired configured identities — it is now derived from
+    // hardware by data.identity.DeviceIdentity, never configured.
 
     @Test
     fun `default mqtt host is mqtt sysone co za`() {

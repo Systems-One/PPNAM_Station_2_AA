@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
+import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
@@ -26,7 +27,8 @@ import javax.inject.Singleton
 class MqttRepositoryImpl @Inject constructor(
     private val clientFactory: MqttClientFactory,
     private val settingsRepository: SettingsRepository,
-    private val sessionHolder: OperatorSessionHolder
+    private val sessionHolder: OperatorSessionHolder,
+    private val deviceIdentity: DeviceIdentity,
 ) : MqttRepository {
 
     companion object {
@@ -129,7 +131,15 @@ class MqttRepositoryImpl @Inject constructor(
 
     private var mqttClient: Mqtt5AsyncClient? = null
     private val isTransportConnected = AtomicBoolean(false)
-    private var currentDeviceId: String = AppSettings().deviceId
+
+    // Guards the graceful-shutdown race in the presence self-heal below: disconnect() publishes
+    // retained "offline" while still connected, and the broker echoes it back before the
+    // DISCONNECT completes — that echo must not resurrect "online".
+    private val wantsConnection = AtomicBoolean(false)
+
+    // Derived from hardware (base standard §2), never configured. Lazy because deriving it can
+    // touch SharedPreferences/NetworkInterface; first access is on Dispatchers.IO in connect().
+    private val deviceId: String by lazy { deviceIdentity.deviceId() }
     private var requestTimeoutMs: Long = AppSettings().requestTimeoutMs
     private var retryJob: Job? = null
 
@@ -164,13 +174,13 @@ class MqttRepositoryImpl @Inject constructor(
                     try {
                         retryBounded(SUBSCRIBE_RETRY_ATTEMPTS, SUBSCRIBE_RETRY_DELAY_MS) {
                             withTimeout(SUBSCRIBE_TIMEOUT_MS) {
-                                subscribeAndAnnounce(client, settings.deviceId)
+                                subscribeAndAnnounce(client, deviceId)
                             }
                         }
                         _connectionState.value = MqttConnectionState.CONNECTED
                     } catch (e: Exception) {
                         _connectionState.value = MqttConnectionState.DISCONNECTED
-                        scheduleSubscribeRetry(client, settings.deviceId)
+                        scheduleSubscribeRetry(client, deviceId)
                     }
                 }
             },
@@ -264,21 +274,57 @@ class MqttRepositoryImpl @Inject constructor(
             .callback { publish -> handleStationPresence(publish.payloadAsBytes) }
             .send()
             .await()
+        // Self-heal (base standard §3): a restart quicker than the broker's dead-connection
+        // detection lets the PREVIOUS connection's Last Will — retained "offline" — land after
+        // this connection's retained "online", sticking presence at "offline" while genuinely
+        // connected. Watching our own presence node lets us put it right.
+        client.subscribeWith()
+            .topicFilter(MqttTopics.devicePresence(deviceId))
+            .callback { publish -> handleOwnPresence(client, publish.payloadAsBytes) }
+            .send()
+            .await()
         client.publishWith()
             .topic(MqttTopics.devicePresence(deviceId))
             .payload(STATUS_ONLINE)
-            .qos(MqttQos.AT_LEAST_ONCE)
+            .qos(MqttQos.EXACTLY_ONCE)
             .retain(true)
             .send()
             .await()
     }
 
+    // Republishes retained "online" whenever our own presence node reads "offline" mid-connection.
+    // Loop-guarded three ways: only the live client may heal (a superseded client's echoes are
+    // ignored), only while the transport is actually connected, and only while a connection is
+    // wanted — disconnect() publishes retained "offline" while still connected, and the broker
+    // echoes it back before the DISCONNECT completes; that echo must not resurrect "online".
+    // The republish itself echoes back as "online", which this handler ignores, so it can never
+    // feed itself.
+    private fun handleOwnPresence(client: Mqtt5AsyncClient, bytes: ByteArray) {
+        val payload = String(bytes).trim().lowercase()
+        if (payload != "offline") return
+        if (mqttClient !== client || !isTransportConnected.get() || !wantsConnection.get()) return
+        Log.w(TAG, "Own presence node reads offline while connected — republishing retained online")
+        scope.launch {
+            try {
+                client.publishWith()
+                    .topic(MqttTopics.devicePresence(deviceId))
+                    .payload(STATUS_ONLINE)
+                    .qos(MqttQos.EXACTLY_ONCE)
+                    .retain(true)
+                    .send()
+                    .await()
+            } catch (e: Exception) {
+                Log.w(TAG, "Presence self-heal republish failed", e)
+            }
+        }
+    }
+
     override suspend fun connect() {
         if (isTransportConnected.get()) return
         retryJob?.cancel()
+        wantsConnection.set(true)
         _connectionState.value = MqttConnectionState.RECONNECTING
         val settings = settingsRepository.current()
-        currentDeviceId = settings.deviceId
         requestTimeoutMs = settings.requestTimeoutMs
         // buildClient()/connectWith() do synchronous SSLContext/Netty setup (disk I/O +
         // crypto init) before the first suspension point — running that on the caller's
@@ -295,9 +341,11 @@ class MqttRepositoryImpl @Inject constructor(
                         .cleanStart(false)
                         .keepAlive(30)
                         .willPublish()
-                            .topic(MqttTopics.devicePresence(currentDeviceId))
+                            // Presence QoS is 2 per the base standard — retained raw "offline"
+                            // on the device's own base node, same topic as the online announce.
+                            .topic(MqttTopics.devicePresence(deviceId))
                             .payload(STATUS_OFFLINE)
-                            .qos(MqttQos.AT_LEAST_ONCE)
+                            .qos(MqttQos.EXACTLY_ONCE)
                             .retain(true)
                             .applyWillPublish()
                         .send()
@@ -318,13 +366,13 @@ class MqttRepositoryImpl @Inject constructor(
             try {
                 retryBounded(SUBSCRIBE_RETRY_ATTEMPTS, SUBSCRIBE_RETRY_DELAY_MS) {
                     withTimeout(SUBSCRIBE_TIMEOUT_MS) {
-                        subscribeAndAnnounce(client, currentDeviceId)
+                        subscribeAndAnnounce(client, deviceId)
                     }
                 }
                 _connectionState.value = MqttConnectionState.CONNECTED
             } catch (e: Exception) {
                 _connectionState.value = MqttConnectionState.DISCONNECTED
-                scheduleSubscribeRetry(client, currentDeviceId)
+                scheduleSubscribeRetry(client, deviceId)
             }
         }
     }
@@ -332,13 +380,18 @@ class MqttRepositoryImpl @Inject constructor(
     override fun disconnect() {
         retryJob?.cancel()
         subscribeRetryJob?.cancel()
-        publishOfflineBestEffort(mqttClient, currentDeviceId)
+        // Cleared BEFORE the offline publish: the broker echoes our own retained "offline" back
+        // on the presence subscription while the transport is still up, and the self-heal must
+        // not read that echo as a stuck LWT and resurrect "online".
+        wantsConnection.set(false)
+        publishOfflineBestEffort(mqttClient)
         mqttClient?.disconnect()
         _connectionState.value = MqttConnectionState.DISCONNECTED
     }
 
     override suspend fun reconnectWith(settings: AppSettings): Result<Unit> {
         retryJob?.cancel()
+        wantsConnection.set(true)
         // See connect() — buildClient()/connectWith() block synchronously before their
         // first suspension point, so this must run off the caller's (Main) dispatcher.
         return withContext(Dispatchers.IO) {
@@ -349,22 +402,23 @@ class MqttRepositoryImpl @Inject constructor(
                         .cleanStart(false)
                         .keepAlive(30)
                         .willPublish()
-                            .topic(MqttTopics.devicePresence(settings.deviceId))
+                            .topic(MqttTopics.devicePresence(deviceId))
                             .payload(STATUS_OFFLINE)
-                            .qos(MqttQos.AT_LEAST_ONCE)
+                            .qos(MqttQos.EXACTLY_ONCE)
                             .retain(true)
                             .applyWillPublish()
                         .send()
                         .await()
-                    subscribeAndAnnounce(candidate, settings.deviceId)
+                    subscribeAndAnnounce(candidate, deviceId)
                 }
                 val old = mqttClient
-                val oldDeviceId = currentDeviceId
                 mqttClient = candidate
-                currentDeviceId = settings.deviceId
                 requestTimeoutMs = settings.requestTimeoutMs
                 _connectionState.value = MqttConnectionState.CONNECTED
-                publishOfflineBestEffort(old, oldDeviceId)
+                // The old client's retained "offline" lands on the SAME node (the id is derived,
+                // not per-connection) after the candidate's "online" — the presence self-heal
+                // then reads it and restores "online" for the live connection.
+                publishOfflineBestEffort(old)
                 try { old?.disconnect() } catch (_: Exception) { }
                 Result.success(Unit)
             } catch (e: Exception) {
@@ -390,12 +444,12 @@ class MqttRepositoryImpl @Inject constructor(
             gson = gson,
             payload = payload,
             messageId = messageId,
-            deviceId = currentDeviceId,
+            deviceId = deviceId,
             operatorSessionId = sessionHolder.currentSessionIdOrEmpty(),
             timestampUtc = MqttSchema.formatTimestamp(nowFn()),
             correlationKey = correlationKey,
         )
-        val topic = MqttTopics.request(currentDeviceId, requestType)
+        val topic = MqttTopics.request(deviceId, requestType)
 
         val bytes = json.toByteArray()  // frozen: every attempt republishes these exact bytes
         val waiter = CompletableDeferred<String>()
@@ -552,12 +606,12 @@ class MqttRepositoryImpl @Inject constructor(
     // A graceful disconnect/reconnect doesn't trigger the connection's LWT (that only
     // fires on an ungraceful drop), so the "offline" status has to be published by hand
     // here. Best-effort: bounded blocking wait since disconnect() isn't suspend.
-    private fun publishOfflineBestEffort(client: Mqtt5AsyncClient?, deviceId: String) {
+    private fun publishOfflineBestEffort(client: Mqtt5AsyncClient?) {
         try {
             client?.publishWith()
                 ?.topic(MqttTopics.devicePresence(deviceId))
                 ?.payload(STATUS_OFFLINE)
-                ?.qos(MqttQos.AT_LEAST_ONCE)
+                ?.qos(MqttQos.EXACTLY_ONCE)
                 ?.retain(true)
                 ?.send()
                 ?.get(2, TimeUnit.SECONDS)

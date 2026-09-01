@@ -27,7 +27,7 @@ class MqttResponseDeduplicationTest {
     @Before
     fun setup() {
         sessionHolder = OperatorSessionHolder()
-        repository = MqttRepositoryImpl(mock(), mock<SettingsRepository>(), sessionHolder)
+        repository = MqttRepositoryImpl(mock(), mock<SettingsRepository>(), sessionHolder, mock())
     }
 
     private fun deliver(json: String) =

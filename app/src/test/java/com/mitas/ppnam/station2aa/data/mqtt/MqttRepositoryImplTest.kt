@@ -25,6 +25,7 @@ class MqttRepositoryImplTest {
             mockClientFactory,
             mockSettingsRepository,
             OperatorSessionHolder(),
+            mock(),
         )
     }
 

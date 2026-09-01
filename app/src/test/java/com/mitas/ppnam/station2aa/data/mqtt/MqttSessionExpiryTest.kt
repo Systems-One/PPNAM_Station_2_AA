@@ -1,5 +1,6 @@
 package com.mitas.ppnam.station2aa.data.mqtt
 
+import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
@@ -14,6 +15,7 @@ import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class MqttSessionExpiryTest {
 
@@ -32,10 +34,13 @@ class MqttSessionExpiryTest {
                 role = "Operator",
             )
         )
+        val deviceIdentity = mock<DeviceIdentity>()
+        whenever(deviceIdentity.deviceId()).thenReturn("scanner_5c64df8d86a8")
         repo = MqttRepositoryImpl(
             clientFactory = mock(),
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = sessionHolder,
+            deviceIdentity = deviceIdentity,
         )
         published.clear()
         repo.publishFn = { topic, bytes -> published += topic to bytes }

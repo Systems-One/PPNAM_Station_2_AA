@@ -1,5 +1,6 @@
 package com.mitas.ppnam.station2aa.ui.settings
 
+import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import com.mitas.ppnam.station2aa.domain.model.AppSettings
@@ -25,6 +26,7 @@ class SettingsViewModelTest {
     private lateinit var mockMqttRepository: MqttRepository
     private lateinit var mockAuthUseCase: AuthUseCase
     private lateinit var mockSessionHolder: OperatorSessionHolder
+    private lateinit var mockDeviceIdentity: DeviceIdentity
     private lateinit var viewModel: SettingsViewModel
 
     @Before
@@ -34,7 +36,9 @@ class SettingsViewModelTest {
         mockMqttRepository = mock()
         mockAuthUseCase = mock()
         mockSessionHolder = mock()
+        mockDeviceIdentity = mock()
         whenever(mockSessionHolder.session).thenReturn(MutableStateFlow(null))
+        whenever(mockDeviceIdentity.deviceId()).thenReturn("scanner_5c64df8d86a8")
 
         whenever(mockSettingsRepository.settingsFlow).thenReturn(flowOf(AppSettings()))
         runBlocking { whenever(mockSettingsRepository.current()).thenReturn(AppSettings()) }
@@ -44,7 +48,8 @@ class SettingsViewModelTest {
         whenever(mockMqttRepository.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
 
         viewModel = SettingsViewModel(
-            mockSettingsRepository, mockMqttRepository, mockAuthUseCase, mockSessionHolder
+            mockSettingsRepository, mockMqttRepository, mockAuthUseCase, mockSessionHolder,
+            mockDeviceIdentity,
         )
     }
 
