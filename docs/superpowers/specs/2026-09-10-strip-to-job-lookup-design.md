@@ -41,7 +41,7 @@ Reduce the PPNAM Station 2 Android app to a single working vertical slice — lo
 4. No client-side plaintext-credential guard before dispatch (§4).
 5. No structured per-message logging (§7).
 6. No redaction of secrets before diagnostic writes (§7).
-7. `allowedTabs` is stored but never read; `OperatorSessionHolder.canShow()` is fail-**open** where §5 requires fail-closed.
+7. `allowedTabs` — the list of workflows the operator may use — is stored on `OperatorSession` but read by nothing. §5 requires the app to enable exactly the listed workflows and to fail **closed** on a missing or empty list. Note this is a different field from `allowedActions`, whose fail-open `canShow()` is a UI control hint and is correct as written.
 8. `requestTimeoutMs` defaults to 20 s; §4 specifies a 10 s workflow timeout.
 
 `CLAUDE.md` also points at `C:\Dev\PPNAM-Station-2`, which no longer exists. The backend and contract now live at `C:\Dev\Clients\PPNAM\Windows\PPNAM-Station-2`. Fix the path and the read-only rule that references it.
@@ -146,7 +146,9 @@ Three properties change as a direct consequence. They are accepted, not overlook
 | 2 | Reject `password` / `managerPassword` anywhere in an outgoing JSON tree, before publish | `AuthEnvelope` / `WorkflowEnvelope` build path |
 | 3 | Structured per-message log: direction, topic, QoS, retain, deviceId, message type, result or error code, duration | new `data/mqtt/MqttLog.kt` |
 | 4 | Recursive redaction of `password`, `managerPassword`, `clientProof`, `serverSignature`, `authorizationToken`, SCRAM verifier keys and broker secrets before any diagnostic write | new `data/mqtt/Redact.kt` |
-| 5 | `allowedTabs` fail-closed: empty or missing enables no workflows | `OperatorSessionHolder.canShow()` inverted; gates the Home job-lookup tile |
+| 5 | `allowedTabs` fail-closed: empty or missing enables no workflows | new `OperatorSession.canUseWorkflow(tab)`; gates the Home job-lookup tile |
+
+On item 5: `allowedActions`/`canShow()` is **not** the field in question and is not changed. It is a UI control hint that deliberately fails open, and after the strip its three `StationAction` constants (force close, collection cancel, short-bag approval) all belong to deleted flows — so `StationAction`, `canShow()` and its nullable extension become dead code and are removed in §4.1. The `allowedActions` property stays on `OperatorSession`, parsed but unread, since login still returns it.
 
 ### 5.4 Deliberately not done
 
