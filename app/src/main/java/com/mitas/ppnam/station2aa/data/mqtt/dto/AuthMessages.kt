@@ -41,18 +41,24 @@ data class ScramProofPayload(
 )
 
 /**
- * Response to `scram_proof_requested`. [serverSignature] must be validated before anything else
- * in it is trusted. Task 9 moves the session fields under `session` to match rev2.1.
+ * `scram_proof_result` `data`. [serverSignature] must be validated before [session] is trusted.
+ *
+ * rev2.1 sends no `allowedTabs`/`allowedActions` and never will (customer-confirmed 2026-09-30):
+ * Station 2 authorizes every request by its `sessionId`, and nothing on the device gates on role.
  */
 data class ScramProofResponse(
     val serverSignature: String = "",
-    val operatorSessionId: String = "",
-    val operatorId: String? = null,
-    val username: String? = null,
-    val displayName: String? = null,
-    val role: String? = null,
-    val allowedActions: List<String> = emptyList(),
-    val allowedTabs: List<String> = emptyList(),
+    val session: Rev2Session? = null,
+)
+
+/** Station 2's `StationOperatorSession`, camelCase. Enum values arrive as names (`Worker`, `Active`). */
+data class Rev2Session(
+    val sessionId: String = "",
+    val operatorId: String = "",
+    val displayName: String = "",
+    /** Display and audit only — never branch on it. */
+    val role: String = "",
+    val expiresAtUtc: String? = null,
     val sessionState: String? = null,
-    val sessionExpiresAtUtc: String? = null,
+    val isActive: Boolean = false,
 )

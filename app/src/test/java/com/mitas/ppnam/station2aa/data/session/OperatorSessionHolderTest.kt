@@ -46,4 +46,27 @@ class OperatorSessionHolderTest {
         holder.set(OperatorSession("sess-1", "OP-1", "Jane Smith", "Operator"))
         assertEquals("sess-1", holder.currentSessionIdOrEmpty())
     }
+
+    @Test
+    fun `clearIf clears a matching session and returns true`() {
+        val holder = OperatorSessionHolder()
+        holder.set(OperatorSession("sess-1", "OP-1", "Jane Smith", "Operator"))
+        assertTrue(holder.clearIf("sess-1"))
+        assertNull(holder.session.value)
+    }
+
+    @Test
+    fun `clearIf leaves a different session untouched and returns false`() {
+        val holder = OperatorSessionHolder()
+        holder.set(OperatorSession("sess-2", "OP-1", "Jane Smith", "Operator"))
+        assertFalse(holder.clearIf("sess-1"))
+        assertEquals("sess-2", holder.session.value?.operatorSessionId)
+    }
+
+    @Test
+    fun `clearIf with no session returns false`() {
+        val holder = OperatorSessionHolder()
+        assertFalse(holder.clearIf("sess-1"))
+        assertNull(holder.session.value)
+    }
 }

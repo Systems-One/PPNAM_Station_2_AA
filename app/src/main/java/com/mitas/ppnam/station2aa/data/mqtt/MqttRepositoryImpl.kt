@@ -569,10 +569,9 @@ class MqttRepositoryImpl @Inject constructor(
         // is already gone — acting on it would log the operator out of a perfectly good one.
         if (envelope.errorCode == ErrorCode.OPERATOR_SESSION_INVALID &&
             entry.sessionId.isNotBlank() &&
-            entry.sessionId == sessionHolder.currentSessionIdOrEmpty()
+            sessionHolder.clearIf(entry.sessionId)
         ) {
-            Log.w(TAG, "Station 2 reports the session is invalid ($topic) — clearing local session")
-            sessionHolder.clear()
+            Log.w(TAG, "Station 2 reports the session is invalid ($topic) — cleared local session")
         }
         entry.waiter.complete(raw)
     }

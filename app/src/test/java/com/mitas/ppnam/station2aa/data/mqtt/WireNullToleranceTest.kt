@@ -78,19 +78,6 @@ class WireNullToleranceTest {
     }
 
     @Test
-    fun `a null inside an array is dropped instead of becoming a null element`() {
-        // `List<String>` promises non-null elements just as firmly as a non-null field does, and the
-        // NPE it produces surfaces even further from the wire — at the point of use.
-        val parsed = WireJson.gson.fromJson(
-            """{"allowedActions": ["mixing_view", null, "rfid_view"], "allowedTabs": [null]}""",
-            ScramProofResponse::class.java,
-        )
-
-        assertEquals(listOf("mixing_view", "rfid_view"), parsed.allowedActions)
-        assertEquals(emptyList<String>(), parsed.allowedTabs)
-    }
-
-    @Test
     fun `no production code builds its own Gson`() {
         // The guard only guards what flows through it. A bare `Gson()` anywhere in main is a second
         // parser with none of the null pruning, which is how this bug would come back.

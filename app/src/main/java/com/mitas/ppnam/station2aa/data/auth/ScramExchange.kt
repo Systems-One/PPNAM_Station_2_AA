@@ -84,7 +84,7 @@ class ScramExchange @Inject constructor(
 
         val proofOutcome = mqttRepository.request(
             requestType = "scram_proof_requested",
-            responseType = "operator_context",
+            responseType = "scram_proof_result",
             payload = ScramProofPayload(
                 challengeId = challenge.challengeId,
                 clientFinalWithoutProof = clientFinalWithoutProof,

@@ -18,28 +18,28 @@ class AuthUseCase @Inject constructor(
         val proof = scramExchange.authenticate(username, password)
             .getOrElse { return Result.failure(it) }
 
-        val state = SessionState.fromWire(proof.sessionState)
+        val wire = proof.session
+            ?: return Result.failure(Exception("Station 2 accepted the login but issued no session"))
+        val state = SessionState.fromWire(wire.sessionState)
         return when {
-            proof.operatorSessionId.isBlank() ->
+            wire.sessionId.isBlank() ->
                 Result.failure(Exception("Station 2 accepted the login but issued no session"))
-            // Accepting an already-closed session would strand the operator in a UI that
-            // rejects every action.
-            state == SessionState.Closed ->
+            // Accepting an already-closed or inactive session would strand the operator in a UI
+            // that rejects every action.
+            state == SessionState.Closed || !wire.isActive ->
                 Result.failure(Exception("Station 2 closed this session immediately"))
             else -> {
                 val session = OperatorSession(
-                    operatorSessionId = proof.operatorSessionId,
-                    operatorId = proof.operatorId.orEmpty(),
-                    operatorName = proof.displayName.orEmpty(),
-                    role = proof.role.orEmpty(),
+                    operatorSessionId = wire.sessionId,
+                    operatorId = wire.operatorId,
+                    operatorName = wire.displayName,
+                    role = wire.role,
                     sessionState = state,
                     // A bad timestamp must not fail an otherwise valid login — expiry is
                     // display-only, and Station 2 enforces it regardless.
-                    sessionExpiresAtUtc = proof.sessionExpiresAtUtc?.let {
+                    sessionExpiresAtUtc = wire.expiresAtUtc?.let {
                         try { Instant.parse(it) } catch (e: Exception) { null }
                     },
-                    allowedActions = proof.allowedActions,
-                    allowedTabs = proof.allowedTabs,
                 )
                 sessionHolder.set(session)
                 Result.success(session)

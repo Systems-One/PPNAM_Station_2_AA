@@ -1,6 +1,7 @@
 package com.mitas.ppnam.station2aa.domain.usecase
 
 import com.mitas.ppnam.station2aa.data.auth.ScramExchange
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Session
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ScramProofResponse
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.domain.model.SessionState
@@ -22,16 +23,18 @@ class AuthUseCaseTest {
     private lateinit var sessionHolder: OperatorSessionHolder
     private lateinit var useCase: AuthUseCase
 
-    /** What a successful SCRAM login proof returns. */
+    /** What a successful rev2.1 SCRAM proof returns under `data`. */
     private val provedLogin = ScramProofResponse(
         serverSignature = "verified-by-ScramExchange",
-        operatorSessionId = "session-id",
-        operatorId = "OP-001",
-        username = "operator1",
-        displayName = "Operator One",
-        role = "Operator",
-        allowedActions = listOf("scan_ingredient", "start_machine_cycle"),
-        allowedTabs = listOf("collect", "mixing"),
+        session = Rev2Session(
+            sessionId = "session-id",
+            operatorId = "OP-001",
+            displayName = "Operator One",
+            role = "Worker",
+            expiresAtUtc = "2026-09-30T18:00:00.000000Z",
+            sessionState = "Active",
+            isActive = true,
+        ),
     )
 
     @Before
@@ -63,15 +66,13 @@ class AuthUseCaseTest {
         assertEquals("session-id", session.operatorSessionId)
         assertEquals("OP-001", session.operatorId)
         assertEquals("Operator One", session.operatorName)
-        assertEquals("Operator", session.role)
-        assertEquals(listOf("scan_ingredient", "start_machine_cycle"), session.allowedActions)
-        assertEquals(listOf("collect", "mixing"), session.allowedTabs)
+        assertEquals("Worker", session.role)
         assertEquals("session-id", sessionHolder.session.value?.operatorSessionId)
     }
 
     @Test
     fun `a proved login with no session id is still a failure`() = runTest {
-        stubScram(Result.success(provedLogin.copy(operatorSessionId = "")))
+        stubScram(Result.success(provedLogin.copy(session = provedLogin.session!!.copy(sessionId = ""))))
 
         val result = useCase.login("operator1", "secret")
 
@@ -93,22 +94,20 @@ class AuthUseCaseTest {
     @Test
     fun `a successful login carries session state and expiry`() = runTest {
         stubScram(
-            Result.success(
-                provedLogin.copy(sessionState = "Active", sessionExpiresAtUtc = "2026-07-17T00:00:01Z")
-            )
+            Result.success(provedLogin)
         )
 
         val session = useCase.login("operator1", "secret").getOrThrow()
 
         assertEquals(SessionState.Active, session.sessionState)
-        assertEquals(Instant.parse("2026-07-17T00:00:01Z"), session.sessionExpiresAtUtc)
+        assertEquals(Instant.parse("2026-09-30T18:00:00.000000Z"), session.sessionExpiresAtUtc)
     }
 
     @Test
     fun `a login answered with a Closed session is a failure`() = runTest {
         // Accepting a session Station 2 has already closed would strand the operator in a UI that
         // rejects every action.
-        stubScram(Result.success(provedLogin.copy(sessionState = "Closed")))
+        stubScram(Result.success(provedLogin.copy(session = provedLogin.session!!.copy(sessionState = "Closed"))))
 
         val result = useCase.login("operator1", "secret")
 
@@ -118,11 +117,43 @@ class AuthUseCaseTest {
 
     @Test
     fun `an unparseable expiry does not fail the login`() = runTest {
-        stubScram(Result.success(provedLogin.copy(sessionExpiresAtUtc = "not-a-timestamp")))
+        stubScram(Result.success(provedLogin.copy(session = provedLogin.session!!.copy(expiresAtUtc = "not-a-date"))))
 
         val session = useCase.login("operator1", "secret").getOrThrow()
 
         assertNull(session.sessionExpiresAtUtc)
+    }
+
+    @Test
+    fun `a proof with no session object fails the login`() = runTest {
+        stubScram(Result.success(provedLogin.copy(session = null)))
+
+        val result = useCase.login("operator1", "pass")
+
+        assertTrue(result.isFailure)
+        assertNull(sessionHolder.session.value)
+    }
+
+    @Test
+    fun `a session Station 2 reports inactive fails the login`() = runTest {
+        stubScram(Result.success(provedLogin.copy(session = provedLogin.session!!.copy(isActive = false))))
+
+        val result = useCase.login("operator1", "pass")
+
+        assertTrue(result.isFailure)
+        assertNull(sessionHolder.session.value)
+    }
+
+    @Test
+    fun `the stored session takes identity from data_session`() = runTest {
+        stubScram(Result.success(provedLogin))
+
+        val session = useCase.login("operator1", "pass").getOrThrow()
+
+        assertEquals("session-id", session.operatorSessionId)
+        assertEquals("OP-001", session.operatorId)
+        assertEquals("Operator One", session.operatorName)
+        assertEquals("Worker", session.role)
     }
 
     @Test
