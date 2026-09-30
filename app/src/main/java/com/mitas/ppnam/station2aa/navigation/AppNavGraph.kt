@@ -12,26 +12,19 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.mitas.ppnam.station2aa.domain.model.MixingArea
 import com.mitas.ppnam.station2aa.ui.login.LoginScreen
 import com.mitas.ppnam.station2aa.ui.mixing.IngredientScanScreen
 import com.mitas.ppnam.station2aa.ui.mixing.JobLookupScreen
 import com.mitas.ppnam.station2aa.ui.mixing.MixingViewModel
-import com.mitas.ppnam.station2aa.ui.mixing.board.MixingAreaPickerScreen
-import com.mitas.ppnam.station2aa.ui.mixing.board.MixingBoardScreen
-import com.mitas.ppnam.station2aa.ui.mixing.board.MixingBoardViewModel
 import com.mitas.ppnam.station2aa.ui.components.UpgradeRequiredGate
 import com.mitas.ppnam.station2aa.ui.home.HomeScreen
 import com.mitas.ppnam.station2aa.ui.rfid.RfidRecoveryScreen
@@ -95,11 +88,11 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
             val activity = LocalContext.current.findActivity()
             HomeScreen(
                 onOpenJobCards = { navController.navigate(NavRoutes.MIXING) },
-                onOpenMixingBoard = { navController.navigate(NavRoutes.mixingAreas()) },
+                onOpenMixingBoard = {},
                 onFixATag = { navController.navigate(NavRoutes.RFID_RECOVERY) },
                 onSettings = { navController.navigate(NavRoutes.SETTINGS) },
-                // Navigation on logout is SessionWatcher's job alone — see the comment on
-                // MixingAreaPickerScreen's onLogout further down in this graph.
+                // Navigation on logout is SessionWatcher's job alone (it reacts to
+                // the session going null, which authUseCase.logout() causes before this event fires).
                 onLogout = {},
                 // Home is the start of the post-login graph now — there is no back stack to
                 // pop, so leaving means finishing the Activity. Only reached via the explicit
@@ -119,14 +112,14 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                 JobLookupScreen(
                     onJobFound = { orderNo -> navController.navigate(NavRoutes.ingredientScan(orderNo)) },
                     onSettings = { navController.navigate(NavRoutes.SETTINGS) },
-                    // Navigation on logout is SessionWatcher's job alone — see the comment on
-                    // MixingAreaPickerScreen's onLogout below.
+                    // Navigation on logout is SessionWatcher's job alone (it reacts to
+                    // the session going null, which authUseCase.logout() causes before this event fires).
                     onLogout = {},
                     onRfidLookup = {
                         viewModel.pauseScanning()
                         navController.navigate(NavRoutes.RFID_RECOVERY)
                     },
-                    onOpenMixing = { navController.navigate(NavRoutes.mixingAreas()) },
+                    onOpenMixing = {},
                     // Job Lookup now sits below Home on the back stack — plain pop takes the
                     // operator back to Home. The "close the app?" guard lives on Home now.
                     onBack = { navController.popBackStack() },
@@ -141,9 +134,7 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                 val viewModel: MixingViewModel = hiltViewModel(parentEntry)
                 IngredientScanScreen(
                     orderNo = orderNo,
-                    onStartMixing = { collectionId ->
-                        navController.navigate(NavRoutes.mixingAreas(collectionId))
-                    },
+                    onStartMixing = {},
                     onRfidLookup = {
                         viewModel.pauseScanning()
                         navController.navigate(NavRoutes.RFID_RECOVERY)
@@ -151,55 +142,6 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                     onBack = { navController.popBackStack() },
                     viewModel = viewModel
                 )
-            }
-        }
-        navigation(startDestination = NavRoutes.MIXING_AREAS, route = NavRoutes.MIXING_BOARD) {
-            composable(
-                NavRoutes.MIXING_AREAS,
-                arguments = listOf(navArgument("pendingCollectionId") {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                }),
-            ) { backStackEntry ->
-                val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry(NavRoutes.MIXING_BOARD)
-                }
-                val viewModel: MixingBoardViewModel = hiltViewModel(parentEntry)
-                MixingAreaPickerScreen(
-                    pendingCollectionId = backStackEntry.arguments?.getString("pendingCollectionId"),
-                    onAreaChosen = { area -> navController.navigate(NavRoutes.mixingAreaBoard(area.wire)) },
-                    onBack = { navController.popBackStack() },
-                    // Navigation on logout is SessionWatcher's job alone (it reacts to the
-                    // session going null, which authUseCase.logout() causes before this event
-                    // even fires) — a second navigate(LOGIN){popUpTo(0)} here raced it non-
-                    // deterministically, occasionally double-tearing-down/recreating Login.
-                    onLogout = {},
-                    viewModel = viewModel,
-                )
-            }
-            composable(NavRoutes.MIXING_AREA_BOARD) { backStackEntry ->
-                val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry(NavRoutes.MIXING_BOARD)
-                }
-                val viewModel: MixingBoardViewModel = hiltViewModel(parentEntry)
-                val area = MixingArea.fromWire(backStackEntry.arguments?.getString("area"))
-                if (area == null) {
-                    // Only our own navigate() calls mint this route; a bad value is a bug.
-                    // Navigation must run as a side effect, not directly in the composable body —
-                    // calling popBackStack() here unconditionally on every recomposition of this
-                    // branch is exactly the unsafe pattern Navigation-Compose warns against.
-                    LaunchedEffect(Unit) { navController.popBackStack() }
-                } else {
-                    MixingBoardScreen(
-                        area = area,
-                        onBack = { navController.popBackStack() },
-                        // Navigation on logout is SessionWatcher's job alone — see the comment on
-                        // MixingAreaPickerScreen's onLogout above.
-                        onLogout = {},
-                        viewModel = viewModel,
-                    )
-                }
             }
         }
         composable(NavRoutes.RFID_RECOVERY) {

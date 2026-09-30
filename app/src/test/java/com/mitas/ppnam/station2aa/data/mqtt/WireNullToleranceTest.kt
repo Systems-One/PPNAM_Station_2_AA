@@ -1,40 +1,19 @@
 package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.google.gson.annotations.SerializedName
-import com.mitas.ppnam.station2aa.data.auth.ManagerAuthorization
-import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveCycleDto
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsInvalidatedResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsListResponse
-import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveRunDto
 import com.mitas.ppnam.station2aa.data.mqtt.dto.BomLoadedResponse
-import com.mitas.ppnam.station2aa.data.mqtt.dto.EquipmentDto
 import com.mitas.ppnam.station2aa.data.mqtt.dto.IngredientCollectionCancelResultResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.IngredientScanResultResponse
-import com.mitas.ppnam.station2aa.data.mqtt.dto.JandiDrumDto
-import com.mitas.ppnam.station2aa.data.mqtt.dto.MachineCycleResultResponse
-import com.mitas.ppnam.station2aa.data.mqtt.dto.MixingOverviewResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.PalletLookupResultResponse
-import com.mitas.ppnam.station2aa.data.mqtt.dto.ReadyCollectionDto
-import com.mitas.ppnam.station2aa.data.mqtt.dto.ReadyMixDto
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
-import com.mitas.ppnam.station2aa.data.mqtt.dto.RunInputDto
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ScramChallengeResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ScramProofResponse
-import com.mitas.ppnam.station2aa.domain.model.AreaOverview
-import com.mitas.ppnam.station2aa.domain.model.MachineCycleOutcome
-import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
-import com.mitas.ppnam.station2aa.domain.usecase.MixingBoardUseCase
-import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -67,8 +46,6 @@ class WireNullToleranceTest {
      */
     private val responseRoots: List<Class<*>> = listOf(
         ResponseEnvelope::class.java,
-        MixingOverviewResponse::class.java,
-        MachineCycleResultResponse::class.java,
         BomLoadedResponse::class.java,
         ActiveJobCardsListResponse::class.java,
         ActiveJobCardsInvalidatedResponse::class.java,
@@ -136,81 +113,6 @@ class WireNullToleranceTest {
 
         assertEquals("510019339", parsed.jobCardNumber)
         assertEquals(emptyList<Any>(), parsed.ingredients)
-    }
-
-    @Test
-    fun `a null embedded object falls back to its default instead of nulling the field`() {
-        // `areaStatus` is the embedded overview every machine result carries. Null here used to mean
-        // an NPE at the first mapping call, on a cycle the server had already run.
-        val parsed = WireJson.gson.fromJson(
-            """{"action": "Started", "machineCode": "MXR-01", "areaStatus": null}""",
-            MachineCycleResultResponse::class.java,
-        )
-
-        assertEquals("Started", parsed.action)
-        assertEquals(MixingOverviewResponse(), parsed.areaStatus)
-        assertTrue(parsed.areaStatus.equipment.isEmpty())
-    }
-
-    @Test
-    fun `an overview whose every field is null maps all the way to domain without throwing`() = runTest {
-        // The end-to-end guarantee. Parsing is only half the problem: the crash happened in the
-        // DTO -> domain mapping, one layer past Gson, so this drives the real use case over a
-        // response in which every single field of every array entry arrived as null.
-        val mockMqtt = mock<MqttRepository>()
-        val useCase = MixingBoardUseCase(mockMqtt, mock<ManagerAuthorization>())
-        val allNullOverview = """
-            {
-              "mixingArea": null,
-              "equipment": [${allNullsJson(EquipmentDto::class.java)}],
-              "readyCollections": [${allNullsJson(ReadyCollectionDto::class.java)}],
-              "activeCycles": [${allNullsJson(ActiveCycleDto::class.java)}],
-              "readyMixes": [${allNullsJson(ReadyMixDto::class.java)}],
-              "activeRuns": [{
-                "productionRunId": null, "machineCode": null, "status": null,
-                "startedAtUtc": null, "inputs": [${allNullsJson(RunInputDto::class.java)}]
-              }],
-              "jandiDrum": ${allNullsJson(JandiDrumDto::class.java)},
-              "nextAction": null
-            }
-        """.trimIndent()
-        val body = WireJson.gson.fromJson(allNullOverview, MixingOverviewResponse::class.java)
-        whenever(mockMqtt.request(
-            eq("mixing_overview_requested"), eq("mixing_overview_result"), any(), anyOrNull(),
-            eq(MixingOverviewResponse::class.java)
-        )).thenReturn(MqttOutcome.Accepted(body, NextAction.NONE))
-
-        val overview = useCase.fetchOverview().getOrThrow()
-
-        // Every branch of the mapping ran — nothing was skipped into a vacuous pass.
-        assertEquals(1, overview.equipment.size)
-        assertEquals(1, overview.readyCollections.size)
-        assertEquals(1, overview.activeCycles.size)
-        assertEquals(1, overview.readyMixes.size)
-        assertEquals(1, overview.activeRuns.single().inputs.size)
-        assertNotNull(overview.jandiDrum)
-    }
-
-    @Test
-    fun `a machine cycle result whose every field is null still reports the cycle`() = runTest {
-        // The other half of the mixing board. A cycle the server has already run must survive an
-        // unmappable response: reporting it as failed would send the operator to re-scan a machine
-        // that is already going.
-        val mockMqtt = mock<MqttRepository>()
-        val useCase = MixingBoardUseCase(mockMqtt, mock<ManagerAuthorization>())
-        val body = WireJson.gson.fromJson(
-            allNullsJson(MachineCycleResultResponse::class.java),
-            MachineCycleResultResponse::class.java,
-        )
-        whenever(mockMqtt.request(
-            any(), eq("machine_cycle_result"), any(), anyOrNull(),
-            eq(MachineCycleResultResponse::class.java)
-        )).thenReturn(MqttOutcome.Accepted(body, NextAction.NONE))
-
-        val outcome = useCase.finish(machineCode = "MXR-01", cycleId = "CYC_000001")
-
-        assertTrue("expected an Accepted outcome, got $outcome", outcome is MachineCycleOutcome.Accepted)
-        assertEquals(AreaOverview.EMPTY, (outcome as MachineCycleOutcome.Accepted).areaStatus)
     }
 
     @Test
