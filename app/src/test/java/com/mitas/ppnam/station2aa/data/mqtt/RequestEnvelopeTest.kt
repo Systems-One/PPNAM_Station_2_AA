@@ -1,108 +1,67 @@
 package com.mitas.ppnam.station2aa.data.mqtt
 
-import com.google.gson.Gson
 import com.google.gson.JsonParser
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RequestEnvelopeTest {
 
-    private val gson = Gson()
+    private data class Payload(val action: String, val jobCard: String? = null, val deviceId: String? = null)
 
-    /**
-     * A stand-in message body. Deliberately NOT a login payload with a password: schema 4.1
-     * rejects any message carrying a `password` property, so using one as the generic example
-     * would model a request the app can no longer legally send.
-     */
-    private data class ScanPayload(val collectionId: String, val sourceBarcode: String)
-
-    private fun build(payload: Any, correlationKey: String? = null): String =
-        RequestEnvelope.build(
-            gson = gson,
-            payload = payload,
-            messageId = "login-0001",
-            deviceId = "handheld_1",
-            operatorSessionId = "",
-            timestampUtc = "2026-07-16T08:00:00Z",
-            correlationKey = correlationKey,
-        )
-
-    @Test
-    fun `envelope and payload are merged into one flat object`() {
-        val json = JsonParser.parseString(build(ScanPayload("COL_000123", "TAG-1"))).asJsonObject
-
-        assertEquals("login-0001", json.get("messageId").asString)
-        assertEquals("4.1", json.get("schemaVersion").asString)
-        assertEquals("handheld_1", json.get("deviceId").asString)
-        assertEquals("", json.get("operatorSessionId").asString)
-        assertEquals("2026-07-16T08:00:00Z", json.get("timestampUtc").asString)
-        assertEquals("COL_000123", json.get("collectionId").asString)
-        assertEquals("TAG-1", json.get("sourceBarcode").asString)
-    }
-
-    @Test
-    fun `an absent correlationKey is omitted rather than sent as null`() {
-        val json = JsonParser.parseString(build(ScanPayload("COL_000123", "TAG-1"))).asJsonObject
-        assertFalse(json.has("correlationKey"))
-    }
-
-    @Test
-    fun `a supplied correlationKey is included`() {
-        val json = JsonParser.parseString(
-            build(ScanPayload("COL_000123", "TAG-1"), correlationKey = "COL_000123")
+    private fun build(payload: Any = Payload("read"), sessionId: String? = "sess-1") =
+        JsonParser.parseString(
+            RequestEnvelope.build(
+                gson = WireJson.gson,
+                payload = payload,
+                messageId = "msg-1",
+                deviceId = "scanner_abc",
+                sessionId = sessionId,
+                timestampUtc = "2026-09-30T10:00:00.000000Z",
+            )
         ).asJsonObject
-        assertEquals("COL_000123", json.get("correlationKey").asString)
+
+    @Test
+    fun `writes every rev2_1 envelope field`() {
+        val obj = build()
+        assertEquals("rev2.1", obj["schemaVersion"].asString)
+        assertEquals("scanner_abc", obj["deviceId"].asString)
+        assertEquals("msg-1", obj["messageId"].asString)
+        assertEquals("2026-09-30T10:00:00.000000Z", obj["timestampUtc"].asString)
+        assertEquals("sess-1", obj["sessionId"].asString)
     }
 
     @Test
-    fun `a blank correlationKey is omitted rather than sent as empty string`() {
-        val json = JsonParser.parseString(
-            build(ScanPayload("COL_000123", "TAG-1"), correlationKey = "")
-        ).asJsonObject
-        assertFalse(json.has("correlationKey"))
+    fun `keeps the payload's own fields`() {
+        assertEquals("lookup", build(Payload("lookup", jobCard = "510019296"))["action"].asString)
+        assertEquals("510019296", build(Payload("lookup", jobCard = "510019296"))["jobCard"].asString)
     }
 
     @Test
-    fun `a whitespace-only correlationKey is omitted rather than sent`() {
-        val json = JsonParser.parseString(
-            build(ScanPayload("COL_000123", "TAG-1"), correlationKey = "   ")
-        ).asJsonObject
-        assertFalse(json.has("correlationKey"))
+    fun `omits a null payload field rather than sending null`() {
+        assertFalse(build(Payload("read"))
+            .has("jobCard"))
     }
 
     @Test
-    fun `an envelope-only request serializes to just the envelope`() {
-        val json = JsonParser.parseString(build(EmptyPayload)).asJsonObject
-
-        assertEquals("login-0001", json.get("messageId").asString)
-        assertEquals("4.1", json.get("schemaVersion").asString)
-        assertEquals(5, json.entrySet().size)
+    fun `omits sessionId when there is no session`() {
+        assertFalse(build(sessionId = null).has("sessionId"))
     }
 
     @Test
-    fun `schema version always comes from MqttSchema`() {
-        val json = JsonParser.parseString(build(EmptyPayload)).asJsonObject
-        assertEquals(MqttSchema.VERSION, json.get("schemaVersion").asString)
+    fun `omits sessionId when it is blank`() {
+        assertFalse(build(sessionId = "  ").has("sessionId"))
     }
 
     @Test
-    fun `a payload field never overwrites an envelope field`() {
-        // Guard: a payload accidentally carrying its own deviceId must not win. The transport is
-        // authoritative for envelope fields.
-        val rogue = mapOf("deviceId" to "attacker_device", "username" to "operator1")
-        val json = JsonParser.parseString(build(rogue)).asJsonObject
-        assertEquals("handheld_1", json.get("deviceId").asString)
-        assertEquals("operator1", json.get("username").asString)
+    fun `envelope fields win over a payload field of the same name`() {
+        assertEquals("scanner_abc", build(Payload("read", deviceId = "forged"))["deviceId"].asString)
     }
 
     @Test
-    fun `a null payload field is omitted`() {
-        data class Optional(val bagSizeOption: String?, val bagCount: Double?)
-        val json = JsonParser.parseString(build(Optional(null, null))).asJsonObject
-        assertFalse(json.has("bagSizeOption"))
-        assertFalse(json.has("bagCount"))
-        assertTrue(json.has("messageId"))
+    fun `never writes the retired 4_1 envelope fields`() {
+        val obj = build()
+        assertFalse(obj.has("operatorSessionId"))
+        assertFalse(obj.has("correlationKey"))
     }
 }

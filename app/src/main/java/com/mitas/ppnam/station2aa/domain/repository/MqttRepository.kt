@@ -20,9 +20,9 @@ interface MqttRepository {
      * Station 2's clock minus this device's clock, in milliseconds, as of the last response
      * carrying a parseable timestamp. `null` when no such response has arrived yet.
      *
-     * Every request must carry a `timestampUtc` inside Station 2's acceptance window, so a badly
-     * drifted device clock fails every message with `message_expired`. This surfaces that as a
-     * clock problem rather than a generic request failure. Detection only — never auto-correct.
+     * Every request carries a `timestampUtc`, and a badly drifted clock makes timestamps hard to
+     * reconcile with Station 2's logs. This surfaces that as a clock problem rather than leaving it
+     * to be discovered later. Detection only — never auto-correct.
      */
     val clockSkewMillis: StateFlow<Long?>
     /**
@@ -35,17 +35,13 @@ interface MqttRepository {
         requestType: String,
         responseType: String,
         payload: Any,
-        correlationKey: String?,
         responseClass: Class<T>,
     ): MqttOutcome<T>
     /**
-     * Registers the single handler for contract v4.1's uncorrelated server pushes — responses that
-     * carry no `inResponseToMessageId` because they answer no request, currently
-     * `active_job_cards_invalidated`.
-     *
-     * The transport deliberately does not interpret them. The contract is explicit that an
-     * invalidation is "never permission for a workflow mutation": it is a hint to discard the
-     * stale cursor and re-request page one, and only the layer owning that cursor can do so.
+     * Registers the single handler for rev2.1 server pushes — messages with no
+     * `inResponseToMessageId`, currently `active_job_cards_invalidated`. The transport does not
+     * interpret them: the push is a hint to issue a fresh authenticated `read`, and only the layer
+     * that owns the displayed list can do that.
      */
     fun setServerPushHandler(handler: (topic: String, envelope: ResponseEnvelope, raw: String) -> Unit)
     suspend fun connect()

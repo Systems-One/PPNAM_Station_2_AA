@@ -78,11 +78,4 @@ class MqttTopicsTest {
             MqttTopics.devicePresence("hand+held")
         }
     }
-
-    @Test
-    fun `schema version is exactly 4 point 1`() {
-        // Not cosmetic: 4.1 is a hard auth cutover. Station 2 rejects any 4.1 message containing a
-        // `password`/`managerPassword` property, so this constant and SCRAM must move together.
-        assertEquals("4.1", MqttSchema.VERSION)
-    }
 }

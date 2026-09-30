@@ -1,79 +1,64 @@
 package com.mitas.ppnam.station2aa.data.mqtt.dto
 
-import com.google.gson.Gson
+import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
+import com.mitas.ppnam.station2aa.data.mqtt.WireJson
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ResponseEnvelopeTest {
 
-    private val gson = Gson()
+    private fun parse(json: String) = WireJson.gson.fromJson(json, ResponseEnvelope::class.java)
 
     @Test
-    fun `parses a full accepted response envelope`() {
-        val json = """
-            {
-              "messageId": "server-generated",
-              "inResponseToMessageId": "machine-start-0001",
-              "schemaVersion": "4.0",
-              "deviceId": "handheld_1",
-              "operatorSessionId": "session-id",
-              "timestampUtc": "2026-07-16T10:30:01Z",
-              "correlationKey": "COL_000123",
-              "accepted": true,
-              "reason": null,
-              "errorCode": null,
-              "nextAction": "scan_same_machine_to_finish"
-            }
-        """.trimIndent()
-
-        val env = gson.fromJson(json, ResponseEnvelope::class.java)
-
-        assertEquals("machine-start-0001", env.inResponseToMessageId)
-        assertEquals("4.0", env.schemaVersion)
-        assertEquals("COL_000123", env.correlationKey)
-        assertTrue(env.accepted)
-        assertNull(env.reason)
-        assertNull(env.errorCode)
-        assertEquals("scan_same_machine_to_finish", env.nextAction)
+    fun `parses every rev2_1 reply field`() {
+        val e = parse(
+            """{"schemaVersion":"rev2.1","deviceId":"scanner_1","inResponseToMessageId":"m-1",
+               "receivedAtUtc":"2026-09-30T10:00:00.000000Z","sentAtUtc":"2026-09-30T10:00:00.012500Z",
+               "durationMs":12.5,"success":false,"error":"rev2_rejected",
+               "operatorMessage":"Load a General Mixing JC first.","nextAction":"Correct the request.",
+               "data":{"jobs":[]}}"""
+        )
+        assertEquals("m-1", e.inResponseToMessageId)
+        assertEquals("2026-09-30T10:00:00.012500Z", e.sentAtUtc)
+        assertEquals(12.5, e.durationMs!!, 0.0)
+        assertFalse(e.success)
+        assertEquals(ErrorCode.REV2_REJECTED, e.errorCode)
+        assertEquals("Load a General Mixing JC first.", e.displayMessage)
     }
 
     @Test
-    fun `parses a rejected response envelope carrying an error code`() {
-        val json = """
-            {
-              "inResponseToMessageId": "ingredient-0001",
-              "accepted": false,
-              "reason": "Manager approval required.",
-              "errorCode": "validation_failed",
-              "nextAction": "retry_with_manager_approval"
-            }
-        """.trimIndent()
-
-        val env = gson.fromJson(json, ResponseEnvelope::class.java)
-
-        assertEquals("ingredient-0001", env.inResponseToMessageId)
-        assertEquals(false, env.accepted)
-        assertEquals("Manager approval required.", env.reason)
-        assertEquals("validation_failed", env.errorCode)
+    fun `an empty error on success reads as no error code`() {
+        val e = parse("""{"success":true,"error":"","operatorMessage":"Current progress."}""")
+        assertTrue(e.success)
+        assertNull(e.errorCode)
     }
 
     @Test
-    fun `absent fields fall back to safe defaults`() {
-        val env = gson.fromJson("{}", ResponseEnvelope::class.java)
-
-        assertEquals("", env.inResponseToMessageId)
-        assertEquals(false, env.accepted)
-        assertNull(env.correlationKey)
-        assertNull(env.nextAction)
+    fun `a blank operator message reads as absent`() {
+        assertNull(parse("""{"success":false,"operatorMessage":"  "}""").displayMessage)
     }
 
     @Test
-    fun `a response with errorCode omitted entirely parses as no error`() {
-        val json = """{"messageId":"S2-1","inResponseToMessageId":"m-1","schemaVersion":"4.0","accepted":true}"""
-        val env = Gson().fromJson(json, ResponseEnvelope::class.java)
-        assertNull(env.errorCode)
-        assertTrue(env.accepted)
+    fun `parses a push's own fields`() {
+        val e = parse(
+            """{"schemaVersion":"rev2.1","deviceId":"scanner_1","messageId":"rev2-preparations-1",
+               "timestampUtc":"2026-09-30T10:00:00.000000Z","mode":"General",
+               "reason":"preparation_created","nextAction":"read"}"""
+        )
+        assertEquals("rev2-preparations-1", e.messageId)
+        assertEquals("", e.inResponseToMessageId)
+        assertEquals("General", e.mode)
+        assertEquals("preparation_created", e.reason)
+    }
+
+    @Test
+    fun `explicit nulls fall back to defaults`() {
+        val e = parse("""{"error":null,"operatorMessage":null,"inResponseToMessageId":null}""")
+        assertEquals("", e.error)
+        assertEquals("", e.operatorMessage)
+        assertEquals("", e.inResponseToMessageId)
     }
 }

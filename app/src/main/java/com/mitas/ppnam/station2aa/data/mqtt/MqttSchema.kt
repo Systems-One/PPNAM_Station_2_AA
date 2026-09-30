@@ -7,17 +7,11 @@ import java.time.format.DateTimeFormatterBuilder
 import java.time.temporal.ChronoField
 
 /**
- * The one place the wire schema version is defined. Contract v4.1 rejects any request whose
- * schemaVersion is not exactly "4.1" (or "4.0" while Station 2 still has
- * `AllowSchema40Compatibility` on) with errorCode `unsupported_schema`.
- *
- * 4.1 is a hard cutover for authentication: Station 2 rejects ANY 4.1 JSON object containing a
- * `password` or `managerPassword` property with `plaintext_credentials_forbidden`, whatever the
- * message type. That is why the version bump and SCRAM-SHA-256 must ship together — see
- * [ScramCrypto].
+ * The one place the wire schema version is defined. Station 2 answers any request whose
+ * `schemaVersion` is not exactly `rev2.1` with `invalid_envelope`.
  */
 object MqttSchema {
-    const val VERSION = "4.1"
+    const val VERSION = "rev2.1"
 
     /**
      * Contract §4.1: "Every contract timestamp is UTC RFC 3339 with exactly six fractional digits

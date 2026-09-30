@@ -12,20 +12,19 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Runs one contract v4.1 SCRAM-SHA-256 challenge/proof round trip.
+ * Runs one rev2.1 SCRAM-SHA-256 challenge/proof round trip.
  *
- * rev2.1 enables SCRAM for operator login only. Keeping
- * it in one place is also what makes the security properties checkable in one place: the password
- * is never stored, never logged, and never leaves this function's frame, and the server signature
- * is always verified before the caller is handed anything.
+ * rev2.1 enables SCRAM for operator login only. Keeping it in one place is also what makes the
+ * security properties checkable in one place: the password is never stored, never logged, and
+ * never leaves this function's frame, and the server signature is always verified before the
+ * caller is handed anything.
  */
 @Singleton
 class ScramExchange @Inject constructor(
     private val mqttRepository: MqttRepository,
 ) {
 
-    /**
-     */
+    /** Proves [password] for [username] to Station 2 and returns the verified operator context. */
     suspend fun authenticate(
         username: String,
         password: String,
@@ -39,7 +38,6 @@ class ScramExchange @Inject constructor(
                 username = username,
                 clientNonce = clientNonce,
             ),
-            correlationKey = null,
             responseClass = ScramChallengeResponse::class.java,
         )
 
@@ -92,7 +90,6 @@ class ScramExchange @Inject constructor(
                 clientFinalWithoutProof = clientFinalWithoutProof,
                 clientProof = proof.clientProofBase64,
             ),
-            correlationKey = null,
             responseClass = ScramProofResponse::class.java,
         )
 
@@ -117,12 +114,14 @@ class ScramExchange @Inject constructor(
 }
 
 /**
- * `plaintext_credentials_forbidden` means this build sent a `password`/`managerPassword` property
- * on a 4.1 message. That is a build defect, not a bad password, and showing it as "login failed"
- * would send an operator round a loop retyping a password that was never the problem.
+ * `password_field_forbidden` means this build sent a field named like a password. That is a build
+ * defect, not a bad password, and showing it as "login failed" would send an operator round a loop
+ * retyping a password that was never the problem.
  */
-private fun <T> MqttOutcome.Rejected<T>.authFailureMessage(): String = when (errorCode) {
-    ErrorCode.PLAINTEXT_CREDENTIALS_FORBIDDEN ->
+private fun <T> MqttOutcome.Rejected<T>.authFailureMessage(): String = when (error) {
+    ErrorCode.PASSWORD_FIELD_FORBIDDEN ->
         "This app build sent credentials in a form Station 2 no longer accepts. Update the app."
-    else -> reason ?: "Authentication failed"
+    ErrorCode.PURPOSE_NOT_ENABLED ->
+        "Station 2 does not accept this kind of sign-in. Update the app."
+    else -> operatorMessage ?: "Authentication failed"
 }

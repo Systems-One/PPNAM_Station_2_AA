@@ -2,6 +2,7 @@ package com.mitas.ppnam.station2aa.data.mqtt
 
 import android.util.Log
 import androidx.annotation.VisibleForTesting
+import com.google.gson.JsonParser
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
 import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
@@ -49,7 +50,7 @@ class MqttRepositoryImpl @Inject constructor(
         // timestamp acceptance window — a retry must not outlive its own timestampUtc.
         internal const val REQUEST_MAX_ATTEMPTS = 3
 
-        // Beyond this the device clock is a plausible cause of blanket message_expired rejections.
+        // Beyond this the device clock is far enough off to make timestamps hard to reconcile.
         internal const val CLOCK_SKEW_WARN_MS = 30_000L
 
         // How many response messageIds to remember for QoS-1 duplicate suppression. Bounded so a
@@ -79,24 +80,19 @@ class MqttRepositoryImpl @Inject constructor(
     @VisibleForTesting
     internal var nowFn: () -> Instant = { Instant.now() }
 
-    // Correlation registry: messageId -> the caller awaiting that exact response. The contract is
-    // explicit that inResponseToMessageId is the ONLY correct way to match a response to a request
-    // — several in-flight messages deliberately share a correlationKey, and two request types can
-    // share one response topic (login_requested and reader_logout_requested both answer on
-    // operator_context), so neither key nor topic can discriminate.
-    private val pending = ConcurrentHashMap<String, CompletableDeferred<String>>()
+    // Correlation registry: messageId -> the caller awaiting that exact response, plus the session
+    // the request was SENT with. rev2.1 replies do not echo the session, so this is the only way to
+    // tell whether an operator_session_invalid reply is about the session that is active now.
+    private class PendingRequest(val waiter: CompletableDeferred<String>, val sessionId: String)
 
-    // 4.1 §7: "Android must deduplicate responses by response messageId... receiving the same
-    // response messageId must never repeat navigation, sounds, dialogs, or local side effects."
+    private val pending = ConcurrentHashMap<String, PendingRequest>()
+
+    // Duplicate suppression for server PUSHES only. rev2.1 direct replies carry no messageId of
+    // their own — a duplicate direct reply is handled by the pending map instead (the first one
+    // removes the waiter; later ones match nothing and are dropped). A push has no waiter, so a
+    // QoS-1 redelivery would otherwise trigger a second read.
     //
-    // Correlation alone does not give us this. The side effects that run BEFORE correlation —
-    // clock-skew sampling, the upgradeRequired latch, and above all the session_required clear —
-    // fire for every response including duplicates, and 4.1's uncorrelated invalidation pushes
-    // carry no inResponseToMessageId to correlate on at all. So duplicate suppression has to key
-    // on the response's own messageId, ahead of everything else.
-    //
-    // Access is guarded by the map itself: HiveMQ delivers callbacks on its own event-loop
-    // threads, so two duplicates can genuinely race here.
+    // Access is guarded by the map itself: HiveMQ delivers callbacks on its own event-loop threads.
     private val seenResponseIds = Collections.synchronizedMap(
         object : LinkedHashMap<String, Boolean>(64, 0.75f, false) {
             override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Boolean>) =
@@ -108,8 +104,8 @@ class MqttRepositoryImpl @Inject constructor(
     private fun claimResponseId(messageId: String): Boolean =
         seenResponseIds.put(messageId, true) == null
 
-    // Uncorrelated 4.1 server pushes (active_job_cards_invalidated). Set by the data layer that
-    // owns the active-jobs cursor; the transport does not know what a page is.
+    // rev2.1 server pushes (active_job_cards_invalidated). Set by the data layer that
+    // owns the displayed list; the transport does not know what a job list is.
     @Volatile
     private var serverPushHandler: ((String, ResponseEnvelope, String) -> Unit)? = null
 
@@ -432,7 +428,6 @@ class MqttRepositoryImpl @Inject constructor(
         requestType: String,
         responseType: String,
         payload: Any,
-        correlationKey: String?,
         responseClass: Class<T>,
     ): MqttOutcome<T> {
         if (_connectionState.value != MqttConnectionState.CONNECTED) {
@@ -440,20 +435,21 @@ class MqttRepositoryImpl @Inject constructor(
         }
 
         val messageId = UUID.randomUUID().toString()
+        // SCRAM runs before a session exists and must never carry a stale one.
+        val sessionId = if (requestType.startsWith("scram_")) "" else sessionHolder.currentSessionIdOrEmpty()
         val json = RequestEnvelope.build(
             gson = gson,
             payload = payload,
             messageId = messageId,
             deviceId = deviceId,
-            operatorSessionId = sessionHolder.currentSessionIdOrEmpty(),
+            sessionId = sessionId,
             timestampUtc = MqttSchema.formatTimestamp(nowFn()),
-            correlationKey = correlationKey,
         )
         val topic = MqttTopics.request(deviceId, requestType)
 
         val bytes = json.toByteArray()  // frozen: every attempt republishes these exact bytes
         val waiter = CompletableDeferred<String>()
-        pending[messageId] = waiter
+        pending[messageId] = PendingRequest(waiter, sessionId)
         try {
             repeat(REQUEST_MAX_ATTEMPTS) { attempt ->
                 val publishOk = try {
@@ -488,29 +484,19 @@ class MqttRepositoryImpl @Inject constructor(
         expectedResponseType: String,
     ): MqttOutcome<T> = try {
         val envelope = gson.fromJson(raw, ResponseEnvelope::class.java)
-        val body = gson.fromJson(raw, responseClass)
-            ?: throw IllegalStateException("Response body parsed to null for $expectedResponseType")
-        val nextAction = NextAction(envelope.nextAction ?: "")
-        if (envelope.accepted) {
-            MqttOutcome.Accepted(body, nextAction)
-        } else {
-            val code = envelope.errorCode?.let { ErrorCode(it) }
-            // SESSION_REQUIRED is handled centrally in handleIncomingResponse() — that runs for
-            // every incoming response, matched or not, so a late reply that arrives after this
-            // request already timed out still clears the session instead of being silently dropped.
-            if (code == ErrorCode.CLIENT_UPGRADE_REQUIRED) {
-                Log.w(TAG, "Station 2 requires a newer reader build ($expectedResponseType) — latching upgradeRequired")
-                _upgradeRequired.value = true
+            ?: throw IllegalStateException("Empty $expectedResponseType response")
+        // rev2.1 puts the body under `data`. Absent or null on envelope-level rejections.
+        val data = JsonParser.parseString(raw).asJsonObject.get("data")?.takeIf { it.isJsonObject }
+        val body: T? = data?.let { gson.fromJson(it, responseClass) }
+        if (envelope.success) {
+            if (body == null) {
+                Log.e(TAG, "$expectedResponseType reported success with no data")
+                MqttOutcome.NoResponse(FailureKind.MalformedResponse)
+            } else {
+                MqttOutcome.Accepted(body)
             }
-            MqttOutcome.Rejected(
-                body = body,
-                errorCode = code,
-                // 4.1's canonical errorMessage, falling back to the rollout `reason` mirror.
-                reason = envelope.displayMessage,
-                exceptionId = envelope.exceptionId,
-                fieldErrors = envelope.fieldErrors.orEmpty(),
-                nextAction = nextAction,
-            )
+        } else {
+            MqttOutcome.Rejected(body = body, error = envelope.errorCode, operatorMessage = envelope.displayMessage)
         }
     } catch (e: Exception) {
         Log.e(TAG, "Could not parse $expectedResponseType response", e)
@@ -533,7 +519,7 @@ class MqttRepositoryImpl @Inject constructor(
             Log.w(
                 TAG,
                 "Device clock is out of sync with Station 2 by ${skew}ms " +
-                    "(threshold ${CLOCK_SKEW_WARN_MS}ms). Requests may be rejected as message_expired."
+                    "(threshold ${CLOCK_SKEW_WARN_MS}ms). Timestamps will be hard to reconcile with Station 2's logs."
             )
         }
     }
@@ -546,61 +532,49 @@ class MqttRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.w(TAG, "Dropping unparseable response on $topic", e)
             return
-        }
-        // 4.1 §7 duplicate suppression, ahead of every side effect below. A QoS-1 redelivery
-        // carries the same response messageId as the original; nothing after this point may run
-        // twice for it. A response with no messageId at all can't be deduplicated, so it is
-        // allowed through rather than silently dropped.
-        val responseMessageId = envelope?.messageId
-        if (!responseMessageId.isNullOrBlank() && !claimResponseId(responseMessageId)) {
-            Log.i(TAG, "Suppressing duplicate response on $topic (messageId=$responseMessageId)")
-            return
-        }
-        recordClockSkew(envelope?.serverSentAtUtc?.takeIf { it.isNotBlank() } ?: envelope?.timestampUtc ?: "")
-        if (envelope?.errorCode == ErrorCode.CLIENT_UPGRADE_REQUIRED.raw) {
+        } ?: return
+
+        // Measured from every message with a parseable timestamp, matched or not: a late or
+        // duplicate reply is still evidence about our own clock.
+        recordClockSkew(envelope.sentAtUtc?.takeIf { it.isNotBlank() } ?: envelope.timestampUtc)
+        if (envelope.errorCode == ErrorCode.CLIENT_UPGRADE_REQUIRED) {
             _upgradeRequired.value = true
         }
-        // Independent of whether a pending waiter matches this response — a late reply to a
-        // request that already gave up and timed out must still clear a session Station 2 has
-        // truly invalidated. BUT: the rejection's own operatorSessionId must match the session we
-        // currently believe is active before we act on it. Without that check, a stale response
-        // for an OLD, already-superseded session (e.g. a retried request from before the operator
-        // logged out and back in, landing late after a new session is already active) would log
-        // the operator out of their brand-new, perfectly valid session — exactly the kind of
-        // spurious mid-action logout that made "finish a cycle" / "start a second machine" look
-        // broken, when a request that had nothing to do with the current session happened to
-        // resolve at the wrong moment.
-        if (envelope?.errorCode == ErrorCode.SESSION_REQUIRED.raw &&
-            !envelope.operatorSessionId.isNullOrBlank() &&
-            envelope.operatorSessionId == sessionHolder.currentSessionIdOrEmpty()
-        ) {
-            Log.w(TAG, "Station 2 rejected a response on $topic with session_required — clearing local session")
-            sessionHolder.clear()
-        }
-        val id = envelope?.inResponseToMessageId
-        if (id.isNullOrBlank()) {
-            // 4.1 introduced legitimate uncorrelated server pushes. active_job_cards_invalidated
-            // is not a reply to anything, so "no inResponseToMessageId" is no longer proof that a
-            // message is junk. Hand it to whoever registered for pushes; only drop it if nobody
-            // owns it. The contract is emphatic that an invalidation is a hint to re-request page
-            // one — "never permission for a workflow mutation" — so the transport deliberately
-            // does not act on it itself.
-            val handler = serverPushHandler
-            if (handler != null && envelope != null) {
-                handler(topic, envelope, raw)
-            } else {
-                Log.w(TAG, "Dropping response on $topic with no inResponseToMessageId")
+
+        val id = envelope.inResponseToMessageId
+        if (id.isBlank()) {
+            // A server push. rev2.1 pushes carry their own messageId; a redelivery must not
+            // trigger a second read. One with no messageId can't be deduplicated, so it is
+            // handled rather than silently dropped.
+            if (envelope.messageId.isNotBlank() && !claimResponseId(envelope.messageId)) {
+                Log.i(TAG, "Suppressing duplicate push on $topic (messageId=${envelope.messageId})")
+                return
             }
+            val handler = serverPushHandler
+            if (handler != null) handler(topic, envelope, raw)
+            else Log.w(TAG, "Dropping push on $topic — no handler registered")
             return
         }
-        val waiter = pending.remove(id)
-        if (waiter == null) {
-            // Late duplicate, or a response to a request that already timed out. The contract says
-            // an unknown message gets no workflow side effect.
+
+        val entry = pending.remove(id)
+        if (entry == null) {
+            // A duplicate, or a reply to a request that already timed out. Neither may have a
+            // side effect — including the session clear below, which cannot be attributed to the
+            // current session without the request it answers.
             Log.w(TAG, "Dropping unmatched response on $topic for messageId=$id")
             return
         }
-        waiter.complete(raw)
+        // Only a rejection of a request sent WITH the currently active session may end it. A reply
+        // to a request from before a re-login, or from before any login, is about a session that
+        // is already gone — acting on it would log the operator out of a perfectly good one.
+        if (envelope.errorCode == ErrorCode.OPERATOR_SESSION_INVALID &&
+            entry.sessionId.isNotBlank() &&
+            entry.sessionId == sessionHolder.currentSessionIdOrEmpty()
+        ) {
+            Log.w(TAG, "Station 2 reports the session is invalid ($topic) — clearing local session")
+            sessionHolder.clear()
+        }
+        entry.waiter.complete(raw)
     }
 
     // A graceful disconnect/reconnect doesn't trigger the connection's LWT (that only

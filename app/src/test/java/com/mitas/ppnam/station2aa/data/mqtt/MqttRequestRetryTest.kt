@@ -54,7 +54,7 @@ class MqttRequestRetryTest {
 
     @Test
     fun `an unanswered request is retried up to the attempt limit`() = runTest {
-        val outcome = repo.request("a_requested", "test_result", EmptyPayload, null, TestBody::class.java)
+        val outcome = repo.request("a_requested", "test_result", EmptyPayload, TestBody::class.java)
 
         assertEquals(MqttOutcome.NoResponse(FailureKind.Timeout), outcome)
         assertEquals(MqttRepositoryImpl.REQUEST_MAX_ATTEMPTS, published.size)
@@ -62,7 +62,7 @@ class MqttRequestRetryTest {
 
     @Test
     fun `every retry republishes a byte-identical payload`() = runTest {
-        repo.request("a_requested", "test_result", EmptyPayload, null, TestBody::class.java)
+        repo.request("a_requested", "test_result", EmptyPayload, TestBody::class.java)
 
         assertTrue("expected more than one attempt", published.size > 1)
         val first = published.first().second
@@ -75,14 +75,14 @@ class MqttRequestRetryTest {
 
     @Test
     fun `every retry publishes to the same topic`() = runTest {
-        repo.request("a_requested", "test_result", EmptyPayload, null, TestBody::class.java)
+        repo.request("a_requested", "test_result", EmptyPayload, TestBody::class.java)
         assertTrue(published.all { it.first == "PPNAM/station_2/scanner_5c64df8d86a8/req/a_requested" })
     }
 
     @Test
     fun `a response to the first attempt stops further retries`() = runTest {
         val call = async {
-            repo.request("a_requested", "test_result", EmptyPayload, null, TestBody::class.java)
+            repo.request("a_requested", "test_result", EmptyPayload, TestBody::class.java)
         }
         while (published.isEmpty()) yield()
 
@@ -90,7 +90,7 @@ class MqttRequestRetryTest {
             .parseString(String(published[0].second)).asJsonObject.get("messageId").asString
         repo.handleIncomingResponse(
             "PPNAM/station_2/handheld_1/res/test_result",
-            """{"inResponseToMessageId":"$id","accepted":true,"value":"ok"}""".toByteArray()
+            """{"inResponseToMessageId":"$id","success":true,"data":{"value":"ok"}}""".toByteArray()
         )
 
         val outcome = call.await()
@@ -101,7 +101,7 @@ class MqttRequestRetryTest {
     @Test
     fun `a late response to an earlier attempt still satisfies the request`() = runTest {
         val call = async {
-            repo.request("a_requested", "test_result", EmptyPayload, null, TestBody::class.java)
+            repo.request("a_requested", "test_result", EmptyPayload, TestBody::class.java)
         }
         // Let the first attempt publish, then time out (50ms) so the second attempt publishes.
         // NOTE: a busy `while (published.size < 2) yield()` loop deadlocks here under runTest's
@@ -119,7 +119,7 @@ class MqttRequestRetryTest {
             .parseString(String(published[0].second)).asJsonObject.get("messageId").asString
         repo.handleIncomingResponse(
             "PPNAM/station_2/handheld_1/res/test_result",
-            """{"inResponseToMessageId":"$id","accepted":true,"value":"late"}""".toByteArray()
+            """{"inResponseToMessageId":"$id","success":true,"data":{"value":"late"}}""".toByteArray()
         )
 
         val outcome = call.await()
@@ -136,7 +136,7 @@ class MqttRequestRetryTest {
             published += topic to bytes
         }
 
-        repo.request("a_requested", "test_result", EmptyPayload, null, TestBody::class.java)
+        repo.request("a_requested", "test_result", EmptyPayload, TestBody::class.java)
 
         assertTrue("expected a retry after the transient failure", attempts > 1)
     }
