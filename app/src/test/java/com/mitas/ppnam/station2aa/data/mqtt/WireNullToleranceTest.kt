@@ -1,8 +1,6 @@
 package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.google.gson.annotations.SerializedName
-import com.mitas.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
-import com.mitas.ppnam.station2aa.data.mqtt.dto.PalletLookupResultResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ScramChallengeResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ScramProofResponse
@@ -41,10 +39,8 @@ class WireNullToleranceTest {
      */
     private val responseRoots: List<Class<*>> = listOf(
         ResponseEnvelope::class.java,
-        PalletLookupResultResponse::class.java,
         ScramChallengeResponse::class.java,
         ScramProofResponse::class.java,
-        OperatorContextResponse::class.java,
     )
 
     // ---- the guarantees -----------------------------------------------------------------------
@@ -87,7 +83,7 @@ class WireNullToleranceTest {
         // NPE it produces surfaces even further from the wire — at the point of use.
         val parsed = WireJson.gson.fromJson(
             """{"allowedActions": ["mixing_view", null, "rfid_view"], "allowedTabs": [null]}""",
-            OperatorContextResponse::class.java,
+            ScramProofResponse::class.java,
         )
 
         assertEquals(listOf("mixing_view", "rfid_view"), parsed.allowedActions)

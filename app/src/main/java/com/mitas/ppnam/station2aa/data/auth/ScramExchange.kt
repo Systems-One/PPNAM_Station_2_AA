@@ -14,7 +14,7 @@ import javax.inject.Singleton
 /**
  * Runs one contract v4.1 SCRAM-SHA-256 challenge/proof round trip.
  *
- * Login and manager authorization differ only in `purpose` and scope, so they share this. Keeping
+ * rev2.1 enables SCRAM for operator login only. Keeping
  * it in one place is also what makes the security properties checkable in one place: the password
  * is never stored, never logged, and never leaves this function's frame, and the server signature
  * is always verified before the caller is handed anything.
@@ -25,15 +25,10 @@ class ScramExchange @Inject constructor(
 ) {
 
     /**
-     * @param actionTarget scoped target for a manager action (e.g. `Cycle:CYC_42`), `""` for login.
-     * @param managerAction the manager action wire value, `""` for login.
      */
     suspend fun authenticate(
         username: String,
         password: String,
-        purpose: String,
-        actionTarget: String = "",
-        managerAction: String = "",
     ): Result<ScramProofResponse> {
         val clientNonce = ScramCrypto.generateClientNonce()
 
@@ -43,9 +38,6 @@ class ScramExchange @Inject constructor(
             payload = ScramStartPayload(
                 username = username,
                 clientNonce = clientNonce,
-                purpose = purpose,
-                actionTarget = actionTarget,
-                managerAction = managerAction,
             ),
             correlationKey = null,
             responseClass = ScramChallengeResponse::class.java,
@@ -99,9 +91,6 @@ class ScramExchange @Inject constructor(
                 challengeId = challenge.challengeId,
                 clientFinalWithoutProof = clientFinalWithoutProof,
                 clientProof = proof.clientProofBase64,
-                purpose = purpose,
-                actionTarget = actionTarget,
-                managerAction = managerAction,
             ),
             correlationKey = null,
             responseClass = ScramProofResponse::class.java,

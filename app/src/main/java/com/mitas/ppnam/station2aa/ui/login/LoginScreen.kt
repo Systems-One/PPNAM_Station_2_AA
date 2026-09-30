@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
@@ -166,20 +165,6 @@ fun LoginScreen(
                         } else {
                             Text("Log In")
                         }
-                    }
-
-                    // Below the form, not above it. "Or scan your badge" sat above the username
-                    // field, so the first thing the operator read was the second option. As a
-                    // divider between the two methods it reads as the alternative it is.
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        HorizontalDivider(Modifier.weight(1f), color = GraphiteBorder)
-                        Text(
-                            "  or scan your badge  ",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = TextMuted,
-                            textAlign = TextAlign.Center
-                        )
-                        HorizontalDivider(Modifier.weight(1f), color = GraphiteBorder)
                     }
                 }
             }

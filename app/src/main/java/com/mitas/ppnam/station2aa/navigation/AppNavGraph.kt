@@ -21,7 +21,6 @@ import androidx.navigation.compose.rememberNavController
 import com.mitas.ppnam.station2aa.ui.login.LoginScreen
 import com.mitas.ppnam.station2aa.ui.components.UpgradeRequiredGate
 import com.mitas.ppnam.station2aa.ui.home.HomeScreen
-import com.mitas.ppnam.station2aa.ui.rfid.RfidRecoveryScreen
 import com.mitas.ppnam.station2aa.ui.session.SessionWatcher
 import com.mitas.ppnam.station2aa.ui.settings.SettingsScreen
 import com.mitas.ppnam.station2aa.ui.theme.rememberReducedMotion
@@ -82,8 +81,6 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
             val activity = LocalContext.current.findActivity()
             HomeScreen(
                 onOpenJobCards = {},
-                onOpenMixingBoard = {},
-                onFixATag = { navController.navigate(NavRoutes.RFID_RECOVERY) },
                 onSettings = { navController.navigate(NavRoutes.SETTINGS) },
                 // Navigation on logout is SessionWatcher's job alone (it reacts to
                 // the session going null, which authUseCase.logout() causes before this event fires).
@@ -96,12 +93,6 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
         }
         composable(NavRoutes.SETTINGS) {
             SettingsScreen(onBack = { navController.popBackStack() })
-        }
-        composable(NavRoutes.RFID_RECOVERY) {
-            RfidRecoveryScreen(
-                onDone = { navController.popBackStack() },
-                onBack = { navController.popBackStack() }
-            )
         }
     }
     UpgradeRequiredGate()

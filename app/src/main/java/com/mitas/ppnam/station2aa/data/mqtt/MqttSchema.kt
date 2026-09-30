@@ -14,7 +14,7 @@ import java.time.temporal.ChronoField
  * 4.1 is a hard cutover for authentication: Station 2 rejects ANY 4.1 JSON object containing a
  * `password` or `managerPassword` property with `plaintext_credentials_forbidden`, whatever the
  * message type. That is why the version bump and SCRAM-SHA-256 must ship together — see
- * [ScramCrypto] and [ManagerAuthorization].
+ * [ScramCrypto].
  */
 object MqttSchema {
     const val VERSION = "4.1"

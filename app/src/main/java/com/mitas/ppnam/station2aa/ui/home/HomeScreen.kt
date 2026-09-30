@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.Science
-import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -45,8 +43,6 @@ import java.time.LocalTime
 @Composable
 fun HomeScreen(
     onOpenJobCards: () -> Unit,
-    onOpenMixingBoard: () -> Unit,
-    onFixATag: () -> Unit,
     onSettings: () -> Unit,
     onLogout: () -> Unit,
     onExitApp: () -> Unit = {},
@@ -109,21 +105,9 @@ fun HomeScreen(
             )
             HomeTile(
                 title = "Job Cards",
-                subtitle = "Start or resume a job",
+                subtitle = "Look up a job card",
                 icon = Icons.Filled.Assignment,
                 onClick = onOpenJobCards,
-            )
-            HomeTile(
-                title = "Mixing Board",
-                subtitle = "Check or run machines",
-                icon = Icons.Filled.Science,
-                onClick = onOpenMixingBoard,
-            )
-            HomeTile(
-                title = "Fix a Tag",
-                subtitle = "RFID recovery",
-                icon = Icons.Filled.WifiTethering,
-                onClick = onFixATag,
             )
         }
     }
