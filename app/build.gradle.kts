@@ -74,9 +74,6 @@ dependencies {
     implementation(libs.hilt.work)
     ksp(libs.hilt.work.compiler)
     implementation(libs.hilt.navigation.compose)
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
     implementation(libs.work.runtime.ktx)
     implementation(libs.navigation.compose)
     implementation(libs.hivemq.client)
@@ -85,7 +82,6 @@ dependencies {
 
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockito.kotlin)
-    androidTestImplementation(libs.room.testing)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
