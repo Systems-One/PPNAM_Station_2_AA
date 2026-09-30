@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-10
 **Branch:** `feat/strip-to-job-lookup` (off `feat/jc-driven-mixing` @ `ecf1cc5`)
-**Status:** Approved design, not yet planned
+**Status:** Superseded by `2026-09-30-job-lookup-on-rev2-1-design.md` (rev2.1 contract landed)
 
 ## 1. Purpose
 
