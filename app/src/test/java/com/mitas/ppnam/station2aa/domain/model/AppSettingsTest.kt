@@ -51,7 +51,7 @@ class AppSettingsTest {
     fun `default requestTimeoutMs is 20000`() {
         // Raised from 10s: factory-floor WiFi is unreliable enough that 3 x 10s (30s total)
         // regularly wasn't enough headroom, causing genuinely-accepted requests to be timed out
-        // client-side while Station 2 processed them — see MixingBoardViewModel's Failed re-sync.
+        // client-side while Station 2 processed them.
         assertEquals(20_000L, AppSettings().requestTimeoutMs)
     }
 }

@@ -12,19 +12,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.mitas.ppnam.station2aa.ui.login.LoginScreen
-import com.mitas.ppnam.station2aa.ui.mixing.IngredientScanScreen
-import com.mitas.ppnam.station2aa.ui.mixing.JobLookupScreen
-import com.mitas.ppnam.station2aa.ui.mixing.MixingViewModel
 import com.mitas.ppnam.station2aa.ui.components.UpgradeRequiredGate
 import com.mitas.ppnam.station2aa.ui.home.HomeScreen
 import com.mitas.ppnam.station2aa.ui.rfid.RfidRecoveryScreen
@@ -87,7 +81,7 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
             // LocalActivity only exists from activity-compose 1.10; this project is on 1.9.0.
             val activity = LocalContext.current.findActivity()
             HomeScreen(
-                onOpenJobCards = { navController.navigate(NavRoutes.MIXING) },
+                onOpenJobCards = {},
                 onOpenMixingBoard = {},
                 onFixATag = { navController.navigate(NavRoutes.RFID_RECOVERY) },
                 onSettings = { navController.navigate(NavRoutes.SETTINGS) },
@@ -102,47 +96,6 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
         }
         composable(NavRoutes.SETTINGS) {
             SettingsScreen(onBack = { navController.popBackStack() })
-        }
-        navigation(startDestination = NavRoutes.JOB_LOOKUP, route = NavRoutes.MIXING) {
-            composable(NavRoutes.JOB_LOOKUP) { backStackEntry ->
-                val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry(NavRoutes.MIXING)
-                }
-                val viewModel: MixingViewModel = hiltViewModel(parentEntry)
-                JobLookupScreen(
-                    onJobFound = { orderNo -> navController.navigate(NavRoutes.ingredientScan(orderNo)) },
-                    onSettings = { navController.navigate(NavRoutes.SETTINGS) },
-                    // Navigation on logout is SessionWatcher's job alone (it reacts to
-                    // the session going null, which authUseCase.logout() causes before this event fires).
-                    onLogout = {},
-                    onRfidLookup = {
-                        viewModel.pauseScanning()
-                        navController.navigate(NavRoutes.RFID_RECOVERY)
-                    },
-                    onOpenMixing = {},
-                    // Job Lookup now sits below Home on the back stack — plain pop takes the
-                    // operator back to Home. The "close the app?" guard lives on Home now.
-                    onBack = { navController.popBackStack() },
-                    viewModel = viewModel
-                )
-            }
-            composable(NavRoutes.INGREDIENT_SCAN) { backStackEntry ->
-                val orderNo = backStackEntry.arguments?.getString("orderNo") ?: return@composable
-                val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry(NavRoutes.MIXING)
-                }
-                val viewModel: MixingViewModel = hiltViewModel(parentEntry)
-                IngredientScanScreen(
-                    orderNo = orderNo,
-                    onStartMixing = {},
-                    onRfidLookup = {
-                        viewModel.pauseScanning()
-                        navController.navigate(NavRoutes.RFID_RECOVERY)
-                    },
-                    onBack = { navController.popBackStack() },
-                    viewModel = viewModel
-                )
-            }
         }
         composable(NavRoutes.RFID_RECOVERY) {
             RfidRecoveryScreen(

@@ -1,11 +1,6 @@
 package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.google.gson.annotations.SerializedName
-import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsInvalidatedResponse
-import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsListResponse
-import com.mitas.ppnam.station2aa.data.mqtt.dto.BomLoadedResponse
-import com.mitas.ppnam.station2aa.data.mqtt.dto.IngredientCollectionCancelResultResponse
-import com.mitas.ppnam.station2aa.data.mqtt.dto.IngredientScanResultResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.PalletLookupResultResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
@@ -46,11 +41,6 @@ class WireNullToleranceTest {
      */
     private val responseRoots: List<Class<*>> = listOf(
         ResponseEnvelope::class.java,
-        BomLoadedResponse::class.java,
-        ActiveJobCardsListResponse::class.java,
-        ActiveJobCardsInvalidatedResponse::class.java,
-        IngredientCollectionCancelResultResponse::class.java,
-        IngredientScanResultResponse::class.java,
         PalletLookupResultResponse::class.java,
         ScramChallengeResponse::class.java,
         ScramProofResponse::class.java,
@@ -102,17 +92,6 @@ class WireNullToleranceTest {
 
         assertEquals(listOf("mixing_view", "rfid_view"), parsed.allowedActions)
         assertEquals(emptyList<String>(), parsed.allowedTabs)
-    }
-
-    @Test
-    fun `a null object inside an array is dropped rather than parsed as a null entry`() {
-        val parsed = WireJson.gson.fromJson(
-            """{"jobCardNumber": "510019339", "ingredients": [null]}""",
-            BomLoadedResponse::class.java,
-        )
-
-        assertEquals("510019339", parsed.jobCardNumber)
-        assertEquals(emptyList<Any>(), parsed.ingredients)
     }
 
     @Test
