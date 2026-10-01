@@ -282,4 +282,34 @@ class Rev2TransportTest {
     fun `a push with no handler registered is dropped without error`() {
         push("rev2-preparations-1")
     }
+
+    // ---- strict parsing ---------------------------------------------------------------------
+
+    @Test
+    fun `a reply with a duplicate property is dropped, so the request times out rather than guessing`() = runTest {
+        val call = async { read() }
+        while (published.isEmpty()) yield()
+        val json = """{"inResponseToMessageId":"${idOf(0)}","success":true,"Success":false,"data":{"value":"x"}}"""
+        repo.handleIncomingResponse("PPNAM/station_2/$device/res/rev2_general_result", json.toByteArray())
+        assertEquals(MqttOutcome.NoResponse(FailureKind.Timeout), call.await())
+    }
+
+    // ---- uncorrelated non-push messages -----------------------------------------------------
+
+    @Test
+    fun `an uncorrelated invalid_envelope rejection does not reach the push handler`() {
+        var count = 0
+        repo.setServerPushHandler { _, _, _ -> count++ }
+        reply("", success = false, error = "invalid_envelope", data = null)
+        assertEquals(0, count)
+    }
+
+    @Test
+    fun `an uncorrelated client_upgrade_required still latches but does not reach the push handler`() {
+        var count = 0
+        repo.setServerPushHandler { _, _, _ -> count++ }
+        reply("", success = false, error = "client_upgrade_required", data = null)
+        assertTrue(repo.upgradeRequired.value)
+        assertEquals(0, count)
+    }
 }

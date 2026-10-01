@@ -4,6 +4,7 @@ import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceTimeBy
@@ -18,6 +19,7 @@ import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MqttRequestRetryTest {
 
     private lateinit var repo: MqttRepositoryImpl
@@ -68,7 +70,7 @@ class MqttRequestRetryTest {
         val first = published.first().second
         published.forEach { (_, bytes) ->
             // Same messageId AND same timestampUtc. Changing either would break replay identity:
-            // the contract rejects a reused messageId with different content as message_id_reused.
+            // the contract rejects a reused messageId with different content as message_id_conflict.
             assertArrayEquals(first, bytes)
         }
     }

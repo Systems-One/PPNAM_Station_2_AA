@@ -2,7 +2,6 @@ package com.mitas.ppnam.station2aa.data.mqtt
 
 import android.util.Log
 import androidx.annotation.VisibleForTesting
-import com.google.gson.JsonParser
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
 import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
@@ -46,14 +45,14 @@ class MqttRepositoryImpl @Inject constructor(
 
         // Bounded retry. The contract's replay design makes this safe: the same replay identity
         // (deviceId + requestType + messageId) with the same body returns the stored response
-        // without repeating the workflow action. Keep the total budget well inside Station 2's
-        // timestamp acceptance window — a retry must not outlive its own timestampUtc.
+        // without repeating the workflow action. Retrying is safe because rev2.1 replays an
+        // identical messageId and body, so every attempt is byte-for-byte the same request.
         internal const val REQUEST_MAX_ATTEMPTS = 3
 
         // Beyond this the device clock is far enough off to make timestamps hard to reconcile.
         internal const val CLOCK_SKEW_WARN_MS = 30_000L
 
-        // How many response messageIds to remember for QoS-1 duplicate suppression. Bounded so a
+        // How many server-push messageIds to remember for QoS-1 duplicate suppression. Bounded so a
         // long shift cannot grow it without limit; generous enough that a duplicate can never
         // realistically arrive after its original has aged out (broker redelivery is seconds, and
         // a busy shift is nowhere near 512 responses inside that window).
@@ -486,7 +485,7 @@ class MqttRepositoryImpl @Inject constructor(
         val envelope = gson.fromJson(raw, ResponseEnvelope::class.java)
             ?: throw IllegalStateException("Empty $expectedResponseType response")
         // rev2.1 puts the body under `data`. Absent or null on envelope-level rejections.
-        val data = JsonParser.parseString(raw).asJsonObject.get("data")?.takeIf { it.isJsonObject }
+        val data = StrictJson.parse(raw).asJsonObject.get("data")?.takeIf { it.isJsonObject }
         val body: T? = data?.let { gson.fromJson(it, responseClass) }
         if (envelope.success) {
             if (body == null) {
@@ -527,10 +526,19 @@ class MqttRepositoryImpl @Inject constructor(
     @VisibleForTesting
     internal fun handleIncomingResponse(topic: String, bytes: ByteArray) {
         val raw = String(bytes)
-        val envelope = try {
-            gson.fromJson(raw, ResponseEnvelope::class.java)
+        val tree = try {
+            StrictJson.parse(raw).takeIf { it.isJsonObject }?.asJsonObject
+        } catch (e: DuplicatePropertyException) {
+            Log.w(TAG, "Dropping message on $topic with a duplicate property: ${e.path}")
+            return
         } catch (e: Exception) {
-            Log.w(TAG, "Dropping unparseable response on $topic", e)
+            Log.w(TAG, "Dropping unparseable message on $topic", e)
+            return
+        } ?: return
+        val envelope = try {
+            gson.fromJson(tree, ResponseEnvelope::class.java)
+        } catch (e: Exception) {
+            Log.w(TAG, "Dropping message on $topic with an unreadable envelope", e)
             return
         } ?: return
 
@@ -543,7 +551,15 @@ class MqttRepositoryImpl @Inject constructor(
 
         val id = envelope.inResponseToMessageId
         if (id.isBlank()) {
-            // A server push. rev2.1 pushes carry their own messageId; a redelivery must not
+            // Only an invalidation push is uncorrelated by design. The server also sends some
+            // early rejections (client_upgrade_required for an unknown suffix, invalid_envelope
+            // for an oversized or duplicate-field request) with no correlation id; those are not
+            // pushes and must not trigger a read. The upgrade latch above has already run.
+            if (MqttTopics.responseTypeOf(topic) != "active_job_cards_invalidated") {
+                Log.w(TAG, "Dropping uncorrelated message on $topic (error='${envelope.error}')")
+                return
+            }
+            // rev2.1 pushes carry their own messageId; a redelivery must not
             // trigger a second read. One with no messageId can't be deduplicated, so it is
             // handled rather than silently dropped.
             if (envelope.messageId.isNotBlank() && !claimResponseId(envelope.messageId)) {
