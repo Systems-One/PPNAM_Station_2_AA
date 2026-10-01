@@ -285,6 +285,11 @@ class MqttRepositoryImpl @Inject constructor(
             .retain(true)
             .send()
             .await()
+        logPresence("online")
+    }
+
+    private fun logPresence(result: String) {
+        MqttLog.message(Direction.OUT, MqttTopics.devicePresence(deviceId), 2, true, deviceId, "presence", null, result)
     }
 
     // Republishes retained "online" whenever our own presence node reads "offline" mid-connection.
@@ -308,6 +313,7 @@ class MqttRepositoryImpl @Inject constructor(
                     .retain(true)
                     .send()
                     .await()
+                logPresence("online")
             } catch (e: Exception) {
                 Log.w(TAG, "Presence self-heal republish failed", e)
             }
@@ -446,6 +452,10 @@ class MqttRepositoryImpl @Inject constructor(
         )
         val topic = MqttTopics.request(deviceId, requestType)
 
+        val action = (gson.toJsonTree(payload) as? com.google.gson.JsonObject)
+            ?.get("action")?.takeIf { it.isJsonPrimitive }?.asString
+        val startedAt = System.currentTimeMillis()
+        val responseTopic = MqttTopics.responseWildcard(deviceId).removeSuffix("+") + responseType
         val bytes = json.toByteArray()  // frozen: every attempt republishes these exact bytes
         val waiter = CompletableDeferred<String>()
         pending[messageId] = PendingRequest(waiter, sessionId)
@@ -453,6 +463,7 @@ class MqttRepositoryImpl @Inject constructor(
             repeat(REQUEST_MAX_ATTEMPTS) { attempt ->
                 val publishOk = try {
                     publishFn(topic, bytes)
+                    MqttLog.message(Direction.OUT, topic, 1, false, deviceId, requestType, action, "published", payload = json)
                     true
                 } catch (e: CancellationException) {
                     // CancellationException is an Exception in Kotlin, so the generic catch below
@@ -465,16 +476,33 @@ class MqttRepositoryImpl @Inject constructor(
                 }
                 if (publishOk) {
                     val raw = withTimeoutOrNull(requestTimeoutMs) { waiter.await() }
-                    if (raw != null) return parseOutcome(raw, responseClass, responseType)
+                    if (raw != null) {
+                        val outcome = parseOutcome(raw, responseClass, responseType)
+                        MqttLog.message(
+                            Direction.IN, responseTopic, 1, false, deviceId, responseType, action,
+                            outcomeResult(outcome), durationMs = System.currentTimeMillis() - startedAt,
+                        )
+                        return outcome
+                    }
                 }
                 if (attempt < REQUEST_MAX_ATTEMPTS - 1) {
                     Log.w(TAG, "retrying $requestType (messageId=$messageId, attempt ${attempt + 2})")
                 }
             }
+            MqttLog.message(
+                Direction.IN, responseTopic, 1, false, deviceId, responseType, action,
+                "timeout", durationMs = System.currentTimeMillis() - startedAt,
+            )
             return MqttOutcome.NoResponse(FailureKind.Timeout)
         } finally {
             pending.remove(messageId)
         }
+    }
+
+    private fun outcomeResult(outcome: MqttOutcome<*>): String = when (outcome) {
+        is MqttOutcome.Accepted -> "success"
+        is MqttOutcome.Rejected -> outcome.error?.raw ?: "rejected"
+        is MqttOutcome.NoResponse -> "malformed"
     }
 
     private fun <T : Any> parseOutcome(
@@ -542,6 +570,12 @@ class MqttRepositoryImpl @Inject constructor(
             return
         } ?: return
 
+        MqttLog.message(
+            Direction.IN, topic, 1, false, deviceId, MqttTopics.responseTypeOf(topic), null,
+            result = if (envelope.success) "success"
+            else envelope.error.ifBlank { if (envelope.inResponseToMessageId.isBlank()) "push" else "rejected" },
+        )
+
         // Measured from every message with a parseable timestamp, matched or not: a late or
         // duplicate reply is still evidence about our own clock.
         recordClockSkew(envelope.sentAtUtc?.takeIf { it.isNotBlank() } ?: envelope.timestampUtc)
@@ -604,6 +638,7 @@ class MqttRepositoryImpl @Inject constructor(
                 ?.retain(true)
                 ?.send()
                 ?.get(2, TimeUnit.SECONDS)
+            if (client != null) logPresence("offline")
         } catch (_: Exception) { }
     }
 

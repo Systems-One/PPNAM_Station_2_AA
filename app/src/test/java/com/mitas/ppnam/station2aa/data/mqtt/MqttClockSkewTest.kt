@@ -1,5 +1,6 @@
 package com.mitas.ppnam.station2aa.data.mqtt
 
+import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import kotlinx.coroutines.test.runTest
@@ -8,6 +9,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.time.Instant
 
@@ -22,7 +24,7 @@ class MqttClockSkewTest {
             clientFactory = mock(),
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = OperatorSessionHolder(),
-            deviceIdentity = mock(),
+            deviceIdentity = mock<DeviceIdentity> { on { deviceId() } doReturn "handheld_1" },
         )
         repo.nowFn = { deviceNow }
     }
