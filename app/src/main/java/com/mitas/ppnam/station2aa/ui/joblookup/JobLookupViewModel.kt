@@ -154,8 +154,11 @@ class JobLookupViewModel @Inject constructor(
                     val detail = result.snapshot.detail!!  // the use case guarantees it on Loaded
                     _uiState.update {
                         it.copy(
+                            // detailLoading too: a read abandoned earlier would otherwise leave
+                            // this freshly loaded job spinning, since its late reply no longer
+                            // applies to the job on screen.
                             jobs = result.snapshot.jobs, detail = detail, detailError = null,
-                            lookupInFlight = false,
+                            detailLoading = false, lookupInFlight = false,
                         )
                     }
                     freshFromLookup = detail.jobCard

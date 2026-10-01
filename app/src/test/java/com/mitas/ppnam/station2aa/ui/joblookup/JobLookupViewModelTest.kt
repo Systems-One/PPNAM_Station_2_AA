@@ -245,6 +245,21 @@ class JobLookupViewModelTest {
     }
 
     @Test
+    fun `a job opened by lookup is not left spinning by an abandoned read`() = runTest {
+        val replyA = CompletableDeferred<JobLookupResult>()
+        whenever(useCase.read("A")).doSuspendableAnswer { replyA.await() }
+        whenever(useCase.lookup("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        vm.openDetail("A")
+        vm.setLookupScreenActive(true)  // back to the list while A's read is out
+        vm.lookup("510019068")
+        vm.openDetail("510019068")      // no read: the lookup just loaded it
+        replyA.complete(JobLookupResult.Failed("Station 2 did not respond"))
+        assertEquals(detail, vm.uiState.value.detail)
+        assertFalse(vm.uiState.value.detailLoading)
+        assertNull(vm.uiState.value.detailError)
+    }
+
+    @Test
     fun `reopening the same job later reads it again`() = runTest {
         whenever(useCase.lookup("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
         whenever(useCase.read("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
