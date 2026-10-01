@@ -23,6 +23,8 @@ object Redact {
         // SCRAM material — enough, together, to replay or brute-force a login.
         "clientproof", "serversignature", "clientfinalwithoutproof", "salt",
         "serverfirstmessage", "servernonce", "clientnonce", "challengeid",
+        // One-use manager credential (rev2.1 §4.1).
+        "authorizationtoken",
     )
 
     fun payload(raw: String): String = try {

@@ -41,4 +41,11 @@ class RedactTest {
     fun `unparseable input is reported, never echoed`() {
         assertEquals("<unparseable payload>", Redact.payload("password=hunter2"))
     }
+
+    @Test
+    fun `redacts a nested authorizationToken`() {
+        val out = Redact.payload("""{"action":"manager_auth","data":{"authorizationToken":"tok-secret","x":1}}""")
+        assertFalse(out.contains("tok-secret"))
+        assertTrue(out.contains("manager_auth"))
+    }
 }
