@@ -15,6 +15,9 @@ object EmptyPayload
  *
  * `sessionId` is written only when non-blank: Station 2 has no notion of an empty session, and the
  * contract's rule is that an unused optional field is omitted, never sent as `""`.
+ *
+ * Throws [PlaintextCredentialException] or [OversizedPayloadException] rather than publishing — see
+ * [OutboundGuard].
  */
 object RequestEnvelope {
 
@@ -27,11 +30,12 @@ object RequestEnvelope {
         timestampUtc: String,
     ): String {
         val obj = gson.toJsonTree(payload).asJsonObject
+        OutboundGuard.assertNoCredentialFields(obj)
         obj.addProperty("schemaVersion", MqttSchema.VERSION)
         obj.addProperty("deviceId", deviceId)
         obj.addProperty("messageId", messageId)
         obj.addProperty("timestampUtc", timestampUtc)
         sessionId?.takeIf { it.isNotBlank() }?.let { obj.addProperty("sessionId", it) }
-        return gson.toJson(obj)
+        return gson.toJson(obj).also(OutboundGuard::assertWithinSize)
     }
 }

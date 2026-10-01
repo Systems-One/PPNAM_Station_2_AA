@@ -9,6 +9,10 @@ class RequestEnvelopeTest {
 
     private data class Payload(val action: String, val jobCard: String? = null, val deviceId: String? = null)
 
+    // Nested, not local: Gson silently excludes local classes.
+    private data class Leaky(val action: String, val password: String)
+    private data class Huge(val action: String, val filler: String)
+
     private fun build(payload: Any = Payload("read"), sessionId: String? = "sess-1") =
         JsonParser.parseString(
             RequestEnvelope.build(
@@ -63,5 +67,17 @@ class RequestEnvelopeTest {
         val obj = build()
         assertFalse(obj.has("operatorSessionId"))
         assertFalse(obj.has("correlationKey"))
+    }
+
+    @Test
+    fun `build refuses a payload carrying a password field`() {
+        org.junit.Assert.assertThrows(PlaintextCredentialException::class.java) { build(Leaky("read", "hunter2")) }
+    }
+
+    @Test
+    fun `build refuses an oversized request`() {
+        org.junit.Assert.assertThrows(OversizedPayloadException::class.java) {
+            build(Huge("read", "x".repeat(OutboundGuard.MAX_PAYLOAD_CHARS)))
+        }
     }
 }
