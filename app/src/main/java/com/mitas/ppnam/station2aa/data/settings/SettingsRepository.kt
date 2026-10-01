@@ -57,7 +57,7 @@ class SettingsRepository @Inject constructor(
             // silently presenting a shared one — see AppSettings.hasBrokerCredential.
             mqttUsername         = prefs[Keys.MQTT_USERNAME].orEmpty(),
             mqttPassword         = readPassword(prefs[Keys.LEGACY_MQTT_PASSWORD]),
-            requestTimeoutMs     = prefs[Keys.REQUEST_TIMEOUT_MS]   ?: 20_000L
+            requestTimeoutMs     = prefs[Keys.REQUEST_TIMEOUT_MS]   ?: AppSettings().requestTimeoutMs
         )
     }
 
