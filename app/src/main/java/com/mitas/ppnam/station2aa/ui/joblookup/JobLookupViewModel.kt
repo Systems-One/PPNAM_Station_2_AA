@@ -10,6 +10,7 @@ import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.domain.model.JobDetail
 import com.mitas.ppnam.station2aa.domain.model.JobSummary
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.JobLookupResult
@@ -67,8 +68,18 @@ class JobLookupViewModel @Inject constructor(
     private val _navigateToDetail = Channel<String>(Channel.BUFFERED)
     val navigateToDetail: Flow<String> = _navigateToDetail.receiveAsFlow()
 
-    /** The job card Detail is showing, or null on the list. Drives what a push re-reads. */
+    /**
+     * The job card Detail is showing, or null on the list. Drives what a push or reconnect re-reads,
+     * and which detail reply may still land. Volatile: the push handler reads it on the MQTT thread.
+     */
+    @Volatile
     private var viewedJobCard: String? = null
+
+    /**
+     * The job card a lookup has just loaded, consumed by the next [openDetail] so it does not read
+     * the same job twice in a row. One-shot: any later open of the job reads it again.
+     */
+    private var freshFromLookup: String? = null
 
     @Volatile
     private var lookupScreenActive = false
@@ -84,6 +95,19 @@ class JobLookupViewModel @Inject constructor(
             if (sessionHolder.session.value == null) return@setServerPushHandler
             val target = viewedJobCard
             if (target != null) loadDetail(target) else refreshList()
+        }
+        // Spec §6.4: Job Lookup reads on open and on reconnect. The first value is skipped — the
+        // screen reads on resume — so only a transition back INTO CONNECTED triggers a read.
+        viewModelScope.launch {
+            var previous: MqttConnectionState? = null
+            mqttRepository.connectionState.collect { state ->
+                val reconnected = previous != null && previous != MqttConnectionState.CONNECTED &&
+                    state == MqttConnectionState.CONNECTED
+                previous = state
+                if (!reconnected || sessionHolder.session.value == null) return@collect
+                val target = viewedJobCard
+                if (target != null) loadDetail(target) else refreshList()
+            }
         }
         viewModelScope.launch {
             scanEventBus.events.collect { event ->
@@ -134,6 +158,7 @@ class JobLookupViewModel @Inject constructor(
                             lookupInFlight = false,
                         )
                     }
+                    freshFromLookup = detail.jobCard
                     _navigateToDetail.send(detail.jobCard)
                 }
                 is JobLookupResult.Failed -> _uiState.update { state ->
@@ -147,23 +172,44 @@ class JobLookupViewModel @Inject constructor(
         }
     }
 
-    /** Detail is opening for [jobCard]. Reuses a detail a lookup just loaded; otherwise reads it. */
+    /**
+     * Detail is opening for [jobCard]. Spec §6.4: Detail reads its target on open — except straight
+     * after a lookup loaded that very job. A cached detail of the same job stays on screen while it
+     * reloads.
+     */
     fun openDetail(jobCard: String) {
         viewedJobCard = jobCard
-        if (_uiState.value.detail?.jobCard == jobCard) return
-        _uiState.update { it.copy(detail = null) }
+        val fresh = freshFromLookup
+        freshFromLookup = null
+        if (fresh == jobCard && _uiState.value.detail?.jobCard == jobCard) return
+        if (_uiState.value.detail?.jobCard != jobCard) _uiState.update { it.copy(detail = null) }
         loadDetail(jobCard)
     }
 
     private fun loadDetail(jobCard: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(detailLoading = true, detailError = null) }
-            when (val result = useCase.read(jobCard)) {
+            val result = useCase.read(jobCard)
+            // The operator may have moved on to another job while this read was out. Its job list is
+            // still current, but its detail or error belongs to a job no longer on screen.
+            val stillViewed = viewedJobCard == jobCard
+            when (result) {
                 is JobLookupResult.Loaded -> _uiState.update {
-                    it.copy(jobs = result.snapshot.jobs, detail = result.snapshot.detail, detailLoading = false)
+                    if (stillViewed) {
+                        it.copy(jobs = result.snapshot.jobs, detail = result.snapshot.detail, detailLoading = false)
+                    } else {
+                        it.copy(jobs = result.snapshot.jobs)
+                    }
                 }
                 is JobLookupResult.Failed -> _uiState.update {
-                    it.copy(detailLoading = false, detailError = result.message)
+                    when {
+                        stillViewed -> it.copy(
+                            jobs = result.snapshot?.jobs ?: it.jobs,
+                            detailLoading = false,
+                            detailError = result.message,
+                        )
+                        else -> it.copy(jobs = result.snapshot?.jobs ?: it.jobs)
+                    }
                 }
             }
         }

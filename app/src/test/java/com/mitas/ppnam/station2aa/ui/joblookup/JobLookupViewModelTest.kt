@@ -14,6 +14,7 @@ import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.JobLookupResult
 import com.mitas.ppnam.station2aa.domain.usecase.JobLookupUseCase
 import java.time.Instant
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +32,7 @@ import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doSuspendableAnswer
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
@@ -47,6 +49,7 @@ class JobLookupViewModelTest {
     private lateinit var sessionHolder: OperatorSessionHolder
     private lateinit var vm: JobLookupViewModel
     private var pushHandler: ((String, ResponseEnvelope, String) -> Unit)? = null
+    private lateinit var connection: MutableStateFlow<MqttConnectionState>
 
     private val jobs = listOf(JobSummary("510019068", "BAG CARRIER", 8, false))
     private val detail = JobDetail(
@@ -67,7 +70,8 @@ class JobLookupViewModelTest {
         sessionHolder = OperatorSessionHolder()
         sessionHolder.set(OperatorSession("sess-1", "OP-1", "Op", "Worker"))
         whenever(scanBus.events).thenReturn(scans)
-        whenever(mqtt.connectionState).thenReturn(MutableStateFlow(MqttConnectionState.CONNECTED))
+        connection = MutableStateFlow(MqttConnectionState.CONNECTED)
+        whenever(mqtt.connectionState).thenReturn(connection)
         whenever(mqtt.stationOnline).thenReturn(MutableStateFlow(true))
         whenever(mqtt.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
         vm = JobLookupViewModel(useCase, mqtt, scanBus, sessionHolder, mock<AuthUseCase>())
@@ -204,6 +208,94 @@ class JobLookupViewModelTest {
     @Test
     fun `a push for another mode is ignored`() = runTest {
         push(mode = "Rajoo")
+        verify(useCase, never()).read(anyOrNull())
+    }
+
+    private fun detailOf(jobCard: String) = detail.copy(jobCard = jobCard)
+
+    @Test
+    fun `a late reply for a job left behind does not overwrite the job now viewed`() = runTest {
+        val replyA = CompletableDeferred<JobLookupResult>()
+        val replyB = CompletableDeferred<JobLookupResult>()
+        whenever(useCase.read("A")).doSuspendableAnswer { replyA.await() }
+        whenever(useCase.read("B")).doSuspendableAnswer { replyB.await() }
+        vm.openDetail("A")
+        vm.setLookupScreenActive(true)  // back to the list
+        vm.setLookupScreenActive(false)
+        vm.openDetail("B")
+        replyB.complete(JobLookupResult.Loaded(JobLookupSnapshot(jobs, detailOf("B"))))
+        replyA.complete(JobLookupResult.Failed("Station 2 has no General job A"))
+        assertEquals("B", vm.uiState.value.detail?.jobCard)
+        assertFalse(vm.uiState.value.detailLoading)
+        assertNull(vm.uiState.value.detailError)
+    }
+
+    @Test
+    fun `a late successful reply for a job left behind still applies its job list`() = runTest {
+        val replyA = CompletableDeferred<JobLookupResult>()
+        val newJobs = listOf(JobSummary("A", "OTHER", 1, false))
+        whenever(useCase.read("A")).doSuspendableAnswer { replyA.await() }
+        whenever(useCase.read("B")).thenReturn(JobLookupResult.Loaded(JobLookupSnapshot(jobs, detailOf("B"))))
+        vm.openDetail("A")
+        vm.openDetail("B")
+        replyA.complete(JobLookupResult.Loaded(JobLookupSnapshot(newJobs, detailOf("A"))))
+        assertEquals("B", vm.uiState.value.detail?.jobCard)
+        assertEquals(newJobs, vm.uiState.value.jobs)
+        assertFalse(vm.uiState.value.detailLoading)
+    }
+
+    @Test
+    fun `reopening the same job later reads it again`() = runTest {
+        whenever(useCase.lookup("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        whenever(useCase.read("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        vm.lookup("510019068")
+        vm.openDetail("510019068")      // straight after the lookup: no read
+        vm.setLookupScreenActive(true)  // back to the list
+        vm.openDetail("510019068")      // later: reads
+        verify(useCase, times(1)).read("510019068")
+    }
+
+    @Test
+    fun `reopening the same job keeps showing the cached detail while it reloads`() = runTest {
+        val reply = CompletableDeferred<JobLookupResult>()
+        whenever(useCase.read("510019068"))
+            .thenReturn(JobLookupResult.Loaded(withDetail))
+            .doSuspendableAnswer { reply.await() }
+        vm.openDetail("510019068")
+        vm.openDetail("510019068")
+        assertEquals(detail, vm.uiState.value.detail)
+        reply.complete(JobLookupResult.Loaded(withDetail))
+        assertFalse(vm.uiState.value.detailLoading)
+    }
+
+    @Test
+    fun `a reconnect with a session re-reads the list`() = runTest {
+        whenever(useCase.read(null)).thenReturn(JobLookupResult.Loaded(listOnly))
+        connection.value = MqttConnectionState.DISCONNECTED
+        connection.value = MqttConnectionState.CONNECTED
+        verify(useCase, times(1)).read(null)
+    }
+
+    @Test
+    fun `a reconnect while viewing a detail re-reads that detail`() = runTest {
+        whenever(useCase.read("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        vm.openDetail("510019068")
+        connection.value = MqttConnectionState.RECONNECTING
+        connection.value = MqttConnectionState.CONNECTED
+        verify(useCase, times(2)).read("510019068")
+        verify(useCase, never()).read(null)
+    }
+
+    @Test
+    fun `a reconnect with no session reads nothing`() = runTest {
+        sessionHolder.clear()
+        connection.value = MqttConnectionState.DISCONNECTED
+        connection.value = MqttConnectionState.CONNECTED
+        verify(useCase, never()).read(anyOrNull())
+    }
+
+    @Test
+    fun `the initial connected state does not trigger a read`() = runTest {
         verify(useCase, never()).read(anyOrNull())
     }
 }
