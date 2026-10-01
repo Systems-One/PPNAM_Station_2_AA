@@ -24,9 +24,9 @@ class SessionWatcherViewModel @Inject constructor(
 /**
  * Sends the operator back to login whenever the session disappears.
  *
- * The transport clears the session holder when Station 2 answers `session_required` — a Closed
- * session means every subsequent request would be rejected, so any screen still on display is
- * lying. This makes that a single global rule rather than something each screen must remember.
+ * The transport clears the session holder when Station 2 answers `operator_session_invalid` to a
+ * request sent with the active session — every subsequent request would be rejected too, so any
+ * screen still on display is lying. This makes that a single global rule rather than something each screen must remember.
  *
  * Note: `lifecycle-runtime-compose` (for `collectAsStateWithLifecycle`) is not a dependency in
  * this project, so this uses `collectAsState()` from `androidx.compose.runtime` instead.

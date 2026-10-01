@@ -116,6 +116,15 @@ fun JobLookupScreen(
             Spacer(Modifier.height(24.dp))
             Text("Jobs on Station 2", style = MaterialTheme.typography.labelMedium, color = TextMuted)
             Spacer(Modifier.height(8.dp))
+            // With jobs showing, a failed refresh would otherwise be invisible: the list is the
+            // last good one. One muted line says so without displacing it.
+            if (state.jobs.isNotEmpty() && state.listError != null) {
+                Text(
+                    state.listError!!, color = TextMuted, style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(8.dp))
+            }
             when {
                 state.jobs.isNotEmpty() -> LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(state.jobs, key = { it.jobCard }) { job ->

@@ -55,7 +55,11 @@ data class Rev2Job(
     val materials: List<Rev2Material> = emptyList(),
 )
 
-/** `Remaining` is computed server-side and not serialized — derive it on the device. */
+/**
+ * Station 2 also sends `remaining` (a getter-only property, which System.Text.Json serializes). It
+ * is not declared: the device derives it with the same formula, `max(0, required - collected)`, and
+ * ignores the wire value.
+ */
 data class Rev2Material(
     val code: String = "",
     val name: String = "",

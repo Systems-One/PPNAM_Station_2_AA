@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,9 +27,8 @@ fun AppScaffold(
     title: String,
     status: ConnectionStatus,
     onBack: (() -> Unit)? = null,
-    onRfidLookup: (() -> Unit)? = null,
     onSettings: (() -> Unit)? = null,
-    /** A screen-specific top-bar action (e.g. an overflow menu) rendered next to Settings/RFID. */
+    /** A screen-specific top-bar action (e.g. an overflow menu) rendered next to Settings. */
     actions: (@Composable RowScope.() -> Unit)? = null,
     operatorName: String? = null,
     operatorRole: String? = null,
@@ -150,15 +148,6 @@ fun AppScaffold(
                                 )
                             }
                         }
-                        if (onRfidLookup != null) {
-                            IconButton(onClick = onRfidLookup) {
-                                Icon(
-                                    imageVector = Icons.Filled.WifiTethering,
-                                    contentDescription = "RFID Pallet Lookup",
-                                    tint = TextMuted
-                                )
-                            }
-                        }
                         if (onSettings != null) {
                             IconButton(onClick = onSettings) {
                                 Icon(
@@ -206,15 +195,6 @@ fun AppScaffold(
                             }
                         },
                         actions = {
-                            if (onRfidLookup != null) {
-                                IconButton(onClick = onRfidLookup) {
-                                    Icon(
-                                        imageVector = Icons.Filled.WifiTethering,
-                                        contentDescription = "RFID Pallet Lookup",
-                                        tint = TextMuted
-                                    )
-                                }
-                            }
                             if (onSettings != null) {
                                 IconButton(onClick = onSettings) {
                                     Icon(

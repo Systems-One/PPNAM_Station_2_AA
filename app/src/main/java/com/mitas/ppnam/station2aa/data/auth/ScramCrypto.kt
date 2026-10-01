@@ -8,18 +8,18 @@ import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * RFC 7677 SCRAM-SHA-256, as required by contract v4.1 §6.
+ * RFC 7677 SCRAM-SHA-256, as rev2.1 requires for operator login.
  *
- * Schema 4.1 rejects any message carrying a `password` or `managerPassword` property, so this is
- * the only way the app can authenticate an operator or a manager action. The password never leaves
- * the device: what travels is a proof that we know it.
+ * rev2.1 rejects any field whose name contains `password` (`password_field_forbidden`), so this is
+ * the only way the app can sign an operator in. The password never leaves the device: what travels
+ * is a proof that we know it.
  *
- * The exchange this supports:
+ * The exchange this supports (login only; `purpose` is always `login`):
  *
- *  1. client -> `scram_start_requested`  { username, clientNonce, purpose, actionTarget, managerAction }
+ *  1. client -> `scram_start_requested`  { username, clientNonce, purpose }
  *  2. server -> `scram_challenge`        { challengeId, serverNonce, salt, iterations, serverFirstMessage }
- *  3. client -> `scram_proof_requested`  { challengeId, clientFinalWithoutProof, clientProof }
- *  4. server -> session (login) or a single-use authorizationToken (manager_action)
+ *  3. client -> `scram_proof_requested`  { challengeId, clientFinalWithoutProof, clientProof, purpose }
+ *  4. server -> `scram_proof_result`     { serverSignature, session }
  *
  * ### Why PBKDF2 is implemented here rather than via `SecretKeyFactory`
  *

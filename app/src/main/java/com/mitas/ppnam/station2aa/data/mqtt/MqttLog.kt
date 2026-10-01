@@ -2,7 +2,11 @@ package com.mitas.ppnam.station2aa.data.mqtt
 
 import android.util.Log
 
-enum class Direction { OUT, IN }
+/**
+ * [OUT] a message published, [IN] a message that arrived, [RESULT] the outcome of a request — not
+ * a message on the wire. A timeout is a RESULT with no IN before it, never an arrival.
+ */
+enum class Direction { OUT, IN, RESULT }
 
 /**
  * One log line per MQTT message: direction, topic, QoS, retain, device id, message type, rev2.1

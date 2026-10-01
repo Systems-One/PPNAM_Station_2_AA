@@ -1,11 +1,11 @@
 package com.mitas.ppnam.station2aa.domain.model
 
 /**
- * Contract v3.0 session state. Constant names match the wire values exactly.
+ * rev2.1 session state: Station 2's `OperatorSessionState`, sent by name as
+ * `session.sessionState` in `scram_proof_result`. Constant names match the wire values exactly.
  *
- * This state machine is almost entirely Station 2's: presence drives Active/Suspended, and a valid
- * request on a Suspended session resumes it implicitly. The client mirrors the value for display
- * and reacts to `session_required`; it never drives the machine itself.
+ * This state machine is entirely Station 2's. The client mirrors the value for display and reacts
+ * to `operator_session_invalid`; it never drives the machine itself.
  */
 enum class SessionState {
     /** Device is online and the session is in use. */

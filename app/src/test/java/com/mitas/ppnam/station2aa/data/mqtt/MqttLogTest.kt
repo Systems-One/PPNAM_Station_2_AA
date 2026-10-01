@@ -30,6 +30,20 @@ class MqttLogTest {
     }
 
     @Test
+    fun `a request outcome is logged as a result, not as an arrival`() {
+        val out = MqttLog.line(
+            direction = Direction.RESULT,
+            topic = "PPNAM/station_2/scanner_x/req/rev2_general_requested",
+            qos = 1, retain = false, deviceId = "scanner_x",
+            messageType = "rev2_general_requested", action = "read",
+            result = "timeout", durationMs = 30_000L,
+        )
+        assertTrue(out.startsWith("dir=RESULT "))
+        assertFalse(out.contains("dir=IN"))
+        assertTrue(out.contains("result=timeout"))
+    }
+
+    @Test
     fun `a logged payload is redacted`() {
         val out = line(payload = """{"sessionId":"secret-session","action":"read"}""")
         assertFalse(out.contains("secret-session"))

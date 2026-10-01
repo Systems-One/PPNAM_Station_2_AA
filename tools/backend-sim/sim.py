@@ -155,6 +155,10 @@ class Simulator:
         topic = f"{STATION_BASE}/{device_id}/res/{response_type}"
         self.client.publish(topic, json.dumps(response, ensure_ascii=False), qos=1, retain=False)
         self.log.wire("out", topic, response)
+        if "success" not in response:
+            # A server push (active_job_cards_invalidated) has no success flag and answers nothing.
+            self.log.tx(f"res/{response_type} -> {device_id}: PUSH {response.get('reason')}")
+            return topic
         outcome = "SUCCESS" if response.get("success") else f"FAILED ({response.get('error')})"
         self.log.tx(f"res/{response_type} -> {device_id}: {outcome} "
                     f"inResponseTo={response.get('inResponseToMessageId')!r}")

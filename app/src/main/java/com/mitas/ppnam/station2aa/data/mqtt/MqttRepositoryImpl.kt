@@ -43,10 +43,10 @@ class MqttRepositoryImpl @Inject constructor(
         private const val SUBSCRIBE_TIMEOUT_MS = 10_000L
         private const val CONNECT_TIMEOUT_MS = 15_000L
 
-        // Bounded retry. The contract's replay design makes this safe: the same replay identity
-        // (deviceId + requestType + messageId) with the same body returns the stored response
-        // without repeating the workflow action. Retrying is safe because rev2.1 replays an
-        // identical messageId and body, so every attempt is byte-for-byte the same request.
+        // Bounded retry. Every attempt republishes byte-for-byte the same request (same messageId,
+        // same body), and the contract's replay design returns the stored response for the same
+        // replay identity (deviceId + requestType + messageId) and body without repeating the
+        // workflow action.
         internal const val REQUEST_MAX_ATTEMPTS = 3
 
         // Beyond this the device clock is far enough off to make timestamps hard to reconcile.
@@ -455,7 +455,6 @@ class MqttRepositoryImpl @Inject constructor(
         val action = (gson.toJsonTree(payload) as? com.google.gson.JsonObject)
             ?.get("action")?.takeIf { it.isJsonPrimitive }?.asString
         val startedAt = System.currentTimeMillis()
-        val responseTopic = MqttTopics.responseWildcard(deviceId).removeSuffix("+") + responseType
         val bytes = json.toByteArray()  // frozen: every attempt republishes these exact bytes
         val waiter = CompletableDeferred<String>()
         pending[messageId] = PendingRequest(waiter, sessionId)
@@ -479,7 +478,7 @@ class MqttRepositoryImpl @Inject constructor(
                     if (raw != null) {
                         val outcome = parseOutcome(raw, responseClass, responseType)
                         MqttLog.message(
-                            Direction.IN, responseTopic, 1, false, deviceId, responseType, action,
+                            Direction.RESULT, topic, 1, false, deviceId, requestType, action,
                             outcomeResult(outcome), durationMs = System.currentTimeMillis() - startedAt,
                         )
                         return outcome
@@ -490,7 +489,7 @@ class MqttRepositoryImpl @Inject constructor(
                 }
             }
             MqttLog.message(
-                Direction.IN, responseTopic, 1, false, deviceId, responseType, action,
+                Direction.RESULT, topic, 1, false, deviceId, requestType, action,
                 "timeout", durationMs = System.currentTimeMillis() - startedAt,
             )
             return MqttOutcome.NoResponse(FailureKind.Timeout)

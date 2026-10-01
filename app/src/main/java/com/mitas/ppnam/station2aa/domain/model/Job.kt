@@ -11,8 +11,9 @@ data class JobSummary(
 )
 
 /**
- * One BOM material. Quantities are for display: the server owns every calculation, and the only
- * thing derived here is [remaining], because the server computes it but does not send it.
+ * One BOM material. Quantities are for display: the server owns every calculation. The only thing
+ * derived here is [remaining], with the server's own formula; the `remaining` Station 2 sends
+ * alongside is ignored.
  */
 data class JobMaterial(
     val code: String,
