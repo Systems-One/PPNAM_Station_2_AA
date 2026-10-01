@@ -29,7 +29,7 @@ data class AppSettings(
     val mqttUseTls: Boolean = true,
     val mqttUsername: String = "",
     val mqttPassword: String = "",
-    val requestTimeoutMs: Long = 20_000L
+    val requestTimeoutMs: Long = 10_000L
 ) {
     /** True once this handheld has been provisioned with its own broker credential. */
     val hasBrokerCredential: Boolean
