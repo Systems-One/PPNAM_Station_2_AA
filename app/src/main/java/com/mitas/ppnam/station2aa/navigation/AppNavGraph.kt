@@ -12,15 +12,21 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.mitas.ppnam.station2aa.ui.login.LoginScreen
 import com.mitas.ppnam.station2aa.ui.components.UpgradeRequiredGate
 import com.mitas.ppnam.station2aa.ui.home.HomeScreen
+import com.mitas.ppnam.station2aa.ui.joblookup.JobDetailScreen
+import com.mitas.ppnam.station2aa.ui.joblookup.JobLookupScreen
+import com.mitas.ppnam.station2aa.ui.joblookup.JobLookupViewModel
 import com.mitas.ppnam.station2aa.ui.session.SessionWatcher
 import com.mitas.ppnam.station2aa.ui.settings.SettingsScreen
 import com.mitas.ppnam.station2aa.ui.theme.rememberReducedMotion
@@ -80,7 +86,7 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
             // LocalActivity only exists from activity-compose 1.10; this project is on 1.9.0.
             val activity = LocalContext.current.findActivity()
             HomeScreen(
-                onOpenJobCards = {},
+                onOpenJobCards = { navController.navigate(NavRoutes.JOBS) },
                 onSettings = { navController.navigate(NavRoutes.SETTINGS) },
                 // Navigation on logout is SessionWatcher's job alone (it reacts to
                 // the session going null, which authUseCase.logout() causes before this event fires).
@@ -93,6 +99,26 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
         }
         composable(NavRoutes.SETTINGS) {
             SettingsScreen(onBack = { navController.popBackStack() })
+        }
+        navigation(startDestination = NavRoutes.JOB_LOOKUP, route = NavRoutes.JOBS) {
+            composable(NavRoutes.JOB_LOOKUP) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) { navController.getBackStackEntry(NavRoutes.JOBS) }
+                JobLookupScreen(
+                    onJobFound = { jobCard -> navController.navigate(NavRoutes.jobDetail(jobCard)) },
+                    onSettings = { navController.navigate(NavRoutes.SETTINGS) },
+                    onBack = { navController.popBackStack() },
+                    viewModel = hiltViewModel<JobLookupViewModel>(parentEntry),
+                )
+            }
+            composable(NavRoutes.JOB_DETAIL) { backStackEntry ->
+                val jobCard = backStackEntry.arguments?.getString("jobCard") ?: return@composable
+                val parentEntry = remember(backStackEntry) { navController.getBackStackEntry(NavRoutes.JOBS) }
+                JobDetailScreen(
+                    jobCard = jobCard,
+                    onBack = { navController.popBackStack() },
+                    viewModel = hiltViewModel<JobLookupViewModel>(parentEntry),
+                )
+            }
         }
     }
     UpgradeRequiredGate()
