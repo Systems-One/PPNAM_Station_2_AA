@@ -6,7 +6,7 @@ import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
 import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
-import com.mitas.ppnam.station2aa.ui.components.connectionStatusFlow
+import com.mitas.ppnam.station2aa.ui.components.connectionStatusIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -34,11 +34,7 @@ class LoginViewModel @Inject constructor(
 
     val connectionState: StateFlow<MqttConnectionState> = mqttRepository.connectionState
 
-    val connectionStatus: StateFlow<ConnectionStatus> = connectionStatusFlow(
-        mqttRepository.connectionState,
-        mqttRepository.stationOnline,
-        mqttRepository.clockSkewMillis,
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ConnectionStatus.Offline)
+    val connectionStatus: StateFlow<ConnectionStatus> = mqttRepository.connectionStatusIn(viewModelScope)
 
     init {
         viewModelScope.launch { mqttRepository.connect() }

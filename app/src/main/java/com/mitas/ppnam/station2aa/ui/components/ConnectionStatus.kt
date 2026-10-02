@@ -1,10 +1,15 @@
 package com.mitas.ppnam.station2aa.ui.components
 
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.stateIn
 import kotlin.math.abs
 
 /** Beyond this, the device clock is a plausible cause of blanket message_expired rejections. */
@@ -58,3 +63,16 @@ fun connectionStatusFlow(
 ): Flow<ConnectionStatus> = combine(connectionState, stationOnline, clockSkewMillis) { state, online, skew ->
     resolveConnectionStatus(state, online, skew)
 }.debounce(CONNECTION_STATUS_DEBOUNCE_MS)
+
+/**
+ * The status as of this instant. [connectionStatusFlow] debounces, so its first emission is
+ * 1.5 s away; a placeholder initial value of Offline painted a red pill on every screen entry
+ * while the Diagnostics card on the same screen said Connected (audit S2-09).
+ */
+fun MqttRepository.currentConnectionStatus(): ConnectionStatus =
+    resolveConnectionStatus(connectionState.value, stationOnline.value, clockSkewMillis.value)
+
+/** The one way every ViewModel exposes the top-bar pill: debounced updates, seeded with the truth. */
+fun MqttRepository.connectionStatusIn(scope: CoroutineScope): StateFlow<ConnectionStatus> =
+    connectionStatusFlow(connectionState, stationOnline, clockSkewMillis)
+        .stateIn(scope, SharingStarted.WhileSubscribed(5_000), currentConnectionStatus())

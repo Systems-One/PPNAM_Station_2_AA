@@ -4,6 +4,7 @@ import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -90,5 +91,14 @@ class LoginViewModelTest {
         viewModel.retry()
 
         assertTrue(viewModel.uiState.value is LoginUiState.Idle)
+    }
+
+    @Test
+    fun `the pill starts from the live connection state instead of flashing Offline`() = runTest {
+        whenever(mockMqttRepository.connectionState)
+            .thenReturn(MutableStateFlow(MqttConnectionState.CONNECTED))
+        val connectedVm = LoginViewModel(mockAuthUseCase, mockMqttRepository)
+        // The debounced flow has not emitted yet (1.5 s away); the seed must already be right.
+        assertEquals(ConnectionStatus.Connected, connectedVm.connectionStatus.value)
     }
 }

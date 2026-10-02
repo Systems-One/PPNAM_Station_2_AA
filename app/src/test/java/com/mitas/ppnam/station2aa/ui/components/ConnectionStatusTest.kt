@@ -1,8 +1,12 @@
 package com.mitas.ppnam.station2aa.ui.components
 
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class ConnectionStatusTest {
 
@@ -61,5 +65,14 @@ class ConnectionStatusTest {
     fun `an unmeasured clock is not reported as skewed`() {
         // null means no response has arrived yet to measure against — absence of evidence.
         assertEquals(ConnectionStatus.Connected, resolve(skew = null))
+    }
+
+    @Test
+    fun `currentConnectionStatus reads the repository's present values, not a placeholder`() {
+        val repo = mock<MqttRepository>()
+        whenever(repo.connectionState).thenReturn(MutableStateFlow(MqttConnectionState.CONNECTED))
+        whenever(repo.stationOnline).thenReturn(MutableStateFlow(true))
+        whenever(repo.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(0L))
+        assertEquals(ConnectionStatus.Connected, repo.currentConnectionStatus())
     }
 }

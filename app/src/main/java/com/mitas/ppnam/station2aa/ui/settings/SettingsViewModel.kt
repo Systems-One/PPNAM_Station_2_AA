@@ -12,13 +12,11 @@ import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
 import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
-import com.mitas.ppnam.station2aa.ui.components.connectionStatusFlow
+import com.mitas.ppnam.station2aa.ui.components.connectionStatusIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -106,11 +104,7 @@ class SettingsViewModel @Inject constructor(
      */
     val stationOnline: StateFlow<Boolean> = mqttRepository.stationOnline
 
-    val connectionStatus: StateFlow<ConnectionStatus> = connectionStatusFlow(
-        mqttRepository.connectionState,
-        mqttRepository.stationOnline,
-        mqttRepository.clockSkewMillis,
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ConnectionStatus.Offline)
+    val connectionStatus: StateFlow<ConnectionStatus> = mqttRepository.connectionStatusIn(viewModelScope)
 
     init {
         viewModelScope.launch {
