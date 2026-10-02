@@ -4,6 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
@@ -37,9 +40,19 @@ fun SessionWatcher(
     viewModel: SessionWatcherViewModel = hiltViewModel(),
 ) {
     val session by viewModel.session.collectAsState()
+    // Only a non-null -> null TRANSITION sends the operator to Login. The effect used to fire on
+    // every Activity recreation while session was simply null (nobody logged in yet) and popped a
+    // supervisor out of Settings, draft and all (audit S2-02). Saveable so the "had a session"
+    // fact itself survives recreation.
+    var hadSession by rememberSaveable { mutableStateOf(session != null) }
 
     LaunchedEffect(session) {
-        if (session != null) return@LaunchedEffect
+        if (session != null) {
+            hadSession = true
+            return@LaunchedEffect
+        }
+        if (!hadSession) return@LaunchedEffect
+        hadSession = false
         val current = navController.currentDestination?.route ?: return@LaunchedEffect
         if (current == NavRoutes.LOGIN) return@LaunchedEffect
         navController.navigate(NavRoutes.LOGIN) {
