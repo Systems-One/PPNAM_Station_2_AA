@@ -42,9 +42,12 @@ fun LoginScreen(
     val uiState by viewModel.uiState.collectAsState()
     val connectionStatus by viewModel.connectionStatus.collectAsState()
     // rememberSaveable, not remember: a configuration change (font scale, multi-window — rotation
-    // is locked now) used to wipe both fields mid-typing (audit S2-02).
+    // is locked now) used to wipe the field mid-typing (audit S2-02).
     var username by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+    // The password is deliberately NOT saveable: rememberSaveable writes into the Activity's
+    // saved-instance Bundle, which the system can persist to disk. Portrait lock already removes
+    // the rotation case; a rarer recreation costs a retype, not a leaked secret.
+    var password by remember { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     var showExitDialog by rememberSaveable { mutableStateOf(false) }
     val keyboard = LocalSoftwareKeyboardController.current
