@@ -41,6 +41,8 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
 @Composable
 fun AppNavGraph(navController: NavHostController = rememberNavController()) {
     SessionWatcher(navController)
+    // LocalActivity only exists from activity-compose 1.10; this project is on 1.9.0.
+    val hostActivity = LocalContext.current.findActivity()
     // Drill-in transitions with symmetric paths: a screen that enters from the right leaves to
     // the right on pop, and the screen underneath parallaxes a third of the way out and back
     // along the same track — so "where did that come from / where does back go" is answered by
@@ -121,5 +123,5 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
             }
         }
     }
-    UpgradeRequiredGate()
+    UpgradeRequiredGate(onCloseApp = { hostActivity?.finish() })
 }

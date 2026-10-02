@@ -2,12 +2,15 @@ package com.mitas.ppnam.station2aa.ui.components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import com.mitas.ppnam.station2aa.BuildConfig
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
@@ -23,13 +26,19 @@ class UpgradeGateViewModel @Inject constructor(
 }
 
 /**
- * The app-level `client_upgrade_required` gate (contract §10: "Block Mixing and require
- * the 4.0 reader build"). Rendered once above the NavHost so it blocks EVERY screen —
- * the transport's latch never resets, so neither does this dialog; only a new build
- * clears the condition.
+ * The app-level `client_upgrade_required` gate. Rendered once above the NavHost so it blocks
+ * EVERY screen — the transport's latch never resets, so neither does this dialog; only a new
+ * build clears the condition.
+ *
+ * It is blocking, but not a trap: with no button at all the operator's only way out was Home +
+ * kill the app (audit S2-06). "Close app" finishes the Activity. The text names the installed
+ * version instead of a hard-coded "4.0 reader build" that was already wrong for v1.2.0.
  */
 @Composable
-fun UpgradeRequiredGate(viewModel: UpgradeGateViewModel = hiltViewModel()) {
+fun UpgradeRequiredGate(
+    onCloseApp: () -> Unit,
+    viewModel: UpgradeGateViewModel = hiltViewModel(),
+) {
     val upgradeRequired by viewModel.upgradeRequired.collectAsState()
     if (upgradeRequired) {
         AlertDialog(
@@ -37,12 +46,14 @@ fun UpgradeRequiredGate(viewModel: UpgradeGateViewModel = hiltViewModel()) {
             title = { Text("App update required", color = TextPrimary) },
             text = {
                 Text(
-                    "Station 2 requires the 4.0 reader build for this workflow. " +
-                        "Install the update, then log in again.",
+                    "This version of Station 2 (v${BuildConfig.VERSION_NAME}) is too old for the " +
+                        "station. Ask a supervisor to install the latest version, then log in again.",
                     color = TextMuted,
                 )
             },
-            confirmButton = {},
+            confirmButton = {
+                TextButton(onClick = onCloseApp) { Text("Close app", color = DangerRed) }
+            },
             containerColor = GraphiteSurface,
         )
     }
