@@ -44,6 +44,12 @@ class LoginViewModel @Inject constructor(
         // Blocks re-entry for the whole LoggingIn -> LoggedIn span: a second tap arriving after
         // success but before Compose has navigated away must not start a second, concurrent login.
         if (_uiState.value != LoginUiState.Idle && _uiState.value !is LoginUiState.Error) return
+        // S1's rule, applied here too: a blank username used to go on the wire and come back as
+        // the raw protocol text "username and clientNonce are required." (audit S2-07).
+        if (username.isBlank() || password.isEmpty()) {
+            _uiState.value = LoginUiState.Error(FILL_ALL_FIELDS)
+            return
+        }
         viewModelScope.launch {
             _uiState.value = LoginUiState.LoggingIn
             authUseCase.login(username, password)
@@ -59,5 +65,9 @@ class LoginViewModel @Inject constructor(
 
     fun retry() {
         _uiState.value = LoginUiState.Idle
+    }
+
+    companion object {
+        const val FILL_ALL_FIELDS = "Please fill in all fields"
     }
 }

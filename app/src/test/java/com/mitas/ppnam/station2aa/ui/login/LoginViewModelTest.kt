@@ -101,4 +101,17 @@ class LoginViewModelTest {
         // The debounced flow has not emitted yet (1.5 s away); the seed must already be right.
         assertEquals(ConnectionStatus.Connected, connectedVm.connectionStatus.value)
     }
+
+    @Test
+    fun `blank username or password shows the fill-all-fields message and sends nothing`() = runTest {
+        viewModel.submitCredentials("", "pass")
+        advanceUntilIdle()
+        assertEquals(LoginUiState.Error(LoginViewModel.FILL_ALL_FIELDS), viewModel.uiState.value)
+
+        viewModel.submitCredentials("   ", "pass")
+        viewModel.submitCredentials("operator1", "")
+        advanceUntilIdle()
+        assertEquals(LoginUiState.Error(LoginViewModel.FILL_ALL_FIELDS), viewModel.uiState.value)
+        verify(mockAuthUseCase, never()).login(any(), any())
+    }
 }
