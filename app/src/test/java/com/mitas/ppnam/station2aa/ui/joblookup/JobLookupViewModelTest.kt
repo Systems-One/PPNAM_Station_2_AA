@@ -313,4 +313,25 @@ class JobLookupViewModelTest {
     fun `the initial connected state does not trigger a read`() = runTest {
         verify(useCase, never()).read(anyOrNull())
     }
+
+    @Test
+    fun `retryLookup repeats the last lookup, including one that came from a scan`() = runTest {
+        whenever(useCase.lookup("510019068")).thenReturn(JobLookupResult.Failed("Station 2 did not respond. Check the station and retry."))
+        vm.setLookupScreenActive(true)
+        scans.emit(ScanEvent.Barcode("510019068", "CODE128", Instant.now()))
+        assertEquals("Station 2 did not respond. Check the station and retry.", vm.uiState.value.lookupError)
+
+        whenever(useCase.lookup("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        vm.retryLookup()
+
+        verify(useCase, times(2)).lookup("510019068")
+        assertEquals(detail, vm.uiState.value.detail)
+        assertNull(vm.uiState.value.lookupError)
+    }
+
+    @Test
+    fun `retryLookup with nothing to retry does nothing`() = runTest {
+        vm.retryLookup()
+        verify(useCase, never()).lookup(any())
+    }
 }

@@ -192,7 +192,7 @@ class JobLookupUseCaseTest {
     @Test
     fun `no response reports the transport failure`() = runTest {
         stub(MqttOutcome.NoResponse(FailureKind.Timeout))
-        assertEquals("Station 2 did not respond", (useCase.read() as JobLookupResult.Failed).message)
+        assertEquals("Station 2 did not respond. Check the station and retry.", (useCase.read() as JobLookupResult.Failed).message)
     }
 
     @Test

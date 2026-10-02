@@ -78,6 +78,9 @@ class JobLookupViewModel @Inject constructor(
     @Volatile
     private var lookupScreenActive = false
 
+    /** What the last [lookup] was asked for — typed or scanned — so Retry can repeat it. */
+    private var lastLookupInput: String? = null
+
     init {
         // rev2.1: after a preparation is created Station 2 pushes a hint telling General readers to
         // read again. It is a hint, not data, and never a reason to cancel a request in flight — so
@@ -141,6 +144,7 @@ class JobLookupViewModel @Inject constructor(
 
     fun lookup(input: String) {
         if (_uiState.value.lookupInFlight) return
+        lastLookupInput = input
         viewModelScope.launch {
             _uiState.update { it.copy(lookupInFlight = true, lookupError = null) }
             when (val result = useCase.lookup(input)) {
@@ -167,6 +171,11 @@ class JobLookupViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /** The Retry button next to a lookup error. A no-op until something has been looked up. */
+    fun retryLookup() {
+        lastLookupInput?.let { lookup(it) }
     }
 
     /**

@@ -59,6 +59,6 @@ class AuthUseCase @Inject constructor(
 
 internal fun FailureKind.message(): String = when (this) {
     FailureKind.NotConnected -> "Not connected to Station 2"
-    FailureKind.Timeout -> "Station 2 did not respond"
+    FailureKind.Timeout -> "Station 2 did not respond. Check the station and retry."
     FailureKind.MalformedResponse -> "Station 2 sent an unreadable response"
 }

@@ -86,8 +86,15 @@ fun JobDetailScreen(
                     }
                 }
             }
-            state.detailError != null -> Box(Modifier.fillMaxSize().padding(padding), Alignment.Center) {
-                Text(state.detailError!!, color = TextMuted)
+            state.detailError != null -> Column(
+                Modifier.fillMaxSize().padding(padding).padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(state.detailError!!, color = DangerRed, style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(12.dp))
+                // openDetail re-reads the target (freshFromLookup is already consumed).
+                OutlinedButton(onClick = { viewModel.openDetail(jobCard) }) { Text("Retry") }
             }
             else -> Box(Modifier.fillMaxSize().padding(padding), Alignment.Center) {
                 CircularProgressIndicator()

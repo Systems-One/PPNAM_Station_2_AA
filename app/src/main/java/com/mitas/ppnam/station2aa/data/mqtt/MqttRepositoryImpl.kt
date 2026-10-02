@@ -43,12 +43,6 @@ class MqttRepositoryImpl @Inject constructor(
         private const val SUBSCRIBE_TIMEOUT_MS = 10_000L
         private const val CONNECT_TIMEOUT_MS = 15_000L
 
-        // Bounded retry. Every attempt republishes byte-for-byte the same request (same messageId,
-        // same body), and the contract's replay design returns the stored response for the same
-        // replay identity (deviceId + requestType + messageId) and body without repeating the
-        // workflow action.
-        internal const val REQUEST_MAX_ATTEMPTS = 3
-
         // Beyond this the device clock is far enough off to make timestamps hard to reconcile.
         internal const val CLOCK_SKEW_WARN_MS = 30_000L
 
@@ -455,44 +449,40 @@ class MqttRepositoryImpl @Inject constructor(
         val action = (gson.toJsonTree(payload) as? com.google.gson.JsonObject)
             ?.get("action")?.takeIf { it.isJsonPrimitive }?.asString
         val startedAt = System.currentTimeMillis()
-        val bytes = json.toByteArray()  // frozen: every attempt republishes these exact bytes
+        val bytes = json.toByteArray()
         val waiter = CompletableDeferred<String>()
         pending[messageId] = PendingRequest(waiter, sessionId)
+        // One attempt. The contract's replay identity (deviceId + requestType + messageId) would
+        // allow a byte-identical republish, but three silent attempts each waiting the full
+        // timeout left the operator with a 90 s spinner and a "Request timeout" setting that was
+        // off by a factor of three (audit S2-05). Retrying is now an explicit operator action.
         try {
-            repeat(REQUEST_MAX_ATTEMPTS) { attempt ->
-                val publishOk = try {
-                    publishFn(topic, bytes)
-                    MqttLog.message(Direction.OUT, topic, 1, false, deviceId, requestType, action, "published", payload = json)
-                    true
-                } catch (e: CancellationException) {
-                    // CancellationException is an Exception in Kotlin, so the generic catch below
-                    // would swallow it and report a normal failure — breaking structured
-                    // concurrency when a caller's scope is torn down mid-publish. Rethrow first.
-                    throw e
-                } catch (e: Exception) {
-                    Log.w(TAG, "publish attempt ${attempt + 1} failed for $requestType", e)
-                    false
-                }
-                if (publishOk) {
-                    val raw = withTimeoutOrNull(requestTimeoutMs) { waiter.await() }
-                    if (raw != null) {
-                        val outcome = parseOutcome(raw, responseClass, responseType)
-                        MqttLog.message(
-                            Direction.RESULT, topic, 1, false, deviceId, requestType, action,
-                            outcomeResult(outcome), durationMs = System.currentTimeMillis() - startedAt,
-                        )
-                        return outcome
-                    }
-                }
-                if (attempt < REQUEST_MAX_ATTEMPTS - 1) {
-                    Log.w(TAG, "retrying $requestType (messageId=$messageId, attempt ${attempt + 2})")
-                }
+            try {
+                publishFn(topic, bytes)
+                MqttLog.message(Direction.OUT, topic, 1, false, deviceId, requestType, action, "published", payload = json)
+            } catch (e: CancellationException) {
+                // CancellationException is an Exception in Kotlin, so the generic catch below
+                // would swallow it and report a normal failure — breaking structured
+                // concurrency when a caller's scope is torn down mid-publish. Rethrow first.
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "publish failed for $requestType", e)
+                return MqttOutcome.NoResponse(FailureKind.NotConnected)
             }
+            val raw = withTimeoutOrNull(requestTimeoutMs) { waiter.await() }
+            if (raw == null) {
+                MqttLog.message(
+                    Direction.RESULT, topic, 1, false, deviceId, requestType, action,
+                    "timeout", durationMs = System.currentTimeMillis() - startedAt,
+                )
+                return MqttOutcome.NoResponse(FailureKind.Timeout)
+            }
+            val outcome = parseOutcome(raw, responseClass, responseType)
             MqttLog.message(
                 Direction.RESULT, topic, 1, false, deviceId, requestType, action,
-                "timeout", durationMs = System.currentTimeMillis() - startedAt,
+                outcomeResult(outcome), durationMs = System.currentTimeMillis() - startedAt,
             )
-            return MqttOutcome.NoResponse(FailureKind.Timeout)
+            return outcome
         } finally {
             pending.remove(messageId)
         }
