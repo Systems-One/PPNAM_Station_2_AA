@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mitas.ppnam.station2aa.ui.theme.*
@@ -111,7 +112,10 @@ fun AppScaffold(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (onBack != null) {
-                            IconButton(onClick = onBack) {
+                            // Toolbar icons are tap targets, not keyboard stops: after an Enter-submit
+                            // the IME closed and focus landed on the gear, so a second Enter (a
+                            // scanner-wedge suffix, the C72 keypad) opened Settings (audit S2-08).
+                            IconButton(onClick = onBack, modifier = Modifier.focusProperties { canFocus = false }) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back",
@@ -131,7 +135,7 @@ fun AppScaffold(
                             // status label, and it is the app's ONLY route to switching operator
                             // (Settings offers a second one now). Amber tint + icon make it
                             // unmistakably a control rather than a caption.
-                            TextButton(onClick = { showLogoutDialog = true }) {
+                            TextButton(onClick = { showLogoutDialog = true }, modifier = Modifier.focusProperties { canFocus = false }) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Logout,
                                     contentDescription = "Log out",
@@ -140,7 +144,11 @@ fun AppScaffold(
                                 )
                                 Spacer(Modifier.width(6.dp))
                                 Text(
-                                    text = if (!operatorRole.isNullOrBlank()) "$operatorName · $operatorRole" else operatorName,
+                                    // With a back arrow, logout icon, gear and pill on one row only
+                                    // ~330 px are left for this label and "Operator One · Operator"
+                                    // ellipsised mid-role (audit S2-12). The role is informational;
+                                    // the name is what matters, so the role goes on the Home bar only.
+                                    text = if (!operatorRole.isNullOrBlank() && onBack == null) "$operatorName · $operatorRole" else operatorName,
                                     color = TextPrimary,
                                     style = MaterialTheme.typography.labelMedium,
                                     maxLines = 1,
@@ -149,7 +157,7 @@ fun AppScaffold(
                             }
                         }
                         if (onSettings != null) {
-                            IconButton(onClick = onSettings) {
+                            IconButton(onClick = onSettings, modifier = Modifier.focusProperties { canFocus = false }) {
                                 Icon(
                                     imageVector = Icons.Filled.Settings,
                                     contentDescription = "Settings",
@@ -185,7 +193,7 @@ fun AppScaffold(
                         },
                         navigationIcon = {
                             if (onBack != null) {
-                                IconButton(onClick = onBack) {
+                                IconButton(onClick = onBack, modifier = Modifier.focusProperties { canFocus = false }) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Back",
@@ -196,7 +204,7 @@ fun AppScaffold(
                         },
                         actions = {
                             if (onSettings != null) {
-                                IconButton(onClick = onSettings) {
+                                IconButton(onClick = onSettings, modifier = Modifier.focusProperties { canFocus = false }) {
                                     Icon(
                                         imageVector = Icons.Filled.Settings,
                                         contentDescription = "Settings",
