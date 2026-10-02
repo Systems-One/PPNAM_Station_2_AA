@@ -1,6 +1,7 @@
 package com.mitas.ppnam.station2aa.ui.login
 
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
@@ -21,6 +22,7 @@ class LoginViewModelTest {
 
     private lateinit var mockAuthUseCase: AuthUseCase
     private lateinit var mockMqttRepository: MqttRepository
+    private lateinit var sessionHolder: OperatorSessionHolder
     private lateinit var viewModel: LoginViewModel
 
     private val sampleSession = OperatorSession(
@@ -35,13 +37,14 @@ class LoginViewModelTest {
         Dispatchers.setMain(testDispatcher)
         mockAuthUseCase = mock()
         mockMqttRepository = mock()
+        sessionHolder = OperatorSessionHolder()
 
         whenever(mockMqttRepository.connectionState)
             .thenReturn(MutableStateFlow(MqttConnectionState.DISCONNECTED))
         whenever(mockMqttRepository.stationOnline).thenReturn(MutableStateFlow(true))
         whenever(mockMqttRepository.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
 
-        viewModel = LoginViewModel(mockAuthUseCase, mockMqttRepository)
+        viewModel = LoginViewModel(mockAuthUseCase, mockMqttRepository, sessionHolder)
     }
 
     @After
@@ -97,7 +100,7 @@ class LoginViewModelTest {
     fun `the pill starts from the live connection state instead of flashing Offline`() = runTest {
         whenever(mockMqttRepository.connectionState)
             .thenReturn(MutableStateFlow(MqttConnectionState.CONNECTED))
-        val connectedVm = LoginViewModel(mockAuthUseCase, mockMqttRepository)
+        val connectedVm = LoginViewModel(mockAuthUseCase, mockMqttRepository, sessionHolder)
         // The debounced flow has not emitted yet (1.5 s away); the seed must already be right.
         assertEquals(ConnectionStatus.Connected, connectedVm.connectionStatus.value)
     }
@@ -113,5 +116,14 @@ class LoginViewModelTest {
         advanceUntilIdle()
         assertEquals(LoginUiState.Error(LoginViewModel.FILL_ALL_FIELDS), viewModel.uiState.value)
         verify(mockAuthUseCase, never()).login(any(), any())
+    }
+
+    @Test
+    fun `a signed-out reason is shown once and then consumed`() = runTest {
+        sessionHolder.clear("Signed out after 15 minutes of inactivity.")
+        val first = LoginViewModel(mockAuthUseCase, mockMqttRepository, sessionHolder)
+        assertEquals(LoginUiState.Error("Signed out after 15 minutes of inactivity."), first.uiState.value)
+        val second = LoginViewModel(mockAuthUseCase, mockMqttRepository, sessionHolder)
+        assertTrue(second.uiState.value is LoginUiState.Idle)
     }
 }

@@ -4,6 +4,7 @@ import com.mitas.ppnam.station2aa.domain.model.SessionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import java.time.Instant
 import javax.inject.Inject
@@ -24,13 +25,28 @@ class OperatorSessionHolder @Inject constructor() {
     private val _session = MutableStateFlow<OperatorSession?>(null)
     val session: StateFlow<OperatorSession?> = _session.asStateFlow()
 
+    private val _signedOutReason = MutableStateFlow<String?>(null)
+
+    /**
+     * Why the app itself ended the last session (inactivity), for Login to show once. Null after
+     * a manual logout, a server `operator_session_invalid`, or a new login. In memory only, like
+     * the session: a process restart forgets both (restart semantics are unchanged on purpose).
+     */
+    val signedOutReason: StateFlow<String?> = _signedOutReason.asStateFlow()
+
     fun set(session: OperatorSession) {
         _session.value = session
+        _signedOutReason.value = null
     }
 
-    fun clear() {
+    /** Ends the session; [reason] is operator wording shown on Login, or null for a silent end. */
+    fun clear(reason: String? = null) {
         _session.value = null
+        _signedOutReason.value = reason
     }
+
+    /** Hands the pending reason to Login exactly once. */
+    fun consumeSignedOutReason(): String? = _signedOutReason.getAndUpdate { null }
 
     /**
      * Clears the session only if it is still [sessionId], atomically — a compare-then-clear would

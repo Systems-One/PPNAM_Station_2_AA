@@ -2,6 +2,7 @@ package com.mitas.ppnam.station2aa.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
@@ -23,7 +24,8 @@ sealed class LoginUiState {
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authUseCase: AuthUseCase,
-    private val mqttRepository: MqttRepository
+    private val mqttRepository: MqttRepository,
+    sessionHolder: OperatorSessionHolder,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
@@ -37,6 +39,9 @@ class LoginViewModel @Inject constructor(
     val connectionStatus: StateFlow<ConnectionStatus> = mqttRepository.connectionStatusIn(viewModelScope)
 
     init {
+        // "Signed out after N minutes of inactivity." — shown once in the error slot, the way S1
+        // does; a manual logout or a server-side session end carries no reason and shows nothing.
+        sessionHolder.consumeSignedOutReason()?.let { _uiState.value = LoginUiState.Error(it) }
         viewModelScope.launch { mqttRepository.connect() }
     }
 

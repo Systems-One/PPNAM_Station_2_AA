@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.session.SessionGuard
 import com.mitas.ppnam.station2aa.data.settings.PinLockoutStore
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import com.mitas.ppnam.station2aa.domain.model.AppSettings
@@ -47,6 +48,7 @@ class SettingsViewModel @Inject constructor(
     sessionHolder: OperatorSessionHolder,
     deviceIdentity: DeviceIdentity,
     private val pinLockoutStore: PinLockoutStore,
+    private val sessionGuard: SessionGuard,
 ) : ViewModel() {
 
     /**
@@ -305,6 +307,7 @@ class SettingsViewModel @Inject constructor(
             val result = mqttRepository.reconnectWith(settings)
             if (result.isSuccess) {
                 settingsRepository.save(settings)
+                sessionGuard.applyTimeout()
                 draftSettings.value = settings
                 passwordText.value = ""
                 applyState.value = ApplyState.Success("Connected — settings saved")

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Station 2</string>
+
+    <!-- Forced sign-out (S1 spec §3, applied fleet-wide). A plural, not "1 minutes". -->
+    <plurals name="signed_out_inactivity">
+        <item quantity="one">Signed out after %1$d minute of inactivity.</item>
+        <item quantity="other">Signed out after %1$d minutes of inactivity.</item>
+    </plurals>
 </resources>

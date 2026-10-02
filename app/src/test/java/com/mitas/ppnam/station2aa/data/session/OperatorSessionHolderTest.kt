@@ -69,4 +69,32 @@ class OperatorSessionHolderTest {
         assertFalse(holder.clearIf("sess-1"))
         assertNull(holder.session.value)
     }
+
+    @Test
+    fun `clear with a reason records it and set forgets it`() {
+        val holder = OperatorSessionHolder()
+        holder.set(OperatorSession("sess-1", "OP-1", "Jane Smith", "Operator"))
+        holder.clear("Signed out after 15 minutes of inactivity.")
+        assertNull(holder.session.value)
+        assertEquals("Signed out after 15 minutes of inactivity.", holder.signedOutReason.value)
+        holder.set(OperatorSession("sess-2", "OP-1", "Jane Smith", "Operator"))
+        assertNull(holder.signedOutReason.value)
+    }
+
+    @Test
+    fun `a manual logout leaves no signed-out reason`() {
+        val holder = OperatorSessionHolder()
+        holder.set(OperatorSession("sess-1", "OP-1", "Jane Smith", "Operator"))
+        holder.clear()
+        assertNull(holder.signedOutReason.value)
+    }
+
+    @Test
+    fun `consumeSignedOutReason hands the reason over exactly once`() {
+        val holder = OperatorSessionHolder()
+        holder.clear("Signed out after 1 minute of inactivity.")
+        assertEquals("Signed out after 1 minute of inactivity.", holder.consumeSignedOutReason())
+        assertNull(holder.consumeSignedOutReason())
+        assertNull(holder.signedOutReason.value)
+    }
 }

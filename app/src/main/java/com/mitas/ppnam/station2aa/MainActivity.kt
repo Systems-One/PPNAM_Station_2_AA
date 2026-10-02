@@ -13,14 +13,18 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.window.layout.WindowMetricsCalculator
+import com.mitas.ppnam.station2aa.data.session.SessionGuard
 import com.mitas.ppnam.station2aa.navigation.AppNavGraph
 import com.mitas.ppnam.station2aa.ui.theme.PPNAMStation2AATheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 val LocalWindowSize = compositionLocalOf { DpSize.Unspecified }
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject lateinit var sessionGuard: SessionGuard
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Explicitly dark, not the auto() default: auto() chooses the bar icon colour from the
@@ -53,5 +57,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /** Every touch or key press is activity for the inactivity auto sign-out (S1's SessionActivity). */
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        sessionGuard.touch()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sessionGuard.checkNow()
     }
 }

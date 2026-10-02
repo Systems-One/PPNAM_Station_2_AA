@@ -2,6 +2,7 @@ package com.mitas.ppnam.station2aa.ui.settings
 
 import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.session.SessionGuard
 import com.mitas.ppnam.station2aa.data.settings.PinLockoutStore
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import com.mitas.ppnam.station2aa.domain.model.AppSettings
@@ -36,6 +37,7 @@ class SettingsViewModelTest {
     private lateinit var mockAuthUseCase: AuthUseCase
     private lateinit var mockSessionHolder: OperatorSessionHolder
     private lateinit var mockDeviceIdentity: DeviceIdentity
+    private lateinit var mockSessionGuard: SessionGuard
     private lateinit var store: InMemoryPinLockoutStore
     private lateinit var viewModel: SettingsViewModel
 
@@ -52,6 +54,7 @@ class SettingsViewModelTest {
         mockAuthUseCase = mock()
         mockSessionHolder = mock()
         mockDeviceIdentity = mock()
+        mockSessionGuard = mock()
         store = InMemoryPinLockoutStore()
         whenever(mockSessionHolder.session).thenReturn(MutableStateFlow(null))
         whenever(mockDeviceIdentity.deviceId()).thenReturn("scanner_5c64df8d86a8")
@@ -68,7 +71,7 @@ class SettingsViewModelTest {
 
     private fun newViewModel() = SettingsViewModel(
         mockSettingsRepository, mockMqttRepository, mockAuthUseCase, mockSessionHolder,
-        mockDeviceIdentity, store,
+        mockDeviceIdentity, store, mockSessionGuard,
     )
 
     @After
@@ -282,5 +285,14 @@ class SettingsViewModelTest {
         // runTest's virtual clock would skip a withTimeout while that thread is still working.
         val id = runBlocking { withTimeout(5_000) { viewModel.deviceId.first { it.isNotBlank() } } }
         assertEquals("scanner_5c64df8d86a8", id)
+    }
+
+    @Test
+    fun `a successful apply re-arms the inactivity timer with the saved minutes`() = runTest {
+        whenever(mockMqttRepository.reconnectWith(any())).thenReturn(Result.success(Unit))
+        viewModel.onAutoLogoutChange("1")
+        viewModel.testAndApply()
+        advanceUntilIdle()
+        verify(mockSessionGuard).applyTimeout()
     }
 }

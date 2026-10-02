@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.mitas.ppnam.station2aa.data.rfid.DataWedgeReceiver
+import com.mitas.ppnam.station2aa.data.session.SessionGuard
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -14,6 +15,7 @@ class PpnamApplication : Application(), Configuration.Provider {
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var dataWedgeReceiver: DataWedgeReceiver
+    @Inject lateinit var sessionGuard: SessionGuard
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -28,5 +30,6 @@ class PpnamApplication : Application(), Configuration.Provider {
             addAction(DataWedgeReceiver.ACTION_CHAINWAY_RFID)
         }
         ContextCompat.registerReceiver(this, dataWedgeReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
+        sessionGuard.install()
     }
 }
