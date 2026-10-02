@@ -112,9 +112,9 @@ fun LoginScreen(
                         enabled = uiState !is LoginUiState.LoggingIn,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = AmberPrimary,
-                            focusedLabelColor = AmberPrimary,
-                            cursorColor = AmberPrimary
+                            focusedBorderColor = BrandPrimary,
+                            focusedLabelColor = BrandPrimary,
+                            cursorColor = BrandPrimary
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -134,9 +134,9 @@ fun LoginScreen(
                             onDone = { viewModel.submitCredentials(username, password) }
                         ),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = AmberPrimary,
-                            focusedLabelColor = AmberPrimary,
-                            cursorColor = AmberPrimary
+                            focusedBorderColor = BrandPrimary,
+                            focusedLabelColor = BrandPrimary,
+                            cursorColor = BrandPrimary
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )

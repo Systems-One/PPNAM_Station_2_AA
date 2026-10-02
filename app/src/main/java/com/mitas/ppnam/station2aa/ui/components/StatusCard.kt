@@ -22,10 +22,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.BrandPrimary
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
+import com.mitas.ppnam.station2aa.ui.theme.InfoBlue
 import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
@@ -40,7 +41,7 @@ enum class StatusTone {
 
     fun color(): Color = when (this) {
         Ready -> SuccessGreen
-        Running -> AmberPrimary
+        Running -> InfoBlue
         Warning -> WarningOrange
         Danger -> DangerRed
         Idle -> TextMuted
@@ -81,7 +82,7 @@ fun StatusCard(
     )
     val borderColor by animateColorAsState(
         targetValue = when {
-            highlighted -> AmberPrimary
+            highlighted -> BrandPrimary
             tone == StatusTone.Idle -> GraphiteBorder
             else -> targetAccent
         },

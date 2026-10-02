@@ -90,7 +90,7 @@ fun SettingsScreen(
                     // Diagnostics shows both so the operator can tell which half is down.
                     val (brokerColor, brokerLabel) = when (connectionState) {
                         MqttConnectionState.CONNECTED    -> SuccessGreen to "Connected"
-                        MqttConnectionState.RECONNECTING -> AmberPrimary to "Reconnecting"
+                        MqttConnectionState.RECONNECTING -> BrandPrimary to "Reconnecting"
                         MqttConnectionState.DISCONNECTED -> DangerRed to "Disconnected"
                     }
                     DiagnosticRow("MQTT BROKER", brokerColor, brokerLabel)
@@ -102,7 +102,7 @@ fun SettingsScreen(
                     val (stationColor, stationLabel) = when {
                         connectionState != MqttConnectionState.CONNECTED -> TextMuted to "Unknown"
                         stationOnline -> SuccessGreen to "Online"
-                        else -> AmberPrimary to "Offline"
+                        else -> BrandPrimary to "Offline"
                     }
                     DiagnosticRow("STATION 2", stationColor, stationLabel)
 
@@ -185,9 +185,9 @@ fun SettingsScreen(
                                     keyboardActions = KeyboardActions(onDone = { viewModel.submitPin() }),
                                     isError = pinError,
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = AmberPrimary,
-                                        focusedLabelColor = AmberPrimary,
-                                        cursorColor = AmberPrimary
+                                        focusedBorderColor = BrandPrimary,
+                                        focusedLabelColor = BrandPrimary,
+                                        cursorColor = BrandPrimary
                                     ),
                                     modifier = Modifier.weight(1f)
                                 )
@@ -268,7 +268,7 @@ fun SettingsScreen(
                             ) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(18.dp),
-                                    color = AmberPrimary,
+                                    color = BrandPrimary,
                                     strokeWidth = 2.dp
                                 )
                                 Text("Testing connection…", style = MaterialTheme.typography.bodyMedium, color = TextMuted)
@@ -405,7 +405,7 @@ private fun ConfigSection(title: String, content: @Composable ColumnScope.() -> 
             Text(
                 text = title.uppercase(),
                 style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
-                color = AmberPrimary
+                color = BrandPrimary
             )
             content()
         }
@@ -428,9 +428,9 @@ private fun SettingsTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = visualTransformation,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = AmberPrimary,
-            focusedLabelColor = AmberPrimary,
-            cursorColor = AmberPrimary
+            focusedBorderColor = BrandPrimary,
+            focusedLabelColor = BrandPrimary,
+            cursorColor = BrandPrimary
         ),
         modifier = Modifier.fillMaxWidth()
     )
@@ -452,8 +452,8 @@ private fun SettingsToggleRow(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = AmberPrimary,
-                checkedTrackColor = AmberPrimary.copy(alpha = 0.4f)
+                checkedThumbColor = BrandPrimary,
+                checkedTrackColor = BrandPrimary.copy(alpha = 0.4f)
             )
         )
     }

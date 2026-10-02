@@ -22,7 +22,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.components.StatusCard
 import com.mitas.ppnam.station2aa.ui.components.StatusTone
-import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.BrandPrimary
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
@@ -92,7 +92,7 @@ fun JobLookupScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { viewModel.lookup(input) }),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = AmberPrimary, focusedLabelColor = AmberPrimary, cursorColor = AmberPrimary,
+                    focusedBorderColor = BrandPrimary, focusedLabelColor = BrandPrimary, cursorColor = BrandPrimary,
                 ),
                 modifier = Modifier.fillMaxWidth(),
             )

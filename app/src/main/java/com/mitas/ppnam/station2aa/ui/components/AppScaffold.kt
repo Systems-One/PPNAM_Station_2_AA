@@ -115,7 +115,7 @@ fun AppScaffold(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = AmberPrimary
+                                    tint = BrandPrimary
                                 )
                             }
                         }
@@ -135,7 +135,7 @@ fun AppScaffold(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Logout,
                                     contentDescription = "Log out",
-                                    tint = AmberPrimary,
+                                    tint = BrandPrimary,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(Modifier.width(6.dp))
@@ -189,7 +189,7 @@ fun AppScaffold(
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Back",
-                                        tint = AmberPrimary
+                                        tint = BrandPrimary
                                     )
                                 }
                             }
@@ -220,7 +220,7 @@ fun AppScaffold(
                 if (loading) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
-                        color = AmberPrimary,
+                        color = BrandPrimary,
                         trackColor = GraphiteBorder
                     )
                 }

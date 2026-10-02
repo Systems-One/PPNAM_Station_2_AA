@@ -12,9 +12,11 @@ val GraphiteBorder         = Color(0xFF25384C)
 val TextPrimary            = Color(0xFFEDF4FB)
 val TextMuted              = Color(0xFF9BAEC0)
 
-// Primary accent — matches WPF BlueColor / BlueDarkColor
-val AmberPrimary           = Color(0xFF2E77F5)
-val AmberDark              = Color(0xFFFFFFFF)   // on-primary (white text on blue buttons)
+// Primary accent — the Station 2 launcher-icon green (UI_Design README: app2 #1D6B45), so the
+// app carries its icon identity on screen the way Stations 1/3/5 do. Was a blue misnamed
+// "BrandPrimary" that made S2 and S4 look like the same app (audit S2-16 / static-02).
+val BrandPrimary           = Color(0xFF1D6B45)
+val OnBrandPrimary         = Color(0xFFFFFFFF)   // on-primary (white text on green buttons)
 
 // Status colours — matches WPF GreenColor / RedColor
 val SuccessGreen           = Color(0xFF2BC36D)

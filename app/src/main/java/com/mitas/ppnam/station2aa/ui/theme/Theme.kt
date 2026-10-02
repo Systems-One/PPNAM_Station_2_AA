@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 
 private val AppColorScheme = darkColorScheme(
-    primary = AmberPrimary,
-    onPrimary = AmberDark,
+    primary = BrandPrimary,
+    onPrimary = OnBrandPrimary,
     secondary = SuccessGreen,
     onSecondary = TextPrimary,
     background = GraphiteBackground,
