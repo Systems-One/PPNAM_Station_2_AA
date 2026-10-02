@@ -51,4 +51,21 @@ class AppSettingsTest {
     fun `the default workflow timeout is the base standard's 10 seconds`() {
         assertEquals(10_000L, AppSettings().requestTimeoutMs)
     }
+
+    @Test
+    fun `auto sign-out defaults to S1's 15 minutes`() {
+        assertEquals(15, AppSettings().autoLogoutMinutes)
+    }
+
+    @Test
+    fun `parsePort accepts 1 to 65535 and nothing else`() {
+        assertEquals(9001, AppSettings.parsePort(" 9001 "))
+        assertEquals(1, AppSettings.parsePort("1"))
+        assertEquals(65535, AppSettings.parsePort("65535"))
+        assertNull(AppSettings.parsePort("0"))
+        assertNull(AppSettings.parsePort("65536"))
+        assertNull(AppSettings.parsePort("90019"))
+        assertNull(AppSettings.parsePort(""))
+        assertNull(AppSettings.parsePort("90a"))
+    }
 }

@@ -45,6 +45,7 @@ class SettingsRepository @Inject constructor(
          */
         val LEGACY_MQTT_PASSWORD    = stringPreferencesKey("mqtt_password")
         val REQUEST_TIMEOUT_MS      = longPreferencesKey("request_timeout_ms")
+        val AUTO_LOGOUT_MINUTES     = intPreferencesKey("auto_logout_minutes")
     }
 
     val settingsFlow: Flow<AppSettings> = context.dataStore.data.map { prefs ->
@@ -57,7 +58,8 @@ class SettingsRepository @Inject constructor(
             // silently presenting a shared one — see AppSettings.hasBrokerCredential.
             mqttUsername         = prefs[Keys.MQTT_USERNAME].orEmpty(),
             mqttPassword         = readPassword(prefs[Keys.LEGACY_MQTT_PASSWORD]),
-            requestTimeoutMs     = prefs[Keys.REQUEST_TIMEOUT_MS]   ?: AppSettings().requestTimeoutMs
+            requestTimeoutMs     = prefs[Keys.REQUEST_TIMEOUT_MS]   ?: AppSettings().requestTimeoutMs,
+            autoLogoutMinutes    = prefs[Keys.AUTO_LOGOUT_MINUTES]   ?: AppSettings().autoLogoutMinutes
         )
     }
 
@@ -90,6 +92,7 @@ class SettingsRepository @Inject constructor(
             prefs[Keys.MQTT_USE_TLS]        = settings.mqttUseTls
             prefs[Keys.MQTT_USERNAME]       = settings.mqttUsername
             prefs[Keys.REQUEST_TIMEOUT_MS]  = settings.requestTimeoutMs
+            prefs[Keys.AUTO_LOGOUT_MINUTES] = settings.autoLogoutMinutes
             // Any plaintext password from a pre-4.1 install is now in the Keystore. Remove it so
             // the credential exists in exactly one place, encrypted.
             prefs.remove(Keys.LEGACY_MQTT_PASSWORD)

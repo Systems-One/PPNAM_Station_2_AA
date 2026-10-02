@@ -29,9 +29,17 @@ data class AppSettings(
     val mqttUseTls: Boolean = true,
     val mqttUsername: String = "",
     val mqttPassword: String = "",
-    val requestTimeoutMs: Long = 10_000L
+    val requestTimeoutMs: Long = 10_000L,
+    /** Inactivity auto sign-out in whole minutes, 0 = never (S1's rule, applied fleet-wide). */
+    val autoLogoutMinutes: Int = AutoLogout.DEFAULT_MINUTES,
 ) {
     /** True once this handheld has been provisioned with its own broker credential. */
     val hasBrokerCredential: Boolean
         get() = mqttUsername.isNotBlank() && mqttPassword.isNotBlank()
+
+    companion object {
+        /** Parses a port field, or null when it is not a valid TCP port (1–65535). From S1 `BrokerSettings`. */
+        fun parsePort(text: String): Int? =
+            text.trim().toIntOrNull()?.takeIf { it in 1..65535 }
+    }
 }
