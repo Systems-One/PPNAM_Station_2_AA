@@ -123,5 +123,5 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
             }
         }
     }
-    UpgradeRequiredGate(onCloseApp = { hostActivity?.finish() })
+    UpgradeRequiredGate(onCloseApp = { hostActivity?.finishAffinity() })
 }

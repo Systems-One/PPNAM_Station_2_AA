@@ -68,6 +68,7 @@ class MqttRepositoryImpl @Inject constructor(
 
     private val _upgradeRequired = MutableStateFlow(false)
     override val upgradeRequired: StateFlow<Boolean> = _upgradeRequired.asStateFlow()
+    override fun clearUpgradeRequired() { _upgradeRequired.value = false }
 
     /** Test seam for the device clock. */
     @VisibleForTesting

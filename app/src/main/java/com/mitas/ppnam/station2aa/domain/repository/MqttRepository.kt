@@ -31,6 +31,8 @@ interface MqttRepository {
      * the required build; surfacing it as state (not a one-shot error) is the point.
      */
     val upgradeRequired: StateFlow<Boolean>
+    /** Clears the [upgradeRequired] latch (the gate's "Close app"), so a relaunch re-evaluates against the backend. */
+    fun clearUpgradeRequired() {}
     suspend fun <T : Any> request(
         requestType: String,
         responseType: String,

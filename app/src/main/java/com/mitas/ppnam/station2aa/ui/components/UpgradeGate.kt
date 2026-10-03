@@ -22,13 +22,14 @@ import javax.inject.Inject
 class UpgradeGateViewModel @Inject constructor(
     mqttRepository: MqttRepository,
 ) : ViewModel() {
+    private val repo = mqttRepository
     val upgradeRequired: StateFlow<Boolean> = mqttRepository.upgradeRequired
+    fun clearLatch() = repo.clearUpgradeRequired()
 }
 
 /**
  * The app-level `client_upgrade_required` gate. Rendered once above the NavHost so it blocks
- * EVERY screen — the transport's latch never resets, so neither does this dialog; only a new
- * build clears the condition.
+ * EVERY screen — the transport's latch never resets, so neither does this dialog until "Close app" clears it.
  *
  * It is blocking, but not a trap: with no button at all the operator's only way out was Home +
  * kill the app (audit S2-06). "Close app" finishes the Activity. The text names the installed
@@ -52,7 +53,12 @@ fun UpgradeRequiredGate(
                 )
             },
             confirmButton = {
-                TextButton(onClick = onCloseApp) { Text("Close app", color = DangerRed) }
+                TextButton(onClick = {
+                    // The process outlives the Activity, so the latch must be cleared or a relaunch
+                    // would show the stale gate (S2-R01).
+                    viewModel.clearLatch()
+                    onCloseApp()
+                }) { Text("Close app", color = DangerRed) }
             },
             containerColor = GraphiteSurface,
         )
