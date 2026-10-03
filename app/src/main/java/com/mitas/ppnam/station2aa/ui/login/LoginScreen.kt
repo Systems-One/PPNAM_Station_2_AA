@@ -15,6 +15,11 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalDensity
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,11 +80,18 @@ fun LoginScreen(
         }
     }
 
-    // Once the keyboard is up (or an error line has grown the form under it), scroll the Log In
-    // button into view. Without this the button sat 38 px above the IME edge and a tap at its
-    // centre typed into the password field instead (audit S2-01).
-    LaunchedEffect(imeVisible, uiState) {
-        if (imeVisible) buttonIntoView.bringIntoView()
+    // Scroll the Log In button fully into view once the keyboard is up or an error line has grown
+    // the form (audit S2-01). A single bringIntoView fired the moment imeVisible flipped ran
+    // against the OLD viewport: the IME inset animates in over ~300 ms, so the scroll container
+    // was still tall, saw the button as "already visible" and did nothing; the viewport then
+    // shrank and left a 38 px sliver. Re-run it whenever the IME inset settles at a new height
+    // (debounced past the animation) and whenever the ui state changes the form's height.
+    val density = LocalDensity.current
+    val imeBottom = WindowInsets.ime
+    LaunchedEffect(uiState) {
+        snapshotFlow { imeBottom.getBottom(density) }
+            .debounce(150)
+            .collectLatest { bottom -> if (bottom > 0) buttonIntoView.bringIntoView() }
     }
 
     // Clearing focus closes the IME and, more importantly, stops focus hopping onto the gear
