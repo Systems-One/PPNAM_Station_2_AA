@@ -16,6 +16,9 @@ val TextMuted              = Color(0xFF9BAEC0)
 // app carries its icon identity on screen the way Stations 1/3/5 do. Was a blue misnamed
 // "BrandPrimary" that made S2 and S4 look like the same app (audit S2-16 / static-02).
 val BrandPrimary           = Color(0xFF1D6B45)
+// Lighter tint of the same green for primary drawn as TEXT / icon / outline / cursor / progress on
+// the dark graphite surfaces: BrandPrimary is only ~2.8:1 there, BrandTint is >= 4.5:1.
+val BrandTint              = Color(0xFF6CCB95)
 val OnBrandPrimary         = Color(0xFFFFFFFF)   // on-primary (white text on green buttons)
 
 // Status colours — matches WPF GreenColor / RedColor

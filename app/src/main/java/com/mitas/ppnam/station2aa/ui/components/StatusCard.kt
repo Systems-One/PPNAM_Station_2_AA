@@ -22,7 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.mitas.ppnam.station2aa.ui.theme.BrandPrimary
+import com.mitas.ppnam.station2aa.ui.theme.BrandTint
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
@@ -82,7 +82,7 @@ fun StatusCard(
     )
     val borderColor by animateColorAsState(
         targetValue = when {
-            highlighted -> BrandPrimary
+            highlighted -> BrandTint
             tone == StatusTone.Idle -> GraphiteBorder
             else -> targetAccent
         },

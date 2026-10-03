@@ -23,7 +23,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.components.StatusCard
 import com.mitas.ppnam.station2aa.ui.components.StatusTone
-import com.mitas.ppnam.station2aa.ui.theme.BrandPrimary
+import com.mitas.ppnam.station2aa.ui.theme.BrandTint
+import com.mitas.ppnam.station2aa.ui.theme.OnBrandPrimary
+import com.mitas.ppnam.station2aa.ui.theme.brandButtonColors
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
@@ -100,18 +102,19 @@ fun JobLookupScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { submit() }),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = BrandPrimary, focusedLabelColor = BrandPrimary, cursorColor = BrandPrimary,
+                    focusedBorderColor = BrandTint, focusedLabelColor = BrandTint, cursorColor = BrandTint,
                 ),
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(8.dp))
             Button(
                 onClick = submit,
+                colors = brandButtonColors(),
                 enabled = input.isNotBlank() && !state.lookupInFlight,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
             ) {
                 if (state.lookupInFlight) {
-                    CircularProgressIndicator(Modifier.size(20.dp), color = MaterialTheme.colorScheme.onPrimary)
+                    CircularProgressIndicator(Modifier.size(20.dp), color = OnBrandPrimary)
                 } else {
                     Text("Look up")
                 }

@@ -179,14 +179,15 @@ fun SettingsScreen(
                                     // only feedback while typing was a red outline (audit S2-10).
                                     supportingText = message?.let { { Text(it, color = DangerRed) } },
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = BrandPrimary,
-                                        focusedLabelColor = BrandPrimary,
-                                        cursorColor = BrandPrimary
+                                        focusedBorderColor = BrandTint,
+                                        focusedLabelColor = BrandTint,
+                                        cursorColor = BrandTint
                                     ),
                                     modifier = Modifier.weight(1f)
                                 )
                                 Button(
                                     onClick = submitPin,
+                                    colors = brandButtonColors(),
                                     enabled = !pinLockedOut,
                                     modifier = Modifier.height(56.dp)
                                 ) { Text("Unlock") }
@@ -270,6 +271,7 @@ fun SettingsScreen(
                     }
 
                     Button(
+                        colors = brandButtonColors(),
                         onClick = {
                             focusManager.clearFocus()
                             viewModel.testAndApply()
@@ -295,7 +297,7 @@ fun SettingsScreen(
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(18.dp),
-                            color = BrandPrimary,
+                            color = BrandTint,
                             strokeWidth = 2.dp
                         )
                         Text("Testing connection…", style = MaterialTheme.typography.bodyMedium, color = TextMuted)
@@ -441,7 +443,7 @@ private fun ConfigSection(title: String, content: @Composable ColumnScope.() -> 
             Text(
                 text = title.uppercase(),
                 style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
-                color = BrandPrimary
+                color = BrandTint
             )
             content()
         }
@@ -481,9 +483,9 @@ private fun SettingsTextField(
         visualTransformation = visualTransformation,
         trailingIcon = trailingIcon,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = BrandPrimary,
-            focusedLabelColor = BrandPrimary,
-            cursorColor = BrandPrimary
+            focusedBorderColor = BrandTint,
+            focusedLabelColor = BrandTint,
+            cursorColor = BrandTint
         ),
         modifier = Modifier.fillMaxWidth()
     )
@@ -505,8 +507,8 @@ private fun SettingsToggleRow(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = BrandPrimary,
-                checkedTrackColor = BrandPrimary.copy(alpha = 0.4f)
+                checkedThumbColor = OnBrandPrimary,
+                checkedTrackColor = BrandPrimary
             )
         )
     }

@@ -1,6 +1,7 @@
 package com.mitas.ppnam.station2aa.ui.components
 
 import com.mitas.ppnam.station2aa.ui.theme.BrandPrimary
+import com.mitas.ppnam.station2aa.ui.theme.BrandTint
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 import com.mitas.ppnam.station2aa.ui.theme.InfoBlue
 import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
@@ -24,6 +25,7 @@ class StatusCardTest {
     @Test
     fun `running tone is not a second green next to the brand primary`() {
         assertNotEquals(BrandPrimary, StatusTone.Running.color())
+        assertNotEquals(BrandTint, StatusTone.Running.color())
         assertNotEquals(SuccessGreen, StatusTone.Running.color())
     }
 }

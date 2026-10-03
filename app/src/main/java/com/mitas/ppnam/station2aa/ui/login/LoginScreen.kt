@@ -153,9 +153,9 @@ fun LoginScreen(
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BrandPrimary,
-                            focusedLabelColor = BrandPrimary,
-                            cursorColor = BrandPrimary
+                            focusedBorderColor = BrandTint,
+                            focusedLabelColor = BrandTint,
+                            cursorColor = BrandTint
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -187,15 +187,16 @@ fun LoginScreen(
                         ),
                         keyboardActions = KeyboardActions(onDone = { submit() }),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BrandPrimary,
-                            focusedLabelColor = BrandPrimary,
-                            cursorColor = BrandPrimary
+                            focusedBorderColor = BrandTint,
+                            focusedLabelColor = BrandTint,
+                            cursorColor = BrandTint
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Button(
                         onClick = submit,
+                        colors = brandButtonColors(),
                         enabled = uiState !is LoginUiState.LoggingIn,
                         modifier = Modifier
                             .fillMaxWidth()
