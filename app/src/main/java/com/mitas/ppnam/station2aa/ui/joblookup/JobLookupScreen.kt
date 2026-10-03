@@ -121,7 +121,10 @@ fun JobLookupScreen(
             }
             state.lookupError?.let {
                 Spacer(Modifier.height(8.dp))
-                ErrorWithRetry(message = it, enabled = !state.lookupInFlight, onRetry = viewModel::retryLookup)
+                ErrorWithRetry(
+                    message = it, enabled = !state.lookupInFlight, onRetry = viewModel::retryLookup,
+                    showRetry = state.lookupRetryable,
+                )
             }
 
             Spacer(Modifier.height(24.dp))
@@ -186,6 +189,7 @@ private fun ErrorWithRetry(
     message: String,
     enabled: Boolean,
     onRetry: () -> Unit,
+    showRetry: Boolean = true,
     color: androidx.compose.ui.graphics.Color = DangerRed,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -194,6 +198,6 @@ private fun ErrorWithRetry(
             modifier = Modifier.weight(1f),
         )
         Spacer(Modifier.width(12.dp))
-        OutlinedButton(onClick = onRetry, enabled = enabled) { Text("Retry") }
+        if (showRetry) OutlinedButton(onClick = onRetry, enabled = enabled) { Text("Retry") }
     }
 }

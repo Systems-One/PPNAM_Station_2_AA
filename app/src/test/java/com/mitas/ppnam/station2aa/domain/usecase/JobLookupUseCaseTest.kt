@@ -12,6 +12,7 @@ import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Preparation
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -193,6 +194,19 @@ class JobLookupUseCaseTest {
     fun `no response reports the transport failure`() = runTest {
         stub(MqttOutcome.NoResponse(FailureKind.Timeout))
         assertEquals("Station 2 did not respond. Check the station and retry.", (useCase.read() as JobLookupResult.Failed).message)
+    }
+
+    @Test
+    fun `only timeout and not-connected failures are retryable`() = runTest {
+        stub(MqttOutcome.NoResponse(FailureKind.Timeout))
+        assertTrue((useCase.read() as JobLookupResult.Failed).retryable)
+        stub(MqttOutcome.NoResponse(FailureKind.NotConnected))
+        assertTrue((useCase.read() as JobLookupResult.Failed).retryable)
+        stub(MqttOutcome.NoResponse(FailureKind.MalformedResponse))
+        assertFalse((useCase.read() as JobLookupResult.Failed).retryable)
+        stub(MqttOutcome.Rejected(null, null, null))
+        assertFalse((useCase.read() as JobLookupResult.Failed).retryable)
+        assertFalse((useCase.lookup("JC-1") as JobLookupResult.Failed).retryable)
     }
 
     @Test

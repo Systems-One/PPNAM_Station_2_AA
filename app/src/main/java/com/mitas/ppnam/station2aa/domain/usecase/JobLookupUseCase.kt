@@ -1,6 +1,7 @@
 package com.mitas.ppnam.station2aa.domain.usecase
 
 import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
+import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
 import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralSnapshot
@@ -18,7 +19,12 @@ sealed interface JobLookupResult {
     data class Loaded(val snapshot: JobLookupSnapshot) : JobLookupResult
 
     /** [snapshot] is set when Station 2 answered with one anyway (a `rev2_rejected` reply does). */
-    data class Failed(val message: String, val snapshot: JobLookupSnapshot? = null) : JobLookupResult
+    data class Failed(
+        val message: String,
+        val snapshot: JobLookupSnapshot? = null,
+        /** True only when asking again can help: the station timed out or the broker was unreachable. */
+        val retryable: Boolean = false,
+    ) : JobLookupResult
 }
 
 /**
@@ -68,7 +74,10 @@ class JobLookupUseCase @Inject constructor(
         )) {
             is MqttOutcome.Accepted -> JobLookupResult.Loaded(outcome.body.toDomain())
             is MqttOutcome.Rejected -> JobLookupResult.Failed(outcome.message(), outcome.body?.toDomain())
-            is MqttOutcome.NoResponse -> JobLookupResult.Failed(outcome.kind.message())
+            is MqttOutcome.NoResponse -> JobLookupResult.Failed(
+                outcome.kind.message(),
+                retryable = outcome.kind == FailureKind.Timeout || outcome.kind == FailureKind.NotConnected,
+            )
         }
 
     companion object {

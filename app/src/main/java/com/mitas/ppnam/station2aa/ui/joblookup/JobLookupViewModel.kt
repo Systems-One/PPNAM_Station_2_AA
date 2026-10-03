@@ -34,6 +34,8 @@ data class JobLookupUiState(
     val listError: String? = null,
     val lookupInFlight: Boolean = false,
     val lookupError: String? = null,
+    /** Whether the lookup error is a timeout / not-connected one, where Retry can help. */
+    val lookupRetryable: Boolean = false,
     val detail: JobDetail? = null,
     val detailLoading: Boolean = false,
     val detailError: String? = null,
@@ -146,7 +148,7 @@ class JobLookupViewModel @Inject constructor(
         if (_uiState.value.lookupInFlight) return
         lastLookupInput = input
         viewModelScope.launch {
-            _uiState.update { it.copy(lookupInFlight = true, lookupError = null) }
+            _uiState.update { it.copy(lookupInFlight = true, lookupError = null, lookupRetryable = false) }
             when (val result = useCase.lookup(input)) {
                 is JobLookupResult.Loaded -> {
                     val detail = result.snapshot.detail!!  // the use case guarantees it on Loaded
@@ -167,6 +169,7 @@ class JobLookupViewModel @Inject constructor(
                         jobs = result.snapshot?.jobs ?: state.jobs,
                         lookupInFlight = false,
                         lookupError = result.message,
+                        lookupRetryable = result.retryable,
                     )
                 }
             }

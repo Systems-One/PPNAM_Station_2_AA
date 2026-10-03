@@ -137,6 +137,18 @@ class JobLookupViewModelTest {
     }
 
     @Test
+    fun `only a retryable lookup failure is flagged for the Retry button`() = runTest {
+        whenever(useCase.lookup("510018531")).thenReturn(JobLookupResult.Failed("Station 2 did not respond.", retryable = true))
+        vm.lookup("510018531")
+        assertEquals(true, vm.uiState.value.lookupRetryable)
+
+        whenever(useCase.lookup("510018531")).thenReturn(JobLookupResult.Failed("Station 2 has no such job"))
+        vm.lookup("510018531")
+        assertEquals("Station 2 has no such job", vm.uiState.value.lookupError)
+        assertFalse(vm.uiState.value.lookupRetryable)
+    }
+
+    @Test
     fun `a second lookup while one is in flight is ignored`() = runTest {
         whenever(useCase.lookup(any())).thenReturn(JobLookupResult.Loaded(withDetail))
         vm.setLookupInFlightForTest(true)
