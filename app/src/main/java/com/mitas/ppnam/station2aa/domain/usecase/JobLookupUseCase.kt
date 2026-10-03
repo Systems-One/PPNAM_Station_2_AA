@@ -84,6 +84,7 @@ class JobLookupUseCase @Inject constructor(
         const val REQUEST_TYPE = "rev2_general_requested"
         const val RESPONSE_TYPE = "rev2_general_result"
         const val NOT_DIGITS_MESSAGE = "Scan or enter the production order number (digits only)"
+        const val USER_BADGE_MESSAGE = "That is a user badge, not a job card. Use the login screen to sign in."
     }
 }
 

@@ -165,6 +165,23 @@ class JobLookupViewModelTest {
     }
 
     @Test
+    fun `a user badge rfid read is not looked up and shows the badge message`() = runTest {
+        vm.setLookupScreenActive(true)
+        scans.emit(ScanEvent.RfidTag("50505501AABBCCDDEEFF001122334455", Instant.EPOCH))
+        verify(useCase, never()).lookup(any())
+        assertEquals(JobLookupUseCase.USER_BADGE_MESSAGE, vm.uiState.value.lookupError)
+        assertFalse(vm.uiState.value.lookupRetryable)
+    }
+
+    @Test
+    fun `a non-badge rfid read still runs a lookup`() = runTest {
+        whenever(useCase.lookup("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        vm.setLookupScreenActive(true)
+        scans.emit(ScanEvent.RfidTag("510019068", Instant.EPOCH))
+        verify(useCase).lookup("510019068")
+    }
+
+    @Test
     fun `a scan is ignored while the lookup screen is not active`() = runTest {
         vm.setLookupScreenActive(false)
         scans.emit(ScanEvent.Barcode("510019068", "CODE128", Instant.EPOCH))
