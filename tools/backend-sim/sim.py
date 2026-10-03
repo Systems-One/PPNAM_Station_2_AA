@@ -37,7 +37,7 @@ from paho.mqtt.properties import Properties
 
 import envelope
 from envelope import Rejection
-from handlers import rev2_general, scram
+from handlers import operator_list, rev2_general, scram
 from simlog import SimLogger
 from state import World, iso, utc_now
 
@@ -282,7 +282,9 @@ class Simulator:
 
     def _dispatch(self, device_id, request_type, payload, req, received_at):
         message_id = req["messageId"]
-        if request_type.startswith("scram_"):
+        # Pre-login requests (SCRAM and the operator directory) share the authentication replay
+        # cache: identical body replays, a changed body is message_id_conflict.
+        if request_type.startswith("scram_") or request_type == "operator_list_requested":
             key = (device_id, request_type, message_id)
             self.world.expire_auth_replies(received_at)
             prior = self.world.auth_replies.get(key)
@@ -291,9 +293,11 @@ class Simulator:
                     return envelope.reply(device_id, message_id, received_at, True,
                                           "Authentication response replayed.", data=prior["data"])
                 raise Rejection("message_id_conflict", "Message ID body mismatch.")
-            if req.get("purpose") != "login":
+            if request_type == "operator_list_requested":
+                data, text = operator_list.operator_list(self.world, self.log, req), "Operator list."
+            elif req.get("purpose") != "login":
                 raise Rejection("purpose_not_enabled", "Only operator login is enabled.")
-            if request_type == "scram_start_requested":
+            elif request_type == "scram_start_requested":
                 data, text = scram.scram_start(self.world, self.log, req), "Challenge issued."
             else:
                 data, text = scram.scram_proof(self.world, self.log, req), "Signed in."

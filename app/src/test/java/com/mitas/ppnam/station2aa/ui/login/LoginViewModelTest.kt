@@ -4,9 +4,11 @@ import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.model.OperatorEntry
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.OperatorDirectoryUseCase
 import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +29,8 @@ class LoginViewModelTest {
 
     private lateinit var mockAuthUseCase: AuthUseCase
     private lateinit var mockMqttRepository: MqttRepository
+    private lateinit var mockDirectory: OperatorDirectoryUseCase
+    private lateinit var connection: MutableStateFlow<MqttConnectionState>
     private lateinit var sessionHolder: OperatorSessionHolder
     private lateinit var scanBus: ScanEventBus
     private lateinit var scans: MutableSharedFlow<ScanEvent>
@@ -48,18 +52,121 @@ class LoginViewModelTest {
         mockMqttRepository = mock()
         sessionHolder = OperatorSessionHolder()
 
-        whenever(mockMqttRepository.connectionState)
-            .thenReturn(MutableStateFlow(MqttConnectionState.DISCONNECTED))
+        connection = MutableStateFlow(MqttConnectionState.DISCONNECTED)
+        whenever(mockMqttRepository.connectionState).thenReturn(connection)
         whenever(mockMqttRepository.stationOnline).thenReturn(MutableStateFlow(true))
         whenever(mockMqttRepository.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
         scanBus = mock()
         scans = MutableSharedFlow(extraBufferCapacity = 8)
         whenever(scanBus.events).thenReturn(scans)
+        mockDirectory = mock()
+        whenever(mockDirectory.cached()).thenReturn(cachedOperators)
 
-        viewModel = LoginViewModel(mockAuthUseCase, mockMqttRepository, sessionHolder, scanBus)
+        viewModel = newViewModel()
     }
 
-    private fun newViewModel() = LoginViewModel(mockAuthUseCase, mockMqttRepository, sessionHolder, scanBus)
+    private fun newViewModel() =
+        LoginViewModel(mockAuthUseCase, mockMqttRepository, sessionHolder, scanBus, mockDirectory)
+
+    private val cachedOperators = listOf(OperatorEntry("op.cached", "Cached Operator"))
+    private val freshOperators = listOf(
+        OperatorEntry("op.anna", "Anna Able"),
+        OperatorEntry("op.cached", "Cached Operator"),
+    )
+
+    // ---- operator directory ---------------------------------------------------------------
+
+    @Test
+    fun `the dropdown is seeded from the cached directory before any answer`() = runTest {
+        assertEquals(cachedOperators, viewModel.operators.value)
+        verify(mockDirectory, never()).refresh()
+    }
+
+    @Test
+    fun `refreshes the directory when the broker connects on the login screen`() = runTest {
+        whenever(mockDirectory.refresh()).thenReturn(freshOperators)
+        viewModel.setLoginScreenActive(true)
+
+        connection.value = MqttConnectionState.CONNECTED
+        advanceUntilIdle()
+
+        verify(mockDirectory, times(1)).refresh()
+        assertEquals(freshOperators, viewModel.operators.value)
+    }
+
+    @Test
+    fun `refreshes once more on every reconnect while the login screen is showing`() = runTest {
+        whenever(mockDirectory.refresh()).thenReturn(freshOperators)
+        viewModel.setLoginScreenActive(true)
+
+        connection.value = MqttConnectionState.CONNECTED
+        connection.value = MqttConnectionState.RECONNECTING
+        connection.value = MqttConnectionState.CONNECTED
+        advanceUntilIdle()
+
+        verify(mockDirectory, times(2)).refresh()
+    }
+
+    @Test
+    fun `resuming the login screen while already connected refreshes the directory`() = runTest {
+        whenever(mockDirectory.refresh()).thenReturn(freshOperators)
+        connection.value = MqttConnectionState.CONNECTED
+        advanceUntilIdle()
+        verify(mockDirectory, never()).refresh()
+
+        viewModel.setLoginScreenActive(true)
+        advanceUntilIdle()
+
+        verify(mockDirectory, times(1)).refresh()
+        assertEquals(freshOperators, viewModel.operators.value)
+    }
+
+    @Test
+    fun `a connect while the login screen is hidden does not ask for the directory`() = runTest {
+        whenever(mockDirectory.refresh()).thenReturn(freshOperators)
+        viewModel.setLoginScreenActive(true)
+        viewModel.setLoginScreenActive(false)
+
+        connection.value = MqttConnectionState.CONNECTED
+        advanceUntilIdle()
+
+        verify(mockDirectory, never()).refresh()
+        assertEquals(cachedOperators, viewModel.operators.value)
+    }
+
+    @Test
+    fun `a connect while an operator is signed in does not ask for the directory`() = runTest {
+        whenever(mockDirectory.refresh()).thenReturn(freshOperators)
+        sessionHolder.set(sampleSession)
+        viewModel.setLoginScreenActive(true)
+
+        connection.value = MqttConnectionState.CONNECTED
+        advanceUntilIdle()
+
+        verify(mockDirectory, never()).refresh()
+    }
+
+    @Test
+    fun `a failed refresh keeps the cached list`() = runTest {
+        whenever(mockDirectory.refresh()).thenReturn(null)
+        viewModel.setLoginScreenActive(true)
+
+        connection.value = MqttConnectionState.CONNECTED
+        advanceUntilIdle()
+
+        verify(mockDirectory).refresh()
+        assertEquals(cachedOperators, viewModel.operators.value)
+    }
+
+    @Test
+    fun `a typed username that is not in the directory still logs in`() = runTest {
+        whenever(mockAuthUseCase.login("not.listed", "1234")).thenReturn(Result.success(sampleSession))
+
+        viewModel.submitCredentials("not.listed", "1234")
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value is LoginUiState.LoggedIn)
+    }
 
     @Test
     fun `a badge scan on the login screen signs the holder in and navigates home`() = runTest {

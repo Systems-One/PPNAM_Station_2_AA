@@ -77,3 +77,19 @@ data class Rev2Session(
     val sessionState: String? = null,
     val isActive: Boolean = false,
 )
+
+/**
+ * `operator_list` `data` (pre-login operator directory, October 3 fleet-parity amendment): the
+ * accounts that could complete a SCRAM password login on this station, for the login dropdown.
+ * Display-only: exactly `username` and `displayName`, nothing that could gate anything. The
+ * request, `operator_list_requested`, is the bare envelope
+ * ([com.mitas.ppnam.station2aa.data.mqtt.EmptyPayload]) and carries no session.
+ */
+data class OperatorListResponse(
+    val operators: List<OperatorEntryDto> = emptyList(),
+)
+
+data class OperatorEntryDto(
+    val username: String = "",
+    val displayName: String = "",
+)

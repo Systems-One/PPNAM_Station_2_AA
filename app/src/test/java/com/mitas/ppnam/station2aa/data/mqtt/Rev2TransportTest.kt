@@ -139,6 +139,20 @@ class Rev2TransportTest {
         reply(idOf(0)); call.await()
     }
 
+    @Test
+    fun `operator_list_requested never carries a session even when one is active`() = runTest {
+        sessionHolder.set(session("sess-A"))
+        val call = async {
+            repo.request("operator_list_requested", "operator_list", EmptyPayload, TestBody::class.java)
+        }
+        while (published.isEmpty()) yield()
+        val body = sent(0)
+        assertFalse(body.has("sessionId"))
+        assertEquals("PPNAM/station_2/$device/req/operator_list_requested", published[0].first)
+        assertEquals(setOf("schemaVersion", "deviceId", "messageId", "timestampUtc"), body.keySet())
+        reply(idOf(0)); call.await()
+    }
+
     // ---- correlation and parsing ------------------------------------------------------------
 
     @Test

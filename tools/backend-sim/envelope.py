@@ -1,7 +1,7 @@
 """rev2.1 envelope handling, mirroring PPNAM.Station2.Core/Services/Rev2ScannerProcessor.cs.
 
 Request validation, in the server's order:
-  1. The suffix is one of the four subscribed request suffixes, else client_upgrade_required.
+  1. The suffix is one of the five subscribed request suffixes, else client_upgrade_required.
   2. The payload is at most 65,536 characters, else invalid_envelope.
   3. It is a JSON object with unique field names (case-insensitive), else invalid_envelope.
      (The server checks the top level only; this is stricter, at any depth.)
@@ -23,11 +23,13 @@ REQUEST_SUFFIXES = (
     "scram_proof_requested",
     "rev2_general_requested",
     "rev2_rajoo_requested",
+    "operator_list_requested",
 )
 _RESPONSE_SUFFIX = {
     "scram_start_requested": "scram_challenge",
     "scram_proof_requested": "scram_proof_result",
     "rev2_rajoo_requested": "rev2_rajoo_result",
+    "operator_list_requested": "operator_list",
 }
 MAX_PAYLOAD_CHARS = 65536
 TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$")
