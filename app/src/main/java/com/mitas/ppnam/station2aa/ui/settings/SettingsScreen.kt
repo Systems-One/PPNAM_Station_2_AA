@@ -229,7 +229,8 @@ fun SettingsScreen(
                         )
                         SettingsTextField(
                             value = viewModel.passwordText.value,
-                            label = "Password (blank keeps the current one)",
+                            label = "Password",
+                            hint = "Blank keeps the current one",
                             keyboardType = KeyboardType.Password,
                             visualTransformation = if (passwordVisible) VisualTransformation.None
                             else PasswordVisualTransformation(),
@@ -252,7 +253,8 @@ fun SettingsScreen(
                     ConfigSection(title = "Session") {
                         SettingsTextField(
                             value = viewModel.autoLogoutText.value,
-                            label = "Auto sign-out after (minutes, 0 = never)",
+                            label = "Auto sign-out (minutes)",
+                            hint = "0 = never",
                             error = viewModel.autoLogoutError.value,
                             keyboardType = KeyboardType.Number,
                             onValueChange = viewModel::onAutoLogoutChange
@@ -462,6 +464,7 @@ private fun SettingsTextField(
     label: String,
     onValueChange: (String) -> Unit,
     error: String? = null,
+    hint: String? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -474,7 +477,7 @@ private fun SettingsTextField(
         label = { Text(label) },
         singleLine = true,
         isError = error != null,
-        supportingText = error?.let { { Text(it, color = DangerRed) } },
+        supportingText = (error ?: hint)?.let { msg -> { Text(msg, color = if (error != null) DangerRed else TextMuted) } },
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
         keyboardActions = KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Down) },
