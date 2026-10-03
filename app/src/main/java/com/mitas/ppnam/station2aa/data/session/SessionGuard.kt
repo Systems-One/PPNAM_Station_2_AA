@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -69,7 +70,12 @@ class SessionGuard @Inject constructor(
     fun applyTimeout() {
         scope.launch {
             if (sessionHolder.session.value == null) return@launch
-            minutes = settingsRepository.current().autoLogoutMinutes
+            minutes = try {
+                settingsRepository.current().autoLogoutMinutes
+            } catch (e: IOException) {
+                Log.w(TAG, "Could not read settings; using the default ${AutoLogout.DEFAULT_MINUTES} min auto sign-out", e)
+                AutoLogout.DEFAULT_MINUTES
+            }
             monitor.start(AutoLogout.timeoutMs(minutes))
         }
     }
