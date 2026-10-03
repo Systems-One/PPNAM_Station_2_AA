@@ -23,5 +23,11 @@ value class ErrorCode(val raw: String) {
         val OUTCOME_UNCONFIRMED = ErrorCode("outcome_unconfirmed")
         val AUTHENTICATION_FAILED = ErrorCode("authentication_failed")
         val PURPOSE_NOT_ENABLED = ErrorCode("purpose_not_enabled")
+        /** `login_requested` with a blank `badgeTag`. A build defect, never an operator's fault. */
+        val BADGE_REQUIRED = ErrorCode("badge_required")
+        /** The card is unknown here and in the fleet mirror, revoked, or its holder is inactive. */
+        val BADGE_REJECTED = ErrorCode("badge_rejected")
+        /** `login_requested` carried a `username`; badge login is badge-only. */
+        val LOGIN_METHOD_INVALID = ErrorCode("login_method_invalid")
     }
 }

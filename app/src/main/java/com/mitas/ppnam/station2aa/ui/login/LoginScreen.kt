@@ -16,6 +16,10 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
@@ -62,6 +66,25 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { destination ->
             if (destination == "home") onLoggedIn()
+        }
+    }
+
+    // Badge scans sign in only while this screen is resumed. Login is the start destination and
+    // its view model survives under Home, so without this gate a card scanned on Home would be
+    // taken as a login attempt.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> viewModel.setLoginScreenActive(true)
+                Lifecycle.Event.ON_PAUSE -> viewModel.setLoginScreenActive(false)
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            viewModel.setLoginScreenActive(false)
         }
     }
 
@@ -225,6 +248,15 @@ fun LoginScreen(
                             Text("Log In")
                         }
                     }
+
+                    // The same card that signs in at Station 1: scanning it here needs no typing.
+                    Text(
+                        text = "Or scan your badge",
+                        color = TextMuted,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }

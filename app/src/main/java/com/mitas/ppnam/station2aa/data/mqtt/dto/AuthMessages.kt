@@ -1,11 +1,11 @@
 package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 /**
- * rev2.1 authentication: SCRAM-SHA-256 login only.
+ * rev2.1 authentication: SCRAM-SHA-256 login, or a badge (RFID card) login.
  *
- * There is no plaintext login, no badge login and no manager authorization — Station 2 answers any
- * `purpose` other than `login` with `purpose_not_enabled`, and rejects any field whose name
- * contains `password` with `password_field_forbidden`. Message-specific fields only; the transport
+ * There is no plaintext login and no manager authorization — Station 2 answers any `purpose`
+ * other than `login` with `purpose_not_enabled`, and rejects any field whose name contains
+ * `password` with `password_field_forbidden`. Message-specific fields only; the transport
  * injects the envelope.
  */
 
@@ -48,6 +48,21 @@ data class ScramProofPayload(
  */
 data class ScramProofResponse(
     val serverSignature: String = "",
+    val session: Rev2Session? = null,
+)
+
+/**
+ * `login_requested` (October 3 badge login amendment): the scanned card, nothing else. Station 2
+ * resolves it against its own badges first and then the cards Account Management issued (the
+ * fleet mirror), so a card issued at the desk signs in here the way it does at Station 1.
+ * A `username` alongside it is refused with `login_method_invalid`.
+ */
+data class BadgeLoginPayload(
+    val badgeTag: String,
+)
+
+/** `login_result` `data`: the holder's session, in the same shape as the SCRAM proof result's. */
+data class LoginResultResponse(
     val session: Rev2Session? = null,
 )
 
