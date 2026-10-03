@@ -33,3 +33,6 @@ Thumbs.db
 
 # Superpowers brainstorming companion (ephemeral mockup sessions)
 /.superpowers/
+
+# Local git worktrees
+.worktrees/
