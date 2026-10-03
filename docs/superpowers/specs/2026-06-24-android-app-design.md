@@ -1,7 +1,7 @@
 # PPNAM Station 2 — Android App Design
 
 **Date:** 2026-06-24
-**Project:** `com.ppnam.station2aa`
+**Project:** `com.mitas.ppnam.station2aa`
 **Platform:** Android (Kotlin, Jetpack Compose, minSdk 26, targetSdk 35)
 **Context repo:** `C:\Dev\PPNAM-Station-2` (C# backend, Plans.md, AGENTS.md, test cases)
 
@@ -44,7 +44,7 @@ Dependency injection via **Hilt**. All repository interfaces are defined in the 
 ### 2.2 Package Structure
 
 ```
-com.ppnam.station2aa/
+com.mitas.ppnam.station2aa/
 ├── MainActivity.kt
 ├── navigation/
 │   └── AppNavGraph.kt

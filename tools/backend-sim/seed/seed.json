@@ -3,7 +3,8 @@
     "overCollectionToleranceBags": 1.0,
     "timestampWindowSeconds": 300,
     "sessionHours": 16,
-    "defaultFullBagWeightKg": 25.0
+    "defaultFullBagWeightKg": 25.0,
+    "rev2OutputPerMix": 50.0
   },
   "operators": [
     {

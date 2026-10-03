@@ -73,10 +73,18 @@ def on_message(c, u, m):
         payload = raw
         parsed = False
 
+    # Post 2026-08-17 restructure: PPNAM/station_2 and PPNAM/station_2/{deviceId} are
+    # base-node presence; PPNAM/station_2/{deviceId}/req|res/{t} is workflow traffic;
+    # PPNAM/station_2/res/{t} is a station broadcast.
     parts = m.topic.split("/")
-    kind = parts[2] if len(parts) > 2 else ("status" if m.topic.endswith("status") else "other")
-    if m.topic.endswith("/status"):
+    if len(parts) >= 5 and parts[3] in ("req", "res"):
+        kind = parts[3]
+    elif len(parts) == 4 and parts[2] == "res":
+        kind = "res"
+    elif len(parts) <= 3:
         kind = "status"
+    else:
+        kind = "other"
 
     rec = {
         "ts": ts,

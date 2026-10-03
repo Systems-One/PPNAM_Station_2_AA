@@ -13,7 +13,7 @@
 - Design spec: `docs/superpowers/specs/2026-07-03-mqtt-reconnection-fix-design.md` — every requirement below traces to a section there.
 - No MQTT contract changes, no UI changes in this plan.
 - Follow existing code style: no comments except where a subtle invariant needs explaining (this file already does this well — match it).
-- Test command: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"` (run from `C:\Dev\PPNAM_Station_2_AA`, Git Bash).
+- Test command: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"` (run from `C:\Dev\PPNAM_Station_2_AA`, Git Bash).
 - Only file touched (production code): `app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttRepositoryImpl.kt`.
 - Only file touched (tests): `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttRepositoryImplTest.kt`.
 - `internal` (not `private`) visibility on new testable helpers, matching the existing `internal suspend fun sendWithTimeout(...)` precedent — the test class is in the same Gradle module and already calls that member directly without reflection.
@@ -49,7 +49,7 @@ fun `connect is a no-op when transport is already connected`() = runTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
 Expected: FAIL — `NoSuchFieldException: isTransportConnected` (the field doesn't exist yet).
 
 - [ ] **Step 3: Add the field and the `connect()` guard**
@@ -84,8 +84,8 @@ override suspend fun connect() {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
-Expected: PASS. Also re-run the full existing suite to confirm nothing else broke: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest*"` — all prior tests (`initial connection state is DISCONNECTED`, `send fails fast when disconnected...`, etc.) still pass unchanged, since none of them exercise `connect()`.
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
+Expected: PASS. Also re-run the full existing suite to confirm nothing else broke: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest*"` — all prior tests (`initial connection state is DISCONNECTED`, `send fails fast when disconnected...`, etc.) still pass unchanged, since none of them exercise `connect()`.
 
 - [ ] **Step 5: Commit**
 
@@ -154,7 +154,7 @@ fun `retryBounded retries up to maxAttempts then rethrows the last error`() = ru
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
 Expected: FAIL — `Unresolved reference: retryBounded` (compile error, since the method doesn't exist yet).
 
 - [ ] **Step 3: Implement `retryBounded`**
@@ -178,7 +178,7 @@ internal suspend fun <T> retryBounded(maxAttempts: Int, delayMs: Long, block: su
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
 Expected: PASS. These tests run instantly despite the `delay(1_000L)` calls — `runTest`'s virtual time auto-advances through `delay`.
 
 - [ ] **Step 5: Commit**
@@ -244,7 +244,7 @@ fun `handleTransportDisconnected ignores a stale superseded client`() = runTest 
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
 Expected: FAIL — `NoSuchMethodException: handleTransportDisconnected` (method doesn't exist yet).
 
 - [ ] **Step 3: Extract the method and wire it into `buildClient()`**
@@ -278,7 +278,7 @@ to:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -372,7 +372,7 @@ to:
 
 - [ ] **Step 3: Compile and run the full existing suite**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
 Expected: PASS — this task doesn't add new tests (the retry counting/backoff logic is already covered by Task 2's `retryBounded` tests, and this step is pure wiring). Confirm the build compiles and no existing test regresses.
 
 - [ ] **Step 4: Commit**
@@ -469,7 +469,7 @@ to:
 
 - [ ] **Step 3: Run the full test suite**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRepositoryImplTest"`
 Expected: PASS, all tests from Tasks 1–5.
 
 Also run the full app test suite once to make sure nothing else in the codebase referenced the old `onDisconnected`/`onConnected` behavior:

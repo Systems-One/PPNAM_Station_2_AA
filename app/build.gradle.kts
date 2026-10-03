@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.ppnam.station2aa"
+    namespace = "com.mitas.ppnam.station2aa"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.ppnam.station2aa"
+        applicationId = "com.mitas.ppnam.station2aa"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -74,9 +74,6 @@ dependencies {
     implementation(libs.hilt.work)
     ksp(libs.hilt.work.compiler)
     implementation(libs.hilt.navigation.compose)
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
     implementation(libs.work.runtime.ktx)
     implementation(libs.navigation.compose)
     implementation(libs.hivemq.client)
@@ -85,7 +82,6 @@ dependencies {
 
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockito.kotlin)
-    androidTestImplementation(libs.room.testing)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

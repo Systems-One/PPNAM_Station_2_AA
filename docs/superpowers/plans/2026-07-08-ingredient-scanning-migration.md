@@ -34,7 +34,7 @@ This task is data classes only (no branching logic), matching the codebase's exi
 Write `app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/IngredientMessages.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt.dto
+package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 data class IngredientScannedRequest(
     val messageId: String,
@@ -230,7 +230,7 @@ git commit -m "feat(mixing): add ingredient-scan contract DTOs and BomLine bag f
 Write `app/src/main/java/com/ppnam/station2aa/domain/model/IngredientScanOutcome.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 sealed class IngredientScanOutcome {
     data class Accepted(val updatedLines: List<BomLine>) : IngredientScanOutcome()
@@ -398,7 +398,7 @@ Add to `MixingUseCaseTest.kt`, after the `// --- fetchActiveJobCards ---` block'
     }
 ```
 
-Add these imports to `MixingUseCaseTest.kt`'s import block: `com.ppnam.station2aa.data.mqtt.dto.BomProgressLineResponse`, `com.ppnam.station2aa.data.mqtt.dto.IngredientScanResultResponse`, `com.ppnam.station2aa.domain.model.IngredientScanOutcome`.
+Add these imports to `MixingUseCaseTest.kt`'s import block: `com.mitas.ppnam.station2aa.data.mqtt.dto.BomProgressLineResponse`, `com.mitas.ppnam.station2aa.data.mqtt.dto.IngredientScanResultResponse`, `com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome`.
 
 - [ ] **Step 3: Run the tests to verify they fail**
 
@@ -410,9 +410,9 @@ Expected: FAIL to compile — `useCase.scanIngredient(...)` does not exist yet.
 In `app/src/main/java/com/ppnam/station2aa/domain/usecase/MixingUseCase.kt`, add these imports:
 
 ```kotlin
-import com.ppnam.station2aa.data.mqtt.dto.IngredientScanResultResponse
-import com.ppnam.station2aa.data.mqtt.dto.IngredientScannedRequest
-import com.ppnam.station2aa.domain.model.IngredientScanOutcome
+import com.mitas.ppnam.station2aa.data.mqtt.dto.IngredientScanResultResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.IngredientScannedRequest
+import com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome
 ```
 
 Add this method to the `MixingUseCase` class, directly after `cancelJob` (before `suspend fun validateIngredient`):
@@ -595,7 +595,7 @@ Add to `MixingUseCaseTest.kt`, directly after the `scanIngredient` tests block (
     }
 ```
 
-Add `com.ppnam.station2aa.data.mqtt.dto.ManagerApprovalResultResponse` to the test file's imports.
+Add `com.mitas.ppnam.station2aa.data.mqtt.dto.ManagerApprovalResultResponse` to the test file's imports.
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
@@ -607,8 +607,8 @@ Expected: FAIL to compile — `useCase.approveManagerException(...)` does not ex
 Add this import to `MixingUseCase.kt`:
 
 ```kotlin
-import com.ppnam.station2aa.data.mqtt.dto.ManagerApprovalRequest
-import com.ppnam.station2aa.data.mqtt.dto.ManagerApprovalResultResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ManagerApprovalRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ManagerApprovalResultResponse
 ```
 
 Add this method directly after `scanIngredient`:
@@ -758,7 +758,7 @@ Add to `MixingUseCaseTest.kt`, directly after the `approveManagerException` test
     }
 ```
 
-Add `com.ppnam.station2aa.data.mqtt.dto.HoldingRecoveryResultResponse` to the test file's imports.
+Add `com.mitas.ppnam.station2aa.data.mqtt.dto.HoldingRecoveryResultResponse` to the test file's imports.
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
@@ -770,8 +770,8 @@ Expected: FAIL to compile — `useCase.recoverHolding(...)` does not exist yet.
 Add this import to `MixingUseCase.kt`:
 
 ```kotlin
-import com.ppnam.station2aa.data.mqtt.dto.HoldingRecoveryRequest
-import com.ppnam.station2aa.data.mqtt.dto.HoldingRecoveryResultResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.HoldingRecoveryRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.HoldingRecoveryResultResponse
 ```
 
 Add this method directly after `approveManagerException`:
@@ -845,7 +845,7 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
 ```kotlin
     @Test
     fun `startListeningForPalletScans opens EnteringBagDetails on a pallet scan`() = runTest {
-        val events = MutableSharedFlow<com.ppnam.station2aa.data.rfid.ScanEvent>()
+        val events = MutableSharedFlow<com.mitas.ppnam.station2aa.data.rfid.ScanEvent>()
         whenever(mockScanEventBus.events).thenReturn(events)
         val vm = MixingViewModel(mockUseCase, mockScanEventBus, mockMqttRepository, mockOfflineQueueRepository, mockSessionHolder)
         whenever(mockUseCase.lookupJob("510019068")).thenReturn(Result.success(sampleOrder))
@@ -853,7 +853,7 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
         advanceUntilIdle()
 
         vm.startListeningForPalletScans("510019068")
-        events.emit(com.ppnam.station2aa.data.rfid.ScanEvent.RfidTag("EPC:300833", java.time.Instant.now()))
+        events.emit(com.mitas.ppnam.station2aa.data.rfid.ScanEvent.RfidTag("EPC:300833", java.time.Instant.now()))
         advanceUntilIdle()
 
         val state = vm.uiState.value
@@ -867,14 +867,14 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
         viewModel.lookupJob("510019068")
         advanceUntilIdle()
 
-        val events = MutableSharedFlow<com.ppnam.station2aa.data.rfid.ScanEvent>()
+        val events = MutableSharedFlow<com.mitas.ppnam.station2aa.data.rfid.ScanEvent>()
         whenever(mockScanEventBus.events).thenReturn(events)
         val vm = MixingViewModel(mockUseCase, mockScanEventBus, mockMqttRepository, mockOfflineQueueRepository, mockSessionHolder)
         whenever(mockUseCase.lookupJob("510019068")).thenReturn(Result.success(sampleOrder))
         vm.lookupJob("510019068")
         advanceUntilIdle()
         vm.startListeningForPalletScans("510019068")
-        events.emit(com.ppnam.station2aa.data.rfid.ScanEvent.RfidTag("EPC:300833", java.time.Instant.now()))
+        events.emit(com.mitas.ppnam.station2aa.data.rfid.ScanEvent.RfidTag("EPC:300833", java.time.Instant.now()))
         advanceUntilIdle()
 
         vm.cancelBagEntry()
@@ -890,7 +890,7 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
 
         val updatedLine = BomLine("MAT-001", "Resin", requiredQty = 1.0, remainingQty = 0.0)
         whenever(mockUseCase.scanIngredient("premix-1", "EPC:300833", "full", 2.0))
-            .thenReturn(Result.success(com.ppnam.station2aa.domain.model.IngredientScanOutcome.Accepted(listOf(updatedLine))))
+            .thenReturn(Result.success(com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome.Accepted(listOf(updatedLine))))
 
         viewModel.confirmIngredientScan("EPC:300833", "full", 2.0)
         advanceUntilIdle()
@@ -907,7 +907,7 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
         advanceUntilIdle()
 
         whenever(mockUseCase.scanIngredient("premix-1", "EPC:300833", "full", 2.0)).thenReturn(
-            Result.success(com.ppnam.station2aa.domain.model.IngredientScanOutcome.NeedsManagerApproval("exception-1", "Wrong material"))
+            Result.success(com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome.NeedsManagerApproval("exception-1", "Wrong material"))
         )
 
         viewModel.confirmIngredientScan("EPC:300833", "full", 2.0)
@@ -926,7 +926,7 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
         advanceUntilIdle()
 
         whenever(mockUseCase.scanIngredient("premix-1", "EPC:300833", "full", 2.0)).thenReturn(
-            Result.success(com.ppnam.station2aa.domain.model.IngredientScanOutcome.NeedsRecovery("Pallet not in Holding"))
+            Result.success(com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome.NeedsRecovery("Pallet not in Holding"))
         )
 
         viewModel.confirmIngredientScan("EPC:300833", "full", 2.0)
@@ -944,7 +944,7 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
         advanceUntilIdle()
 
         whenever(mockUseCase.scanIngredient("premix-1", "EPC:300833", "full", 2.0)).thenReturn(
-            Result.success(com.ppnam.station2aa.domain.model.IngredientScanOutcome.NeedsManagerApproval("exception-1", "Wrong material"))
+            Result.success(com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome.NeedsManagerApproval("exception-1", "Wrong material"))
         )
         viewModel.confirmIngredientScan("EPC:300833", "full", 2.0)
         advanceUntilIdle()
@@ -953,7 +953,7 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
             .thenReturn(Result.success("approval-1"))
         val updatedLine = BomLine("MAT-001", "Resin", requiredQty = 1.0, remainingQty = 0.0)
         whenever(mockUseCase.scanIngredient("premix-1", "EPC:300833", "full", 2.0, "approval-1")).thenReturn(
-            Result.success(com.ppnam.station2aa.domain.model.IngredientScanOutcome.Accepted(listOf(updatedLine)))
+            Result.success(com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome.Accepted(listOf(updatedLine)))
         )
 
         viewModel.submitManagerApproval("manager1", "5678")
@@ -970,7 +970,7 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
         advanceUntilIdle()
 
         whenever(mockUseCase.scanIngredient("premix-1", "EPC:300833", "full", 2.0)).thenReturn(
-            Result.success(com.ppnam.station2aa.domain.model.IngredientScanOutcome.NeedsRecovery("Pallet not in Holding"))
+            Result.success(com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome.NeedsRecovery("Pallet not in Holding"))
         )
         viewModel.confirmIngredientScan("EPC:300833", "full", 2.0)
         advanceUntilIdle()
@@ -978,7 +978,7 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
         whenever(mockUseCase.recoverHolding("premix-1", "EPC:300833")).thenReturn(Result.success(Unit))
         val updatedLine = BomLine("MAT-001", "Resin", requiredQty = 1.0, remainingQty = 0.0)
         whenever(mockUseCase.scanIngredient("premix-1", "EPC:300833", "full", 2.0, "")).thenReturn(
-            Result.success(com.ppnam.station2aa.domain.model.IngredientScanOutcome.Accepted(listOf(updatedLine)))
+            Result.success(com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome.Accepted(listOf(updatedLine)))
         )
 
         viewModel.confirmPalletRecovery()
@@ -995,7 +995,7 @@ Add these 8 new tests to `MixingViewModelTest.kt` (append after the existing `lo
         advanceUntilIdle()
 
         whenever(mockUseCase.scanIngredient("premix-1", "EPC:300833", "full", 2.0)).thenReturn(
-            Result.success(com.ppnam.station2aa.domain.model.IngredientScanOutcome.NeedsRecovery("Pallet not in Holding"))
+            Result.success(com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome.NeedsRecovery("Pallet not in Holding"))
         )
         viewModel.confirmIngredientScan("EPC:300833", "full", 2.0)
         advanceUntilIdle()
@@ -1050,8 +1050,8 @@ sealed class MixingUiState {
 Add these imports:
 
 ```kotlin
-import com.ppnam.station2aa.domain.model.IngredientScanOutcome
-import com.ppnam.station2aa.domain.model.ProductionOrder
+import com.mitas.ppnam.station2aa.domain.model.IngredientScanOutcome
+import com.mitas.ppnam.station2aa.domain.model.ProductionOrder
 ```
 
 (`ProductionOrder` is likely already imported — leave the existing import line as-is if so.)
@@ -1589,9 +1589,9 @@ with:
     }
 ```
 
-Remove the `import com.ppnam.station2aa.domain.model.ScannedIngredient` line and the entire `// --- validateIngredient ---` and `// --- approveIngredientException ---` test blocks (every `@Test` between the `checkHopper` tests' preceding comment and the `// --- checkHopper ---` comment — i.e. delete all tests from `validateIngredient returns Valid when WPF confirms ingredient` through `approveIngredientException fails when offline` inclusive, and their two section comments).
+Remove the `import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient` line and the entire `// --- validateIngredient ---` and `// --- approveIngredientException ---` test blocks (every `@Test` between the `checkHopper` tests' preceding comment and the `// --- checkHopper ---` comment — i.e. delete all tests from `validateIngredient returns Valid when WPF confirms ingredient` through `approveIngredientException fails when offline` inclusive, and their two section comments).
 
-Also remove `import com.ppnam.station2aa.domain.model.IngredientValidationResult` from this test file's imports.
+Also remove `import com.mitas.ppnam.station2aa.domain.model.IngredientValidationResult` from this test file's imports.
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
@@ -1600,7 +1600,7 @@ Expected: FAIL to compile — `completePremix(orderNo, hopperCode)` (2-arg) does
 
 - [ ] **Step 3: Update MixingUseCase — remove legacy methods, fix completePremix**
 
-In `MixingUseCase.kt`, remove the `validateIngredient` and `approveIngredientException` methods entirely (from `suspend fun validateIngredient(...)` through the closing brace of `approveIngredientException`, i.e. everything between `scanIngredient`/`approveManagerException`/`recoverHolding` and `checkHopper`). Remove the now-unused `import com.ppnam.station2aa.domain.model.IngredientValidationResult` and `import com.ppnam.station2aa.domain.model.ScannedIngredient` lines, and the private `ApprovalResponse` data class (only used by the removed `approveIngredientException`).
+In `MixingUseCase.kt`, remove the `validateIngredient` and `approveIngredientException` methods entirely (from `suspend fun validateIngredient(...)` through the closing brace of `approveIngredientException`, i.e. everything between `scanIngredient`/`approveManagerException`/`recoverHolding` and `checkHopper`). Remove the now-unused `import com.mitas.ppnam.station2aa.domain.model.IngredientValidationResult` and `import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient` lines, and the private `ApprovalResponse` data class (only used by the removed `approveIngredientException`).
 
 Replace:
 
@@ -1667,7 +1667,7 @@ Remove:
     val scannedIngredients: StateFlow<List<ScannedIngredient>> = _scannedIngredients.asStateFlow()
 ```
 
-Remove `import com.ppnam.station2aa.domain.model.ScannedIngredient` and `import com.ppnam.station2aa.domain.model.IngredientValidationResult` (the latter is already unused after Task 5).
+Remove `import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient` and `import com.mitas.ppnam.station2aa.domain.model.IngredientValidationResult` (the latter is already unused after Task 5).
 
 Replace:
 
@@ -1695,7 +1695,7 @@ In `cancelJob`'s success branch, remove the line `_scannedIngredients.value = em
 
 In `MixingViewModelTest.kt`, remove these four tests in their entirety (they exercise the methods just deleted in Step 5): `discardInvalidIngredient resets state to OrderLoaded`, `requestSupervisorOverride sets WaitingForSupervisor state`, `submitSupervisorTag on approval appends exception ingredient and resets to OrderLoaded`, `submitSupervisorTag on rejection stays WaitingForSupervisor`.
 
-Remove `import com.ppnam.station2aa.domain.model.ScannedIngredient` and `import com.ppnam.station2aa.domain.model.IngredientValidationResult`.
+Remove `import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient` and `import com.mitas.ppnam.station2aa.domain.model.IngredientValidationResult`.
 
 Replace the `cancelJob resets state and scanned ingredients on backend confirmation` test (its `scannedIngredients` assertion no longer compiles once the field is removed from `MixingViewModel`):
 
@@ -1707,7 +1707,7 @@ Replace the `cancelJob resets state and scanned ingredients on backend confirmat
         advanceUntilIdle()
 
         whenever(mockUseCase.cancelJob(any(), any(), any(), any(), any())).thenReturn(
-            Result.success(com.ppnam.station2aa.data.mqtt.dto.PreMixCancelResultResponse(accepted = true))
+            Result.success(com.mitas.ppnam.station2aa.data.mqtt.dto.PreMixCancelResultResponse(accepted = true))
         )
         val outcomes = mutableListOf<CancelOutcome>()
         val job = launch(testDispatcher) { viewModel.cancelOutcome.collect { outcomes.add(it) } }
@@ -1733,7 +1733,7 @@ with:
         advanceUntilIdle()
 
         whenever(mockUseCase.cancelJob(any(), any(), any(), any(), any())).thenReturn(
-            Result.success(com.ppnam.station2aa.data.mqtt.dto.PreMixCancelResultResponse(accepted = true))
+            Result.success(com.mitas.ppnam.station2aa.data.mqtt.dto.PreMixCancelResultResponse(accepted = true))
         )
         val outcomes = mutableListOf<CancelOutcome>()
         val job = launch(testDispatcher) { viewModel.cancelOutcome.collect { outcomes.add(it) } }

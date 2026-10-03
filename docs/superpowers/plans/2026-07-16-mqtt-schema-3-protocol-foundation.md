@@ -24,7 +24,7 @@
 - `operatorSessionId` uses `""` only for `login_requested`; otherwise the active session id.
 - Station 2 presence topic is the literal string `PPNAM/station_2/status`.
 - Run tests with: `./gradlew testDebugUnitTest`
-- Run a single test class with: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttTopicsTest"`
+- Run a single test class with: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttTopicsTest"`
 
 ## Sequencing Rationale
 
@@ -50,7 +50,7 @@ The legacy builders (`request(stationName)`, `response`, `hopperStatus`, `statio
 Replace the entire contents of `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttTopicsTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -140,7 +140,7 @@ class MqttTopicsTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttTopicsTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttTopicsTest"`
 Expected: FAIL — compilation error, `Unresolved reference: MqttSchema` and `Too many arguments for request`.
 
 - [ ] **Step 3: Write the implementation**
@@ -148,7 +148,7 @@ Expected: FAIL — compilation error, `Unresolved reference: MqttSchema` and `To
 Create `app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttSchema.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 /**
  * The one place the wire schema version is defined. Contract v3.0 rejects any request whose
@@ -162,7 +162,7 @@ object MqttSchema {
 Replace the entire contents of `app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttTopics.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 /**
  * Contract v3.0 topic structure:
@@ -209,7 +209,7 @@ object MqttTopics {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttTopicsTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttTopicsTest"`
 Expected: PASS (12 tests).
 
 - [ ] **Step 5: Keep the build green at the old call sites**
@@ -278,7 +278,7 @@ Delete the now-unused private method `handleHopperStatus` (lines 421–426) and 
         MqttResult.Error("Legacy action protocol removed; use request()")
 ```
 
-Remove the now-unused imports `com.ppnam.station2aa.domain.model.HopperStatus` and `kotlinx.coroutines.flow.SharedFlow` if the compiler flags them.
+Remove the now-unused imports `com.mitas.ppnam.station2aa.domain.model.HopperStatus` and `kotlinx.coroutines.flow.SharedFlow` if the compiler flags them.
 
 In `app/src/main/java/com/ppnam/station2aa/domain/repository/MqttRepository.kt`, delete the line:
 
@@ -304,7 +304,7 @@ From `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttRepositoryImplTest.kt
 - `send fails fast when disconnected instead of queuing`
 - `send fails fast when disconnected regardless of action`
 
-Also delete the now-unused import `com.ppnam.station2aa.domain.model.HopperAvailability`.
+Also delete the now-unused import `com.mitas.ppnam.station2aa.domain.model.HopperAvailability`.
 
 From `app/src/test/java/com/ppnam/station2aa/ui/mixing/MixingViewModelTest.kt`, delete line 65:
 
@@ -353,7 +353,7 @@ Value classes rather than enums: the contract calls these "shared across message
 Create `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttVocabularyTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -408,7 +408,7 @@ class MqttVocabularyTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttVocabularyTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttVocabularyTest"`
 Expected: FAIL — `Unresolved reference: ErrorCode`.
 
 - [ ] **Step 3: Write the implementation**
@@ -416,7 +416,7 @@ Expected: FAIL — `Unresolved reference: ErrorCode`.
 Create `app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttVocabulary.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 /**
  * Contract v3.0 `errorCode`. A value class rather than an enum: the contract defines these as
@@ -468,7 +468,7 @@ value class NextAction(val raw: String) {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttVocabularyTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttVocabularyTest"`
 Expected: PASS (6 tests).
 
 - [ ] **Step 5: Commit**
@@ -497,7 +497,7 @@ git commit -m "feat(mqtt): add v3 errorCode and nextAction vocabulary"
 Create `app/src/test/java/com/ppnam/station2aa/data/mqtt/dto/ResponseEnvelopeTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt.dto
+package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 import com.google.gson.Gson
 import org.junit.Assert.assertEquals
@@ -572,7 +572,7 @@ class ResponseEnvelopeTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.dto.ResponseEnvelopeTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelopeTest"`
 Expected: FAIL — `Unresolved reference: ResponseEnvelope`.
 
 - [ ] **Step 3: Write the implementation**
@@ -580,7 +580,7 @@ Expected: FAIL — `Unresolved reference: ResponseEnvelope`.
 Create `app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/ResponseEnvelope.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt.dto
+package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 /**
  * The envelope every contract v3.0 response carries. Parsed from the same flat JSON object as the
@@ -607,7 +607,7 @@ data class ResponseEnvelope(
 Create `app/src/main/java/com/ppnam/station2aa/data/mqtt/MqttOutcome.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 /**
  * The result of one contract v3.0 request/response exchange.
@@ -654,7 +654,7 @@ enum class FailureKind {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.dto.ResponseEnvelopeTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelopeTest"`
 Expected: PASS (3 tests).
 
 - [ ] **Step 5: Commit**
@@ -685,7 +685,7 @@ This is the heart of "the transport owns the envelope": a pure function, fully t
 Create `app/src/test/java/com/ppnam/station2aa/data/mqtt/RequestEnvelopeTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.google.gson.Gson
 import com.google.gson.JsonParser
@@ -776,7 +776,7 @@ class RequestEnvelopeTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.RequestEnvelopeTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.RequestEnvelopeTest"`
 Expected: FAIL — `Unresolved reference: RequestEnvelope`.
 
 - [ ] **Step 3: Write the implementation**
@@ -784,7 +784,7 @@ Expected: FAIL — `Unresolved reference: RequestEnvelope`.
 Create `app/src/main/java/com/ppnam/station2aa/data/mqtt/RequestEnvelope.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.google.gson.Gson
 
@@ -827,7 +827,7 @@ object RequestEnvelope {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.RequestEnvelopeTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.RequestEnvelopeTest"`
 Expected: PASS (7 tests).
 
 - [ ] **Step 5: Commit**
@@ -860,14 +860,14 @@ git commit -m "feat(mqtt): transport-owned request envelope injection"
 Create `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttRequestCorrelationTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.google.gson.JsonParser
-import com.ppnam.station2aa.data.local.OfflineQueueDao
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.data.settings.SettingsRepository
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueDao
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -1078,7 +1078,7 @@ class MqttRequestCorrelationTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRequestCorrelationTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRequestCorrelationTest"`
 Expected: FAIL — compilation error: `MqttRepositoryImpl` has no `sessionHolder` parameter, no `publishFn`, no `request`, no `handleIncomingResponse`.
 
 - [ ] **Step 3: Add request() to the repository interface**
@@ -1098,7 +1098,7 @@ In `app/src/main/java/com/ppnam/station2aa/domain/repository/MqttRepository.kt`,
 Add the import:
 
 ```kotlin
-import com.ppnam.station2aa.data.mqtt.MqttOutcome
+import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
 ```
 
 - [ ] **Step 4: Implement in MqttRepositoryImpl**
@@ -1119,8 +1119,8 @@ Add these imports:
 
 ```kotlin
 import androidx.annotation.VisibleForTesting
-import com.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import java.util.concurrent.ConcurrentHashMap
 ```
 
@@ -1263,12 +1263,12 @@ In `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttRepositoryImplTest.kt`,
 Add the import:
 
 ```kotlin
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 ```
 
 - [ ] **Step 6: Run the tests**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.*"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.*"`
 Expected: PASS — 10 new correlation tests plus the existing suite.
 
 - [ ] **Step 7: Commit**
@@ -1300,12 +1300,12 @@ The rule that must not be broken: **a retry republishes the identical byte array
 Create `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttRequestRetryTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
-import com.ppnam.station2aa.data.local.OfflineQueueDao
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.data.settings.SettingsRepository
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueDao
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -1434,7 +1434,7 @@ class MqttRequestRetryTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRequestRetryTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRequestRetryTest"`
 Expected: FAIL — `Unresolved reference: REQUEST_MAX_ATTEMPTS`; and `an unanswered request is retried` fails with `published.size == 1`.
 
 - [ ] **Step 3: Add the retry loop**
@@ -1487,12 +1487,12 @@ Delete the now-superseded `val json = ...` to-byte-array conversion inside the o
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttRequestRetryTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttRequestRetryTest"`
 Expected: PASS (6 tests).
 
 - [ ] **Step 5: Run the full MQTT suite for regressions**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.*"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.*"`
 Expected: PASS.
 
 - [ ] **Step 6: Commit**
@@ -1525,11 +1525,11 @@ Today "connected" only means "connected to the broker", which can be true while 
 Create `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttStationPresenceTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
-import com.ppnam.station2aa.data.local.OfflineQueueDao
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.data.settings.SettingsRepository
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueDao
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -1593,7 +1593,7 @@ class MqttStationPresenceTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttStationPresenceTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttStationPresenceTest"`
 Expected: FAIL — `Unresolved reference: stationOnline`.
 
 - [ ] **Step 3: Add stationOnline to the interface**
@@ -1739,11 +1739,11 @@ From `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttRepositoryImplTest.kt
 - `publishTyped is a silent no-op when disconnected`
 - `sendTyped queues when disconnected and offline queue allowed`
 
-Delete the now-unused imports `com.ppnam.station2aa.data.local.OfflineQueueEntity` and `com.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse` if the compiler flags them.
+Delete the now-unused imports `com.mitas.ppnam.station2aa.data.local.OfflineQueueEntity` and `com.mitas.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse` if the compiler flags them.
 
 - [ ] **Step 6: Run the tests**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.*"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.*"`
 Expected: PASS — 6 new presence tests plus the existing MQTT suite.
 
 - [ ] **Step 7: Commit**
@@ -1778,11 +1778,11 @@ Every request carries a device-clock `timestampUtc` that must fall inside Statio
 Create `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttClockSkewTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
-import com.ppnam.station2aa.data.local.OfflineQueueDao
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.data.settings.SettingsRepository
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueDao
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -1873,7 +1873,7 @@ class MqttClockSkewTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttClockSkewTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttClockSkewTest"`
 Expected: FAIL — `Unresolved reference: nowFn`, `clockSkewMillis`, `CLOCK_SKEW_WARN_MS`.
 
 - [ ] **Step 3: Add clockSkewMillis to the interface**
@@ -1952,12 +1952,12 @@ Call it from `handleIncomingResponse`, immediately after the envelope parses and
 
 - [ ] **Step 5: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttClockSkewTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttClockSkewTest"`
 Expected: PASS (8 tests).
 
 - [ ] **Step 6: Run the full MQTT suite**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.*"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.*"`
 Expected: PASS.
 
 - [ ] **Step 7: Commit**
@@ -1993,7 +1993,7 @@ Enum constant names deliberately match the wire values exactly so Gson maps them
 Create `app/src/test/java/com/ppnam/station2aa/domain/model/HopperBoardTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 import com.google.gson.Gson
 import org.junit.Assert.assertEquals
@@ -2098,7 +2098,7 @@ class HopperBoardTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.model.HopperBoardTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.model.HopperBoardTest"`
 Expected: FAIL — `Unresolved reference: HopperBoardEntry`.
 
 - [ ] **Step 3: Write the implementation**
@@ -2106,7 +2106,7 @@ Expected: FAIL — `Unresolved reference: HopperBoardEntry`.
 Create `app/src/main/java/com/ppnam/station2aa/domain/model/HopperBoard.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 /**
  * Contract v3.0 Hopper status. Enum constant names match the wire values exactly so Gson maps them
@@ -2153,7 +2153,7 @@ data class HopperBoardEntry(
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.model.HopperBoardTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.model.HopperBoardTest"`
 Expected: PASS (5 tests).
 
 - [ ] **Step 5: Delete the superseded model**
@@ -2207,16 +2207,16 @@ Note `holding_recovery_requested` carries `auditReason` but **no manager credent
 Create `app/src/test/java/com/ppnam/station2aa/domain/usecase/PalletUseCaseTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.FailureKind
-import com.ppnam.station2aa.data.mqtt.MqttOutcome
-import com.ppnam.station2aa.data.mqtt.NextAction
-import com.ppnam.station2aa.data.mqtt.dto.HoldingRecoveryPayload
-import com.ppnam.station2aa.data.mqtt.dto.PalletLookupPayload
-import com.ppnam.station2aa.data.mqtt.dto.PalletLookupResultResponse
-import com.ppnam.station2aa.domain.model.PalletState
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
+import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
+import com.mitas.ppnam.station2aa.data.mqtt.NextAction
+import com.mitas.ppnam.station2aa.data.mqtt.dto.HoldingRecoveryPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.PalletLookupPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.PalletLookupResultResponse
+import com.mitas.ppnam.station2aa.domain.model.PalletState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -2389,7 +2389,7 @@ class PalletUseCaseTest {
         stubLookup(
             MqttOutcome.Rejected(
                 body = PalletLookupResultResponse(),
-                errorCode = com.ppnam.station2aa.data.mqtt.ErrorCode.SESSION_REQUIRED,
+                errorCode = com.mitas.ppnam.station2aa.data.mqtt.ErrorCode.SESSION_REQUIRED,
                 reason = "No valid session on this device.",
                 nextAction = NextAction.LOGIN,
             )
@@ -2490,7 +2490,7 @@ class PalletUseCaseTest {
         stubRecovery(
             MqttOutcome.Rejected(
                 body = PalletLookupResultResponse(),
-                errorCode = com.ppnam.station2aa.data.mqtt.ErrorCode.STATE_CONFLICT,
+                errorCode = com.mitas.ppnam.station2aa.data.mqtt.ErrorCode.STATE_CONFLICT,
                 reason = "Consumed pallets cannot be recovered.",
                 nextAction = NextAction.NONE,
             )
@@ -2506,7 +2506,7 @@ class PalletUseCaseTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.PalletUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.PalletUseCaseTest"`
 Expected: FAIL — `Unresolved reference: PalletUseCase`.
 
 - [ ] **Step 3: Write the DTOs**
@@ -2514,7 +2514,7 @@ Expected: FAIL — `Unresolved reference: PalletUseCase`.
 Create `app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/PalletMessages.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt.dto
+package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 /**
  * Message-specific fields only. The transport injects the envelope — see RequestEnvelope.
@@ -2565,7 +2565,7 @@ data class PalletLookupResultResponse(
 Create `app/src/main/java/com/ppnam/station2aa/domain/model/PalletInfo.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 /**
  * Contract v3.0 `palletState` — the axis every pallet decision keys off. A closed vocabulary: the
@@ -2629,16 +2629,16 @@ data class PalletInfo(
 Create `app/src/main/java/com/ppnam/station2aa/domain/usecase/PalletUseCase.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.FailureKind
-import com.ppnam.station2aa.data.mqtt.MqttOutcome
-import com.ppnam.station2aa.data.mqtt.dto.HoldingRecoveryPayload
-import com.ppnam.station2aa.data.mqtt.dto.PalletLookupPayload
-import com.ppnam.station2aa.data.mqtt.dto.PalletLookupResultResponse
-import com.ppnam.station2aa.domain.model.PalletInfo
-import com.ppnam.station2aa.domain.model.PalletState
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
+import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
+import com.mitas.ppnam.station2aa.data.mqtt.dto.HoldingRecoveryPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.PalletLookupPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.PalletLookupResultResponse
+import com.mitas.ppnam.station2aa.domain.model.PalletInfo
+import com.mitas.ppnam.station2aa.domain.model.PalletState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -2717,7 +2717,7 @@ class PalletUseCase @Inject constructor(
 
 - [ ] **Step 6: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.PalletUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.PalletUseCaseTest"`
 Expected: PASS (16 tests).
 
 - [ ] **Step 7: Delete the superseded legacy use case and model**
@@ -2764,14 +2764,14 @@ The screen offers recovery when the response says `recoverable`, per the contrac
 Create `app/src/test/java/com/ppnam/station2aa/ui/rfid/RfidViewModelTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.rfid
+package com.mitas.ppnam.station2aa.ui.rfid
 
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.model.PalletInfo
-import com.ppnam.station2aa.domain.model.PalletState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.PalletUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.model.PalletInfo
+import com.mitas.ppnam.station2aa.domain.model.PalletState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.PalletUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -2821,7 +2821,7 @@ class RfidViewModelTest {
         val mqtt: MqttRepository = mock()
         whenever(mqtt.connectionState).thenReturn(
             kotlinx.coroutines.flow.MutableStateFlow(
-                com.ppnam.station2aa.domain.repository.MqttConnectionState.CONNECTED
+                com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState.CONNECTED
             )
         )
         val queue: OfflineQueueRepository = mock()
@@ -2953,7 +2953,7 @@ class RfidViewModelTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.rfid.RfidViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.rfid.RfidViewModelTest"`
 Expected: FAIL — `Unresolved reference: RfidUiState.Result`, `recoverCurrentPallet`.
 
 - [ ] **Step 3: Rewrite the ViewModel**
@@ -2961,17 +2961,17 @@ Expected: FAIL — `Unresolved reference: RfidUiState.Result`, `recoverCurrentPa
 Replace the entire contents of `app/src/main/java/com/ppnam/station2aa/ui/rfid/RfidViewModel.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.rfid
+package com.mitas.ppnam.station2aa.ui.rfid
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.model.PalletInfo
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.PalletUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.model.PalletInfo
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.PalletUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
@@ -3070,7 +3070,7 @@ class RfidViewModel @Inject constructor(
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.rfid.RfidViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.rfid.RfidViewModelTest"`
 Expected: PASS (8 tests).
 
 - [ ] **Step 5: Update the screen**
@@ -3255,17 +3255,17 @@ Two v3 changes are pure renames and land here: `reader_login_requested` and `log
 Replace the entire contents of `app/src/test/java/com/ppnam/station2aa/domain/usecase/AuthUseCaseTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.ErrorCode
-import com.ppnam.station2aa.data.mqtt.FailureKind
-import com.ppnam.station2aa.data.mqtt.MqttOutcome
-import com.ppnam.station2aa.data.mqtt.NextAction
-import com.ppnam.station2aa.data.mqtt.dto.BadgeLoginPayload
-import com.ppnam.station2aa.data.mqtt.dto.CredentialsLoginPayload
-import com.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
+import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
+import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
+import com.mitas.ppnam.station2aa.data.mqtt.NextAction
+import com.mitas.ppnam.station2aa.data.mqtt.dto.BadgeLoginPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.CredentialsLoginPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -3408,7 +3408,7 @@ class AuthUseCaseTest {
     @Test
     fun `logout sends the envelope-only request and clears the session`() = runTest {
         sessionHolder.set(
-            com.ppnam.station2aa.data.session.OperatorSession(
+            com.mitas.ppnam.station2aa.data.session.OperatorSession(
                 operatorSessionId = "session-id",
                 operatorId = "OP-001",
                 operatorName = "Operator One",
@@ -3423,7 +3423,7 @@ class AuthUseCaseTest {
         verify(mqtt).request(
             eq("reader_logout_requested"),
             eq("operator_context"),
-            eq(com.ppnam.station2aa.data.mqtt.EmptyPayload),
+            eq(com.mitas.ppnam.station2aa.data.mqtt.EmptyPayload),
             eq(null),
             eq(OperatorContextResponse::class.java),
         )
@@ -3433,7 +3433,7 @@ class AuthUseCaseTest {
     @Test
     fun `logout clears the local session even when Station 2 never answers`() = runTest {
         sessionHolder.set(
-            com.ppnam.station2aa.data.session.OperatorSession(
+            com.mitas.ppnam.station2aa.data.session.OperatorSession(
                 operatorSessionId = "session-id",
                 operatorId = "OP-001",
                 operatorName = "Operator One",
@@ -3454,7 +3454,7 @@ class AuthUseCaseTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.AuthUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.AuthUseCaseTest"`
 Expected: FAIL — `Unresolved reference: CredentialsLoginPayload`.
 
 - [ ] **Step 3: Rewrite the auth DTOs**
@@ -3462,7 +3462,7 @@ Expected: FAIL — `Unresolved reference: CredentialsLoginPayload`.
 Replace the entire contents of `app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/AuthMessages.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt.dto
+package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 /**
  * v3 collapses v2's two login topics (reader_login_requested / login_tag_scanned) into one
@@ -3509,17 +3509,17 @@ data class OperatorContextResponse(
 Replace the entire contents of `app/src/main/java/com/ppnam/station2aa/domain/usecase/AuthUseCase.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.EmptyPayload
-import com.ppnam.station2aa.data.mqtt.FailureKind
-import com.ppnam.station2aa.data.mqtt.MqttOutcome
-import com.ppnam.station2aa.data.mqtt.dto.BadgeLoginPayload
-import com.ppnam.station2aa.data.mqtt.dto.CredentialsLoginPayload
-import com.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.EmptyPayload
+import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
+import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
+import com.mitas.ppnam.station2aa.data.mqtt.dto.BadgeLoginPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.CredentialsLoginPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.OperatorContextResponse
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import javax.inject.Inject
 
 sealed class LoginMethod {
@@ -3618,7 +3618,7 @@ with:
 
 - [ ] **Step 6: Run the tests**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.*"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.*"`
 Expected: PASS — 9 auth tests plus the 16 pallet tests.
 
 - [ ] **Step 7: Commit**
@@ -4314,7 +4314,7 @@ git rm app/src/main/java/com/ppnam/station2aa/data/local/OfflineQueueEntity.kt \
 Replace `app/src/main/java/com/ppnam/station2aa/data/local/AppDatabase.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.local
+package com.mitas.ppnam.station2aa.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

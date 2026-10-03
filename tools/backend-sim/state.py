@@ -105,6 +105,11 @@ class World:
         # 4.1 SCRAM: in-flight challenges and issued single-use manager tokens.
         self.scram_challenges = {}  # challengeId -> challenge dict
         self.auth_tokens = {}       # token -> {operator, deviceId, managerAction, actionTarget, ...}
+        # rev2.1
+        self.rev2_jobs = {}           # JC -> job dict (the General `job` snapshot shape)
+        self.rev2_preparations = {}   # PREP_ id -> preparation dict
+        self.general_readers = set()  # devices that made an authenticated General request
+        self.auth_replies = {}        # (device, suffix, messageId) -> {"body", "data", "expires"}
         # 4.1 cross-area mixer plans. Keyed by collectionId; saved in Station 2 (WPF), never by
         # the handheld — the simulator seeds/creates them the same way.
         self.mix_plans = {}         # collectionId -> plan dict
@@ -133,6 +138,10 @@ class World:
             for c in sorted(self.collections.values(), key=lambda c: c["collectionId"])
         )
         return hashlib.sha256(material.encode("utf-8")).hexdigest()[:12]
+
+    def expire_auth_replies(self, now):
+        for key in [k for k, v in self.auth_replies.items() if v["expires"] < now]:
+            del self.auth_replies[key]
 
     def next_challenge_id(self):
         self._counters["CHL"] += 1

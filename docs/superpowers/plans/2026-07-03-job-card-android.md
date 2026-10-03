@@ -12,7 +12,7 @@
 
 - Design spec: `docs/superpowers/specs/2026-07-03-job-card-lifecycle-design.md` — every requirement below traces to §B1/§B2/§B3 there.
 - Backend dependency: `docs/superpowers/plans/2026-07-03-job-card-backend.md` (in the sibling `PPNAM-Station-2` repo) implements the server side these calls target. This plan's own tests all mock `MqttRepository`, so it does not require the backend plan to be executed first — but end-to-end manual verification (noted per task) does.
-- Test command: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.<ClassName>"` (run from `C:\Dev\PPNAM_Station_2_AA`, Git Bash).
+- Test command: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.<ClassName>"` (run from `C:\Dev\PPNAM_Station_2_AA`, Git Bash).
 - This project has no Compose UI test harness today (confirmed: only unit tests exist under `app/src/test`). UI-only steps (screen composition) are verified manually per-task rather than with an automated test — noted explicitly where that applies, matching how the companion reconnection-fix plan already handles its one untestable step.
 - Badge-based manager approval is explicitly **out of scope this pass** (per spec §B3) — only username/password approval UI is built. The `managerBadgeTag` wire field exists for forward-compatibility but the app always sends it blank.
 
@@ -36,7 +36,7 @@
 Create `app/src/test/java/com/ppnam/station2aa/domain/model/BomLineTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 import org.junit.Assert.*
 import org.junit.Test
@@ -112,10 +112,10 @@ Add to `MixingUseCaseTest.kt`, in the `lookupJob` section (after `` `lookupJob s
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.model.BomLineTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.model.BomLineTest"`
 Expected: FAIL to compile — `BomLine` has no `remainingQty` parameter or `isFullyAllocated` member yet.
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
 Expected: FAIL — same compile error propagates.
 
 - [ ] **Step 3: Extend `BomLine`**
@@ -184,10 +184,10 @@ to:
 
 - [ ] **Step 5: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.model.BomLineTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.model.BomLineTest"`
 Expected: PASS.
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
 Expected: PASS (all tests, including the two pre-existing backflush-separation tests, which don't set `remainingQuantity` so default to `0.0` — i.e. fully allocated by default, which doesn't break their assertions since they don't check `remainingQty`).
 
 - [ ] **Step 6: Update `IngredientScanScreen` to treat fully-allocated lines as satisfied**
@@ -437,7 +437,7 @@ Add to `MixingViewModelTest.kt`, after the `cancelJob` test:
     @Test
     fun `loadActiveJobs populates activeJobs on success`() = runTest {
         val jobs = listOf(
-            com.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary(
+            com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary(
                 jobCardNumber = "510019068", productName = "Layer Mash", status = "Open"
             )
         )
@@ -464,10 +464,10 @@ Add to `MixingViewModelTest.kt`, after the `cancelJob` test:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
 Expected: FAIL to compile — `ActiveJobCardsListResponse`/`ActiveJobCardSummary` and `fetchActiveJobCards` don't exist yet.
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: FAIL to compile — `activeJobs`/`activeJobsError`/`loadActiveJobs` don't exist yet.
 
 - [ ] **Step 3: Add the DTOs**
@@ -507,7 +507,7 @@ data class ActiveJobCardsListResponse(
 
 - [ ] **Step 4: Add `fetchActiveJobCards` to `MixingUseCase`**
 
-Add the import `import com.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsListResponse`, `import com.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsRequest`, and `import com.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary` to `MixingUseCase.kt`.
+Add the import `import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsListResponse`, `import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsRequest`, and `import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary` to `MixingUseCase.kt`.
 
 Add this method (after `lookupJob`):
 
@@ -547,7 +547,7 @@ Add this method (after `lookupJob`):
 
 - [ ] **Step 5: Add `activeJobs`/`loadActiveJobs` to `MixingViewModel`**
 
-Add the import `import com.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary` to `MixingViewModel.kt`.
+Add the import `import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary` to `MixingViewModel.kt`.
 
 Add these members (after `pendingCount`):
 
@@ -576,10 +576,10 @@ Add this method (after `lookupJob`):
 
 - [ ] **Step 6: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
 Expected: PASS.
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: PASS.
 
 - [ ] **Step 7: Commit**
@@ -782,7 +782,7 @@ fun JobLookupScreen(
 
 Note the removed `verticalArrangement = Arrangement.Center` on the outer `Column` — with a variable-height job list above the form, centering the whole column would jump the form around as the list loads; top-aligned (the `Column` default) keeps the form in a stable position.
 
-Add the missing imports at the top of the file: `androidx.compose.foundation.clickable`, `androidx.compose.foundation.layout.heightIn`, `androidx.compose.foundation.lazy.LazyColumn`, `androidx.compose.foundation.lazy.items`, `androidx.compose.material3.Card`, `androidx.compose.material3.CardDefaults`, `com.ppnam.station2aa.ui.theme.GraphiteSurface`, `com.ppnam.station2aa.ui.theme.GraphiteBorder`, `com.ppnam.station2aa.ui.theme.TextPrimary`, `com.ppnam.station2aa.ui.theme.TextMuted`.
+Add the missing imports at the top of the file: `androidx.compose.foundation.clickable`, `androidx.compose.foundation.layout.heightIn`, `androidx.compose.foundation.lazy.LazyColumn`, `androidx.compose.foundation.lazy.items`, `androidx.compose.material3.Card`, `androidx.compose.material3.CardDefaults`, `com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface`, `com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder`, `com.mitas.ppnam.station2aa.ui.theme.TextPrimary`, `com.mitas.ppnam.station2aa.ui.theme.TextMuted`.
 
 - [ ] **Step 2: Compile**
 
@@ -896,7 +896,7 @@ In `MixingUseCaseTest.kt`, delete the two existing `notifyJobCardCancelled` test
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
 Expected: FAIL to compile — `PreMixCancelResultResponse` doesn't exist and `cancelJob` doesn't exist yet (the old `notifyJobCardCancelled` tests were just deleted, so no conflicting failures from those).
 
 - [ ] **Step 3: Extend `PreMixCancelledRequest` and add `PreMixCancelResultResponse`**
@@ -960,7 +960,7 @@ data class PreMixCancelResultResponse(
 
 - [ ] **Step 4: Replace `notifyJobCardCancelled` with `cancelJob`**
 
-In `MixingUseCase.kt`, add the import `import com.ppnam.station2aa.data.mqtt.dto.PreMixCancelResultResponse`.
+In `MixingUseCase.kt`, add the import `import com.mitas.ppnam.station2aa.data.mqtt.dto.PreMixCancelResultResponse`.
 
 Change:
 
@@ -1031,7 +1031,7 @@ to:
 
 - [ ] **Step 5: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.MixingUseCaseTest"`
 Expected: PASS.
 
 - [ ] **Step 6: Commit**
@@ -1055,7 +1055,7 @@ git commit -m "feat(mixing): replace fire-and-forget premix_cancelled with a rea
 
 - [ ] **Step 1: Write the failing tests**
 
-In `MixingViewModelTest.kt`, add the import `import com.ppnam.station2aa.data.session.OperatorSession` and `import com.ppnam.station2aa.data.session.OperatorSessionHolder`.
+In `MixingViewModelTest.kt`, add the import `import com.mitas.ppnam.station2aa.data.session.OperatorSession` and `import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder`.
 
 Change the `setup()` method from:
 
@@ -1156,7 +1156,7 @@ Change the existing `` `cancelJob resets state and scanned ingredients so a new 
         assertTrue(viewModel.scannedIngredients.value.isNotEmpty())
 
         whenever(mockUseCase.cancelJob(any(), any(), any(), any(), any())).thenReturn(
-            Result.success(com.ppnam.station2aa.data.mqtt.dto.PreMixCancelResultResponse(accepted = true))
+            Result.success(com.mitas.ppnam.station2aa.data.mqtt.dto.PreMixCancelResultResponse(accepted = true))
         )
         val outcomes = mutableListOf<CancelOutcome>()
         val job = launch(testDispatcher) { viewModel.cancelOutcome.collect { outcomes.add(it) } }
@@ -1199,7 +1199,7 @@ Change the existing `` `cancelJob resets state and scanned ingredients so a new 
         viewModel.lookupJob("510019068")
         advanceUntilIdle()
         whenever(mockUseCase.cancelJob(any(), any(), any(), any(), any())).thenReturn(
-            Result.success(com.ppnam.station2aa.data.mqtt.dto.PreMixCancelResultResponse(accepted = true))
+            Result.success(com.mitas.ppnam.station2aa.data.mqtt.dto.PreMixCancelResultResponse(accepted = true))
         )
 
         viewModel.cancelJob(managerUsername = "Manager1", managerPassword = "5678")
@@ -1230,7 +1230,7 @@ Change the existing `` `cancelJob resets state and scanned ingredients so a new 
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: FAIL to compile — `MixingViewModel`'s constructor doesn't take a fifth `OperatorSessionHolder` parameter yet, `MixingUiState.Cancelling`/`CancelOutcome`/`cancelOutcome`/`operatorCanCancelDirectly` don't exist, and `useCase.cancelJob(...)`'s 5-arg signature doesn't match the old `notifyJobCardCancelled`.
 
 - [ ] **Step 3: Add `Cancelling` state and `CancelOutcome`**
@@ -1269,7 +1269,7 @@ sealed class MixingUiState {
 Add the imports:
 
 ```kotlin
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 ```
 
 Change the constructor from:
@@ -1381,7 +1381,7 @@ with:
 
 - [ ] **Step 5: Run tests to verify they pass**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: PASS.
 
 - [ ] **Step 6: Fix the DI graph and any other constructor call sites**
@@ -1578,7 +1578,7 @@ to:
     }
 ```
 
-Add the missing imports: `androidx.compose.ui.text.input.PasswordVisualTransformation`, `com.ppnam.station2aa.ui.mixing.MixingViewModel` (may already be implicitly in scope since this file is in the same package — confirm no import is actually needed since `MixingViewModel`/`MixingUiState` are already same-package types used elsewhere in this file).
+Add the missing imports: `androidx.compose.ui.text.input.PasswordVisualTransformation`, `com.mitas.ppnam.station2aa.ui.mixing.MixingViewModel` (may already be implicitly in scope since this file is in the same package — confirm no import is actually needed since `MixingViewModel`/`MixingUiState` are already same-package types used elsewhere in this file).
 
 - [ ] **Step 2: Compile**
 

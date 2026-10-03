@@ -1,7 +1,7 @@
 # Test run — 2026-07-23
 
 **Device:** Chainway C72 `HC720DE260100322`, 1080×1920 @ 480 dpi
-**App:** `com.ppnam.station2aa` v1.0 (1), branch `master` + this session's fixes
+**App:** `com.mitas.ppnam.station2aa` v1.0 (1), branch `master` + this session's fixes
 **Broker:** `mqtt.sysone.co.za:443` WSS/TLS
 **Backend:** **live Station 2** (`PPNAM/station_2/status` retained `online`)
 **Sim blocks:** not run — deferred by request until the backend fixes land

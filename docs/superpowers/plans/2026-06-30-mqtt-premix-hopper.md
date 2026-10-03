@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Package root: `com.ppnam.station2aa`
+- Package root: `com.mitas.ppnam.station2aa`
 - All new domain models go in `domain/model/`
 - Tests use Mockito-Kotlin (`mock()`, `whenever()`, `verify()`) — NOT MockK
 - Tests use `runTest` + `UnconfinedTestDispatcher` matching existing patterns in `SettingsViewModelTest`
@@ -88,7 +88,7 @@ data class BomLine(
 Replace the entire file content:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 import java.time.Instant
 
@@ -115,7 +115,7 @@ enum class PreMixStatus { IN_PROGRESS, COMPLETE, ALLOCATED }
 - [ ] **Step 3: Create `HopperStatus.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 data class HopperStatus(
     val hopperCode: String,
@@ -129,7 +129,7 @@ enum class HopperAvailability { AVAILABLE, IN_USE, OFFLINE }
 - [ ] **Step 4: Create `IngredientValidationResult.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 sealed class IngredientValidationResult {
     data class Valid(val bomLine: BomLine) : IngredientValidationResult()
@@ -180,11 +180,11 @@ fun hopperStatus(stationName: String): String =
 The full updated interface in `MqttRepository.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.repository
+package com.mitas.ppnam.station2aa.domain.repository
 
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.model.AppSettings
-import com.ppnam.station2aa.domain.model.HopperStatus
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.model.AppSettings
+import com.mitas.ppnam.station2aa.domain.model.HopperStatus
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -243,7 +243,7 @@ private fun handleHopperStatus(bytes: ByteArray) {
 Add the missing import at the top of `MqttRepositoryImpl.kt`:
 
 ```kotlin
-import com.ppnam.station2aa.domain.model.HopperStatus
+import com.mitas.ppnam.station2aa.domain.model.HopperStatus
 ```
 
 - [ ] **Step 4: Write failing tests in `MqttRepositoryImplTest.kt`**
@@ -278,8 +278,8 @@ fun `hopperStatusUpdates does not crash on malformed payload`() = runTest {
 Add these imports at the top of `MqttRepositoryImplTest.kt`:
 
 ```kotlin
-import com.ppnam.station2aa.domain.model.HopperAvailability
-import com.ppnam.station2aa.domain.model.HopperStatus
+import com.mitas.ppnam.station2aa.domain.model.HopperAvailability
+import com.mitas.ppnam.station2aa.domain.model.HopperStatus
 ```
 
 - [ ] **Step 5: Run the new tests**
@@ -321,13 +321,13 @@ git commit -m "feat(mqtt): subscribe to hopper/status broadcast topic; expose ho
 Replace the entire content of `MixingUseCaseTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.local.BomCacheDao
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.model.IngredientValidationResult
-import com.ppnam.station2aa.domain.model.ScannedIngredient
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.local.BomCacheDao
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.model.IngredientValidationResult
+import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -558,17 +558,17 @@ Expected: FAIL — `validateIngredient` still returns `Result<BomLine>`, new met
 Replace the entire file at `app/src/main/java/com/ppnam/station2aa/domain/usecase/MixingUseCase.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
 import com.google.gson.Gson
-import com.ppnam.station2aa.data.local.BomCacheDao
-import com.ppnam.station2aa.data.local.BomCacheEntity
-import com.ppnam.station2aa.data.mqtt.MqttResult
-import com.ppnam.station2aa.domain.model.BomLine
-import com.ppnam.station2aa.domain.model.IngredientValidationResult
-import com.ppnam.station2aa.domain.model.ProductionOrder
-import com.ppnam.station2aa.domain.model.ScannedIngredient
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.local.BomCacheDao
+import com.mitas.ppnam.station2aa.data.local.BomCacheEntity
+import com.mitas.ppnam.station2aa.data.mqtt.MqttResult
+import com.mitas.ppnam.station2aa.domain.model.BomLine
+import com.mitas.ppnam.station2aa.domain.model.IngredientValidationResult
+import com.mitas.ppnam.station2aa.domain.model.ProductionOrder
+import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -721,19 +721,19 @@ git commit -m "feat(usecase): update MixingUseCase — richer validation, except
 Create `app/src/test/java/com/ppnam/station2aa/ui/mixing/MixingViewModelTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.model.BomLine
-import com.ppnam.station2aa.domain.model.HopperAvailability
-import com.ppnam.station2aa.domain.model.HopperStatus
-import com.ppnam.station2aa.domain.model.IngredientValidationResult
-import com.ppnam.station2aa.domain.model.ProductionOrder
-import com.ppnam.station2aa.domain.model.ScannedIngredient
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.MixingUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.model.BomLine
+import com.mitas.ppnam.station2aa.domain.model.HopperAvailability
+import com.mitas.ppnam.station2aa.domain.model.HopperStatus
+import com.mitas.ppnam.station2aa.domain.model.IngredientValidationResult
+import com.mitas.ppnam.station2aa.domain.model.ProductionOrder
+import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.MixingUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -906,20 +906,20 @@ Expected: FAIL — `hopperCode`, `requestSupervisorOverride`, `submitSupervisorT
 Replace the entire file at `app/src/main/java/com/ppnam/station2aa/ui/mixing/MixingViewModel.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.local.OfflineQueueRepository
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.model.HopperStatus
-import com.ppnam.station2aa.domain.model.IngredientValidationResult
-import com.ppnam.station2aa.domain.model.ProductionOrder
-import com.ppnam.station2aa.domain.model.ScannedIngredient
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.MixingUseCase
+import com.mitas.ppnam.station2aa.data.local.OfflineQueueRepository
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.model.HopperStatus
+import com.mitas.ppnam.station2aa.domain.model.IngredientValidationResult
+import com.mitas.ppnam.station2aa.domain.model.ProductionOrder
+import com.mitas.ppnam.station2aa.domain.model.ScannedIngredient
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.MixingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -1142,7 +1142,7 @@ git commit -m "feat(viewmodel): update MixingViewModel — exception flow, hoppe
 Replace the entire file:
 
 ```kotlin
-package com.ppnam.station2aa.navigation
+package com.mitas.ppnam.station2aa.navigation
 
 object NavRoutes {
     const val HOME = "home"
@@ -1210,23 +1210,23 @@ label = { Text("Hopper: $hopperCode", color = TextPrimary) },
 Replace the entire file:
 
 ```kotlin
-package com.ppnam.station2aa.navigation
+package com.mitas.ppnam.station2aa.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.ppnam.station2aa.ui.dashboard.DashboardScreen
-import com.ppnam.station2aa.ui.home.HomeScreen
-import com.ppnam.station2aa.ui.mixing.HopperScanScreen
-import com.ppnam.station2aa.ui.mixing.IngredientScanScreen
-import com.ppnam.station2aa.ui.mixing.JobLookupScreen
-import com.ppnam.station2aa.ui.mixing.PreMixCompleteScreen
-import com.ppnam.station2aa.ui.rajoo.MachineSelectScreen
-import com.ppnam.station2aa.ui.rajoo.PalletAllocScreen
-import com.ppnam.station2aa.ui.rfid.RfidRecoveryScreen
-import com.ppnam.station2aa.ui.settings.SettingsScreen
+import com.mitas.ppnam.station2aa.ui.dashboard.DashboardScreen
+import com.mitas.ppnam.station2aa.ui.home.HomeScreen
+import com.mitas.ppnam.station2aa.ui.mixing.HopperScanScreen
+import com.mitas.ppnam.station2aa.ui.mixing.IngredientScanScreen
+import com.mitas.ppnam.station2aa.ui.mixing.JobLookupScreen
+import com.mitas.ppnam.station2aa.ui.mixing.PreMixCompleteScreen
+import com.mitas.ppnam.station2aa.ui.rajoo.MachineSelectScreen
+import com.mitas.ppnam.station2aa.ui.rajoo.PalletAllocScreen
+import com.mitas.ppnam.station2aa.ui.rfid.RfidRecoveryScreen
+import com.mitas.ppnam.station2aa.ui.settings.SettingsScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController = rememberNavController()) {
@@ -1342,7 +1342,7 @@ git commit -m "feat(nav): replace mixer_code route with hopper_scan; delete Mixe
 - [ ] **Step 1: Create `HopperScanScreen.kt`**
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing
+package com.mitas.ppnam.station2aa.ui.mixing
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -1356,12 +1356,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.domain.model.HopperAvailability
-import com.ppnam.station2aa.domain.model.HopperStatus
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.*
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.domain.model.HopperAvailability
+import com.mitas.ppnam.station2aa.domain.model.HopperStatus
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.*
 import kotlinx.coroutines.flow.filterIsInstance
 
 @Composable
@@ -1555,7 +1555,7 @@ Add these imports at the top of `IngredientScanScreen.kt`:
 ```kotlin
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.WifiTethering
-import com.ppnam.station2aa.ui.components.ScanPromptCard
+import com.mitas.ppnam.station2aa.ui.components.ScanPromptCard
 ```
 
 Replace the `when (val state = uiState)` block (and `else` branch) entirely, inserting two new branches between `OrderLoaded` and `else`:

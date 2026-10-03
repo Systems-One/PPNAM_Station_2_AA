@@ -50,7 +50,7 @@ Tasks 1-2 extend the model and transport. Task 3 wires navigation. Task 4 is the
 Create `app/src/test/java/com/ppnam/station2aa/domain/model/SessionStateTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -116,11 +116,11 @@ Add to `AuthUseCaseTest`:
     }
 ```
 
-Add `import com.ppnam.station2aa.domain.model.SessionState` and `import java.time.Instant` to the test.
+Add `import com.mitas.ppnam.station2aa.domain.model.SessionState` and `import java.time.Instant` to the test.
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.domain.model.SessionStateTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.model.SessionStateTest"`
 Expected: FAIL — `Unresolved reference: SessionState`.
 
 - [ ] **Step 3: Create the enum**
@@ -128,7 +128,7 @@ Expected: FAIL — `Unresolved reference: SessionState`.
 Create `app/src/main/java/com/ppnam/station2aa/domain/model/SessionState.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
 /**
  * Contract v3.0 session state. Constant names match the wire values exactly.
@@ -189,7 +189,7 @@ data class OperatorSession(
 )
 ```
 
-Add imports `com.ppnam.station2aa.domain.model.SessionState` and `java.time.Instant`.
+Add imports `com.mitas.ppnam.station2aa.domain.model.SessionState` and `java.time.Instant`.
 
 - [ ] **Step 6: Map them in AuthUseCase**
 
@@ -228,7 +228,7 @@ In `AuthUseCase.login()`'s `Accepted` branch, replace the session construction:
             }
 ```
 
-Add imports `com.ppnam.station2aa.domain.model.SessionState` and `java.time.Instant`.
+Add imports `com.mitas.ppnam.station2aa.domain.model.SessionState` and `java.time.Instant`.
 
 - [ ] **Step 7: Run tests, then commit**
 
@@ -264,12 +264,12 @@ The transport already parses `errorCode` on every response and already holds `Op
 Create `app/src/test/java/com/ppnam/station2aa/data/mqtt/MqttSessionExpiryTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt
+package com.mitas.ppnam.station2aa.data.mqtt
 
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.data.settings.SettingsRepository
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -374,7 +374,7 @@ class MqttSessionExpiryTest {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.MqttSessionExpiryTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.MqttSessionExpiryTest"`
 Expected: FAIL — `a session_required rejection clears the local session` fails; the session is still present.
 
 - [ ] **Step 3: Implement**
@@ -402,7 +402,7 @@ In `MqttRepositoryImpl.parseOutcome`, in the branch that builds `MqttOutcome.Rej
 
 - [ ] **Step 4: Run, then commit**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.*"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.*"`
 Expected: PASS.
 
 ```bash
@@ -430,7 +430,7 @@ Task 2 clears the session; something must act on it. Making this a global naviga
 Create `app/src/main/java/com/ppnam/station2aa/ui/session/SessionWatcher.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.session
+package com.mitas.ppnam.station2aa.ui.session
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -439,9 +439,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.navigation.NavRoutes
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.navigation.NavRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -492,7 +492,7 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
     NavHost(navController = navController, startDestination = NavRoutes.LOGIN) {
 ```
 
-Add `import com.ppnam.station2aa.ui.session.SessionWatcher`.
+Add `import com.mitas.ppnam.station2aa.ui.session.SessionWatcher`.
 
 The existing `onLogout` handler in `JobLookupScreen` already navigates to login explicitly; leave it — `AuthUseCase.logout()` clears the session too, so the watcher would fire anyway. Belt and braces on a terminal action is fine.
 
@@ -566,7 +566,7 @@ Adapt to the file's existing setup (`viewModel`, `mockUseCase`, its `lookupJob` 
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: FAIL — `cancelJob refuses to send without manager credentials` fails, because today's `cancelJob` sends regardless.
 
 - [ ] **Step 3: Delete the gate**
@@ -668,9 +668,9 @@ The resolution logic goes in a **pure function**, separate from the composable, 
 Create `app/src/test/java/com/ppnam/station2aa/ui/components/ConnectionStatusTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.components
+package com.mitas.ppnam.station2aa.ui.components
 
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -737,7 +737,7 @@ class ConnectionStatusTest {
 
 - [ ] **Step 2: Run to verify failure**
 
-Run: `./gradlew testDebugUnitTest --tests "com.ppnam.station2aa.ui.components.ConnectionStatusTest"`
+Run: `./gradlew testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.components.ConnectionStatusTest"`
 Expected: FAIL — `Unresolved reference: resolveConnectionStatus`.
 
 - [ ] **Step 3: Implement**
@@ -745,9 +745,9 @@ Expected: FAIL — `Unresolved reference: resolveConnectionStatus`.
 Create `app/src/main/java/com/ppnam/station2aa/ui/components/ConnectionStatus.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.components
+package com.mitas.ppnam.station2aa.ui.components
 
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import kotlin.math.abs
 
 /** Beyond this, the device clock is a plausible cause of blanket message_expired rejections. */
@@ -810,7 +810,7 @@ Each ViewModel that feeds a scaffold must expose a combined status. Add to each 
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ConnectionStatus.Offline)
 ```
 
-Add imports: `kotlinx.coroutines.flow.combine`, `kotlinx.coroutines.flow.stateIn`, `kotlinx.coroutines.flow.SharingStarted`, `com.ppnam.station2aa.ui.components.ConnectionStatus`, `com.ppnam.station2aa.ui.components.resolveConnectionStatus`.
+Add imports: `kotlinx.coroutines.flow.combine`, `kotlinx.coroutines.flow.stateIn`, `kotlinx.coroutines.flow.SharingStarted`, `com.mitas.ppnam.station2aa.ui.components.ConnectionStatus`, `com.mitas.ppnam.station2aa.ui.components.resolveConnectionStatus`.
 
 Then in each screen, replace `val connectionState by viewModel.connectionState.collectAsState()` with `val connectionStatus by viewModel.connectionStatus.collectAsState()` and pass `status = connectionStatus` to `AppScaffold`. The screens are: `HomeScreen`, `LoginScreen`, `JobLookupScreen`, `IngredientScanScreen`, `RfidRecoveryScreen`, `SettingsScreen`.
 

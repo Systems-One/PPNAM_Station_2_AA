@@ -1,0 +1,222 @@
+[2026-07-27T10:18:17.193672+00:00] sniffer writing to C:\Dev\PPNAM_Station_2_AA\docs\test-runs\2026-07-27\capture\wire.jsonl
+[2026-07-27T10:18:17.200833+00:00] SNIFFER CONNECTED rc=Success
+[2026-07-27T10:18:17.208156+00:00] *** PPNAM/handheld_3/status action=None
+        offline
+[2026-07-27T10:18:17.208573+00:00] *** PPNAM/station_2/status action=None
+        online
+[2026-07-27T10:18:17.208774+00:00] *** PPNAM/handheld_1/status action=None
+        online
+[2026-07-27T10:18:26.738305+00:00] *** PPNAM/handheld_1/status action=None
+        offline
+[2026-07-27T10:18:38.506350+00:00] *** PPNAM/handheld_1/status action=None
+        online
+[2026-07-27T10:19:00.076718+00:00] --> PPNAM/handheld_1/req/scram_start_requested action=scram_start_requested
+        {"actionTarget":"","clientNonce":"514XInltLfwJPXDsLCHPQNVPpNKcOuri","managerAction":"","purpose":"login","username":"operator1","messageId":"4314109b-94c3-41f1-b83d-1df0e6552fac","schemaVersion":"4.1","deviceId":"handhel...(+73B)
+[2026-07-27T10:19:00.128819+00:00] <-- PPNAM/handheld_1/res/scram_challenge action=scram_challenge (52ms)
+        {"messageId": "S2-000001", "inResponseToMessageId": "4314109b-94c3-41f1-b83d-1df0e6552fac", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "", "timestampUtc": "2026-07-27T10:19:00.077531Z", "serve...(+566B)
+[2026-07-27T10:19:00.442523+00:00] --> PPNAM/handheld_1/req/scram_proof_requested action=scram_proof_requested
+        {"actionTarget":"","challengeId":"CHL_000001","clientFinalWithoutProof":"c\u003dbiws,r\u003d514XInltLfwJPXDsLCHPQNVPpNKcOuri1NGdFe7sPOJEjyCAAvF8CL1x","clientProof":"ltCgSBH6Cd7es+KOQT1vqL8hn+VO9OIqp42Ku1hZ1zw\u003d","man...(+198B)
+[2026-07-27T10:19:00.493784+00:00] <-- PPNAM/handheld_1/res/operator_context action=operator_context (51ms)
+        {"messageId": "S2-000002", "inResponseToMessageId": "71d20a3f-38ce-4c86-a5d7-ea0851e6aa5e", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+641B)
+[2026-07-27T10:19:02.018061+00:00] --> PPNAM/handheld_1/req/active_job_cards_requested action=active_job_cards_requested
+        {"pageSize":25,"messageId":"589fdfe2-3743-4158-806f-af4623c7c65a","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc":"2026-07-27T10:19:02.469649Z"}
+[2026-07-27T10:19:02.026999+00:00] <-- PPNAM/handheld_1/res/active_job_cards_list action=active_job_cards_list (9ms)
+        {"messageId": "S2-000003", "inResponseToMessageId": "589fdfe2-3743-4158-806f-af4623c7c65a", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+1846B)
+[2026-07-27T10:19:27.036025+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"0b18ba4a-a6ee-4e4d-9635-90df62c31192","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc":"2026-07-27T10:19:27.479917Z"}
+[2026-07-27T10:19:27.057207+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (21ms)
+        {"messageId": "S2-000004", "inResponseToMessageId": "0b18ba4a-a6ee-4e4d-9635-90df62c31192", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+28477B)
+[2026-07-27T10:19:34.187795+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"mixingArea":"RajooMachineMixing","messageId":"0c131195-eda4-4f72-bf0d-4ee07c426548","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc":"2026-07-27T10:19:34....(+9B)
+[2026-07-27T10:19:34.197934+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (10ms)
+        {"messageId": "S2-000005", "inResponseToMessageId": "0c131195-eda4-4f72-bf0d-4ee07c426548", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+5302B)
+[2026-07-27T10:19:34.265726+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"7e34f9d2-a6e2-4771-a392-1ac4022ee770","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc":"2026-07-27T10:19:34.718467Z"}
+[2026-07-27T10:19:34.285629+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (20ms)
+        {"messageId": "S2-000006", "inResponseToMessageId": "7e34f9d2-a6e2-4771-a392-1ac4022ee770", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+28477B)
+[2026-07-27T10:19:48.727542+00:00] --> PPNAM/handheld_1/req/collection_resume_requested action=collection_resume_requested
+        {"collectionId":"COL_000004","jobCardNumber":"510019068","messageId":"51bd4b01-99d0-4ace-aa41-0e09f642a473","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc"...(+61B)
+[2026-07-27T10:19:48.738439+00:00] <-- PPNAM/handheld_1/res/bom_loaded action=bom_loaded (11ms)
+        {"messageId": "S2-000007", "inResponseToMessageId": "51bd4b01-99d0-4ace-aa41-0e09f642a473", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+4794B)
+[2026-07-27T10:22:04.457991+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"d488400d-016d-4717-8f7f-795e6bb690ec","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc":"2026-07-27T10:22:04.906625Z"}
+[2026-07-27T10:22:04.475859+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (18ms)
+        {"messageId": "S2-000008", "inResponseToMessageId": "d488400d-016d-4717-8f7f-795e6bb690ec", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+28477B)
+[2026-07-27T10:22:06.402193+00:00] --> PPNAM/handheld_1/req/active_job_cards_requested action=active_job_cards_requested
+        {"pageSize":25,"messageId":"afc28a43-8e8f-4020-8a5c-a94ffa00e30b","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc":"2026-07-27T10:22:06.825418Z"}
+[2026-07-27T10:22:06.411578+00:00] <-- PPNAM/handheld_1/res/active_job_cards_list action=active_job_cards_list (9ms)
+        {"messageId": "S2-000009", "inResponseToMessageId": "afc28a43-8e8f-4020-8a5c-a94ffa00e30b", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+1846B)
+[2026-07-27T10:23:34.476164+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"7e91ed9a-ecb6-468d-985a-909557c199c9","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc":"2026-07-27T10:23:34.903492Z"}
+[2026-07-27T10:23:34.495272+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (19ms)
+        {"messageId": "S2-000010", "inResponseToMessageId": "7e91ed9a-ecb6-468d-985a-909557c199c9", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+28477B)
+[2026-07-27T10:23:41.747418+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"mixingArea":"MainMixingRoom","messageId":"d7123d33-9778-486b-9405-449c1bf75440","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc":"2026-07-27T10:23:42.1885...(+5B)
+[2026-07-27T10:23:41.762404+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (15ms)
+        {"messageId": "S2-000011", "inResponseToMessageId": "d7123d33-9778-486b-9405-449c1bf75440", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+19482B)
+[2026-07-27T10:23:41.841523+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"d209397f-4e6d-4452-a395-3cd0813b6eec","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc":"2026-07-27T10:23:42.291180Z"}
+[2026-07-27T10:23:41.869565+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (28ms)
+        {"messageId": "S2-000012", "inResponseToMessageId": "d209397f-4e6d-4452-a395-3cd0813b6eec", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+28477B)
+[2026-07-27T10:24:26.520398+00:00] --> PPNAM/handheld_1/req/machine_cycle_start_requested action=machine_cycle_start_requested
+        {"collectionId":"COL_000002","machineCode":"MXR-01","productionOrderDocumentNumber":"510019068","messageId":"fedb5e72-687b-457f-9878-1135ab33bb99","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-ha...(+100B)
+[2026-07-27T10:24:26.534157+00:00] <-- PPNAM/handheld_1/res/machine_cycle_result action=Started (14ms)
+        {"messageId": "S2-000013", "inResponseToMessageId": "fedb5e72-687b-457f-9878-1135ab33bb99", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+20299B)
+[2026-07-27T10:24:26.759128+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"773b2913-b687-4834-b18a-242ab4e526fb","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727101900","timestampUtc":"2026-07-27T10:24:27.057455Z"}
+[2026-07-27T10:24:26.777533+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (18ms)
+        {"messageId": "S2-000014", "inResponseToMessageId": "773b2913-b687-4834-b18a-242ab4e526fb", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727101900", "timestampUtc": "2026-07...(+28794B)
+[2026-07-27T10:25:24.867725+00:00] *** PPNAM/handheld_1/status action=None
+        offline
+[2026-07-27T10:25:36.512259+00:00] *** PPNAM/handheld_1/status action=None
+        online
+[2026-07-27T10:25:58.015998+00:00] --> PPNAM/handheld_1/req/scram_start_requested action=scram_start_requested
+        {"actionTarget":"","clientNonce":"NdKIlLu7PvQmOXoGjxNDtnlR6PO9H+sc","managerAction":"","purpose":"login","username":"manager1","messageId":"4d698b46-df30-485a-95c4-27bdc69df150","schemaVersion":"4.1","deviceId":"handheld...(+72B)
+[2026-07-27T10:25:58.067341+00:00] <-- PPNAM/handheld_1/res/scram_challenge action=scram_challenge (51ms)
+        {"messageId": "S2-000015", "inResponseToMessageId": "4d698b46-df30-485a-95c4-27bdc69df150", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "", "timestampUtc": "2026-07-27T10:25:58.016967Z", "serve...(+566B)
+[2026-07-27T10:25:58.418143+00:00] --> PPNAM/handheld_1/req/scram_proof_requested action=scram_proof_requested
+        {"actionTarget":"","challengeId":"CHL_000002","clientFinalWithoutProof":"c\u003dbiws,r\u003dNdKIlLu7PvQmOXoGjxNDtnlR6PO9H+scLr0YDuypZ4zoVVajyloyYZbT","clientProof":"OtTnUcH3SW9624BCRVngPhn2yf04Vidc8vZ7loRrmXU\u003d","man...(+198B)
+[2026-07-27T10:25:58.469158+00:00] <-- PPNAM/handheld_1/res/operator_context action=operator_context (51ms)
+        {"messageId": "S2-000016", "inResponseToMessageId": "bb6018ca-e32f-45f7-a606-8ce0c3318821", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+765B)
+[2026-07-27T10:25:59.989412+00:00] --> PPNAM/handheld_1/req/active_job_cards_requested action=active_job_cards_requested
+        {"pageSize":25,"messageId":"fbc9ca17-d92b-4e30-b7be-ee5eac78594e","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:26:00.399406Z"}
+[2026-07-27T10:25:59.997278+00:00] <-- PPNAM/handheld_1/res/active_job_cards_list action=active_job_cards_list (8ms)
+        {"messageId": "S2-000017", "inResponseToMessageId": "fbc9ca17-d92b-4e30-b7be-ee5eac78594e", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+1846B)
+[2026-07-27T10:26:34.196142+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"49444951-3988-404e-80b9-b2c979ebf623","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:26:34.639819Z"}
+[2026-07-27T10:26:34.214312+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (18ms)
+        {"messageId": "S2-000018", "inResponseToMessageId": "49444951-3988-404e-80b9-b2c979ebf623", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+28794B)
+[2026-07-27T10:26:41.291131+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"mixingArea":"MainMixingRoom","messageId":"9f40a474-9f6d-40d5-8a5f-7f42729985ad","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:26:41.7376...(+5B)
+[2026-07-27T10:26:41.306585+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (15ms)
+        {"messageId": "S2-000019", "inResponseToMessageId": "9f40a474-9f6d-40d5-8a5f-7f42729985ad", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+19799B)
+[2026-07-27T10:26:41.426109+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"f6b6ae5a-15ef-4a42-9ecf-5a60fdb5bae8","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:26:41.872928Z"}
+[2026-07-27T10:26:41.442303+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (16ms)
+        {"messageId": "S2-000020", "inResponseToMessageId": "f6b6ae5a-15ef-4a42-9ecf-5a60fdb5bae8", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+28794B)
+[2026-07-27T10:28:43.025834+00:00] --> PPNAM/handheld_1/req/scram_start_requested action=scram_start_requested
+        {"actionTarget":"Cycle:CYC_000001","clientNonce":"lLowbksO1nA9Ljwe2fWAMUsldm3frFzx","managerAction":"machine_force_close","purpose":"manager_action","username":"manager1","messageId":"13c461d7-b926-4559-a733-ad87368c58ec...(+145B)
+[2026-07-27T10:28:43.078044+00:00] <-- PPNAM/handheld_1/res/scram_challenge action=scram_challenge (52ms)
+        {"messageId": "S2-000021", "inResponseToMessageId": "13c461d7-b926-4559-a733-ad87368c58ec", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+595B)
+[2026-07-27T10:28:43.282045+00:00] --> PPNAM/handheld_1/req/scram_proof_requested action=scram_proof_requested
+        {"actionTarget":"Cycle:CYC_000001","challengeId":"CHL_000003","clientFinalWithoutProof":"c\u003dbiws,r\u003dlLowbksO1nA9Ljwe2fWAMUsldm3frFzxuqG2Ou0NKTziKX+lWTD+DUBd","clientProof":"0JNy3m4v1XPoOOQQSsguHnk2PpfguxFFgmDTV8o...(+271B)
+[2026-07-27T10:28:43.332998+00:00] <-- PPNAM/handheld_1/res/operator_context action=operator_context (51ms)
+        {"messageId": "S2-000022", "inResponseToMessageId": "83898272-3ddb-48b0-8f7a-dc61ec443f14", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+552B)
+[2026-07-27T10:28:43.498203+00:00] --> PPNAM/handheld_1/req/machine_cycle_force_close_requested action=machine_cycle_force_close_requested
+        {"auditReason":"line jam force close","authorizationToken":"AUTH_000001_r2iJ9Z14JIhO-rWqAmmFXh6f","cycleId":"CYC_000001","machineCode":"MXR-01","messageId":"e0f72532-bcd5-45d6-97e0-57cff5efc92f","schemaVersion":"4.1","de...(+148B)
+[2026-07-27T10:28:43.512992+00:00] <-- PPNAM/handheld_1/res/machine_cycle_result action=ForceClosed (15ms)
+        {"messageId": "S2-000023", "inResponseToMessageId": "e0f72532-bcd5-45d6-97e0-57cff5efc92f", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+20008B)
+[2026-07-27T10:28:43.592023+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"032085a0-a929-4808-9980-4b46dffcdd62","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:28:44.036994Z"}
+[2026-07-27T10:28:43.609618+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (18ms)
+        {"messageId": "S2-000024", "inResponseToMessageId": "032085a0-a929-4808-9980-4b46dffcdd62", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+28477B)
+[2026-07-27T10:31:00.030941+00:00] --> PPNAM/handheld_1/req/machine_cycle_start_requested action=machine_cycle_start_requested
+        {"collectionId":"COL_000002","machineCode":"MXR-02","productionOrderDocumentNumber":"510019068","messageId":"77a946fd-069b-40d1-b7d4-3f069a66ddd0","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-ha...(+100B)
+[2026-07-27T10:31:00.045590+00:00] <-- PPNAM/handheld_1/res/machine_cycle_result action=Started (15ms)
+        {"messageId": "S2-000025", "inResponseToMessageId": "77a946fd-069b-40d1-b7d4-3f069a66ddd0", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+20299B)
+[2026-07-27T10:31:00.123730+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"248364aa-6696-4afb-8525-32014fa64e27","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:31:00.568612Z"}
+[2026-07-27T10:31:00.143584+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (20ms)
+        {"messageId": "S2-000026", "inResponseToMessageId": "248364aa-6696-4afb-8525-32014fa64e27", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+28794B)
+[2026-07-27T10:31:29.193797+00:00] --> PPNAM/handheld_1/req/machine_cycle_finish_requested action=machine_cycle_finish_requested
+        {"cycleId":"CYC_000002","machineCode":"MXR-02","messageId":"772368b4-b316-4556-89cc-357c9fadac49","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-...(+51B)
+[2026-07-27T10:31:29.208199+00:00] <-- PPNAM/handheld_1/res/machine_cycle_result action=Finished (14ms)
+        {"messageId": "S2-000027", "inResponseToMessageId": "772368b4-b316-4556-89cc-357c9fadac49", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+20794B)
+[2026-07-27T10:31:29.270388+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"50c0104b-5e92-41f9-a738-bb267bf577f1","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:31:29.712759Z"}
+[2026-07-27T10:31:29.289277+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (19ms)
+        {"messageId": "S2-000028", "inResponseToMessageId": "50c0104b-5e92-41f9-a738-bb267bf577f1", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+29283B)
+[2026-07-27T10:32:32.105110+00:00] --> PPNAM/handheld_1/req/machine_cycle_start_requested action=machine_cycle_start_requested
+        {"collectionId":"COL_000002","machineCode":"MXR-01","productionOrderDocumentNumber":"510019068","messageId":"33f063f8-214a-4487-bd61-d1c79b846d05","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-ha...(+100B)
+[2026-07-27T10:32:32.119316+00:00] <-- PPNAM/handheld_1/res/machine_cycle_result action=Started (14ms)
+        {"messageId": "S2-000029", "inResponseToMessageId": "33f063f8-214a-4487-bd61-d1c79b846d05", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+20088B)
+[2026-07-27T10:32:32.337519+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"4ece7945-0ce0-4aea-b909-1e8f8a7db41c","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:32:32.610680Z"}
+[2026-07-27T10:32:32.355306+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (18ms)
+        {"messageId": "S2-000030", "inResponseToMessageId": "4ece7945-0ce0-4aea-b909-1e8f8a7db41c", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+28583B)
+[2026-07-27T10:33:00.859368+00:00] --> PPNAM/handheld_1/req/machine_cycle_finish_requested action=machine_cycle_finish_requested
+        {"cycleId":"CYC_000003","machineCode":"MXR-01","messageId":"9dcc0ad9-6dbd-4a18-aa27-86d44d8569e3","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-...(+51B)
+[2026-07-27T10:33:00.874795+00:00] <-- PPNAM/handheld_1/res/machine_cycle_result action=Finished (15ms)
+        {"messageId": "S2-000031", "inResponseToMessageId": "9dcc0ad9-6dbd-4a18-aa27-86d44d8569e3", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+20585B)
+[2026-07-27T10:33:00.936081+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"4b4b2588-3ac9-4899-bc2a-f6c4ead54757","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:33:01.379549Z"}
+[2026-07-27T10:33:00.952069+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (16ms)
+        {"messageId": "S2-000032", "inResponseToMessageId": "4b4b2588-3ac9-4899-bc2a-f6c4ead54757", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+29074B)
+[2026-07-27T10:34:45.400109+00:00] --> PPNAM/handheld_1/req/mix_destination_assignment_requested action=mix_destination_assignment_requested
+        {"machineCodes":["EXT-01"],"mixBatchIds":["MIX_000002"],"messageId":"d3b18e09-01fc-41ce-a786-c907e8e5a271","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":...(+60B)
+[2026-07-27T10:34:45.415152+00:00] <-- PPNAM/handheld_1/res/mix_destination_assignment_result action=mix_destination_assignment_result (15ms)
+        {"messageId": "S2-000033", "inResponseToMessageId": "d3b18e09-01fc-41ce-a786-c907e8e5a271", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+18932B)
+[2026-07-27T10:34:45.501420+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"51ae7db3-3f01-4308-9541-779c03feecd3","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:34:45.942151Z"}
+[2026-07-27T10:34:45.519258+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (18ms)
+        {"messageId": "S2-000034", "inResponseToMessageId": "51ae7db3-3f01-4308-9541-779c03feecd3", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+28555B)
+[2026-07-27T10:41:58.680400+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"mixingArea":"MainMixingRoom","messageId":"af57b583-aca5-4cf4-96e2-e616c1524b36","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:41:59.0787...(+5B)
+[2026-07-27T10:41:58.694535+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (14ms)
+        {"messageId": "S2-000035", "inResponseToMessageId": "af57b583-aca5-4cf4-96e2-e616c1524b36", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+19560B)
+[2026-07-27T10:41:58.745675+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"6e6b3281-fac3-4946-9852-c615f2ea3f7c","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:41:59.176657Z"}
+[2026-07-27T10:41:58.763253+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (18ms)
+        {"messageId": "S2-000036", "inResponseToMessageId": "6e6b3281-fac3-4946-9852-c615f2ea3f7c", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+28555B)
+[2026-07-27T10:42:52.538968+00:00] --> PPNAM/handheld_1/req/machine_cycle_start_requested action=machine_cycle_start_requested
+        {"collectionId":"COL_000005","machineCode":"MXR-03","productionOrderDocumentNumber":"510018531","messageId":"78e4b75b-5f67-4187-9761-f8c707ab7cea","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-ha...(+100B)
+[2026-07-27T10:42:52.552539+00:00] <-- PPNAM/handheld_1/res/machine_cycle_result action=Started (14ms)
+        {"messageId": "S2-000037", "inResponseToMessageId": "78e4b75b-5f67-4187-9761-f8c707ab7cea", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+19604B)
+[2026-07-27T10:42:52.604702+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"ea3bfda3-62e3-45bc-b257-8f1e3b904d2d","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:42:53.036546Z"}
+[2026-07-27T10:42:52.620624+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (16ms)
+        {"messageId": "S2-000038", "inResponseToMessageId": "ea3bfda3-62e3-45bc-b257-8f1e3b904d2d", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+28099B)
+[2026-07-27T10:43:03.694976+00:00] --> PPNAM/handheld_1/req/machine_cycle_finish_requested action=machine_cycle_finish_requested
+        {"cycleId":"CYC_000004","machineCode":"MXR-03","messageId":"6912168f-bd81-4d45-80b4-32bb79855d04","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-...(+51B)
+[2026-07-27T10:43:03.709030+00:00] <-- PPNAM/handheld_1/res/machine_cycle_result action=Finished (14ms)
+        {"messageId": "S2-000039", "inResponseToMessageId": "6912168f-bd81-4d45-80b4-32bb79855d04", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+20101B)
+[2026-07-27T10:43:03.761442+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"9344fd46-08ef-4f9b-ab7f-416d783e4016","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727102558","timestampUtc":"2026-07-27T10:43:04.192336Z"}
+[2026-07-27T10:43:03.779027+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (18ms)
+        {"messageId": "S2-000040", "inResponseToMessageId": "9344fd46-08ef-4f9b-ab7f-416d783e4016", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727102558", "timestampUtc": "2026-07...(+28590B)
+[2026-07-27T10:43:25.406894+00:00] *** PPNAM/handheld_1/status action=None
+        offline
+[2026-07-27T10:44:10.358261+00:00] *** PPNAM/handheld_1/status action=None
+        online
+[2026-07-27T10:44:49.759055+00:00] --> PPNAM/handheld_1/req/scram_start_requested action=scram_start_requested
+        {"actionTarget":"","clientNonce":"SjfwzVpxHwcbCHHb0Imxu22ubYoqCfnb","managerAction":"","purpose":"login","username":"manager1","messageId":"831b7902-14f4-4261-8c08-58c7f45aef1e","schemaVersion":"4.1","deviceId":"handheld...(+72B)
+[2026-07-27T10:44:49.810818+00:00] <-- PPNAM/handheld_1/res/scram_challenge action=scram_challenge (52ms)
+        {"messageId": "S2-000041", "inResponseToMessageId": "831b7902-14f4-4261-8c08-58c7f45aef1e", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "", "timestampUtc": "2026-07-27T10:44:49.759716Z", "serve...(+566B)
+[2026-07-27T10:44:50.212798+00:00] --> PPNAM/handheld_1/req/scram_proof_requested action=scram_proof_requested
+        {"actionTarget":"","challengeId":"CHL_000004","clientFinalWithoutProof":"c\u003dbiws,r\u003dSjfwzVpxHwcbCHHb0Imxu22ubYoqCfnbER1bUncJtPdkdYXO7/IfIeg6","clientProof":"O7qD1uzF6W/ekYixCFQLhGvCCrAVmmkEzlVCT2fuQjo\u003d","man...(+198B)
+[2026-07-27T10:44:50.264488+00:00] <-- PPNAM/handheld_1/res/operator_context action=operator_context (52ms)
+        {"messageId": "S2-000042", "inResponseToMessageId": "de65bd7c-da5f-40b1-9b71-3968d31d7ac5", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727104450", "timestampUtc": "2026-07...(+765B)
+[2026-07-27T10:44:51.783287+00:00] --> PPNAM/handheld_1/req/active_job_cards_requested action=active_job_cards_requested
+        {"pageSize":25,"messageId":"8b9cc0c4-17bb-4c70-b996-8f8fbe00a319","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727104450","timestampUtc":"2026-07-27T10:44:52.170807Z"}
+[2026-07-27T10:44:51.791622+00:00] <-- PPNAM/handheld_1/res/active_job_cards_list action=active_job_cards_list (8ms)
+        {"messageId": "S2-000043", "inResponseToMessageId": "8b9cc0c4-17bb-4c70-b996-8f8fbe00a319", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727104450", "timestampUtc": "2026-07...(+1846B)
+[2026-07-27T10:45:01.017953+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"65989029-31f0-4143-9781-4b838e4c4565","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727104450","timestampUtc":"2026-07-27T10:45:01.440247Z"}
+[2026-07-27T10:45:01.033983+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (16ms)
+        {"messageId": "S2-000044", "inResponseToMessageId": "65989029-31f0-4143-9781-4b838e4c4565", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727104450", "timestampUtc": "2026-07...(+28590B)
+[2026-07-27T10:45:08.113714+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"mixingArea":"MainMixingRoom","messageId":"a0b67882-b6ce-4f13-8912-46948cd80e1f","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727104450","timestampUtc":"2026-07-27T10:45:08.5367...(+5B)
+[2026-07-27T10:45:08.126633+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (13ms)
+        {"messageId": "S2-000045", "inResponseToMessageId": "a0b67882-b6ce-4f13-8912-46948cd80e1f", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727104450", "timestampUtc": "2026-07...(+19595B)
+[2026-07-27T10:45:08.235815+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"d161596d-35c1-4546-b456-7923bcdc8bb4","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727104450","timestampUtc":"2026-07-27T10:45:08.658195Z"}
+[2026-07-27T10:45:08.252112+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (16ms)
+        {"messageId": "S2-000046", "inResponseToMessageId": "d161596d-35c1-4546-b456-7923bcdc8bb4", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727104450", "timestampUtc": "2026-07...(+28590B)
+[2026-07-27T10:47:13.355374+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"74956c5b-00c6-4b3c-8e65-2f9836b3c3c5","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727104450","timestampUtc":"2026-07-27T10:47:13.770357Z"}
+[2026-07-27T10:47:13.374677+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (19ms)
+        {"messageId": "S2-000047", "inResponseToMessageId": "74956c5b-00c6-4b3c-8e65-2f9836b3c3c5", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727104450", "timestampUtc": "2026-07...(+28590B)
+[2026-07-27T10:47:18.557753+00:00] --> PPNAM/handheld_1/req/active_job_cards_requested action=active_job_cards_requested
+        {"pageSize":25,"messageId":"63642f0d-8d2c-44d5-a31a-2a36cc1cbbd5","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727104450","timestampUtc":"2026-07-27T10:47:18.948637Z"}
+[2026-07-27T10:47:18.567305+00:00] <-- PPNAM/handheld_1/res/active_job_cards_list action=active_job_cards_list (10ms)
+        {"messageId": "S2-000048", "inResponseToMessageId": "63642f0d-8d2c-44d5-a31a-2a36cc1cbbd5", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727104450", "timestampUtc": "2026-07...(+1846B)
+[2026-07-27T10:47:30.276617+00:00] --> PPNAM/handheld_1/req/job_card_load_requested action=job_card_load_requested
+        {"jobCardNumber":"510019068","messageId":"b08ff246-0335-43a8-9d9f-d17074290d18","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260727104450","timestampUtc":"2026-07-27T10:47:30.698357...(+32B)
+[2026-07-27T10:47:30.286624+00:00] <-- PPNAM/handheld_1/res/bom_loaded action=bom_loaded (10ms)
+        {"messageId": "S2-000049", "inResponseToMessageId": "b08ff246-0335-43a8-9d9f-d17074290d18", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727104450", "timestampUtc": "2026-07...(+4772B)
+[2026-07-27T10:49:13.810595+00:00] --> PPNAM/handheld_1/req/ingredient_scan_requested action=ingredient_scan_requested
+        {"bagCount":12.0,"bagSizeOption":"full","collectionId":"COL_000006","requestedMaterialCode":"1600000233","sourceBarcode":"300833B2DDD9014000000004","messageId":"38be7e07-9549-4453-8f65-d4bc12c2f614","schemaVersion":"4.1"...(+152B)
+[2026-07-27T10:49:13.820931+00:00] <-- PPNAM/handheld_1/res/ingredient_scan_result action=ingredient_scan_result err=state_conflict:Pallet PAL-004 has no Station 2 arrival record (AtStation1). (10ms)
+        {"messageId": "S2-000050", "inResponseToMessageId": "38be7e07-9549-4453-8f65-d4bc12c2f614", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260727104450", "timestampUtc": "2026-07...(+4893B)
+[2026-07-27T10:50:58.820101+00:00] *** PPNAM/handheld_1/status action=None
+        offline

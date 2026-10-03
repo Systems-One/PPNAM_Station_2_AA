@@ -1,0 +1,34 @@
+[2026-07-24T08:35:11.254234+00:00] sniffer writing to C:\Dev\PPNAM_Station_2_AA\docs\test-runs\2026-07-24\capture\wire.jsonl
+[2026-07-24T08:35:11.263541+00:00] SNIFFER CONNECTED rc=Success
+[2026-07-24T08:35:11.274800+00:00] *** PPNAM/handheld_3/status action=None
+        offline
+[2026-07-24T08:35:11.275264+00:00] *** PPNAM/station_2/status action=None
+        offline
+[2026-07-24T08:35:11.275514+00:00] *** PPNAM/handheld_1/status action=None
+        online
+[2026-07-24T08:40:04.585428+00:00] *** PPNAM/handheld_1/status action=None
+        online
+[2026-07-24T08:40:41.379699+00:00] *** PPNAM/station_2/status action=None
+        online
+[2026-07-24T08:41:10.327632+00:00] --> PPNAM/handheld_1/req/scram_start_requested action=scram_start_requested
+        {"actionTarget":"","clientNonce":"lLCJR2FOkQ5xOLpi2w+xH0ApSKBvVHIy","managerAction":"","purpose":"login","username":"Jono","messageId":"ffe6aa4a-6ac3-4484-9da4-07e0161c61ca","schemaVersion":"4.1","deviceId":"handheld_1",...(+68B)
+[2026-07-24T08:41:30.478697+00:00] --> PPNAM/handheld_1/req/scram_start_requested action=scram_start_requested
+        {"actionTarget":"","clientNonce":"lLCJR2FOkQ5xOLpi2w+xH0ApSKBvVHIy","managerAction":"","purpose":"login","username":"Jono","messageId":"ffe6aa4a-6ac3-4484-9da4-07e0161c61ca","schemaVersion":"4.1","deviceId":"handheld_1",...(+68B)
+[2026-07-24T08:41:50.505529+00:00] --> PPNAM/handheld_1/req/scram_start_requested action=scram_start_requested
+        {"actionTarget":"","clientNonce":"lLCJR2FOkQ5xOLpi2w+xH0ApSKBvVHIy","managerAction":"","purpose":"login","username":"Jono","messageId":"ffe6aa4a-6ac3-4484-9da4-07e0161c61ca","schemaVersion":"4.1","deviceId":"handheld_1",...(+68B)
+[2026-07-24T08:42:25.705269+00:00] !!! NO RESPONSE within 25s: action=scram_start_requested topic=PPNAM/handheld_1/req/scram_start_requested messageId=ffe6aa4a-6ac3-4484-9da4-07e0161c61ca
+[2026-07-24T08:42:34.436784+00:00] --> PPNAM/handheld_schemaprobe/req/scram_start_requested action=scram_start_requested
+        {"messageId": "c9d898358391417496989d40185e768e", "schemaVersion": "4.1", "deviceId": "handheld_schemaprobe", "operatorSessionId": "", "timestampUtc": "2026-07-24T08:42:34.426990Z", "username": "Jono", "clientNonce": "92...(+85B)
+[2026-07-24T08:42:46.576959+00:00] --> PPNAM/handheld_schemaprobe/req/login_requested action=login_requested
+        {"messageId": "2c5772a261b74e8ebf4a0e6dca484ae1", "schemaVersion": "4.1", "deviceId": "handheld_schemaprobe", "operatorSessionId": "", "timestampUtc": "2026-07-24T08:42:46.464032Z", "username": "Jono", "password": "1234"...(+1B)
+[2026-07-24T08:42:58.526029+00:00] --> PPNAM/handheld_schemaprobe/req/login_requested action=login_requested
+        {"messageId": "e9d3916d45654f7ea3dc8cf5826ab7ba", "schemaVersion": "4.0", "deviceId": "handheld_schemaprobe", "operatorSessionId": "", "timestampUtc": "2026-07-24T08:42:58.513255Z", "username": "Jono", "password": "1234"...(+1B)
+[2026-07-24T08:43:10.569135+00:00] --> PPNAM/handheld_schemaprobe/req/login_requested action=login_requested
+        {"messageId": "8132b0afeb794db9bd4d79f1b36d1aed", "schemaVersion": "4.0", "deviceId": "handheld_schemaprobe", "operatorSessionId": "", "timestampUtc": "2026-07-24T08:43:10Z", "username": "Jono", "password": "1234"}
+[2026-07-24T08:43:10.706485+00:00] !!! NO RESPONSE within 25s: action=scram_start_requested topic=PPNAM/handheld_schemaprobe/req/scram_start_requested messageId=c9d898358391417496989d40185e768e
+[2026-07-24T08:43:22.608697+00:00] --> PPNAM/handheld_schemaprobe/req/pallet_lookup_requested action=pallet_lookup_requested
+        {"messageId": "efe7301f12554b588a53f2bf162f7b2f", "schemaVersion": "3.0", "deviceId": "handheld_schemaprobe", "operatorSessionId": "", "timestampUtc": "2026-07-24T08:43:22.598549Z", "palletRfidTag": "PROBE"}
+[2026-07-24T08:43:25.706810+00:00] !!! NO RESPONSE within 25s: action=login_requested topic=PPNAM/handheld_schemaprobe/req/login_requested messageId=2c5772a261b74e8ebf4a0e6dca484ae1
+[2026-07-24T08:43:25.706953+00:00] !!! NO RESPONSE within 25s: action=login_requested topic=PPNAM/handheld_schemaprobe/req/login_requested messageId=e9d3916d45654f7ea3dc8cf5826ab7ba
+[2026-07-24T08:43:40.707950+00:00] !!! NO RESPONSE within 25s: action=login_requested topic=PPNAM/handheld_schemaprobe/req/login_requested messageId=8132b0afeb794db9bd4d79f1b36d1aed
+[2026-07-24T08:43:55.708910+00:00] !!! NO RESPONSE within 25s: action=pallet_lookup_requested topic=PPNAM/handheld_schemaprobe/req/pallet_lookup_requested messageId=efe7301f12554b588a53f2bf162f7b2f

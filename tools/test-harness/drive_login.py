@@ -1,0 +1,10 @@
+import ui, time
+ui.type_into("Username", "operator1")
+ui.type_into("Password", "pass")
+ui.tap("Log In")
+ok = ui.wait_for(lambda ls: any("Look Up" in x or "Production Order" in x or "Active Jobs" in x or "Job" in x for x in ls), timeout=25)
+time.sleep(1)
+print("LOGIN reached job screen:", ok)
+print("PILL:", ui.pill())
+print("LABELS:", ui.labels()[:20])
+ui.screenshot("../../docs/test-runs/2026-07-27/shots/B1-after-login.png")

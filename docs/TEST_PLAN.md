@@ -191,7 +191,7 @@ Live backend unless marked **[sim]**.
 | A2 | Failed initial connect retries | Settings → PIN → Host = `10.255.255.1` → Test & Apply | Failure message; pill red; logcat shows a retry every 5 s |
 | A4 | Mid-session drop is visible | `adb shell cmd connectivity airplane-mode enable` | Pill → **Reconnecting** (orange) and **stays there** while HiveMQ retries; station presence cleared. It does **not** go to Offline — `DISCONNECTED` is only reached via an explicit `disconnect()` or a failed connect |
 | A5 | Auto-reconnect re-subscribes | disable airplane mode | Pill → Connected; sniffer shows a *subscribe* but **no** new CONNECT |
-| A6 | LWT on ungraceful death | `adb shell am force-stop com.ppnam.station2aa` | retained `PPNAM/handheld_1/status` = `offline` |
+| A6 | LWT on ungraceful death | `adb shell am force-stop com.mitas.ppnam.station2aa` | retained `PPNAM/handheld_1/status` = `offline` |
 | A7 | Graceful disconnect publishes offline | Settings → Test & Apply with valid settings | sniffer sees an explicit `offline` on the old deviceId, then `online` |
 | A8 | Subscribe announces presence | any fresh connect | retained `PPNAM/handheld_1/status` = `online` |
 | A10 | Status precedence | force each of the five states in turn | Offline > Reconnecting > StationOffline > ClockSkewed > Connected |
@@ -468,14 +468,14 @@ refreshed, still-unusable state rather than claiming success.
 
 | ID | What it proves | Steps | Expected |
 |---|---|---|---|
-| H1 | **Kill mid-scan loses nothing** | confirm a scan, then `adb shell am force-stop com.ppnam.station2aa` within the round trip. Relaunch, log in, resume the collection | Reconcile the resumed line against the wire capture: either the server acknowledged the scan and the line reflects it, or it did not and the line is unchanged. **Never a half-state, never double-counted** |
+| H1 | **Kill mid-scan loses nothing** | confirm a scan, then `adb shell am force-stop com.mitas.ppnam.station2aa` within the round trip. Relaunch, log in, resume the collection | Reconcile the resumed line against the wire capture: either the server acknowledged the scan and the line reflects it, or it did not and the line is unchanged. **Never a half-state, never double-counted** |
 | H2 | Screen off | `adb shell input keyevent 26` mid-collection, wake, unlock | collection intact; scanning still works |
 | H3 | Long background | background 30 min, return | area picker refetches; MQTT reconnects; pill green |
 | H4 | Doze | `adb shell dumpsys deviceidle force-idle`, wait, `unforce` | connection drops and **recovers**; no permanent Offline |
 | H5 | Low storage | fill the device, run a collection | BOM cache write failure does not take the collection down |
 | H6 | Interruption over a dialog | fire a notification with the approval dialog open and text typed | dialog survives; typed audit reason intact |
 | H7 | Rotation | rotate with the bag dialog open and a count typed | Activity recreated; **dialog still open, count preserved**; manager credential fields correctly **cleared** |
-| H8 | Process death | `adb shell am kill com.ppnam.station2aa` (background death), return | clean restore to Login; no crash |
+| H8 | Process death | `adb shell am kill com.mitas.ppnam.station2aa` (background death), return | clean restore to Login; no crash |
 | H9 | Battery pull | remove power/battery mid-session | retained `PPNAM/handheld_1/status` = `offline` |
 
 ### 4.8 Layout on the C72
@@ -543,6 +543,7 @@ One row per fixed defect, each with a specific re-check. This is what makes the 
 | R-20 | Dose validation refused silently — message below the scrollable fields | E19 |
 | R-21 | Unknown-job-card rejection reached the operator as raw SAP jargon | C8 |
 | R-22 | Latent NPE on `unit.ifBlank` in the BOM mapper | G2.1 |
+| R-23 | `readyCollections` leaked across mixing areas — the board never passed its area to `fetchReadyCollections()`, and the sim never scoped the field either | scope a `mixing_overview_requested` to one area and confirm a collection planned only to another area's mixer is absent |
 
 ---
 

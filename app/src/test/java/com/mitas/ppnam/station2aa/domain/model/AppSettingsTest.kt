@@ -1,0 +1,71 @@
+package com.mitas.ppnam.station2aa.domain.model
+
+import org.junit.Assert.*
+import org.junit.Test
+
+class AppSettingsTest {
+
+    // There is deliberately no deviceId test here any more: the device id left AppSettings when
+    // the fleet MQTT base standard retired configured identities — it is now derived from
+    // hardware by data.identity.DeviceIdentity, never configured.
+
+    @Test
+    fun `default mqtt host is mqtt sysone co za`() {
+        assertEquals("mqtt.sysone.co.za", AppSettings().mqttHost)
+    }
+
+    @Test
+    fun `default mqtt port is 443`() {
+        assertEquals(443, AppSettings().mqttPort)
+    }
+
+    @Test
+    fun `default uses websocket and tls`() {
+        val s = AppSettings()
+        assertTrue(s.mqttUseWebSocket)
+        assertTrue(s.mqttUseTls)
+    }
+
+    @Test
+    fun `there are no default broker credentials`() {
+        // This test used to assert admin/admin. The Schema 4.1 handoff blocks production on the
+        // absence of exactly that — shared handheld credentials, source-code credentials and APK
+        // constants must all be gone, and each handheld needs its own credential bound to its own
+        // client ID. A default here IS an APK constant: it ships to every device inside the app.
+        val s = AppSettings()
+
+        assertEquals("", s.mqttUsername)
+        assertEquals("", s.mqttPassword)
+        assertFalse("an unprovisioned handheld must not claim to have a credential", s.hasBrokerCredential)
+    }
+
+    @Test
+    fun `a handheld reports provisioned only when both parts are present`() {
+        assertFalse(AppSettings(mqttUsername = "station2-hh-01").hasBrokerCredential)
+        assertFalse(AppSettings(mqttPassword = "secret").hasBrokerCredential)
+        assertFalse(AppSettings(mqttUsername = "  ", mqttPassword = "secret").hasBrokerCredential)
+        assertTrue(AppSettings(mqttUsername = "station2-hh-01", mqttPassword = "secret").hasBrokerCredential)
+    }
+
+    @Test
+    fun `the default workflow timeout is the base standard's 10 seconds`() {
+        assertEquals(10_000L, AppSettings().requestTimeoutMs)
+    }
+
+    @Test
+    fun `auto sign-out defaults to S1's 15 minutes`() {
+        assertEquals(15, AppSettings().autoLogoutMinutes)
+    }
+
+    @Test
+    fun `parsePort accepts 1 to 65535 and nothing else`() {
+        assertEquals(9001, AppSettings.parsePort(" 9001 "))
+        assertEquals(1, AppSettings.parsePort("1"))
+        assertEquals(65535, AppSettings.parsePort("65535"))
+        assertNull(AppSettings.parsePort("0"))
+        assertNull(AppSettings.parsePort("65536"))
+        assertNull(AppSettings.parsePort("90019"))
+        assertNull(AppSettings.parsePort(""))
+        assertNull(AppSettings.parsePort("90a"))
+    }
+}

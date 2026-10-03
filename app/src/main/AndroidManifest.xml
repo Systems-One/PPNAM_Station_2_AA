@@ -16,12 +16,18 @@
         android:supportsRtl="true"
         android:enableOnBackInvokedCallback="true"
         android:theme="@style/Theme.PPNAMStation2AA">
+        <!-- Portrait only: the C72 has auto-rotate on, and a knocked handheld used to recreate
+             the Activity mid-typing — login fields wiped, Settings draft lost (audit S2-02/S2-11).
+             A scanner gains nothing from landscape. stateHidden keeps the keyboard closed on
+             first entry so the login card is seen whole before a field takes focus. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.PPNAMStation2AA"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            tools:ignore="DiscouragedApi">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

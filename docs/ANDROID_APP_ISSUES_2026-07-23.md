@@ -1,7 +1,7 @@
 # PPNAM Station 2 Android App — Issues Found in Live Testing
 
 **Date:** 2026-07-23
-**App:** `com.ppnam.station2aa` v1.0 (1), branch `master`
+**App:** `com.mitas.ppnam.station2aa` v1.0 (1), branch `master`
 **Device:** Chainway C72 (`handheld_1`), Android 13, 1080×1920 @ 480 dpi
 **Backend:** the live Station 2 backend over `wss://mqtt.sysone.co.za:443/mqtt`
 **Operators:** `Jono` (Operator), `Avi` (Admin)

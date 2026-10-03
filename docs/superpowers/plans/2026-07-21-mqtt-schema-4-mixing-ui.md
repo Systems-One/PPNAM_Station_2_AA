@@ -21,7 +21,7 @@
 - A collection is destination-neutral: auto-navigation lands on the **area picker**, never guesses an area.
 - Exact UI copy: area picker banner `"<collectionId> ready to mix — pick an area"`; snackbar when scanning with no selection: `"Select a collection or mix to start this machine."`
 - Both SAP flags remain false and are never surfaced as SAP activity. `session_required` / `client_upgrade_required` stay globally handled by the transport.
-- Dark-graphite/amber design system (`com.ppnam.station2aa.ui.theme.*`), `AppScaffold`, `AlertDialog` patterns as in existing screens.
+- Dark-graphite/amber design system (`com.mitas.ppnam.station2aa.ui.theme.*`), `AppScaffold`, `AlertDialog` patterns as in existing screens.
 - Gradle (PowerShell, repo root; JAVA_HOME may need `$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"`): `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:assembleDebug`. Simulator: `python selftest.py --direct` from `tools/backend-sim/` (109 checks green at branch point).
 - After each code task run `graphify update .` (AST-only). Commit messages end with `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`.
 
@@ -129,7 +129,7 @@ git commit -m "refactor(sim): drop vestigial nested accepted from area overview 
 `app/src/test/java/com/ppnam/station2aa/data/mqtt/dto/MixingMessagesTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt.dto
+package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 import com.google.gson.Gson
 import org.junit.Assert.*
@@ -226,17 +226,17 @@ class MixingMessagesTest {
 
     @Test
     fun `mixing area maps wire values both ways`() {
-        assertEquals(com.ppnam.station2aa.domain.model.MixingArea.Jandi,
-            com.ppnam.station2aa.domain.model.MixingArea.fromWire("JandiBulkMixing"))
-        assertNull(com.ppnam.station2aa.domain.model.MixingArea.fromWire("Atlantis"))
-        assertEquals(5, com.ppnam.station2aa.domain.model.MixingArea.entries.size)
+        assertEquals(com.mitas.ppnam.station2aa.domain.model.MixingArea.Jandi,
+            com.mitas.ppnam.station2aa.domain.model.MixingArea.fromWire("JandiBulkMixing"))
+        assertNull(com.mitas.ppnam.station2aa.domain.model.MixingArea.fromWire("Atlantis"))
+        assertEquals(5, com.mitas.ppnam.station2aa.domain.model.MixingArea.entries.size)
     }
 }
 ```
 
 - [ ] **Step 2: Run to verify it fails**
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.dto.MixingMessagesTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.dto.MixingMessagesTest"`
 Expected: FAIL (compile — classes don't exist).
 
 - [ ] **Step 3: Write the DTOs**
@@ -244,7 +244,7 @@ Expected: FAIL (compile — classes don't exist).
 `app/src/main/java/com/ppnam/station2aa/data/mqtt/dto/MixingMessages.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.data.mqtt.dto
+package com.mitas.ppnam.station2aa.data.mqtt.dto
 
 /** `mixing_overview_requested` — both filters optional; Gson omits nulls per the contract. */
 data class MixingOverviewPayload(
@@ -376,9 +376,9 @@ data class MachineCycleResultResponse(
 `app/src/main/java/com/ppnam/station2aa/domain/model/MixingBoard.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.model
+package com.mitas.ppnam.station2aa.domain.model
 
-import com.ppnam.station2aa.data.mqtt.ErrorCode
+import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
 
 /** The five fixed v4.0 mixing areas (§6). Server-authoritative; never extended locally. */
 enum class MixingArea(val wire: String, val display: String) {
@@ -504,7 +504,7 @@ sealed class MachineCycleOutcome {
 
 - [ ] **Step 5: Run the tests**
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.data.mqtt.dto.MixingMessagesTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.data.mqtt.dto.MixingMessagesTest"`
 Expected: PASS (4/4). (If the project's Kotlin version rejects `MixingArea.entries`, use `MixingArea.values()` in both the enum's `fromWire` and the tests — same semantics.)
 
 - [ ] **Step 6: Commit**
@@ -538,25 +538,25 @@ git commit -m "feat(mixing-board): v4 overview/cycle wire DTOs and board domain 
 `app/src/test/java/com/ppnam/station2aa/domain/usecase/MixingBoardUseCaseTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.ErrorCode
-import com.ppnam.station2aa.data.mqtt.FailureKind
-import com.ppnam.station2aa.data.mqtt.MqttOutcome
-import com.ppnam.station2aa.data.mqtt.NextAction
-import com.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary
-import com.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsListResponse
-import com.ppnam.station2aa.data.mqtt.dto.BomLineResponse
-import com.ppnam.station2aa.data.mqtt.dto.BomLoadedResponse
-import com.ppnam.station2aa.data.mqtt.dto.EquipmentDto
-import com.ppnam.station2aa.data.mqtt.dto.MachineCycleResultResponse
-import com.ppnam.station2aa.data.mqtt.dto.MachineCycleStartPayload
-import com.ppnam.station2aa.data.mqtt.dto.MixingOverviewPayload
-import com.ppnam.station2aa.data.mqtt.dto.MixingOverviewResponse
-import com.ppnam.station2aa.domain.model.LayerInput
-import com.ppnam.station2aa.domain.model.MachineCycleOutcome
-import com.ppnam.station2aa.domain.model.MixingArea
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
+import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
+import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
+import com.mitas.ppnam.station2aa.data.mqtt.NextAction
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardSummary
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsListResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.BomLineResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.BomLoadedResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.EquipmentDto
+import com.mitas.ppnam.station2aa.data.mqtt.dto.MachineCycleResultResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.MachineCycleStartPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.MixingOverviewPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.MixingOverviewResponse
+import com.mitas.ppnam.station2aa.domain.model.LayerInput
+import com.mitas.ppnam.station2aa.domain.model.MachineCycleOutcome
+import com.mitas.ppnam.station2aa.domain.model.MixingArea
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -727,7 +727,7 @@ class MixingBoardUseCaseTest {
 
 - [ ] **Step 2: Run to verify it fails**
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.MixingBoardUseCaseTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.MixingBoardUseCaseTest"`
 Expected: FAIL (compile — `MixingBoardUseCase` doesn't exist).
 
 - [ ] **Step 3: Write the use case**
@@ -735,35 +735,35 @@ Expected: FAIL (compile — `MixingBoardUseCase` doesn't exist).
 `app/src/main/java/com/ppnam/station2aa/domain/usecase/MixingBoardUseCase.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.domain.usecase
+package com.mitas.ppnam.station2aa.domain.usecase
 
-import com.ppnam.station2aa.data.mqtt.EmptyPayload
-import com.ppnam.station2aa.data.mqtt.MqttOutcome
-import com.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsListResponse
-import com.ppnam.station2aa.data.mqtt.dto.ActiveCycleDto
-import com.ppnam.station2aa.data.mqtt.dto.ActiveRunDto
-import com.ppnam.station2aa.data.mqtt.dto.BomLoadedResponse
-import com.ppnam.station2aa.data.mqtt.dto.CollectionResumePayload
-import com.ppnam.station2aa.data.mqtt.dto.EquipmentDto
-import com.ppnam.station2aa.data.mqtt.dto.LayerInputDto
-import com.ppnam.station2aa.data.mqtt.dto.MachineCycleFinishPayload
-import com.ppnam.station2aa.data.mqtt.dto.MachineCycleForceClosePayload
-import com.ppnam.station2aa.data.mqtt.dto.MachineCycleResultResponse
-import com.ppnam.station2aa.data.mqtt.dto.MachineCycleStartPayload
-import com.ppnam.station2aa.data.mqtt.dto.MixingOverviewPayload
-import com.ppnam.station2aa.data.mqtt.dto.MixingOverviewResponse
-import com.ppnam.station2aa.data.mqtt.dto.ReadyMixDto
-import com.ppnam.station2aa.domain.model.ActiveCycle
-import com.ppnam.station2aa.domain.model.ActiveRun
-import com.ppnam.station2aa.domain.model.AreaOverview
-import com.ppnam.station2aa.domain.model.CollectedMaterial
-import com.ppnam.station2aa.domain.model.Equipment
-import com.ppnam.station2aa.domain.model.LayerInput
-import com.ppnam.station2aa.domain.model.MachineCycleOutcome
-import com.ppnam.station2aa.domain.model.MixingArea
-import com.ppnam.station2aa.domain.model.ReadyCollection
-import com.ppnam.station2aa.domain.model.ReadyMix
-import com.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.EmptyPayload
+import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveJobCardsListResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveCycleDto
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ActiveRunDto
+import com.mitas.ppnam.station2aa.data.mqtt.dto.BomLoadedResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.CollectionResumePayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.EquipmentDto
+import com.mitas.ppnam.station2aa.data.mqtt.dto.LayerInputDto
+import com.mitas.ppnam.station2aa.data.mqtt.dto.MachineCycleFinishPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.MachineCycleForceClosePayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.MachineCycleResultResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.MachineCycleStartPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.MixingOverviewPayload
+import com.mitas.ppnam.station2aa.data.mqtt.dto.MixingOverviewResponse
+import com.mitas.ppnam.station2aa.data.mqtt.dto.ReadyMixDto
+import com.mitas.ppnam.station2aa.domain.model.ActiveCycle
+import com.mitas.ppnam.station2aa.domain.model.ActiveRun
+import com.mitas.ppnam.station2aa.domain.model.AreaOverview
+import com.mitas.ppnam.station2aa.domain.model.CollectedMaterial
+import com.mitas.ppnam.station2aa.domain.model.Equipment
+import com.mitas.ppnam.station2aa.domain.model.LayerInput
+import com.mitas.ppnam.station2aa.domain.model.MachineCycleOutcome
+import com.mitas.ppnam.station2aa.domain.model.MixingArea
+import com.mitas.ppnam.station2aa.domain.model.ReadyCollection
+import com.mitas.ppnam.station2aa.domain.model.ReadyMix
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -1003,7 +1003,7 @@ Note: `FailureKind.message()` already exists (used by `MixingUseCase`) — if th
 
 - [ ] **Step 4: Run the tests**
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.domain.usecase.MixingBoardUseCaseTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.domain.usecase.MixingBoardUseCaseTest"`
 Expected: PASS (8/8).
 
 - [ ] **Step 5: Commit**
@@ -1029,21 +1029,21 @@ git commit -m "feat(mixing-board): MixingBoardUseCase — overview, sources, fam
 `app/src/test/java/com/ppnam/station2aa/ui/mixing/board/MixingBoardViewModelTest.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing.board
+package com.mitas.ppnam.station2aa.ui.mixing.board
 
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.domain.model.ActiveCycle
-import com.ppnam.station2aa.domain.model.ActiveRun
-import com.ppnam.station2aa.domain.model.AreaOverview
-import com.ppnam.station2aa.domain.model.Equipment
-import com.ppnam.station2aa.domain.model.MixingArea
-import com.ppnam.station2aa.domain.model.ReadyCollection
-import com.ppnam.station2aa.domain.model.ReadyMix
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.AuthUseCase
-import com.ppnam.station2aa.domain.usecase.MixingBoardUseCase
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.model.ActiveCycle
+import com.mitas.ppnam.station2aa.domain.model.ActiveRun
+import com.mitas.ppnam.station2aa.domain.model.AreaOverview
+import com.mitas.ppnam.station2aa.domain.model.Equipment
+import com.mitas.ppnam.station2aa.domain.model.MixingArea
+import com.mitas.ppnam.station2aa.domain.model.ReadyCollection
+import com.mitas.ppnam.station2aa.domain.model.ReadyMix
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.MixingBoardUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -1223,7 +1223,7 @@ class MixingBoardViewModelTest {
 
 - [ ] **Step 2: Run to verify it fails**
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.board.MixingBoardViewModelTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.board.MixingBoardViewModelTest"`
 Expected: FAIL (compile — package doesn't exist).
 
 - [ ] **Step 3: Write the ViewModel (loading half)**
@@ -1231,24 +1231,24 @@ Expected: FAIL (compile — package doesn't exist).
 `app/src/main/java/com/ppnam/station2aa/ui/mixing/board/MixingBoardViewModel.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing.board
+package com.mitas.ppnam.station2aa.ui.mixing.board
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ppnam.station2aa.data.rfid.ScanEventBus
-import com.ppnam.station2aa.data.session.OperatorSession
-import com.ppnam.station2aa.data.session.OperatorSessionHolder
-import com.ppnam.station2aa.domain.model.ActiveCycle
-import com.ppnam.station2aa.domain.model.AreaOverview
-import com.ppnam.station2aa.domain.model.Equipment
-import com.ppnam.station2aa.domain.model.MixingArea
-import com.ppnam.station2aa.domain.model.ReadyCollection
-import com.ppnam.station2aa.domain.repository.MqttConnectionState
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.domain.usecase.AuthUseCase
-import com.ppnam.station2aa.domain.usecase.MixingBoardUseCase
-import com.ppnam.station2aa.ui.components.ConnectionStatus
-import com.ppnam.station2aa.ui.components.resolveConnectionStatus
+import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
+import com.mitas.ppnam.station2aa.data.session.OperatorSession
+import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.model.ActiveCycle
+import com.mitas.ppnam.station2aa.domain.model.AreaOverview
+import com.mitas.ppnam.station2aa.domain.model.Equipment
+import com.mitas.ppnam.station2aa.domain.model.MixingArea
+import com.mitas.ppnam.station2aa.domain.model.ReadyCollection
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.MixingBoardUseCase
+import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
+import com.mitas.ppnam.station2aa.ui.components.resolveConnectionStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -1452,7 +1452,7 @@ class MixingBoardViewModel @Inject constructor(
 
 - [ ] **Step 4: Run the tests**
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.board.MixingBoardViewModelTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.board.MixingBoardViewModelTest"`
 Expected: PASS (6/6).
 
 - [ ] **Step 5: Commit**
@@ -1529,7 +1529,7 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
         whenever(mockUseCase.fetchReadyCollections()).thenReturn(Result.success(readyCollections))
         whenever(mockUseCase.fetchCollectedMaterials("510019068", "COL_1")).thenReturn(
             Result.success(listOf(
-                com.ppnam.station2aa.domain.model.CollectedMaterial("MAT-1", "Resin", 550.0))))
+                com.mitas.ppnam.station2aa.domain.model.CollectedMaterial("MAT-1", "Resin", 550.0))))
         viewModel.openArea(MixingArea.Rajoo)
         advanceUntilIdle()
         viewModel.selectCollection("COL_1")
@@ -1547,7 +1547,7 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
     fun `confirmStart for a collection on a plain mixer calls startMixer`() = runTest {
         openMainBoard(); advanceUntilIdle()
         whenever(mockUseCase.startMixer(any(), any(), any())).thenReturn(
-            com.ppnam.station2aa.domain.model.MachineCycleOutcome.Accepted(
+            com.mitas.ppnam.station2aa.domain.model.MachineCycleOutcome.Accepted(
                 action = "Started", machineCode = "MXR-01", cycleId = "CYC_1",
                 mixBatchId = "MIX_5", productionRunId = null,
                 affectedMixBatchIds = listOf("MIX_5"), alreadyFinished = false,
@@ -1568,7 +1568,7 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
     fun `confirmStart for mixes calls startDownstream with the selected ids`() = runTest {
         openMainBoard(); advanceUntilIdle()
         whenever(mockUseCase.startDownstream(any(), any(), any())).thenReturn(
-            com.ppnam.station2aa.domain.model.MachineCycleOutcome.Accepted(
+            com.mitas.ppnam.station2aa.domain.model.MachineCycleOutcome.Accepted(
                 action = "Started", machineCode = "EXT-03", cycleId = "RUN_1",
                 mixBatchId = null, productionRunId = "RUN_1",
                 affectedMixBatchIds = listOf("MIX_1"), alreadyFinished = false,
@@ -1586,8 +1586,8 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
         openMainBoard(); advanceUntilIdle()
         val refreshed = mainOverview.copy(equipment = listOf(equipment("MXR-01", status = "InUse")))
         whenever(mockUseCase.startMixer(any(), any(), any())).thenReturn(
-            com.ppnam.station2aa.domain.model.MachineCycleOutcome.Rejected(
-                errorCode = com.ppnam.station2aa.data.mqtt.ErrorCode.EQUIPMENT_IN_USE,
+            com.mitas.ppnam.station2aa.domain.model.MachineCycleOutcome.Rejected(
+                errorCode = com.mitas.ppnam.station2aa.data.mqtt.ErrorCode.EQUIPMENT_IN_USE,
                 reason = "Busy on another cycle.", areaStatus = refreshed))
         viewModel.selectCollection("COL_1")
         viewModel.machineChosen("MXR-01")
@@ -1610,7 +1610,7 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
         whenever(mockUseCase.fetchReadyCollections()).thenReturn(Result.success(readyCollections))
         whenever(mockUseCase.fetchCollectedMaterials(any(), any())).thenReturn(
             Result.success(listOf(
-                com.ppnam.station2aa.domain.model.CollectedMaterial("MAT-1", "Resin", 100.0))))
+                com.mitas.ppnam.station2aa.domain.model.CollectedMaterial("MAT-1", "Resin", 100.0))))
         viewModel.openArea(MixingArea.Rajoo)
         advanceUntilIdle()
         viewModel.selectCollection("COL_1")
@@ -1628,7 +1628,7 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
 
     @Test
     fun `a scan while a sheet is open is ignored`() = runTest {
-        val events = MutableSharedFlow<com.ppnam.station2aa.data.rfid.ScanEvent>()
+        val events = MutableSharedFlow<com.mitas.ppnam.station2aa.data.rfid.ScanEvent>()
         whenever(mockScanEventBus.events).thenReturn(events)
         val vm = MixingBoardViewModel(mockUseCase, mockScanEventBus, mockMqttRepository, mockAuthUseCase, mockSessionHolder)
         whenever(mockUseCase.fetchOverview(eq(MixingArea.Main), anyOrNull())).thenReturn(Result.success(mainOverview))
@@ -1637,7 +1637,7 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
         advanceUntilIdle()
         vm.machineChosen("MXR-02") // opens the cycle sheet
 
-        events.emit(com.ppnam.station2aa.data.rfid.ScanEvent.Barcode("MXR-01", java.time.Instant.now()))
+        events.emit(com.mitas.ppnam.station2aa.data.rfid.ScanEvent.Barcode("MXR-01", java.time.Instant.now()))
         advanceUntilIdle()
 
         val sheet = (vm.uiState.value as MixingBoardUiState.Board).sheet
@@ -1646,7 +1646,7 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
 
     @Test
     fun `a scan on the board dispatches machineChosen`() = runTest {
-        val events = MutableSharedFlow<com.ppnam.station2aa.data.rfid.ScanEvent>()
+        val events = MutableSharedFlow<com.mitas.ppnam.station2aa.data.rfid.ScanEvent>()
         whenever(mockScanEventBus.events).thenReturn(events)
         val vm = MixingBoardViewModel(mockUseCase, mockScanEventBus, mockMqttRepository, mockAuthUseCase, mockSessionHolder)
         whenever(mockUseCase.fetchOverview(eq(MixingArea.Main), anyOrNull())).thenReturn(Result.success(mainOverview))
@@ -1654,7 +1654,7 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
         vm.openArea(MixingArea.Main)
         advanceUntilIdle()
 
-        events.emit(com.ppnam.station2aa.data.rfid.ScanEvent.Barcode("MXR-02", java.time.Instant.now()))
+        events.emit(com.mitas.ppnam.station2aa.data.rfid.ScanEvent.Barcode("MXR-02", java.time.Instant.now()))
         advanceUntilIdle()
 
         assertTrue((vm.uiState.value as MixingBoardUiState.Board).sheet is BoardSheet.CycleSheet)
@@ -1664,7 +1664,7 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
     fun `finishCycle sends the stored cycle id and messages alreadyFinished as success`() = runTest {
         openMainBoard(); advanceUntilIdle()
         whenever(mockUseCase.finish("MXR-02", "CYC_9")).thenReturn(
-            com.ppnam.station2aa.domain.model.MachineCycleOutcome.Accepted(
+            com.mitas.ppnam.station2aa.domain.model.MachineCycleOutcome.Accepted(
                 action = "Finished", machineCode = "MXR-02", cycleId = "CYC_9",
                 mixBatchId = "MIX_9", productionRunId = null,
                 affectedMixBatchIds = listOf("MIX_9"), alreadyFinished = true,
@@ -1694,7 +1694,7 @@ Append to `MixingBoardViewModelTest.kt` (uses the Task 4 fixtures):
 
 - [ ] **Step 2: Run to verify the new tests fail**
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.board.MixingBoardViewModelTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.board.MixingBoardViewModelTest"`
 Expected: FAIL (unresolved `selectCollection` etc.).
 
 - [ ] **Step 3: Add the interaction half of the ViewModel**
@@ -1702,9 +1702,9 @@ Expected: FAIL (unresolved `selectCollection` etc.).
 Add these imports to `MixingBoardViewModel.kt`:
 
 ```kotlin
-import com.ppnam.station2aa.data.rfid.ScanEvent
-import com.ppnam.station2aa.domain.model.LayerInput
-import com.ppnam.station2aa.domain.model.MachineCycleOutcome
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.domain.model.LayerInput
+import com.mitas.ppnam.station2aa.domain.model.MachineCycleOutcome
 ```
 
 Extend `init` with the scan collector (below the reconnect collector):
@@ -1972,7 +1972,7 @@ Add the interaction functions to the class body:
 
 - [ ] **Step 4: Run the full ViewModel test class**
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.board.MixingBoardViewModelTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.board.MixingBoardViewModelTest"`
 Expected: PASS (18/18).
 
 - [ ] **Step 5: Full suite + commit**
@@ -2016,7 +2016,7 @@ Add to `MixingViewModelTest.kt` (uses the file's existing fixtures/mocks; the en
                 collectionSummary = "All products collected.",
                 collectionStatus = "ReadyForMixing",
                 overCollectionToleranceBags = 1.0,
-                nextAction = com.ppnam.station2aa.data.mqtt.NextAction.START_MIXING,
+                nextAction = com.mitas.ppnam.station2aa.data.mqtt.NextAction.START_MIXING,
             )))
 
         val events = mutableListOf<String>()
@@ -2029,7 +2029,7 @@ Add to `MixingViewModelTest.kt` (uses the file's existing fixtures/mocks; the en
     }
 ```
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: FAIL (`MIXING_BOARD` unresolved).
 
 - [ ] **Step 2: Emit the event from the capture ViewModel**
@@ -2062,7 +2062,7 @@ In `handleScanOutcome`'s `Accepted` branch, after `_uiState.value = orderLoadedS
 `NavRoutes.kt` becomes:
 
 ```kotlin
-package com.ppnam.station2aa.navigation
+package com.mitas.ppnam.station2aa.navigation
 
 object NavRoutes {
     const val LOGIN = "login"
@@ -2092,7 +2092,7 @@ object NavRoutes {
 `app/src/main/java/com/ppnam/station2aa/ui/mixing/board/MixingAreaPickerScreen.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing.board
+package com.mitas.ppnam.station2aa.ui.mixing.board
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -2104,15 +2104,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ppnam.station2aa.domain.model.MixingArea
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.AmberPrimary
-import com.ppnam.station2aa.ui.theme.DangerRed
-import com.ppnam.station2aa.ui.theme.GraphiteBorder
-import com.ppnam.station2aa.ui.theme.GraphiteSurface
-import com.ppnam.station2aa.ui.theme.SuccessGreen
-import com.ppnam.station2aa.ui.theme.TextMuted
-import com.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.domain.model.MixingArea
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
+import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
+import com.mitas.ppnam.station2aa.ui.theme.TextMuted
+import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 
 @Composable
 fun MixingAreaPickerScreen(
@@ -2207,10 +2207,10 @@ fun MixingAreaPickerScreen(
 ```kotlin
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.ppnam.station2aa.domain.model.MixingArea
-import com.ppnam.station2aa.ui.mixing.board.MixingAreaPickerScreen
-import com.ppnam.station2aa.ui.mixing.board.MixingBoardScreen
-import com.ppnam.station2aa.ui.mixing.board.MixingBoardViewModel
+import com.mitas.ppnam.station2aa.domain.model.MixingArea
+import com.mitas.ppnam.station2aa.ui.mixing.board.MixingAreaPickerScreen
+import com.mitas.ppnam.station2aa.ui.mixing.board.MixingBoardScreen
+import com.mitas.ppnam.station2aa.ui.mixing.board.MixingBoardViewModel
 ```
 
 Inside `NavHost`, after the existing `MIXING` nested graph, add:
@@ -2383,7 +2383,7 @@ Remove the temporary `MixingBoardScreen` composable (and its comment) from the b
 `app/src/main/java/com/ppnam/station2aa/ui/mixing/board/MixingBoardScreen.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.mixing.board
+package com.mitas.ppnam.station2aa.ui.mixing.board
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -2398,18 +2398,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.ppnam.station2aa.domain.model.ActiveCycle
-import com.ppnam.station2aa.domain.model.Equipment
-import com.ppnam.station2aa.domain.model.MixingArea
-import com.ppnam.station2aa.ui.components.AppScaffold
-import com.ppnam.station2aa.ui.theme.AmberPrimary
-import com.ppnam.station2aa.ui.theme.DangerRed
-import com.ppnam.station2aa.ui.theme.GraphiteBorder
-import com.ppnam.station2aa.ui.theme.GraphiteSurface
-import com.ppnam.station2aa.ui.theme.SuccessGreen
-import com.ppnam.station2aa.ui.theme.TextMuted
-import com.ppnam.station2aa.ui.theme.TextPrimary
-import com.ppnam.station2aa.ui.theme.WarningOrange
+import com.mitas.ppnam.station2aa.domain.model.ActiveCycle
+import com.mitas.ppnam.station2aa.domain.model.Equipment
+import com.mitas.ppnam.station2aa.domain.model.MixingArea
+import com.mitas.ppnam.station2aa.ui.components.AppScaffold
+import com.mitas.ppnam.station2aa.ui.theme.AmberPrimary
+import com.mitas.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
+import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
+import com.mitas.ppnam.station2aa.ui.theme.TextMuted
+import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 
 @Composable
 fun MixingBoardScreen(
@@ -2848,7 +2848,7 @@ Add to `MixingViewModelTest.kt` (SP4a carry-ins — quantity-shaped approval res
     }
 ```
 
-Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
+Run: `.\gradlew.bat :app:testDebugUnitTest --tests "com.mitas.ppnam.station2aa.ui.mixing.MixingViewModelTest"`
 Expected: the two waiver tests PASS already (the guards exist since SP4a — these are the deferred regression pins); the resubmit test PASSES too if the SP4a pass-through is correct. A FAILURE here is a real bug — fix the production code, not the test.
 
 - [ ] **Step 2: Create the app-level gate**
@@ -2856,7 +2856,7 @@ Expected: the two waiver tests PASS already (the guards exist since SP4a — the
 `app/src/main/java/com/ppnam/station2aa/ui/components/UpgradeGate.kt`:
 
 ```kotlin
-package com.ppnam.station2aa.ui.components
+package com.mitas.ppnam.station2aa.ui.components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -2865,10 +2865,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
-import com.ppnam.station2aa.domain.repository.MqttRepository
-import com.ppnam.station2aa.ui.theme.GraphiteSurface
-import com.ppnam.station2aa.ui.theme.TextMuted
-import com.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
+import com.mitas.ppnam.station2aa.ui.theme.TextMuted
+import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -2907,7 +2907,7 @@ fun UpgradeRequiredGate(viewModel: UpgradeGateViewModel = hiltViewModel()) {
 }
 ```
 
-In `AppNavGraph.kt`, add the import `com.ppnam.station2aa.ui.components.UpgradeRequiredGate` and render the gate directly after the `NavHost(...) { ... }` block (still inside `AppNavGraph`'s body):
+In `AppNavGraph.kt`, add the import `com.mitas.ppnam.station2aa.ui.components.UpgradeRequiredGate` and render the gate directly after the `NavHost(...) { ... }` block (still inside `AppNavGraph`'s body):
 
 ```kotlin
     UpgradeRequiredGate()

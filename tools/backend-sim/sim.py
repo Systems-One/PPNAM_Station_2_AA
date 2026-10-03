@@ -1,12 +1,12 @@
-"""Station 2 backend simulator — answers the Android handheld's MQTT v3
-contract traffic exactly like the real WPF backend would, with extensive
+"""Station 2 backend simulator — answers the Android handheld's rev2.1 MQTT traffic
+exactly like the real WPF backend would, with extensive
 logging (wire.jsonl, sim.log, state snapshots) as a second source of truth.
 
 Usage:
     python sim.py [--host mqtt.sysone.co.za] [--port 443]
                   [--transport websockets] [--ws-path /mqtt] [--tls | --no-tls]
                   [--username admin] [--password admin]
-                  [--window 300] [--tolerance 1.0] [--yield-to-real]
+                  [--window 300] [--yield-to-real]
 
 Defaults: wss on port 443, path /mqtt, admin/admin — per broker config as of
 2026-07-23. NOTE: the app's AppSettings.kt hardcodes port 8884, which
@@ -14,9 +14,9 @@ disagrees with this; reconcile with whichever is actually live before
 testing against the real broker. For a plain factory broker (e.g.
 10.1.50.1:1883, no TLS/auth), pass --transport tcp --no-tls --username "".
 
-The simulator plays the role of station_2:
-  - retained `online` on PPNAM/station_2/status (LWT: retained `offline`)
-  - subscribes PPNAM/+/req/+ and PPNAM/+/status
+The simulator plays the role of station_2 (per-station namespace, 2026-08-17):
+  - retained `online` on the base topic PPNAM/station_2 (LWT: retained `offline`)
+  - subscribes PPNAM/station_2/+/req/+ and PPNAM/station_2/+ (device presence)
   - one worker thread processes requests strictly in arrival order, which is
     exactly the serialization the contract requires of Station 2.
 """
@@ -29,19 +29,30 @@ import sys
 import threading
 import time
 
+from datetime import timedelta
+
 import paho.mqtt.client as mqtt
 from paho.mqtt.packettypes import PacketTypes
 from paho.mqtt.properties import Properties
 
 import envelope
-from envelope import Rejection, Replay, build_response
-from handlers import REGISTRY, RETIRED_REQUEST_TYPES
+from envelope import Rejection
+from handlers import rev2_general, scram
 from simlog import SimLogger
-from state import World
+from state import World, iso, utc_now
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATION_ID = "station_2"
-STATUS_TOPIC = f"PPNAM/{STATION_ID}/status"
+STATION_BASE = f"PPNAM/{STATION_ID}"
+# Presence lives on the base topic node — no /status sub-topic (2026-08-17 restructure).
+STATUS_TOPIC = STATION_BASE
+
+# --- Fault injection (§4.1b / §4.4c / E24 test support) -------------------------------------
+# A guarded, opt-in control plane: the sim subscribes to CONTROL_TOPIC and the harness publishes
+# a JSON command to arm a one-shot (or N-shot) fault before triggering the app action under test.
+# Faults are stored per-Simulator and default to empty, so selftest (--direct, which never
+# publishes control) and normal runs behave exactly as before.
+CONTROL_TOPIC = "PPNAM/_sim/control"
 
 
 def _redacted(payload):
@@ -69,13 +80,15 @@ class Simulator:
         self.world = World(os.path.join(BASE_DIR, "seed"), self.log)
         if args.window is not None:
             self.world.config["timestampWindowSeconds"] = args.window
-        if args.tolerance is not None:
-            self.world.config["overCollectionToleranceBags"] = args.tolerance
         if getattr(args, "demo_collections", False):
-            from handlers.jobcards import seed_demo_collections
-            seed_demo_collections(self.world, self.log)
+            rev2_general.seed_demo_jobs(self.world, self.log)
         self.queue = queue.Queue()
         self.announced = False
+        # Armed fault-injection commands (list of dicts). Empty by default -> zero behavioural
+        # change. Guarded by a lock because control frames arrive on the network thread while the
+        # worker thread consumes faults.
+        self._faults = []
+        self._faults_lock = threading.Lock()
         self.real_station_seen = threading.Event()
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2,
                                   client_id="station2-simulator",
@@ -102,44 +115,125 @@ class Simulator:
     def announce(self):
         self.client.publish(STATUS_TOPIC, "online", qos=1, retain=True)
         self.log.wire("out", STATUS_TOPIC, "online")
-        self.client.subscribe([("PPNAM/+/req/+", 1), ("PPNAM/+/status", 1)])
+        self.client.subscribe([(f"{STATION_BASE}/+/req/+", 1), (f"{STATION_BASE}/+", 1),
+                               (CONTROL_TOPIC, 1)])
         self.announced = True
         self.log.ok("presence 'online' published (retained, LWT registered); "
-                    "subscribed PPNAM/+/req/+ and PPNAM/+/status — simulating station_2")
+                    f"subscribed {STATION_BASE}/+/req/+ and {STATION_BASE}/+ — simulating {STATION_ID}")
 
     def on_disconnect(self, client, userdata, flags, reason_code, properties):
         self.log.warn(f"disconnected from broker (rc={reason_code}); paho will auto-reconnect")
 
     def on_message(self, client, userdata, msg):
         parts = msg.topic.split("/")
-        is_req = len(parts) == 4 and parts[0] == "PPNAM" and parts[2] == "req"
+        if msg.topic == CONTROL_TOPIC:
+            # Control frames are applied inline on the network thread so a fault is armed the
+            # instant it is published, before the request it is meant to affect can arrive.
+            self._apply_control(msg.payload)
+            return
+        is_req = (len(parts) == 5 and parts[0] == "PPNAM" and parts[1] == STATION_ID
+                  and parts[3] == "req")
         if not is_req:
             # req messages are wire-logged in handle_request (shared with the
             # selftest's direct in-process transport)
             self.log.wire("in", msg.topic, msg.payload, qos=msg.qos)
-        if len(parts) == 3 and parts[0] == "PPNAM" and parts[2] == "status":
-            if parts[1] == STATION_ID:
-                if not self.announced and msg.payload.decode(errors="replace") == "online":
-                    self.real_station_seen.set()
-                return
-            self.queue.put(("status", parts[1], msg.payload))
-        elif len(parts) == 4 and parts[0] == "PPNAM" and parts[2] == "req":
-            self.queue.put(("req", parts[1], parts[3], msg.payload))
+        if msg.topic == STATUS_TOPIC:
+            # Our own base-node presence (collision guard for a real Station 2).
+            if not self.announced and msg.payload.decode(errors="replace") == "online":
+                self.real_station_seen.set()
+            return
+        if (len(parts) == 3 and parts[0] == "PPNAM" and parts[1] == STATION_ID
+                and parts[2] not in ("req", "res")):
+            # Device presence on the device's base node (PPNAM/station_2/{deviceId}).
+            self.queue.put(("status", parts[2], msg.payload))
+        elif is_req:
+            self.queue.put(("req", parts[2], parts[4], msg.payload))
         else:
             self.log.warn(f"unknown topic '{msg.topic}' — no workflow side effect (per contract)")
 
     def publish_response(self, device_id, response_type, response):
-        topic = f"PPNAM/{device_id}/res/{response_type}"
-        payload = json.dumps(response, ensure_ascii=False)
-        self.client.publish(topic, payload, qos=1, retain=False)
+        topic = f"{STATION_BASE}/{device_id}/res/{response_type}"
+        self.client.publish(topic, json.dumps(response, ensure_ascii=False), qos=1, retain=False)
         self.log.wire("out", topic, response)
-        outcome = "ACCEPTED" if response.get("accepted") else \
-            f"REJECTED ({response.get('errorCode')})"
+        if "success" not in response:
+            # A server push (active_job_cards_invalidated) has no success flag and answers nothing.
+            self.log.tx(f"res/{response_type} -> {device_id}: PUSH {response.get('reason')}")
+            return topic
+        outcome = "SUCCESS" if response.get("success") else f"FAILED ({response.get('error')})"
         self.log.tx(f"res/{response_type} -> {device_id}: {outcome} "
-                    f"msgId={response.get('messageId')} "
-                    f"inResponseTo={response.get('inResponseToMessageId')} "
-                    f"nextAction={response.get('nextAction')!r}")
+                    f"inResponseTo={response.get('inResponseToMessageId')!r}")
         return topic
+
+    def publish_invalidations(self):
+        """The server's PreparationsChanged push, to every device that has read General."""
+        for device_id in sorted(self.world.general_readers):
+            self.publish_response(device_id, "active_job_cards_invalidated", {
+                "schemaVersion": envelope.SCHEMA_VERSION,
+                "deviceId": device_id,
+                "messageId": f"rev2-preparations-{os.urandom(16).hex()}",
+                "timestampUtc": iso(utc_now()),
+                "mode": "General",
+                "reason": "preparation_created",
+                "nextAction": "read",
+            })
+
+    # ------------------------------------------------ fault injection ----
+    def _apply_control(self, payload):
+        """Handle a control frame on CONTROL_TOPIC. Arms a fault, or performs an immediate
+        side effect (presence override / reset)."""
+        try:
+            cmd = json.loads(payload)
+            if not isinstance(cmd, dict):
+                raise ValueError("control frame is not an object")
+        except (ValueError, UnicodeDecodeError) as e:
+            self.log.warn(f"sim-control: unparseable control frame: {e}")
+            return
+        kind = cmd.get("cmd")
+        if kind == "reset":
+            with self._faults_lock:
+                self._faults.clear()
+            # Restore a clean retained 'online' presence (A9 teardown).
+            self.client.publish(STATUS_TOPIC, "online", qos=1, retain=True)
+            self.log.wire("out", STATUS_TOPIC, "online")
+            self.log.ok("sim-control: RESET — all faults cleared, presence restored to 'online'")
+            return
+        if kind == "presence":
+            value = str(cmd.get("value", "online"))
+            self.client.publish(STATUS_TOPIC, value, qos=1, retain=True)
+            self.log.wire("out", STATUS_TOPIC, value)
+            self.log.warn(f"sim-control: FAULT presence override -> retained '{value}' "
+                          f"on {STATUS_TOPIC}")
+            return
+        if kind == "invalidate":
+            self.publish_invalidations()
+            self.log.ok("sim-control: INVALIDATE — active_job_cards_invalidated pushed")
+            return
+        if kind in ("withhold", "malformed", "uncorrelated", "reject", "login_mangle"):
+            fault = {
+                "cmd": kind,
+                "match": cmd.get("match", "*"),
+                "remaining": int(cmd.get("count", 1)),
+            }
+            for extra in ("errorCode", "reason", "nextAction", "session", "mode"):
+                if extra in cmd:
+                    fault[extra] = cmd[extra]
+            with self._faults_lock:
+                self._faults.append(fault)
+            self.log.warn(f"sim-control: FAULT armed {fault}")
+            return
+        self.log.warn(f"sim-control: unknown cmd {kind!r} — ignored")
+
+    def _take_fault(self, request_type, kinds):
+        """Pop and return the first armed fault matching request_type whose cmd is in `kinds`.
+        Decrements its shot counter; removes it when exhausted. Returns None if none match."""
+        with self._faults_lock:
+            for f in self._faults:
+                if f["cmd"] in kinds and f["match"] in ("*", request_type):
+                    f["remaining"] -= 1
+                    if f["remaining"] <= 0:
+                        self._faults.remove(f)
+                    return f
+        return None
 
     # ---------------------------------------------------------- worker ----
     def worker(self):
@@ -163,75 +257,66 @@ class Simulator:
                 self.log.fail("unhandled error in worker:\n" + traceback.format_exc())
 
     def handle_request(self, device_id, request_type, payload):
-        self.log.wire("in", f"PPNAM/{device_id}/req/{request_type}", _redacted(payload))
-        if request_type in RETIRED_REQUEST_TYPES:
-            self.log.fail(f"req/{request_type} from {device_id}: RETIRED v3 production request "
-                          f"— answering client_upgrade_required (v4 tripwire)")
-            try:
-                body = json.loads(payload)
-                if not isinstance(body, dict):
-                    body = {}
-            except (ValueError, UnicodeDecodeError):
-                body = {}
-            body.setdefault("deviceId", device_id)
-            response = build_response(
-                self.world, body, accepted=False,
-                error_code="client_upgrade_required",
-                reason="This request was retired by contract v4.0. Upgrade the reader "
-                       "build for the unified Mixing workflow.",
-                next_action="upgrade_reader_for_mixing")
-            self.publish_response(device_id, "workflow_upgrade_required", response)
+        self.log.wire("in", f"{STATION_BASE}/{device_id}/req/{request_type}", _redacted(payload))
+        if self._faults and self._take_fault(request_type, ("withhold",)):
+            self.log.warn(f"sim-control: FAULT withhold — dropping req/{request_type} "
+                          f"(no processing, no response)")
             return
-        entry = REGISTRY.get(request_type)
-        if not entry:
-            self.log.warn(f"req/{request_type} from {device_id}: unknown request type — "
-                          f"no workflow side effect, no response (per contract)")
-            return
-        self.log.rx(f"req/{request_type} from {device_id} ({len(payload)} bytes)")
-
-        ctx, req, session, response = {}, {}, None, None
+        received_at = utc_now()
+        ctx = {"messageId": ""}
         try:
-            req, session = envelope.validate(self.world, self.log, device_id,
-                                             request_type, payload, entry["is_login"],
-                                             ctx)
-            response = entry["handler"](self.world, self.log, req, session)
-        except Replay as rep:
-            self.publish_response(device_id, entry["response"], rep.response)
-            return
+            req = envelope.validate(device_id, request_type, payload, ctx)
+            response = self._dispatch(device_id, request_type, payload, req, received_at)
         except Rejection as rej:
-            extras = dict(rej.extra)
-            if entry["reject_extras"]:
-                base = entry["reject_extras"](self.world)
-                base.update(extras)
-                extras = base
-            source = req or ctx
-            fallback = {"messageId": source.get("messageId"), "deviceId": device_id,
-                        "operatorSessionId": source.get("operatorSessionId", ""),
-                        "correlationKey": source.get("correlationKey")}
-            response = build_response(
-                self.world, fallback,
-                accepted=False, error_code=rej.error_code, reason=rej.reason,
-                next_action=rej.next_action, response_extras=extras,
-                session_id=session["sessionId"] if session else None)
-            req = source
+            self.log.fail(f"req/{request_type} from {device_id}: {rej.error} — {rej.message}")
+            response = envelope.reply(device_id, ctx["messageId"], received_at, False,
+                                      rej.message, rej.error, rej.data)
+        except Exception:  # noqa: BLE001 — mirrors the server's outcome_unconfirmed catch-all
+            import traceback
+            self.log.fail("unhandled error:\n" + traceback.format_exc())
+            response = envelope.reply(
+                device_id, ctx["messageId"], received_at, False,
+                "The result could not be confirmed. Retry the identical request and message ID.",
+                "outcome_unconfirmed")
+        self.publish_response(device_id, envelope.response_suffix(request_type), response)
 
-        # step 8: replay storage (only when a replay identity existed)
-        topic = self.publish_response(device_id, entry["response"], response)
-        if req.get("_bodyHash"):
-            self.world.replay_store(device_id, request_type, req["messageId"],
-                                    req["_bodyHash"], topic, response)
-        if response.get("accepted") and entry["mutating"]:
-            self.world.log = None  # never serialize the logger
-            snapshot = self.world.to_dict()
-            self.world.log = self.log
-            self.log.snapshot(snapshot, f"{request_type}-{req.get('messageId', 'na')}")
+    def _dispatch(self, device_id, request_type, payload, req, received_at):
+        message_id = req["messageId"]
+        if request_type.startswith("scram_"):
+            key = (device_id, request_type, message_id)
+            self.world.expire_auth_replies(received_at)
+            prior = self.world.auth_replies.get(key)
+            if prior:
+                if prior["body"] == payload:
+                    return envelope.reply(device_id, message_id, received_at, True,
+                                          "Authentication response replayed.", data=prior["data"])
+                raise Rejection("message_id_conflict", "Message ID body mismatch.")
+            if req.get("purpose") != "login":
+                raise Rejection("purpose_not_enabled", "Only operator login is enabled.")
+            if request_type == "scram_start_requested":
+                data, text = scram.scram_start(self.world, self.log, req), "Challenge issued."
+            else:
+                data, text = scram.scram_proof(self.world, self.log, req), "Signed in."
+            self.world.auth_replies[key] = {"body": payload, "data": data,
+                                            "expires": received_at + timedelta(seconds=60)}
+            return envelope.reply(device_id, message_id, received_at, True, text, data=data)
+
+        if request_type == "rev2_rajoo_requested":
+            raise Rejection("action_not_allowed", "The simulator does not implement the Rajoo family.")
+        action = rev2_general.check_action(req)
+        session, err = self.world.get_session(device_id, req.get("sessionId") or "")
+        if not session:
+            self.log.fail(f"session: {err}")
+            raise Rejection("operator_session_invalid", "Sign in on this device before continuing.")
+        result, snap = rev2_general.handle(self.world, self.log, req, action)
+        return envelope.reply(device_id, message_id, received_at, result["success"],
+                              result["message"], "" if result["success"] else "rev2_rejected", snap)
 
     # ------------------------------------------------------------- run ----
     def run(self):
         self.log.ok(f"Station 2 backend simulator starting "
-                    f"(schema {envelope.SCHEMA_VERSION}, contract v4) — "
-                    f"window ±{self.world.config['timestampWindowSeconds']}s, "
-                    f"tolerance {self.world.config['overCollectionToleranceBags']} bag(s)")
+                    f"(schema {envelope.SCHEMA_VERSION}) — "
+                    f"window ±{self.world.config['timestampWindowSeconds']}s")
         self.log.ok(f"logs: {self.log.run_dir}")
         self.client.connect(self.args.host, self.args.port, keepalive=30)
         self.client.loop_start()
@@ -270,7 +355,7 @@ class Simulator:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Station 2 MQTT backend simulator (contract v4)")
+    parser = argparse.ArgumentParser(description="Station 2 MQTT backend simulator (rev2.1)")
     parser.add_argument("--host", default="mqtt.sysone.co.za", help="MQTT broker host")
     parser.add_argument("--port", type=int, default=None,
                         help="MQTT broker port (default: 443 for websockets, 1883 for tcp)")
@@ -284,14 +369,12 @@ def main():
     parser.add_argument("--username", default="admin", help="broker auth username (blank to disable auth)")
     parser.add_argument("--password", default="admin", help="broker auth password")
     parser.add_argument("--demo-collections", dest="demo_collections", action="store_true",
-                        default=True, help="pre-load a few job-card collections at startup, "
-                        "one already ReadyForMixing (default: on)")
+                        default=True, help="hold one job with a preparation at startup "
+                        "(default: on)")
     parser.add_argument("--no-demo-collections", dest="demo_collections", action="store_false",
-                        help="start with no pre-loaded collections (clean world)")
+                        help="start with no held jobs (clean world)")
     parser.add_argument("--window", type=int, default=None,
                         help="timestamp acceptance window in seconds (default from seed: 300)")
-    parser.add_argument("--tolerance", type=float, default=None,
-                        help="over-collection tolerance in full bags (default from seed: 1.0)")
     parser.add_argument("--yield-to-real", action="store_true",
                         help="exit instead of announcing if the real Station 2 is online")
     parser.add_argument("--no-color", action="store_true", help="disable console colours")

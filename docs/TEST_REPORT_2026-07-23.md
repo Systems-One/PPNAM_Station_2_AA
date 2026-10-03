@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-23
 **Device:** Chainway C72 (`handheld_1`), Android 13, 1080×1920 @ 480 dpi
-**App:** `com.ppnam.station2aa` v1.0 (1), branch `master`
+**App:** `com.mitas.ppnam.station2aa` v1.0 (1), branch `master`
 **Backend:** **live Station 2 backend** (`PPNAM/station_2/status` retained `online`)
 **Broker:** `wss://mqtt.sysone.co.za:443/mqtt`, mosquitto 2.0.22, auth `admin/admin`
 **Operators tested:** `Jono` (Operator), `Avi` (Admin)

@@ -1,0 +1,40 @@
+[2026-07-30T16:54:04.481040+00:00] sniffer writing to C:\Dev\PPNAM_Station_2_AA\docs\test-runs\2026-07-30\capture-area-scope\wire.jsonl
+[2026-07-30T16:54:04.488614+00:00] SNIFFER CONNECTED rc=Success
+[2026-07-30T16:54:04.496334+00:00] *** PPNAM/handheld_3/status action=None
+        offline
+[2026-07-30T16:54:04.496756+00:00] *** PPNAM/station_2/status action=None
+        online
+[2026-07-30T16:54:04.496961+00:00] *** PPNAM/handheld_1/status action=None
+        online
+[2026-07-30T16:54:36.548968+00:00] --> PPNAM/handheld_1/req/scram_start_requested action=scram_start_requested
+        {"actionTarget":"","clientNonce":"+LGvR41ZqKfUYOld943zOfbewcbwuJxA","managerAction":"","purpose":"login","username":"operator1","messageId":"ba5df7a4-7908-4ba2-89a8-37cd5ad0b7ff","schemaVersion":"4.1","deviceId":"handhel...(+73B)
+[2026-07-30T16:54:36.600645+00:00] <-- PPNAM/handheld_1/res/scram_challenge action=scram_challenge (52ms)
+        {"messageId": "S2-000001", "inResponseToMessageId": "ba5df7a4-7908-4ba2-89a8-37cd5ad0b7ff", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "", "timestampUtc": "2026-07-30T16:54:36.549890Z", "serve...(+566B)
+[2026-07-30T16:54:37.305369+00:00] --> PPNAM/handheld_1/req/scram_proof_requested action=scram_proof_requested
+        {"actionTarget":"","challengeId":"CHL_000001","clientFinalWithoutProof":"c\u003dbiws,r\u003d+LGvR41ZqKfUYOld943zOfbewcbwuJxAPP2pGdn9K+s4GTBCl5xiNZni","clientProof":"s0+VppPgdwtjnO3aLTA3zRMfN+Iu+TC2Hj0UgJo1cIc\u003d","man...(+198B)
+[2026-07-30T16:54:37.356856+00:00] <-- PPNAM/handheld_1/res/operator_context action=operator_context (51ms)
+        {"messageId": "S2-000002", "inResponseToMessageId": "7032b3f6-0e26-487f-ad7e-17b147605d20", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260730165437", "timestampUtc": "2026-07...(+641B)
+[2026-07-30T16:54:59.101362+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"ce3b6b66-02a3-47ff-a862-d3df0d80c9b6","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260730165437","timestampUtc":"2026-07-30T16:54:57.200126Z"}
+[2026-07-30T16:54:59.128147+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (27ms)
+        {"messageId": "S2-000003", "inResponseToMessageId": "ce3b6b66-02a3-47ff-a862-d3df0d80c9b6", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260730165437", "timestampUtc": "2026-07...(+28477B)
+[2026-07-30T16:55:18.606799+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"mixingArea":"MainMixingRoom","messageId":"41b75b0c-7301-4df1-845a-f087096ef4f9","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260730165437","timestampUtc":"2026-07-30T16:55:16.7351...(+5B)
+[2026-07-30T16:55:18.624566+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (18ms)
+        {"messageId": "S2-000004", "inResponseToMessageId": "41b75b0c-7301-4df1-845a-f087096ef4f9", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260730165437", "timestampUtc": "2026-07...(+18687B)
+[2026-07-30T16:55:19.054602+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"mixingArea":"MainMixingRoom","messageId":"024c3bd6-7256-4bb3-bf84-e6bcb121a368","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260730165437","timestampUtc":"2026-07-30T16:55:17.1918...(+5B)
+[2026-07-30T16:55:19.067703+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (13ms)
+        {"messageId": "S2-000005", "inResponseToMessageId": "024c3bd6-7256-4bb3-bf84-e6bcb121a368", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260730165437", "timestampUtc": "2026-07...(+18687B)
+[2026-07-30T16:55:43.394612+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"messageId":"68dc4c0f-68d7-43f6-b87b-f222765f9552","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260730165437","timestampUtc":"2026-07-30T16:55:41.516161Z"}
+[2026-07-30T16:55:43.413119+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (19ms)
+        {"messageId": "S2-000006", "inResponseToMessageId": "68dc4c0f-68d7-43f6-b87b-f222765f9552", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260730165437", "timestampUtc": "2026-07...(+28477B)
+[2026-07-30T16:55:49.148664+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"mixingArea":"JandiBulkMixing","messageId":"482eb59a-b72c-4396-b5ba-c2afa6fb1988","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260730165437","timestampUtc":"2026-07-30T16:55:47.245...(+6B)
+[2026-07-30T16:55:49.158626+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (10ms)
+        {"messageId": "S2-000007", "inResponseToMessageId": "482eb59a-b72c-4396-b5ba-c2afa6fb1988", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260730165437", "timestampUtc": "2026-07...(+3119B)
+[2026-07-30T16:55:49.529150+00:00] --> PPNAM/handheld_1/req/mixing_overview_requested action=mixing_overview_requested
+        {"mixingArea":"JandiBulkMixing","messageId":"9e54a120-d127-4489-a354-644b5ba37ee4","schemaVersion":"4.1","deviceId":"handheld_1","operatorSessionId":"SES-handheld_1-20260730165437","timestampUtc":"2026-07-30T16:55:47.657...(+6B)
+[2026-07-30T16:55:49.542194+00:00] <-- PPNAM/handheld_1/res/mixing_overview_result action=mixing_overview_result (13ms)
+        {"messageId": "S2-000008", "inResponseToMessageId": "9e54a120-d127-4489-a354-644b5ba37ee4", "schemaVersion": "4.1", "deviceId": "handheld_1", "operatorSessionId": "SES-handheld_1-20260730165437", "timestampUtc": "2026-07...(+3119B)
