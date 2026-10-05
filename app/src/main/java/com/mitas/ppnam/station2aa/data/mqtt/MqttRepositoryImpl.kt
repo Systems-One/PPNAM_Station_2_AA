@@ -80,6 +80,10 @@ class MqttRepositoryImpl @Inject constructor(
     @VisibleForTesting
     internal var nowFn: () -> Instant = { Instant.now() }
 
+    /** Outbox writes fsync; keep them off the caller's (usually Main) thread. Test seam. */
+    @VisibleForTesting
+    internal var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+
     // Correlation registry: messageId -> the caller awaiting that exact response, plus the session
     // the request was SENT with. rev2.1 replies do not echo the session, so this is the only way to
     // tell whether an operator_session_invalid reply is about the session that is active now.
@@ -478,7 +482,8 @@ class MqttRepositoryImpl @Inject constructor(
     ): MqttOutcome<T> {
         val startedAt = System.currentTimeMillis()
         val waiter = CompletableDeferred<String>()
-        pending[messageId] = PendingRequest(waiter, sessionId)
+        val entry = PendingRequest(waiter, sessionId)
+        pending[messageId] = entry
         // One attempt. Retrying is an explicit caller decision (audit S2-05; contract §9).
         try {
             try {
@@ -511,7 +516,7 @@ class MqttRepositoryImpl @Inject constructor(
             )
             return outcome
         } finally {
-            pending.remove(messageId)
+            pending.remove(messageId, entry)
         }
     }
 
@@ -549,7 +554,7 @@ class MqttRepositoryImpl @Inject constructor(
             sessionId = session.operatorSessionId,
             createdAtUtc = now,
         )
-        commandOutbox.save(command)   // contract §2: persisted BEFORE it can reach the broker
+        withContext(ioDispatcher) { commandOutbox.save(command) }   // contract §2: persisted BEFORE it can reach the broker
         return deliver(command, responseClass)
     }
 
@@ -562,6 +567,10 @@ class MqttRepositoryImpl @Inject constructor(
             return CommandOutcome.Unresolved(command, UnresolvedReason.LoginThenRecover, null, null)
         }
         if (_connectionState.value != MqttConnectionState.CONNECTED) {
+            return CommandOutcome.Unresolved(command, UnresolvedReason.RetryIdentical, null, null)
+        }
+        // A delivery of this id is already awaiting its reply; a second would clobber its waiter.
+        if (pending.containsKey(command.messageId)) {
             return CommandOutcome.Unresolved(command, UnresolvedReason.RetryIdentical, null, null)
         }
         return deliver(command, responseClass)
@@ -581,11 +590,11 @@ class MqttRepositoryImpl @Inject constructor(
         val rejected = outcome as? MqttOutcome.Rejected<T>
         return when (val reason = unresolvedReasonOf(outcome)) {
             null -> {
-                commandOutbox.remove(command.messageId)
+                withContext(ioDispatcher) { commandOutbox.remove(command.messageId) }
                 CommandOutcome.Settled(outcome)
             }
             UnresolvedReason.ManagerReconcile -> {
-                commandOutbox.markManagerReconcile(command.messageId)
+                withContext(ioDispatcher) { commandOutbox.markManagerReconcile(command.messageId) }
                 CommandOutcome.Unresolved(
                     command.copy(status = PendingStatus.ManagerReconcile), reason, rejected?.body, rejected?.operatorMessage,
                 )

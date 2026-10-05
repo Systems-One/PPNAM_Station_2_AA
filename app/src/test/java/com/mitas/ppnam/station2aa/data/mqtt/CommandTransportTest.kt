@@ -49,6 +49,7 @@ class CommandTransportTest {
             commandOutbox = outbox,
         )
         published.clear()
+        repo.ioDispatcher = kotlinx.coroutines.Dispatchers.Unconfined
         repo.publishFn = { topic, bytes -> outboxSizeAtPublish = outbox.commands.value.size; published += topic to bytes }
         setConnected(true)
     }
@@ -190,5 +191,25 @@ class CommandTransportTest {
         call.await()
         reply(idOf(0))   // QoS 1 redelivery
         assertTrue(outbox.commands.value.isEmpty())
+    }
+
+    @Test
+    fun `retry while the same id is still awaiting a reply publishes nothing and the first still settles`() = runTest {
+        val first = send()
+        val command = outbox.commands.value.single()
+        val result = repo.retryCommand(command, Body::class.java)
+        assertEquals(UnresolvedReason.RetryIdentical, (result as CommandOutcome.Unresolved).reason)
+        assertEquals(1, published.size)
+        reply(command.messageId)
+        assertTrue(first.await() is CommandOutcome.Settled)
+        assertTrue(outbox.commands.value.isEmpty())
+    }
+
+    @Test
+    fun `a publish failure after persisting stays unresolved and keeps the entry`() = runTest {
+        repo.publishFn = { _, _ -> throw java.io.IOException("socket closed") }
+        val result = repo.sendCommand("rev2_general_requested", "rev2_general_result", CaptureBody(), Body::class.java)
+        assertEquals(UnresolvedReason.RetryIdentical, (result as CommandOutcome.Unresolved).reason)
+        assertEquals(1, outbox.commands.value.size)
     }
 }
