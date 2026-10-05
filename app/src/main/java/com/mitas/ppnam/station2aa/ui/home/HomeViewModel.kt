@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.PendingCommandCoordinator
@@ -17,6 +18,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -46,6 +49,15 @@ class HomeViewModel @Inject constructor(
     init {
         // Home is where every login lands: recover what this operator left unresolved.
         recoverPending()
+        // A broker reconnect is the next chance to learn what became of a StillUnresolved command.
+        // A StateFlow only emits changes, so each CONNECTED here is a transition. The current state
+        // is skipped: the call above already covers it.
+        viewModelScope.launch {
+            mqttRepository.connectionState
+                .drop(1)
+                .filter { it == MqttConnectionState.CONNECTED }
+                .collect { coordinator.recoverForCurrentOperator() }
+        }
     }
 
     fun recoverPending() {

@@ -21,6 +21,7 @@ import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -33,6 +34,8 @@ class HomeViewModelTest {
     private lateinit var mockAuthUseCase: AuthUseCase
     private lateinit var mockSessionHolder: OperatorSessionHolder
     private lateinit var sessionFlow: MutableStateFlow<OperatorSession?>
+    private lateinit var connectionFlow: MutableStateFlow<MqttConnectionState>
+    private lateinit var coordinator: PendingCommandCoordinator
     private lateinit var viewModel: HomeViewModel
 
     private val sampleSession = OperatorSession(
@@ -50,13 +53,13 @@ class HomeViewModelTest {
         mockSessionHolder = mock()
         sessionFlow = MutableStateFlow(sampleSession)
 
-        whenever(mockMqttRepository.connectionState)
-            .thenReturn(MutableStateFlow(MqttConnectionState.DISCONNECTED))
+        connectionFlow = MutableStateFlow(MqttConnectionState.DISCONNECTED)
+        whenever(mockMqttRepository.connectionState).thenReturn(connectionFlow)
         whenever(mockMqttRepository.stationOnline).thenReturn(MutableStateFlow(true))
         whenever(mockMqttRepository.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
         whenever(mockSessionHolder.session).thenReturn(sessionFlow)
 
-        val coordinator = mock<PendingCommandCoordinator>()
+        coordinator = mock<PendingCommandCoordinator>()
         whenever(coordinator.pending).thenReturn(MutableStateFlow(emptyList()))
         whenever(coordinator.notices).thenReturn(MutableStateFlow(emptyList()))
         viewModel = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator)
@@ -86,6 +89,20 @@ class HomeViewModelTest {
 
         sessionFlow.value = null
         assertEquals(0, vm.recoveryNotices.value.size)
+    }
+
+    @Test
+    fun `recovery runs again each time the broker reconnects`() = runTest {
+        verify(coordinator, times(1)).recoverForCurrentOperator()   // init
+
+        connectionFlow.value = MqttConnectionState.CONNECTED
+        verify(coordinator, times(2)).recoverForCurrentOperator()
+
+        connectionFlow.value = MqttConnectionState.RECONNECTING
+        verify(coordinator, times(2)).recoverForCurrentOperator()
+
+        connectionFlow.value = MqttConnectionState.CONNECTED
+        verify(coordinator, times(3)).recoverForCurrentOperator()
     }
 
     @Test

@@ -12,32 +12,34 @@ import org.junit.Test
 
 class RecoveryNoticeTextTest {
 
-    private val cmd = PendingCommand(messageId = "m", action = "capture", targetId = "PREP_1", operatorId = "OP-9")
+    private val cmd = PendingCommand(
+        messageId = "m", action = "capture", targetId = "PREP_1", operatorId = "OP-9", sessionId = "S-old",
+    )
 
     @Test
     fun `status line says whose move it is`() {
-        assertEquals("capture PREP_1: waiting for Station 2", cmd.statusLine("OP-9"))
+        assertEquals("capture PREP_1: waiting for Station 2", cmd.statusLine("OP-9", "S-now"))
         assertEquals(
-            "capture PREP_1: sent by operator OP-9. They must sign in on this scanner to resolve it.",
-            cmd.statusLine("OP-1"),
+            "capture PREP_1: waiting for Station 2 — reopen the job to retry it",
+            cmd.statusLine("OP-9", "S-old"),
         )
-        assertEquals(
-            "capture PREP_1: sent by operator OP-9. They must sign in on this scanner to resolve it.",
-            cmd.statusLine(null),
-        )
+        assertEquals("capture PREP_1: sent by operator OP-9. They must sign in on this scanner to resolve it, or a manager must reconcile it.", cmd.statusLine("OP-1", "S-old"))
+        assertEquals("capture PREP_1: sent by operator OP-9. They must sign in on this scanner to resolve it, or a manager must reconcile it.", cmd.statusLine(null, null))
         assertEquals(
             "capture PREP_1: needs a manager",
-            cmd.copy(status = PendingStatus.ManagerReconcile).statusLine("OP-1"),
+            cmd.copy(status = PendingStatus.ManagerReconcile).statusLine("OP-1", "S-now"),
         )
     }
 
     @Test
-    fun `check again is offered only for the signed-in operator unresolved commands`() {
+    fun `check again is offered only for the signed-in operator unresolved commands from an earlier session`() {
         val mine = cmd.copy(status = PendingStatus.Unresolved)
-        assertTrue(shouldOfferCheckAgain(listOf(mine), "OP-9"))
-        assertFalse(shouldOfferCheckAgain(listOf(mine), "OP-1"))
-        assertFalse(shouldOfferCheckAgain(listOf(mine), null))
-        assertFalse(shouldOfferCheckAgain(listOf(mine.copy(status = PendingStatus.ManagerReconcile)), "OP-9"))
+        assertTrue(shouldOfferCheckAgain(listOf(mine), "OP-9", "S-now"))
+        // Same session: recovery skips it, so the button would do nothing.
+        assertFalse(shouldOfferCheckAgain(listOf(mine), "OP-9", "S-old"))
+        assertFalse(shouldOfferCheckAgain(listOf(mine), "OP-1", "S-now"))
+        assertFalse(shouldOfferCheckAgain(listOf(mine), null, null))
+        assertFalse(shouldOfferCheckAgain(listOf(mine.copy(status = PendingStatus.ManagerReconcile)), "OP-9", "S-now"))
     }
 
     @Test
@@ -67,11 +69,11 @@ class RecoveryNoticeTextTest {
             RecoveryResult.NeedsManager(cmd, "Owner unknown").noticeText(),
         )
         assertEquals(
-            "capture PREP_1: still unresolved — No reply. It will be checked again.",
+            "capture PREP_1: still unresolved — No reply. It is checked again when the scanner reconnects or you tap Check again.",
             RecoveryResult.StillUnresolved(cmd, "No reply").noticeText(),
         )
         assertEquals(
-            "capture PREP_1: sent by operator OP-9. They must sign in on this scanner to resolve it.",
+            "capture PREP_1: sent by operator OP-9. They must sign in on this scanner to resolve it, or a manager must reconcile it.",
             RecoveryResult.OtherOperator(cmd).noticeText(),
         )
     }

@@ -25,6 +25,7 @@ fun UnresolvedCommandsCard(
     pending: List<PendingCommand>,
     notices: List<RecoveryResult>,
     currentOperatorId: String?,
+    currentSessionId: String?,
     onCheckAgain: () -> Unit,
     onDismiss: (RecoveryResult) -> Unit,
     modifier: Modifier = Modifier,
@@ -48,9 +49,9 @@ fun UnresolvedCommandsCard(
                 }
             }
             pending.filter { it.messageId !in noticed }.forEach { command ->
-                Text(command.statusLine(currentOperatorId), style = MaterialTheme.typography.bodySmall)
+                Text(command.statusLine(currentOperatorId, currentSessionId), style = MaterialTheme.typography.bodySmall)
             }
-            if (shouldOfferCheckAgain(pending, currentOperatorId)) {
+            if (shouldOfferCheckAgain(pending, currentOperatorId, currentSessionId)) {
                 OutlinedButton(onClick = onCheckAgain) { Text("Check again") }
             }
         }

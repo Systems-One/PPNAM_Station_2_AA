@@ -8,18 +8,32 @@ import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 /** "capture PREP_1" — what the operator did, in the terms the scanner showed them. */
 internal fun PendingCommand.label(): String = listOfNotNull(action.ifBlank { "command" }, targetId).joinToString(" ")
 
+/** Spec 4.3: another operator's command — only they, or a manager, can settle it. */
+private fun PendingCommand.otherOperatorText(): String =
+    "${label()}: sent by operator $operatorId. They must sign in on this scanner to resolve it, or a manager must reconcile it."
+
 /** One line per unanswered command, telling whose move it is (spec 4.3). */
-internal fun PendingCommand.statusLine(currentOperatorId: String?): String = when {
+internal fun PendingCommand.statusLine(currentOperatorId: String?, currentSessionId: String?): String = when {
     status == PendingStatus.ManagerReconcile -> "${label()}: needs a manager"
-    currentOperatorId == null || operatorId != currentOperatorId ->
-        "${label()}: sent by operator $operatorId. They must sign in on this scanner to resolve it."
+    currentOperatorId == null || operatorId != currentOperatorId -> otherOperatorText()
+    // Still in its own session: the job screen retries it identically; recovery would be premature.
+    sessionId == currentSessionId -> "${label()}: waiting for Station 2 — reopen the job to retry it"
     else -> "${label()}: waiting for Station 2"
 }
 
-/** "Check again" only helps when the signed-in operator has an Unresolved command of their own. */
-internal fun shouldOfferCheckAgain(pending: List<PendingCommand>, currentOperatorId: String?): Boolean =
+/**
+ * "Check again" runs recovery, which only covers the signed-in operator's Unresolved commands
+ * from an EARLIER session; offering it for anything else would be a button that does nothing.
+ */
+internal fun shouldOfferCheckAgain(
+    pending: List<PendingCommand>,
+    currentOperatorId: String?,
+    currentSessionId: String?,
+): Boolean =
     currentOperatorId != null &&
-        pending.any { it.status == PendingStatus.Unresolved && it.operatorId == currentOperatorId }
+        pending.any {
+            it.status == PendingStatus.Unresolved && it.operatorId == currentOperatorId && it.sessionId != currentSessionId
+        }
 
 /** Notices belong to the operator who sent the command; nobody else ever sees them. */
 internal fun List<RecoveryResult>.visibleTo(operatorId: String?): List<RecoveryResult> =
@@ -35,8 +49,8 @@ internal fun RecoveryResult.noticeText(): String {
                 "$what: this never happened. Re-read the job, then do it again only if it is still needed."
         }
         is RecoveryResult.NeedsManager -> "$what: a manager must reconcile this at the station. $message"
-        is RecoveryResult.StillUnresolved -> "$what: still unresolved — $message. It will be checked again."
-        is RecoveryResult.OtherOperator ->
-            "$what: sent by operator ${command.operatorId}. They must sign in on this scanner to resolve it."
+        is RecoveryResult.StillUnresolved ->
+            "$what: still unresolved — $message. It is checked again when the scanner reconnects or you tap Check again."
+        is RecoveryResult.OtherOperator -> command.otherOperatorText()
     }
 }
