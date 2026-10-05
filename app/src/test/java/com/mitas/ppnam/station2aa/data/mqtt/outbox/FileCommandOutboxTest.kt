@@ -1,0 +1,104 @@
+package com.mitas.ppnam.station2aa.data.mqtt.outbox
+
+import com.mitas.ppnam.station2aa.data.mqtt.RequestFingerprint
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TemporaryFolder
+import java.io.File
+
+class FileCommandOutboxTest {
+
+    @get:Rule
+    val tmp = TemporaryFolder()
+
+    private fun command(id: String = "11111111-1111-1111-1111-111111111111"): PendingCommand {
+        // Non-ASCII and escapes on purpose: the payload must survive a disk round trip byte-for-byte.
+        val payload = """{"action":"capture","code":"TAG-é\"x","schemaVersion":"rev2.1","messageId":"$id"}"""
+        return PendingCommand(
+            messageId = id,
+            requestType = "rev2_general_requested",
+            responseType = "rev2_general_result",
+            action = "capture",
+            targetId = "PREP_1",
+            payload = payload,
+            fingerprint = RequestFingerprint.of(payload.toByteArray(Charsets.UTF_8)),
+            operatorId = "OP-1",
+            sessionId = "S-1",
+            createdAtUtc = "2026-10-05T08:00:00.000000Z",
+        )
+    }
+
+    @Test
+    fun `a new outbox on the same directory reloads the identical command`() {
+        val dir = tmp.newFolder("outbox")
+        val original = command()
+        FileCommandOutbox(dir).save(original)
+
+        val reloaded = FileCommandOutbox(dir).commands.value.single()
+        assertEquals(original, reloaded)
+        assertArrayEquals(original.payloadBytes, reloaded.payloadBytes)
+        assertEquals(PendingStatus.Unresolved, reloaded.status)
+    }
+
+    @Test
+    fun `remove deletes the file`() {
+        val dir = tmp.newFolder("outbox")
+        val outbox = FileCommandOutbox(dir)
+        outbox.save(command())
+        outbox.remove(command().messageId)
+        assertTrue(outbox.commands.value.isEmpty())
+        assertTrue(FileCommandOutbox(dir).commands.value.isEmpty())
+    }
+
+    @Test
+    fun `markManagerReconcile persists`() {
+        val dir = tmp.newFolder("outbox")
+        FileCommandOutbox(dir).apply { save(command()); markManagerReconcile(command().messageId) }
+        assertEquals(PendingStatus.ManagerReconcile, FileCommandOutbox(dir).commands.value.single().status)
+    }
+
+    @Test
+    fun `saving the same messageId twice keeps one entry`() {
+        val outbox = FileCommandOutbox(tmp.newFolder("outbox"))
+        outbox.save(command())
+        outbox.save(command())
+        assertEquals(1, outbox.commands.value.size)
+    }
+
+    @Test
+    fun `an unreadable file becomes a ManagerReconcile entry`() {
+        val dir = tmp.newFolder("outbox")
+        File(dir, "22222222-2222-2222-2222-222222222222.json").writeText("{not json")
+        val entry = FileCommandOutbox(dir).commands.value.single()
+        assertEquals("22222222-2222-2222-2222-222222222222", entry.messageId)
+        assertEquals(PendingStatus.ManagerReconcile, entry.status)
+    }
+
+    @Test
+    fun `a payload that no longer matches its fingerprint becomes ManagerReconcile`() {
+        val dir = tmp.newFolder("outbox")
+        FileCommandOutbox(dir).save(command().copy(fingerprint = "0".repeat(64)))
+        assertEquals(PendingStatus.ManagerReconcile, FileCommandOutbox(dir).commands.value.single().status)
+    }
+
+    @Test
+    fun `a leftover tmp file is ignored and cleaned up`() {
+        val dir = tmp.newFolder("outbox")
+        val stray = File(dir, "33333333-3333-3333-3333-333333333333.json.tmp").apply { writeText("{}") }
+        assertTrue(FileCommandOutbox(dir).commands.value.isEmpty())
+        assertTrue(!stray.exists())
+    }
+
+    @Test
+    fun `the in-memory outbox behaves the same for save and remove`() {
+        val outbox = InMemoryCommandOutbox()
+        outbox.save(command())
+        outbox.markManagerReconcile(command().messageId)
+        assertEquals(PendingStatus.ManagerReconcile, outbox.commands.value.single().status)
+        outbox.remove(command().messageId)
+        assertTrue(outbox.commands.value.isEmpty())
+    }
+}
