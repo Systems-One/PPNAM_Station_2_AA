@@ -1,6 +1,8 @@
 package com.mitas.ppnam.station2aa.ui.joblookup
 
+import com.mitas.ppnam.station2aa.domain.model.ActivePreparation
 import com.mitas.ppnam.station2aa.domain.model.JobMaterial
+import com.mitas.ppnam.station2aa.domain.model.MixProgress
 import com.mitas.ppnam.station2aa.domain.model.JobPreparation
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -54,4 +56,20 @@ class JobFormatTest {
     fun `a single-mix preparation is singular`() =
         assertEquals("1 mix · 0 mixed · 0 produced · Mixing",
             JobPreparation("PREP_2", mixCount = 1, mixed = 0, produced = 0, stage = "Mixing").summaryLine())
+
+    @Test
+    fun `mix progress reads Required, Active, Available to prepare, Finished`() {
+        val mp = MixProgress(
+            requiredMixes = 60, allocatedMixes = 4, activeMixes = 4, availableToPrepareMixes = 56,
+            remainingToFinishMixes = 60, collectedMixes = 0, confirmedMixes = 0, mixedMixes = 0,
+            producedMixes = 0, activePreparations = emptyList(),
+        )
+        assertEquals("Required 60 · Active 4 · Available to prepare 56 · Finished 0", mp.countsLine())
+    }
+
+    @Test
+    fun `an active preparation line shows its count, stage and progress`() {
+        val prep = ActivePreparation("PREP_1", mixCount = 4, stage = "ReadyForMixer", mixed = 1, produced = 0, remainingToFinishMixes = 4)
+        assertEquals("4 mixes · ReadyForMixer · 1 mixed · 0 finished", prep.summaryLine())
+    }
 }

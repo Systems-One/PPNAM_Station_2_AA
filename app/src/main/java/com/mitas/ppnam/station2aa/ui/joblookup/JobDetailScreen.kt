@@ -50,8 +50,16 @@ fun JobDetailScreen(
                         if (detail.product.isNotBlank()) {
                             Text(detail.product, style = MaterialTheme.typography.titleMedium, color = TextPrimary)
                         }
-                        LabelValueRow("Required mixes", detail.requiredMixes.toString())
-                        LabelValueRow("Prepared mixes", detail.allocatedMixes.toString())
+                        val progress = detail.mixProgress
+                        if (progress != null) {
+                            LabelValueRow("Required", progress.requiredMixes.toString())
+                            LabelValueRow("Active", progress.activeMixes.toString())
+                            LabelValueRow("Available to prepare", progress.availableToPrepareMixes.toString())
+                            LabelValueRow("Finished", progress.producedMixes.toString())
+                        } else {
+                            LabelValueRow("Required mixes", detail.requiredMixes.toString())
+                            LabelValueRow("Prepared mixes", detail.allocatedMixes.toString())
+                        }
                         LabelValueRow(
                             "Output per mix",
                             if (detail.unit.isBlank()) formatQuantity(detail.outputPerMix)
@@ -72,6 +80,19 @@ fun JobDetailScreen(
                         supportingContent = { Text(material.quantityLine(), color = TextMuted) },
                         trailingContent = { Text(if (material.excluded) "Excluded" else material.code, color = TextMuted) },
                     )
+                }
+                val active = detail.mixProgress?.activePreparations.orEmpty()
+                if (active.isNotEmpty()) {
+                    item {
+                        HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                        Text("Active preparations", style = MaterialTheme.typography.labelMedium, color = TextMuted)
+                    }
+                    items(active, key = { "active-${it.id}" }) { prep ->
+                        ListItem(
+                            headlineContent = { Text(prep.id, color = TextPrimary) },
+                            supportingContent = { Text(prep.summaryLine(), color = TextMuted) },
+                        )
+                    }
                 }
                 if (detail.preparations.isNotEmpty()) {
                     item {

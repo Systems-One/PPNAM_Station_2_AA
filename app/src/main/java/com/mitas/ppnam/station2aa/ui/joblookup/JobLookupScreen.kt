@@ -154,7 +154,9 @@ fun JobLookupScreen(
                             Text(job.jobCard, style = MaterialTheme.typography.bodyLarge, color = TextPrimary)
                             Text(
                                 buildString {
-                                    append("${job.requiredMixes} ${if (job.requiredMixes == 1) "mix" else "mixes"}")
+                                    val progress = job.mixProgress
+                                    if (progress != null) append(progress.countsLine())
+                                    else append("${job.requiredMixes} ${if (job.requiredMixes == 1) "mix" else "mixes"}")
                                     if (job.closed) append(" · closed")
                                 },
                                 style = MaterialTheme.typography.labelMedium, color = accent,

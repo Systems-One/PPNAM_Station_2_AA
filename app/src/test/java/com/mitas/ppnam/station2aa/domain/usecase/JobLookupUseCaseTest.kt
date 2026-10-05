@@ -1,5 +1,8 @@
 package com.mitas.ppnam.station2aa.domain.usecase
 
+import com.google.gson.JsonParser
+import com.mitas.ppnam.station2aa.contract.ContractFixtures
+import com.mitas.ppnam.station2aa.data.mqtt.WireJson
 import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
 import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
 import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
@@ -214,5 +217,32 @@ class JobLookupUseCaseTest {
         stub(MqttOutcome.Accepted(snapshot.copy(job = job.copy(capturedAtUtc = "not-a-date"))))
         val detail = (useCase.read("510019068") as JobLookupResult.Loaded).snapshot.detail!!
         assertNull(detail.capturedAtUtc)
+    }
+
+    private fun fixtureSnapshot(name: String): Rev2Snapshot = WireJson.gson.fromJson(
+        JsonParser.parseString(ContractFixtures.text("${name}_response.json")).asJsonObject["data"],
+        Rev2Snapshot::class.java,
+    )
+
+    @Test
+    fun `job mix progress maps onto the list and the detail`() = runTest {
+        stub(MqttOutcome.Accepted(fixtureSnapshot("general_prepare")))
+        val loaded = useCase.read("1") as JobLookupResult.Loaded
+        val detail = loaded.snapshot.detail!!.mixProgress!!
+        assertEquals(60, detail.requiredMixes)
+        assertEquals(4, detail.activeMixes)
+        assertEquals(56, detail.availableToPrepareMixes)
+        assertEquals(0, detail.producedMixes)
+        assertEquals("Collecting", detail.activePreparations.single().stage)
+        assertEquals(4, detail.activePreparations.single().mixCount)
+        assertEquals(56, loaded.snapshot.jobs.single().mixProgress!!.availableToPrepareMixes)
+    }
+
+    @Test
+    fun `a reply without mix progress maps to null, not zeros`() = runTest {
+        stub(MqttOutcome.Accepted(snapshot))
+        val loaded = useCase.read("510019068") as JobLookupResult.Loaded
+        assertNull(loaded.snapshot.detail!!.mixProgress)
+        assertNull(loaded.snapshot.jobs.single().mixProgress)
     }
 }

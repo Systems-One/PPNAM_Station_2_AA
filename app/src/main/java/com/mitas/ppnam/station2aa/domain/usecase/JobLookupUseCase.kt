@@ -4,12 +4,15 @@ import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
 import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
 import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MixProgress
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
+import com.mitas.ppnam.station2aa.domain.model.ActivePreparation
 import com.mitas.ppnam.station2aa.domain.model.JobDetail
 import com.mitas.ppnam.station2aa.domain.model.JobLookupSnapshot
 import com.mitas.ppnam.station2aa.domain.model.JobMaterial
 import com.mitas.ppnam.station2aa.domain.model.JobPreparation
 import com.mitas.ppnam.station2aa.domain.model.JobSummary
+import com.mitas.ppnam.station2aa.domain.model.MixProgress
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import java.time.Instant
 import javax.inject.Inject
@@ -96,7 +99,7 @@ private fun MqttOutcome.Rejected<*>.message(): String = when (error) {
 }
 
 private fun Rev2Snapshot.toDomain(): JobLookupSnapshot = JobLookupSnapshot(
-    jobs = jobs.map { JobSummary(it.id, it.product, it.requiredMixes, it.closed) },
+    jobs = jobs.map { JobSummary(it.id, it.product, it.requiredMixes, it.closed, it.mixProgress?.toDomain()) },
     detail = job?.let { job ->
         JobDetail(
             jobCard = job.id,
@@ -108,11 +111,27 @@ private fun Rev2Snapshot.toDomain(): JobLookupSnapshot = JobLookupSnapshot(
             capturedAtUtc = job.capturedAtUtc?.let { runCatching { Instant.parse(it) }.getOrNull() },
             closed = job.closed,
             materials = job.materials.map {
-                JobMaterial(it.code, it.name, it.unit, it.perMix, it.required, it.collected, it.excluded)
+                JobMaterial(it.code, it.name, it.unit, it.perMix, it.required, it.collected, it.excluded, it.originalRequired)
             },
             preparations = preparations.filter { it.jobId == job.id }.map {
                 JobPreparation(it.id, it.mixCount, it.mixed, it.produced, it.stage)
             },
+            mixProgress = job.mixProgress?.toDomain(),
         )
+    },
+)
+
+private fun Rev2MixProgress.toDomain(): MixProgress = MixProgress(
+    requiredMixes = requiredMixes,
+    allocatedMixes = allocatedMixes,
+    activeMixes = activeMixes,
+    availableToPrepareMixes = availableToPrepareMixes,
+    remainingToFinishMixes = remainingToFinishMixes,
+    collectedMixes = collectedMixes,
+    confirmedMixes = confirmedMixes,
+    mixedMixes = mixedMixes,
+    producedMixes = producedMixes,
+    activePreparations = activePreparations.map {
+        ActivePreparation(it.id, it.mixCount, it.stage, it.mixed, it.produced, it.remainingToFinishMixes)
     },
 )

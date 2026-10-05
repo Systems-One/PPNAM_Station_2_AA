@@ -1,7 +1,9 @@
 package com.mitas.ppnam.station2aa.ui.joblookup
 
+import com.mitas.ppnam.station2aa.domain.model.ActivePreparation
 import com.mitas.ppnam.station2aa.domain.model.JobMaterial
 import com.mitas.ppnam.station2aa.domain.model.JobPreparation
+import com.mitas.ppnam.station2aa.domain.model.MixProgress
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -28,3 +30,10 @@ internal fun JobMaterial.quantityLine(): String {
 
 internal fun JobPreparation.summaryLine(): String =
     "$mixCount ${if (mixCount == 1) "mix" else "mixes"} · $mixed mixed · $produced produced · $stage"
+
+/** Contract §8.1's required labels, in its order. */
+internal fun MixProgress.countsLine(): String =
+    "Required $requiredMixes · Active $activeMixes · Available to prepare $availableToPrepareMixes · Finished $producedMixes"
+
+internal fun ActivePreparation.summaryLine(): String =
+    "$mixCount ${if (mixCount == 1) "mix" else "mixes"} · $stage · $mixed mixed · $produced finished"
