@@ -33,6 +33,8 @@ class MqttRepositoryImpl @Inject constructor(
 
     companion object {
         private const val TAG = "MqttRepositoryImpl"
+        /** The pre-login operator directory request (see `OperatorDirectoryUseCase`). */
+        private const val OPERATOR_LIST_REQUESTED = "operator_list_requested"
         // Raw text, not JSON — the device base node (PPNAM/station_2/{deviceId}) is
         // presence-only, so payloads are plain "online"/"offline" bytes.
         private val STATUS_ONLINE = "online".toByteArray()
@@ -435,8 +437,9 @@ class MqttRepositoryImpl @Inject constructor(
         }
 
         val messageId = UUID.randomUUID().toString()
-        // SCRAM runs before a session exists and must never carry a stale one.
-        val sessionId = if (requestType.startsWith("scram_")) "" else sessionHolder.currentSessionIdOrEmpty()
+        // SCRAM and the operator directory run before a session exists and must never carry a
+        // stale one.
+        val sessionId = if (isPreLogin(requestType)) "" else sessionHolder.currentSessionIdOrEmpty()
         val json = RequestEnvelope.build(
             gson = gson,
             payload = payload,
@@ -488,6 +491,10 @@ class MqttRepositoryImpl @Inject constructor(
             pending.remove(messageId)
         }
     }
+
+    /** Request types sent signed-out by design: SCRAM login and the pre-login operator directory. */
+    private fun isPreLogin(requestType: String): Boolean =
+        requestType.startsWith("scram_") || requestType == OPERATOR_LIST_REQUESTED
 
     private fun outcomeResult(outcome: MqttOutcome<*>): String = when (outcome) {
         is MqttOutcome.Accepted -> "success"

@@ -63,11 +63,13 @@ State is in-memory only; restarting gives a fresh, repeatable world.
 
 ## Requests
 
-Exactly four request suffixes are accepted: `scram_start_requested`,
-`scram_proof_requested`, `rev2_general_requested` (`read`, `lookup`; other
-actions answer `action_not_allowed`) and `rev2_rajoo_requested` (always
-`action_not_allowed`). Anything else answers `client_upgrade_required` on
-`res/rev2_general_result`. Replies carry the body under `data`.
+Exactly five request suffixes are accepted: `scram_start_requested`,
+`scram_proof_requested`, `operator_list_requested` (pre-login, bare envelope;
+answers `operator_list` with the seeded SCRAM users under `data.operators`),
+`rev2_general_requested` (`read`, `lookup`; other actions answer
+`action_not_allowed`) and `rev2_rajoo_requested` (always `action_not_allowed`).
+Anything else answers `client_upgrade_required` on `res/rev2_general_result`.
+Replies carry the body under `data`.
 
 ## Control frames (`PPNAM/_sim/control`)
 

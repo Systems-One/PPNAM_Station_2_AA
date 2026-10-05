@@ -16,6 +16,10 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
@@ -36,7 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.theme.*
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onLoggedIn: () -> Unit,
@@ -46,9 +50,11 @@ fun LoginScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val connectionStatus by viewModel.connectionStatus.collectAsState()
+    val operators by viewModel.operators.collectAsState()
     // rememberSaveable, not remember: a configuration change (font scale, multi-window — rotation
     // is locked now) used to wipe the field mid-typing (audit S2-02).
     var username by rememberSaveable { mutableStateOf("") }
+    var operatorsOpen by remember { mutableStateOf(false) }
     // The password is deliberately NOT saveable: rememberSaveable writes into the Activity's
     // saved-instance Bundle, which the system can persist to disk. Portrait lock already removes
     // the rotation case; a rarer recreation costs a retype, not a leaked secret.
@@ -62,6 +68,25 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { destination ->
             if (destination == "home") onLoggedIn()
+        }
+    }
+
+    // Badge scans sign in only while this screen is resumed. Login is the start destination and
+    // its view model survives under Home, so without this gate a card scanned on Home would be
+    // taken as a login attempt.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> viewModel.setLoginScreenActive(true)
+                Lifecycle.Event.ON_PAUSE -> viewModel.setLoginScreenActive(false)
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            viewModel.setLoginScreenActive(false)
         }
     }
 
@@ -156,21 +181,59 @@ fun LoginScreen(
                         )
                     }
 
-                    OutlinedTextField(
-                        value = username,
-                        onValueChange = { username = it },
-                        label = { Text("Username") },
-                        singleLine = true,
-                        enabled = uiState !is LoginUiState.LoggingIn,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BrandTint,
-                            focusedLabelColor = BrandTint,
-                            cursorColor = BrandTint
-                        ),
+                    // The operator directory Station 2 serves (fleet rule, after Station 1): an
+                    // editable dropdown. Rows read "username — Display Name"; picking one leaves
+                    // only the username, which is what SCRAM authenticates, and moves on to the
+                    // password. The arrow shows, and a tap opens the list, only once there is a
+                    // list; a typed name that is not listed still signs in. Typing closes the list
+                    // so it never sits over the password field.
+                    val hasOperators = operators.isNotEmpty()
+                    ExposedDropdownMenuBox(
+                        expanded = operatorsOpen && hasOperators,
+                        onExpandedChange = { operatorsOpen = it && hasOperators },
                         modifier = Modifier.fillMaxWidth()
-                    )
+                    ) {
+                        OutlinedTextField(
+                            value = username,
+                            onValueChange = {
+                                username = it
+                                operatorsOpen = false
+                            },
+                            label = { Text("Username") },
+                            singleLine = true,
+                            enabled = uiState !is LoginUiState.LoggingIn,
+                            trailingIcon = if (hasOperators) {
+                                { ExposedDropdownMenuDefaults.TrailingIcon(expanded = operatorsOpen) }
+                            } else null,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = BrandTint,
+                                focusedLabelColor = BrandTint,
+                                cursorColor = BrandTint
+                            ),
+                            modifier = Modifier
+                                .menuAnchor(MenuAnchorType.PrimaryEditable)
+                                .fillMaxWidth()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = operatorsOpen && hasOperators,
+                            onDismissRequest = { operatorsOpen = false },
+                            containerColor = GraphiteSurface
+                        ) {
+                            operators.forEach { entry ->
+                                DropdownMenuItem(
+                                    text = { Text(entry.label, color = TextPrimary) },
+                                    onClick = {
+                                        username = entry.username
+                                        operatorsOpen = false
+                                        focusManager.moveFocus(FocusDirection.Down)
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    }
 
                     OutlinedTextField(
                         value = password,
@@ -225,6 +288,15 @@ fun LoginScreen(
                             Text("Log In")
                         }
                     }
+
+                    // The same card that signs in at Station 1: scanning it here needs no typing.
+                    Text(
+                        text = "Or scan your badge",
+                        color = TextMuted,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }

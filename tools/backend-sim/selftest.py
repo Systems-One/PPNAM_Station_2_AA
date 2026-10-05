@@ -229,6 +229,18 @@ def main():
     check(r and r["error"] == "invalid_envelope", "a case-insensitive duplicate field -> invalid_envelope")
     check(r["inResponseToMessageId"] == "", "…uncorrelatable, as on the server")
 
+    print("directory")
+    r, body = hh.request("operator_list_requested", session=False)
+    check_reply_shape(r, "operator list")
+    check(r["success"] and r["_topic"].endswith("/res/operator_list"),
+          "a bare-envelope operator_list_requested answers on operator_list")
+    ops = r["data"]["operators"]
+    check([o["username"] for o in ops] == ["manager1", "operator1"], "data.operators lists the seeded SCRAM users, sorted by displayName")
+    check(all(set(o) == {"username", "displayName"} for o in ops), "each entry carries exactly username and displayName")
+    hh.send_raw("operator_list_requested", json.dumps(body))
+    replay = hh.await_reply(body["messageId"])
+    check(replay and replay["data"] == r["data"], "an identical directory request replays the stored reply")
+
     print("auth")
     r = hh.scram_login("operator1", "pass", purpose="manager_action")
     check(r and r["error"] == "purpose_not_enabled", "a manager_action purpose -> purpose_not_enabled")
