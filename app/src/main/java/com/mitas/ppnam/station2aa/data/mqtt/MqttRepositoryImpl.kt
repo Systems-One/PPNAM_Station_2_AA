@@ -71,6 +71,8 @@ class MqttRepositoryImpl @Inject constructor(
     private val _upgradeRequired = MutableStateFlow(false)
     override val upgradeRequired: StateFlow<Boolean> = _upgradeRequired.asStateFlow()
     override fun clearUpgradeRequired() { _upgradeRequired.value = false }
+    private val _serverContractRevision = MutableStateFlow<String?>(null)
+    override val serverContractRevision: StateFlow<String?> = _serverContractRevision.asStateFlow()
 
     /** Test seam for the device clock. */
     @VisibleForTesting
@@ -258,11 +260,13 @@ class MqttRepositoryImpl @Inject constructor(
     private suspend fun subscribeAndAnnounce(client: Mqtt5AsyncClient, deviceId: String) {
         client.subscribeWith()
             .topicFilter(MqttTopics.responseWildcard(deviceId))
+            .qos(MqttTopics.RESPONSE_QOS)
             .callback { publish -> handleIncomingResponse(publish.topic.toString(), publish.payloadAsBytes) }
             .send()
             .await()
         client.subscribeWith()
             .topicFilter(MqttTopics.STATION_PRESENCE)
+            .qos(MqttTopics.PRESENCE_QOS)
             .callback { publish -> handleStationPresence(publish.payloadAsBytes) }
             .send()
             .await()
@@ -272,6 +276,7 @@ class MqttRepositoryImpl @Inject constructor(
         // connected. Watching our own presence node lets us put it right.
         client.subscribeWith()
             .topicFilter(MqttTopics.devicePresence(deviceId))
+            .qos(MqttTopics.PRESENCE_QOS)
             .callback { publish -> handleOwnPresence(client, publish.payloadAsBytes) }
             .send()
             .await()
@@ -453,7 +458,7 @@ class MqttRepositoryImpl @Inject constructor(
         val action = (gson.toJsonTree(payload) as? com.google.gson.JsonObject)
             ?.get("action")?.takeIf { it.isJsonPrimitive }?.asString
         val startedAt = System.currentTimeMillis()
-        val bytes = json.toByteArray()
+        val bytes = json.toByteArray(Charsets.UTF_8)
         val waiter = CompletableDeferred<String>()
         pending[messageId] = PendingRequest(waiter, sessionId)
         // One attempt. The contract's replay identity (deviceId + requestType + messageId) would
@@ -576,6 +581,12 @@ class MqttRepositoryImpl @Inject constructor(
         // Measured from every message with a parseable timestamp, matched or not: a late or
         // duplicate reply is still evidence about our own clock.
         recordClockSkew(envelope.sentAtUtc?.takeIf { it.isNotBlank() } ?: envelope.timestampUtc)
+        envelope.contractRevision.takeIf { it.isNotBlank() }?.let { revision ->
+            if (revision != MqttSchema.CONTRACT_REVISION && _serverContractRevision.value != revision) {
+                Log.w(TAG, "Station 2 speaks contract $revision; this build implements ${MqttSchema.CONTRACT_REVISION}")
+            }
+            _serverContractRevision.value = revision
+        }
         if (envelope.errorCode == ErrorCode.CLIENT_UPGRADE_REQUIRED) {
             _upgradeRequired.value = true
         }

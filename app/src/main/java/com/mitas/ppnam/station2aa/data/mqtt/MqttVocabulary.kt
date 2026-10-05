@@ -2,10 +2,11 @@ package com.mitas.ppnam.station2aa.data.mqtt
 
 /**
  * rev2.1 `error`. A value class rather than an enum: an unknown code must pass through intact
- * rather than fail the parse — the SCRAM service can return its own codes.
+ * rather than fail the parse — the SCRAM service returns its own `scram_*` codes.
  *
- * There is deliberately no `NextAction` type. rev2.1's `nextAction` is an English sentence
- * ("Follow the saved job or preparation state."), not a code, so nothing may branch on it.
+ * There is deliberately no `NextAction` type. Since contract 2026-10-01 `nextAction` is a stable
+ * token, but the contract calls it "guidance, not an action to execute blindly": control flow
+ * branches on `error` alone (see `unresolvedReasonOf`), and `nextAction` is kept for logs.
  */
 @JvmInline
 value class ErrorCode(val raw: String) {
@@ -15,6 +16,7 @@ value class ErrorCode(val raw: String) {
         val PASSWORD_FIELD_FORBIDDEN = ErrorCode("password_field_forbidden")
         val OPERATOR_SESSION_INVALID = ErrorCode("operator_session_invalid")
         val ACTION_NOT_ALLOWED = ErrorCode("action_not_allowed")
+        /** The same messageId already exists with a different body. Recover the original. */
         val MESSAGE_ID_CONFLICT = ErrorCode("message_id_conflict")
         /** A definite business rejection. `data` still carries the refreshed snapshot. */
         val REV2_REJECTED = ErrorCode("rev2_rejected")
@@ -29,5 +31,13 @@ value class ErrorCode(val raw: String) {
         val BADGE_REJECTED = ErrorCode("badge_rejected")
         /** `login_requested` carried a `username`; badge login is badge-only. */
         val LOGIN_METHOD_INVALID = ErrorCode("login_method_invalid")
+        /** The collection changed before an ingredient decision. Re-read and re-review. */
+        val COLLECTION_REVISION_CONFLICT = ErrorCode("collection_revision_conflict")
+        /** The receipt belongs to another operator. A manager reconciles. */
+        val RECEIPT_OWNER_MISMATCH = ErrorCode("receipt_owner_mismatch")
+        /** A legacy receipt has no owner evidence. A manager reconciles. */
+        val RECEIPT_RECOVERY_UNAVAILABLE = ErrorCode("receipt_recovery_unavailable")
+        /** Recovery sealed this messageId: the original did not and now cannot execute. */
+        val RECEIPT_SEALED = ErrorCode("receipt_sealed")
     }
 }

@@ -1,5 +1,7 @@
 package com.mitas.ppnam.station2aa.data.mqtt
 
+import com.hivemq.client.mqtt.datatypes.MqttQos
+
 /**
  * Per-station namespace topic structure (2026-08-17 topic restructure — payloads unchanged):
  *
@@ -17,6 +19,10 @@ object MqttTopics {
 
     /** Station 2's presence topic is its base node — a fixed literal in the contract. */
     const val STATION_PRESENCE = STATION_BASE
+
+    /** Contract §1: own `res/+` at QoS 1; station and own presence at QoS 2. */
+    val RESPONSE_QOS: MqttQos = MqttQos.AT_LEAST_ONCE
+    val PRESENCE_QOS: MqttQos = MqttQos.EXACTLY_ONCE
 
     fun request(deviceId: String, requestType: String): String {
         validateSegment(deviceId, "deviceId")

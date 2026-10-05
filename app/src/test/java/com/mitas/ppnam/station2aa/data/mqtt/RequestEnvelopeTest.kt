@@ -77,7 +77,7 @@ class RequestEnvelopeTest {
     @Test
     fun `build refuses an oversized request`() {
         org.junit.Assert.assertThrows(OversizedPayloadException::class.java) {
-            build(Huge("read", "x".repeat(OutboundGuard.MAX_PAYLOAD_CHARS)))
+            build(Huge("read", "x".repeat(OutboundGuard.MAX_PAYLOAD_BYTES)))
         }
     }
 }

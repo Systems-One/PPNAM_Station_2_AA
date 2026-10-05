@@ -50,12 +50,12 @@ class OutboundGuardTest {
 
     @Test
     fun `a payload at the size limit passes`() =
-        OutboundGuard.assertWithinSize("x".repeat(OutboundGuard.MAX_PAYLOAD_CHARS))
+        OutboundGuard.assertWithinSize("x".repeat(OutboundGuard.MAX_PAYLOAD_BYTES))
 
     @Test
     fun `a payload one character over the limit is refused`() {
         assertThrows(OversizedPayloadException::class.java) {
-            OutboundGuard.assertWithinSize("x".repeat(OutboundGuard.MAX_PAYLOAD_CHARS + 1))
+            OutboundGuard.assertWithinSize("x".repeat(OutboundGuard.MAX_PAYLOAD_BYTES + 1))
         }
     }
 }

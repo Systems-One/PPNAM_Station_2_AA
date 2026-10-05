@@ -16,8 +16,12 @@ import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
  */
 data class ResponseEnvelope(
     val schemaVersion: String = "",
+    /** Station 2's contract revision, e.g. `2026-10-01`. Pushes carry it too. */
+    val contractRevision: String = "",
     val deviceId: String = "",
     val inResponseToMessageId: String = "",
+    /** Uppercase hex SHA-256 of the exact request bytes Station 2 received. */
+    val requestFingerprint: String = "",
     val receivedAtUtc: String? = null,
     val sentAtUtc: String? = null,
     val durationMs: Double? = null,
@@ -25,7 +29,7 @@ data class ResponseEnvelope(
     /** Stable lowercase code; `""` on success. */
     val error: String = "",
     val operatorMessage: String = "",
-    /** Prose guidance, not a code. Never branch on it. */
+    /** Guidance token (contract §10), e.g. `read_saved_state`. Logged, never branched on. */
     val nextAction: String = "",
     // Server pushes only.
     val messageId: String = "",

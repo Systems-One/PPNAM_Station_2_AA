@@ -7,14 +7,14 @@ class PlaintextCredentialException(val path: String) :
     IllegalArgumentException("Refusing to publish a message with a credential field at '$path'")
 
 /** An outgoing message exceeded Station 2's request size limit. */
-class OversizedPayloadException(val length: Int) :
-    IllegalArgumentException("Refusing to publish a $length-character request (limit ${OutboundGuard.MAX_PAYLOAD_CHARS})")
+class OversizedPayloadException(val byteCount: Int) :
+    IllegalArgumentException("Refusing to publish a $byteCount-byte request (limit ${OutboundGuard.MAX_PAYLOAD_BYTES})")
 
 /**
  * Checks every request before it reaches the broker.
  *
  * Station 2 rejects a top-level field whose name contains `password` with
- * `password_field_forbidden`, and a request over 65,536 characters with `invalid_envelope`. Catching
+ * `password_field_forbidden`, and a request over 65,536 UTF-8 bytes with `invalid_envelope`. Catching
  * both here matters more than the server's rejection: once a password is published it is in the
  * broker's logs and every subscriber's buffer. This guard is stricter than the server — any depth —
  * and throws rather than scrubbing, so a build defect cannot ship quietly. Only NAMES are checked;
@@ -22,7 +22,8 @@ class OversizedPayloadException(val length: Int) :
  */
 object OutboundGuard {
 
-    const val MAX_PAYLOAD_CHARS = 65_536
+    /** Contract §2: at most 65,536 UTF-8 bytes — a multibyte name counts by its bytes. */
+    const val MAX_PAYLOAD_BYTES = 65_536
 
     fun assertNoCredentialFields(element: JsonElement, path: String = "") {
         when {
@@ -38,6 +39,7 @@ object OutboundGuard {
     }
 
     fun assertWithinSize(json: String) {
-        if (json.length > MAX_PAYLOAD_CHARS) throw OversizedPayloadException(json.length)
+        val bytes = json.toByteArray(Charsets.UTF_8).size
+        if (bytes > MAX_PAYLOAD_BYTES) throw OversizedPayloadException(bytes)
     }
 }

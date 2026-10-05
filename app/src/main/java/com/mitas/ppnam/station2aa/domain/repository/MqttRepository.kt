@@ -31,6 +31,12 @@ interface MqttRepository {
      * the required build; surfacing it as state (not a one-shot error) is the point.
      */
     val upgradeRequired: StateFlow<Boolean>
+    /**
+     * The `contractRevision` of the last parsed Station 2 message, or null before one arrives.
+     * A value other than [com.mitas.ppnam.station2aa.data.mqtt.MqttSchema.CONTRACT_REVISION] is
+     * logged; it does not block (the server enforces only the wire schema `rev2.1`).
+     */
+    val serverContractRevision: StateFlow<String?>
     /** Clears the [upgradeRequired] latch (the gate's "Close app"), so a relaunch re-evaluates against the backend. */
     fun clearUpgradeRequired() {}
     suspend fun <T : Any> request(
