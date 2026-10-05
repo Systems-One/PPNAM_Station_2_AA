@@ -24,8 +24,8 @@ from datetime import datetime, timezone
 DEVICE = "scanner_selftest"
 CHECKS = {"passed": 0}
 TS_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$")
-REPLY_KEYS = {"schemaVersion", "deviceId", "inResponseToMessageId", "receivedAtUtc", "sentAtUtc",
-              "durationMs", "success", "error", "operatorMessage", "nextAction", "data"}
+REPLY_KEYS = {"schemaVersion", "contractRevision", "deviceId", "inResponseToMessageId", "requestFingerprint",
+              "receivedAtUtc", "sentAtUtc", "durationMs", "success", "error", "operatorMessage", "nextAction", "data"}
 
 
 def now_iso():

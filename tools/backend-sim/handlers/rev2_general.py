@@ -115,22 +115,64 @@ def lookup(world, log, job_card):
     return {"success": True, "message": "JC loaded.", "targetId": job_card, "cycleId": None}
 
 
+CAPABILITIES = {"operatorIngredientDecisions": True, "receiptRecovery": True,
+                "managerReviewDesktopOnly": True, "jobMixProgress": True}
+
+
+def mix_progress(job, preparations):
+    """Contract §8.1, from the simulator's saved preparations (collectedMixes is not modelled: 0)."""
+    preps = [p for p in preparations if p["jobId"] == job["id"] and p["stage"] != "Cancelled"]
+    active = [p for p in preps if p["stage"] != "Completed"]
+    produced = sum(p["produced"] for p in preps)
+    allocated = sum(p["mixCount"] for p in preps)
+    required = job["requiredMixes"]
+    return {
+        "requiredMixes": required,
+        "allocatedMixes": allocated,
+        "activeMixes": sum(max(0, p["mixCount"] - p["produced"]) for p in active),
+        "availableToPrepareMixes": max(0, required - allocated),
+        "remainingToFinishMixes": max(0, required - produced),
+        "collectedMixes": 0,
+        "confirmedMixes": sum(p["mixCount"] for p in preps if p.get("confirmedAtUtc")),
+        "mixedMixes": sum(p["mixed"] for p in preps),
+        "producedMixes": produced,
+        "activePreparationCount": len(active),
+        "activePreparations": [{
+            "id": p["id"], "jobId": p["jobId"], "mixCount": p["mixCount"], "stage": p["stage"],
+            "mixed": p["mixed"], "produced": p["produced"],
+            "remainingToFinishMixes": max(0, p["mixCount"] - p["produced"]),
+            "collectionRevision": p.get("collectionRevision", 0), "startedAtUtc": p["startedAtUtc"],
+            "startedBy": p["startedBy"], "mixerId": p["mixerId"], "productionId": p["productionId"],
+            "cycleId": p["cycleId"],
+        } for p in active],
+    }
+
+
 def snapshot(world, target_id):
     preparation = world.rev2_preparations.get(target_id) if target_id else None
     job_id = preparation["jobId"] if preparation else target_id
     job = world.rev2_jobs.get(job_id) if job_id else None
     preparations = list(world.rev2_preparations.values())
     return {
+        "recovery": None,
+        "mode": "General",
+        "capabilities": CAPABILITIES,
         "jobs": [{"id": j["id"], "product": j["product"], "closed": j["closed"],
-                  "requiredMixes": j["requiredMixes"]} for j in world.rev2_jobs.values()],
+                  "requiredMixes": j["requiredMixes"],
+                  "mixProgress": mix_progress(j, preparations)} for j in world.rev2_jobs.values()],
         "job": None if job is None else dict(
-            job, allocatedMixes=sum(p["mixCount"] for p in preparations if p["jobId"] == job["id"])),
+            job,
+            allocatedMixes=sum(p["mixCount"] for p in preparations if p["jobId"] == job["id"]),
+            collectionRevision=0,
+            mixProgress=mix_progress(job, preparations)),
         "preparation": preparation if job is not None else None,
         "preparations": preparations,
         "machines": [],
         "exceptionListRevision": 1,
         "ingredientExceptions": [],
         "requiredIngredientChoices": [],
+        "collectionExceptions": [],
+        "commandExceptions": [],
     }
 
 

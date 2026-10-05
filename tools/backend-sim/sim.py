@@ -22,6 +22,7 @@ The simulator plays the role of station_2 (per-station namespace, 2026-08-17):
 """
 
 import argparse
+import hashlib
 import json
 import os
 import queue
@@ -278,6 +279,8 @@ class Simulator:
                 device_id, ctx["messageId"], received_at, False,
                 "The result could not be confirmed. Retry the identical request and message ID.",
                 "outcome_unconfirmed")
+        # Contract §2: uppercase hex SHA-256 of the exact request bytes the station received.
+        response["requestFingerprint"] = hashlib.sha256(payload or b"").hexdigest().upper()
         self.publish_response(device_id, envelope.response_suffix(request_type), response)
 
     def _dispatch(self, device_id, request_type, payload, req, received_at):

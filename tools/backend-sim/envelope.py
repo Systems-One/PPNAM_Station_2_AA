@@ -18,6 +18,7 @@ import re
 from state import iso, utc_now
 
 SCHEMA_VERSION = "rev2.1"
+CONTRACT_REVISION = "2026-10-01"
 REQUEST_SUFFIXES = (
     "scram_start_requested",
     "scram_proof_requested",
@@ -34,9 +35,8 @@ _RESPONSE_SUFFIX = {
 MAX_PAYLOAD_CHARS = 65536
 TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$")
 
-SUCCESS_NEXT_ACTION = "Follow the saved job or preparation state."
-FAILURE_NEXT_ACTION = ("Correct the request with a new message ID; uncertain transport retries "
-                       "keep the identical body.")
+SUCCESS_NEXT_ACTION = "read_saved_state"
+FAILURE_NEXT_ACTION = "correct_request"
 
 
 class Rejection(Exception):
@@ -58,8 +58,10 @@ def reply(device_id, message_id, received_at, success, message, error="", data=N
     sent_at = utc_now()
     return {
         "schemaVersion": SCHEMA_VERSION,
+        "contractRevision": CONTRACT_REVISION,
         "deviceId": device_id,
         "inResponseToMessageId": message_id,
+        "requestFingerprint": "",
         "receivedAtUtc": iso(received_at),
         "sentAtUtc": iso(sent_at),
         "durationMs": (sent_at - received_at).total_seconds() * 1000.0,
