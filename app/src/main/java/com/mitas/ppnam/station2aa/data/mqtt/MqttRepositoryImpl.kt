@@ -6,6 +6,7 @@ import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
 import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.*
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import com.mitas.ppnam.station2aa.domain.model.AppSettings
@@ -29,6 +30,7 @@ class MqttRepositoryImpl @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val sessionHolder: OperatorSessionHolder,
     private val deviceIdentity: DeviceIdentity,
+    private val commandOutbox: CommandOutbox = InMemoryCommandOutbox(),
 ) : MqttRepository {
 
     companion object {
@@ -457,18 +459,34 @@ class MqttRepositoryImpl @Inject constructor(
 
         val action = (gson.toJsonTree(payload) as? com.google.gson.JsonObject)
             ?.get("action")?.takeIf { it.isJsonPrimitive }?.asString
+        return exchange(topic, json.toByteArray(Charsets.UTF_8), messageId, sessionId, requestType, responseType, action, responseClass)
+    }
+
+    /**
+     * One publish and one wait, correlated on [messageId]. Shared by reads and commands so both
+     * get the same logging, session-invalid handling and duplicate-reply behaviour.
+     */
+    private suspend fun <T : Any> exchange(
+        topic: String,
+        bytes: ByteArray,
+        messageId: String,
+        sessionId: String,
+        requestType: String,
+        responseType: String,
+        action: String?,
+        responseClass: Class<T>,
+    ): MqttOutcome<T> {
         val startedAt = System.currentTimeMillis()
-        val bytes = json.toByteArray(Charsets.UTF_8)
         val waiter = CompletableDeferred<String>()
         pending[messageId] = PendingRequest(waiter, sessionId)
-        // One attempt. The contract's replay identity (deviceId + requestType + messageId) would
-        // allow a byte-identical republish, but three silent attempts each waiting the full
-        // timeout left the operator with a 90 s spinner and a "Request timeout" setting that was
-        // off by a factor of three (audit S2-05). Retrying is now an explicit operator action.
+        // One attempt. Retrying is an explicit caller decision (audit S2-05; contract §9).
         try {
             try {
                 publishFn(topic, bytes)
-                MqttLog.message(Direction.OUT, topic, 1, false, deviceId, requestType, action, "published", payload = json)
+                MqttLog.message(
+                    Direction.OUT, topic, 1, false, deviceId, requestType, action, "published",
+                    payload = String(bytes, Charsets.UTF_8),
+                )
             } catch (e: CancellationException) {
                 // CancellationException is an Exception in Kotlin, so the generic catch below
                 // would swallow it and report a normal failure — breaking structured
@@ -494,6 +512,85 @@ class MqttRepositoryImpl @Inject constructor(
             return outcome
         } finally {
             pending.remove(messageId)
+        }
+    }
+
+    override suspend fun <T : Any> sendCommand(
+        requestType: String,
+        responseType: String,
+        payload: Any,
+        responseClass: Class<T>,
+    ): CommandOutcome<T> {
+        if (_connectionState.value != MqttConnectionState.CONNECTED) {
+            return CommandOutcome.Settled(MqttOutcome.NoResponse(FailureKind.NotConnected))
+        }
+        val session = sessionHolder.session.value
+            ?: return CommandOutcome.Settled(MqttOutcome.Rejected(null, ErrorCode.OPERATOR_SESSION_INVALID, null))
+        val messageId = UUID.randomUUID().toString()
+        val now = MqttSchema.formatTimestamp(nowFn())
+        val json = RequestEnvelope.build(
+            gson = gson,
+            payload = payload,
+            messageId = messageId,
+            deviceId = deviceId,
+            sessionId = session.operatorSessionId,
+            timestampUtc = now,
+        )
+        val fields = gson.toJsonTree(payload).asJsonObject
+        val command = PendingCommand(
+            messageId = messageId,
+            requestType = requestType,
+            responseType = responseType,
+            action = fields["action"]?.takeIf { it.isJsonPrimitive }?.asString.orEmpty(),
+            targetId = fields["targetId"]?.takeIf { it.isJsonPrimitive }?.asString,
+            payload = json,
+            fingerprint = RequestFingerprint.of(json.toByteArray(Charsets.UTF_8)),
+            operatorId = session.operatorId,
+            sessionId = session.operatorSessionId,
+            createdAtUtc = now,
+        )
+        commandOutbox.save(command)   // contract §2: persisted BEFORE it can reach the broker
+        return deliver(command, responseClass)
+    }
+
+    override suspend fun <T : Any> retryCommand(command: PendingCommand, responseClass: Class<T>): CommandOutcome<T> {
+        if (command.status == PendingStatus.ManagerReconcile) {
+            return CommandOutcome.Unresolved(command, UnresolvedReason.ManagerReconcile, null, null)
+        }
+        // The bytes carry their original sessionId; replaying them under a new session is pointless.
+        if (sessionHolder.currentSessionIdOrEmpty() != command.sessionId) {
+            return CommandOutcome.Unresolved(command, UnresolvedReason.LoginThenRecover, null, null)
+        }
+        if (_connectionState.value != MqttConnectionState.CONNECTED) {
+            return CommandOutcome.Unresolved(command, UnresolvedReason.RetryIdentical, null, null)
+        }
+        return deliver(command, responseClass)
+    }
+
+    private suspend fun <T : Any> deliver(command: PendingCommand, responseClass: Class<T>): CommandOutcome<T> {
+        val outcome = exchange(
+            topic = MqttTopics.request(deviceId, command.requestType),
+            bytes = command.payloadBytes,
+            messageId = command.messageId,
+            sessionId = command.sessionId,
+            requestType = command.requestType,
+            responseType = command.responseType,
+            action = command.action,
+            responseClass = responseClass,
+        )
+        val rejected = outcome as? MqttOutcome.Rejected<T>
+        return when (val reason = unresolvedReasonOf(outcome)) {
+            null -> {
+                commandOutbox.remove(command.messageId)
+                CommandOutcome.Settled(outcome)
+            }
+            UnresolvedReason.ManagerReconcile -> {
+                commandOutbox.markManagerReconcile(command.messageId)
+                CommandOutcome.Unresolved(
+                    command.copy(status = PendingStatus.ManagerReconcile), reason, rejected?.body, rejected?.operatorMessage,
+                )
+            }
+            else -> CommandOutcome.Unresolved(command, reason, rejected?.body, rejected?.operatorMessage)
         }
     }
 

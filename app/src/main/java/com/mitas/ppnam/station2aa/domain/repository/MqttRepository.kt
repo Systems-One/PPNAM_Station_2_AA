@@ -2,6 +2,8 @@ package com.mitas.ppnam.station2aa.domain.repository
 
 import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutcome
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.domain.model.AppSettings
 import kotlinx.coroutines.flow.StateFlow
 
@@ -45,6 +47,21 @@ interface MqttRepository {
         payload: Any,
         responseClass: Class<T>,
     ): MqttOutcome<T>
+
+    /**
+     * Publishes a MUTATION. The exact bytes are saved to the outbox before publishing and removed
+     * only on a definite outcome, so an unanswered capture survives reconnects and restarts.
+     * Reads keep using [request]: a lost read is resolved by reading again.
+     */
+    suspend fun <T : Any> sendCommand(
+        requestType: String,
+        responseType: String,
+        payload: Any,
+        responseClass: Class<T>,
+    ): CommandOutcome<T>
+
+    /** Republishes [command]'s identical bytes and message id, only within the session it was sent in. */
+    suspend fun <T : Any> retryCommand(command: PendingCommand, responseClass: Class<T>): CommandOutcome<T>
     /**
      * Registers the single handler for rev2.1 server pushes — messages with no
      * `inResponseToMessageId`, currently `active_job_cards_invalidated`. The transport does not
