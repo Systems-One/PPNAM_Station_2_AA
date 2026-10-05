@@ -2,7 +2,7 @@ package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.google.gson.annotations.SerializedName
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
-import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralSnapshot
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ScramChallengeResponse
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2JobSummary
 import com.mitas.ppnam.station2aa.data.mqtt.dto.ScramProofResponse
@@ -43,7 +43,7 @@ class WireNullToleranceTest {
         ResponseEnvelope::class.java,
         ScramChallengeResponse::class.java,
         ScramProofResponse::class.java,
-        Rev2GeneralSnapshot::class.java,
+        Rev2Snapshot::class.java,
     )
 
     // ---- the guarantees -----------------------------------------------------------------------
@@ -83,7 +83,7 @@ class WireNullToleranceTest {
     @Test
     fun `a null inside an array is dropped instead of becoming a null element`() {
         val snapshot = WireJson.gson.fromJson(
-            """{"jobs":[null,{"id":"1"}]}""", Rev2GeneralSnapshot::class.java,
+            """{"jobs":[null,{"id":"1"}]}""", Rev2Snapshot::class.java,
         )
 
         assertEquals(listOf(Rev2JobSummary(id = "1")), snapshot.jobs)

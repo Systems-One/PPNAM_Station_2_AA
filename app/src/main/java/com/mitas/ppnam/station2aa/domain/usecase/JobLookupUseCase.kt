@@ -4,7 +4,7 @@ import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
 import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
 import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralRequest
-import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralSnapshot
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
 import com.mitas.ppnam.station2aa.domain.model.JobDetail
 import com.mitas.ppnam.station2aa.domain.model.JobLookupSnapshot
 import com.mitas.ppnam.station2aa.domain.model.JobMaterial
@@ -70,7 +70,7 @@ class JobLookupUseCase @Inject constructor(
             requestType = REQUEST_TYPE,
             responseType = RESPONSE_TYPE,
             payload = request,
-            responseClass = Rev2GeneralSnapshot::class.java,
+            responseClass = Rev2Snapshot::class.java,
         )) {
             is MqttOutcome.Accepted -> JobLookupResult.Loaded(outcome.body.toDomain())
             is MqttOutcome.Rejected -> JobLookupResult.Failed(outcome.message(), outcome.body?.toDomain())
@@ -95,7 +95,7 @@ private fun MqttOutcome.Rejected<*>.message(): String = when (error) {
     else -> operatorMessage ?: "Station 2 rejected the request"
 }
 
-private fun Rev2GeneralSnapshot.toDomain(): JobLookupSnapshot = JobLookupSnapshot(
+private fun Rev2Snapshot.toDomain(): JobLookupSnapshot = JobLookupSnapshot(
     jobs = jobs.map { JobSummary(it.id, it.product, it.requiredMixes, it.closed) },
     detail = job?.let { job ->
         JobDetail(

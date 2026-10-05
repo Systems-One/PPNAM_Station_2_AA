@@ -4,7 +4,7 @@ import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
 import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
 import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralRequest
-import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralSnapshot
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Job
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2JobSummary
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Material
@@ -39,7 +39,7 @@ class JobLookupUseCaseTest {
             Rev2Material("1500000306", "TACKIFIER", "kg", perMix = 1.5, required = 0.0, collected = 0.0, excluded = true),
         ),
     )
-    private val snapshot = Rev2GeneralSnapshot(
+    private val snapshot = Rev2Snapshot(
         jobs = listOf(Rev2JobSummary("510019068", "BAG CARRIER MIDI WHT", closed = false, requiredMixes = 8)),
         job = job,
         preparations = listOf(
@@ -54,13 +54,13 @@ class JobLookupUseCaseTest {
         useCase = JobLookupUseCase(mqtt)
     }
 
-    private suspend fun stub(outcome: MqttOutcome<Rev2GeneralSnapshot>) {
-        whenever(mqtt.request(any(), any(), any(), eq(Rev2GeneralSnapshot::class.java))).thenReturn(outcome)
+    private suspend fun stub(outcome: MqttOutcome<Rev2Snapshot>) {
+        whenever(mqtt.request(any(), any(), any(), eq(Rev2Snapshot::class.java))).thenReturn(outcome)
     }
 
     private suspend fun sentRequest(): Rev2GeneralRequest {
         val captor = argumentCaptor<Any>()
-        verify(mqtt).request(eq("rev2_general_requested"), eq("rev2_general_result"), captor.capture(), eq(Rev2GeneralSnapshot::class.java))
+        verify(mqtt).request(eq("rev2_general_requested"), eq("rev2_general_result"), captor.capture(), eq(Rev2Snapshot::class.java))
         return captor.firstValue as Rev2GeneralRequest
     }
 
@@ -90,7 +90,7 @@ class JobLookupUseCaseTest {
 
     @Test
     fun `an empty job list is loaded, not a failure`() = runTest {
-        stub(MqttOutcome.Accepted(Rev2GeneralSnapshot()))
+        stub(MqttOutcome.Accepted(Rev2Snapshot()))
         val result = useCase.read() as JobLookupResult.Loaded
         assertTrue(result.snapshot.jobs.isEmpty())
     }

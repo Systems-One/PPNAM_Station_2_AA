@@ -3,7 +3,7 @@ package com.mitas.ppnam.station2aa.data.mqtt
 import com.google.gson.JsonParser
 import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralRequest
-import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralSnapshot
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
@@ -112,7 +112,7 @@ class Rev2GeneralWireShapeTest {
     fun `a server-shaped general result parses into the snapshot DTO`() = runTest {
         val outcome = repo.request(
             JobLookupUseCase.REQUEST_TYPE, JobLookupUseCase.RESPONSE_TYPE,
-            Rev2GeneralRequest(action = "read", targetId = "510019068"), Rev2GeneralSnapshot::class.java,
+            Rev2GeneralRequest(action = "read", targetId = "510019068"), Rev2Snapshot::class.java,
         )
         assertTrue("expected Accepted, got $outcome", outcome is MqttOutcome.Accepted)
         val snapshot = (outcome as MqttOutcome.Accepted).body
