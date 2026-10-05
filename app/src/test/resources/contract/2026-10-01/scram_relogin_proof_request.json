@@ -1,0 +1,1 @@
+{"schemaVersion":"rev2.1","deviceId":"scanner_1","messageId":"example-037","timestampUtc":"2026-10-01T08:00:00.000000Z","purpose":"login","challengeId":"ac5f1ef218ac43b6a62904250faec344","clientFinalWithoutProof":"c=biws,r=example-fresh-login-noncekYBUbygDGEQCphrfzlM2MWoNKnUqXv0j","clientProof":"9FuU0HfSjouIN1jOf/1O4IWHF0Ox5ZRmPJX8V5H1Cfg="}
