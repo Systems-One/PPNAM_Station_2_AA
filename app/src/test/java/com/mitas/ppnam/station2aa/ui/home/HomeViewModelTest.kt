@@ -5,6 +5,7 @@ import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.PendingCommandCoordinator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +56,10 @@ class HomeViewModelTest {
         whenever(mockMqttRepository.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
         whenever(mockSessionHolder.session).thenReturn(sessionFlow)
 
-        viewModel = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder)
+        val coordinator = mock<PendingCommandCoordinator>()
+        whenever(coordinator.pending).thenReturn(MutableStateFlow(emptyList()))
+        whenever(coordinator.notices).thenReturn(MutableStateFlow(emptyList()))
+        viewModel = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator)
     }
 
     @After

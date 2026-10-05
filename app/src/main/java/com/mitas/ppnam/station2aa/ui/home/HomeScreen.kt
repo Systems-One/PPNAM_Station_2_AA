@@ -49,6 +49,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val session by viewModel.session.collectAsState()
+    val pendingCommands by viewModel.pendingCommands.collectAsState()
+    val recoveryNotices by viewModel.recoveryNotices.collectAsState()
     val connectionStatus by viewModel.connectionStatus.collectAsState()
     var showExitDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -102,6 +104,12 @@ fun HomeScreen(
                 text = session?.operatorName?.let { "$greeting, $it" } ?: greeting,
                 style = MaterialTheme.typography.headlineSmall,
                 color = TextPrimary,
+            )
+            UnresolvedCommandsCard(
+                pending = pendingCommands,
+                notices = recoveryNotices,
+                onCheckAgain = viewModel::recoverPending,
+                onDismiss = viewModel::dismissNotice,
             )
             HomeTile(
                 title = "Job Cards",
