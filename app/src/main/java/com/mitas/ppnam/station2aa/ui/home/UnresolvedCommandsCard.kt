@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
-import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 
 /**
@@ -25,6 +24,7 @@ import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 fun UnresolvedCommandsCard(
     pending: List<PendingCommand>,
     notices: List<RecoveryResult>,
+    currentOperatorId: String?,
     onCheckAgain: () -> Unit,
     onDismiss: (RecoveryResult) -> Unit,
     modifier: Modifier = Modifier,
@@ -48,10 +48,9 @@ fun UnresolvedCommandsCard(
                 }
             }
             pending.filter { it.messageId !in noticed }.forEach { command ->
-                val state = if (command.status == PendingStatus.ManagerReconcile) "needs a manager" else "waiting for Station 2"
-                Text("${command.label()}: $state", style = MaterialTheme.typography.bodySmall)
+                Text(command.statusLine(currentOperatorId), style = MaterialTheme.typography.bodySmall)
             }
-            if (pending.any { it.status == PendingStatus.Unresolved }) {
+            if (shouldOfferCheckAgain(pending, currentOperatorId)) {
                 OutlinedButton(onClick = onCheckAgain) { Text("Check again") }
             }
         }

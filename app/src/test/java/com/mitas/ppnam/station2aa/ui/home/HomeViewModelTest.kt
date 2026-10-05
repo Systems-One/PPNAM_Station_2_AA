@@ -68,6 +68,27 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `another operator notice is not exposed`() = runTest {
+        val own = com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand(messageId = "a", operatorId = "OP-1", action = "capture")
+        val foreign = own.copy(messageId = "b", operatorId = "OP-2")
+        val coordinator = mock<PendingCommandCoordinator>()
+        whenever(coordinator.pending).thenReturn(MutableStateFlow(emptyList()))
+        whenever(coordinator.notices).thenReturn(
+            MutableStateFlow(
+                listOf(
+                    com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult.OtherOperator(own),
+                    com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult.OtherOperator(foreign),
+                )
+            )
+        )
+        val vm = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator)
+        assertEquals(listOf("a"), vm.recoveryNotices.value.map { it.command.messageId })
+
+        sessionFlow.value = null
+        assertEquals(0, vm.recoveryNotices.value.size)
+    }
+
+    @Test
     fun `session reflects the current operator session`() = runTest {
         assertEquals(sampleSession, viewModel.session.value)
 

@@ -32,7 +32,10 @@ class PendingCommandCoordinator @Inject constructor(
     private val mutex = Mutex()
 
     suspend fun recoverForCurrentOperator() = mutex.withLock {
-        val session = sessionHolder.session.value ?: return@withLock
+        val session = sessionHolder.session.value
+        // Notices are the sending operator's: never carry them across a sign-in change.
+        _notices.update { list -> list.filter { it.command.operatorId == session?.operatorId } }
+        if (session == null) return@withLock
         val due = outbox.commands.value.filter {
             it.operatorId == session.operatorId &&
                 it.status == PendingStatus.Unresolved &&

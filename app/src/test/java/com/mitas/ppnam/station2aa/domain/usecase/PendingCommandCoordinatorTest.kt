@@ -51,6 +51,22 @@ class PendingCommandCoordinatorTest {
     }
 
     @Test
+    fun `another operator signing in does not inherit earlier notices`() = runTest {
+        val outbox = InMemoryCommandOutbox().apply { save(cmd("a", "OP-1", "old")) }
+        val sessions = OperatorSessionHolder().apply { set(OperatorSession("s1", "OP-1", "Op", "Worker")) }
+        val recovery = mock<CommandRecoveryUseCase>()
+        whenever(recovery.recover(any())).thenAnswer { RecoveryResult.StillUnresolved(it.getArgument(0), "later") }
+        val coordinator = PendingCommandCoordinator(outbox, recovery, sessions)
+        coordinator.recoverForCurrentOperator()
+        assertEquals(1, coordinator.notices.value.size)
+
+        sessions.set(OperatorSession("s2", "OP-2", "Other", "Worker"))
+        coordinator.recoverForCurrentOperator()
+
+        assertTrue(coordinator.notices.value.isEmpty())
+    }
+
+    @Test
     fun `dismiss removes a notice`() = runTest {
         val outbox = InMemoryCommandOutbox().apply { save(cmd("a", "OP-1", "old")) }
         val sessions = OperatorSessionHolder().apply { set(OperatorSession("current", "OP-1", "Op", "Worker")) }

@@ -15,6 +15,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -34,7 +37,11 @@ class HomeViewModel @Inject constructor(
     /** Every unanswered command on this scanner, whoever sent it. */
     val pendingCommands: StateFlow<List<PendingCommand>> = coordinator.pending
 
-    val recoveryNotices: StateFlow<List<RecoveryResult>> = coordinator.notices
+    /** Only the signed-in operator's notices, filtered live so an operator switch never leaks them. */
+    val recoveryNotices: StateFlow<List<RecoveryResult>> =
+        combine(coordinator.notices, sessionHolder.session) { notices, session ->
+            notices.visibleTo(session?.operatorId)
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     init {
         // Home is where every login lands: recover what this operator left unresolved.

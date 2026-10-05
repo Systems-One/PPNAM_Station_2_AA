@@ -108,6 +108,7 @@ fun HomeScreen(
             UnresolvedCommandsCard(
                 pending = pendingCommands,
                 notices = recoveryNotices,
+                currentOperatorId = session?.operatorId,
                 onCheckAgain = viewModel::recoverPending,
                 onDismiss = viewModel::dismissNotice,
             )
