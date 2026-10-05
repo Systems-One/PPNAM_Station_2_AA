@@ -3,6 +3,7 @@ package com.mitas.ppnam.station2aa.ui.joblookup
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mitas.ppnam.station2aa.UserTagPolicy
 import com.mitas.ppnam.station2aa.data.mqtt.MqttTopics
 import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
@@ -111,6 +112,13 @@ class JobLookupViewModel @Inject constructor(
         viewModelScope.launch {
             scanEventBus.events.collect { event ->
                 if (!lookupScreenActive) return@collect
+                if (event is ScanEvent.RfidTag && UserTagPolicy.isUserTag(event.tagId)) {
+                    // A badge is for login, never a job card: say so instead of a digits-only error.
+                    _uiState.update {
+                        it.copy(lookupError = JobLookupUseCase.USER_BADGE_MESSAGE, lookupRetryable = false)
+                    }
+                    return@collect
+                }
                 lookup(
                     when (event) {
                         is ScanEvent.Barcode -> event.value
