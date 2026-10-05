@@ -91,6 +91,7 @@ class CommandTransportTest {
         assertEquals(RequestFingerprint.of(published.single().second), saved.fingerprint)
         assertEquals("OP-1", saved.operatorId)
         assertEquals("S-1", saved.sessionId)
+        assertEquals(device, saved.deviceId)
         assertEquals("capture", saved.action)
         assertEquals("PREP_1", saved.targetId)
         reply(idOf(0))
@@ -164,6 +165,27 @@ class CommandTransportTest {
     }
 
     @Test
+    fun `retry of a command sent from another scanner publishes nothing and goes to a manager`() = runTest {
+        send().await()   // times out
+        val foreign = outbox.commands.value.single().copy(deviceId = "scanner_2")
+        val result = repo.retryCommand(foreign, Body::class.java)
+        assertEquals(UnresolvedReason.ManagerReconcile, (result as CommandOutcome.Unresolved).reason)
+        assertEquals(1, published.size)
+        assertEquals(PendingStatus.ManagerReconcile, outbox.commands.value.single().status)
+    }
+
+    @Test
+    fun `retry of a legacy command with no device id is still republished`() = runTest {
+        send().await()   // times out
+        val legacy = outbox.commands.value.single().copy(deviceId = "")
+        val retry = async { repo.retryCommand(legacy, Body::class.java) }
+        runCurrent()
+        assertEquals(2, published.size)
+        reply(legacy.messageId)
+        assertTrue(retry.await() is CommandOutcome.Settled)
+    }
+
+    @Test
     fun `not connected sends nothing and persists nothing`() = runTest {
         setConnected(false)
         val result = repo.sendCommand("rev2_general_requested", "rev2_general_result", CaptureBody(), Body::class.java)
@@ -202,6 +224,90 @@ class CommandTransportTest {
         assertEquals(1, published.size)
         reply(command.messageId)
         assertTrue(first.await() is CommandOutcome.Settled)
+        assertTrue(outbox.commands.value.isEmpty())
+    }
+
+    @Test
+    fun `two concurrent retries of the same command publish at most once more`() {
+        // A fresh transport whose first device-id lookup is held open: on the old code that lookup
+        // sat between the in-flight pre-check and the registration, so both callers passed the check.
+        val gate = java.util.concurrent.CountDownLatch(1)
+        val identity = mock<DeviceIdentity>()
+        whenever(identity.deviceId()).thenAnswer { gate.await(5, java.util.concurrent.TimeUnit.SECONDS); device }
+        val publishes = java.util.concurrent.atomic.AtomicInteger()
+        val fresh = MqttRepositoryImpl(
+            clientFactory = mock(),
+            settingsRepository = mock<SettingsRepository>(),
+            sessionHolder = sessionHolder,
+            deviceIdentity = identity,
+            commandOutbox = outbox,
+        )
+        fresh.ioDispatcher = kotlinx.coroutines.Dispatchers.Unconfined
+        fresh.publishFn = { _, _ -> publishes.incrementAndGet() }
+        val stateField = MqttRepositoryImpl::class.java.getDeclaredField("_connectionState").apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        (stateField.get(fresh) as MutableStateFlow<MqttConnectionState>).value = MqttConnectionState.CONNECTED
+        val payload = """{"action":"capture","messageId":"77777777-7777-7777-7777-777777777777"}"""
+        val command = com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand(
+            messageId = "77777777-7777-7777-7777-777777777777",
+            requestType = "rev2_general_requested",
+            responseType = "rev2_general_result",
+            action = "capture",
+            payload = payload,
+            fingerprint = RequestFingerprint.of(payload.toByteArray()),
+            operatorId = "OP-1",
+            sessionId = "S-1",
+        )
+        outbox.save(command)
+
+        kotlinx.coroutines.runBlocking {
+            val a = async(kotlinx.coroutines.Dispatchers.Default) { fresh.retryCommand(command, Body::class.java) }
+            val b = async(kotlinx.coroutines.Dispatchers.Default) { fresh.retryCommand(command, Body::class.java) }
+            Thread.sleep(300)   // both callers reach the held lookup
+            gate.countDown()
+            // One caller is refused without publishing; wait for it, then answer the other.
+            kotlinx.coroutines.withTimeout(5_000) {
+                while (!a.isCompleted && !b.isCompleted) kotlinx.coroutines.delay(10)
+            }
+            val json = """{"schemaVersion":"rev2.1","contractRevision":"2026-10-01","deviceId":"$device",""" +
+                """"inResponseToMessageId":"${command.messageId}","requestFingerprint":"","success":true,"error":"",""" +
+                """"operatorMessage":"","nextAction":"read_saved_state","data":{"value":"ok"}}"""
+            fresh.handleIncomingResponse("PPNAM/station_2/$device/res/rev2_general_result", json.toByteArray())
+            kotlinx.coroutines.withTimeout(5_000) { a.await(); b.await() }
+        }
+        assertEquals(1, publishes.get())
+    }
+
+    @Test
+    fun `cancelling the caller after the reply arrived still removes the entry`() = runTest {
+        // Outbox writes run on their own scheduler, so the caller can be cancelled after the reply
+        // resumed it but before the post-settle write was dispatched.
+        val ioQueue = ArrayDeque<Runnable>()
+        val io = object : kotlinx.coroutines.CoroutineDispatcher() {
+            override fun dispatch(context: kotlin.coroutines.CoroutineContext, block: Runnable) { ioQueue += block }
+        }
+        val payload = """{"action":"capture","messageId":"88888888-8888-8888-8888-888888888888"}"""
+        val command = com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand(
+            messageId = "88888888-8888-8888-8888-888888888888",
+            requestType = "rev2_general_requested",
+            responseType = "rev2_general_result",
+            action = "capture",
+            payload = payload,
+            fingerprint = RequestFingerprint.of(payload.toByteArray()),
+            operatorId = "OP-1",
+            sessionId = "S-1",
+        )
+        outbox.save(command)
+        repo.ioDispatcher = io
+        val call = async { repo.retryCommand(command, Body::class.java) }
+        runCurrent()
+        assertEquals(1, published.size)
+        reply(command.messageId)
+        runCurrent()                 // the caller resumes and asks for the outbox write
+        call.cancel()                // ...and is cancelled before that write runs
+        assertEquals(1, ioQueue.size)
+        while (ioQueue.isNotEmpty()) ioQueue.removeFirst().run()
+        runCurrent()
         assertTrue(outbox.commands.value.isEmpty())
     }
 

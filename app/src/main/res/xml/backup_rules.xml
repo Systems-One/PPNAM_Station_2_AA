@@ -4,8 +4,9 @@
   supersedes this file on API 31+ — both are declared because the platform picks by version.
 
   See data_extraction_rules.xml for why the credential record must never leave the device it was
-  provisioned on.
+  provisioned on, and why the command outbox (files/outbox/) must not either.
 -->
 <full-backup-content>
     <exclude domain="sharedpref" path="ppnam_secure_credentials.xml" />
+    <exclude domain="file" path="outbox/" />
 </full-backup-content>

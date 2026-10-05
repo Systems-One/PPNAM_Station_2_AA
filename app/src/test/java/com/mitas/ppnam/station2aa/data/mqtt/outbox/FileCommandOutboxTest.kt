@@ -85,10 +85,56 @@ class FileCommandOutboxTest {
     }
 
     @Test
-    fun `a leftover tmp file is ignored and cleaned up`() {
+    fun `a damaged orphan tmp file is kept and surfaced for a manager`() {
         val dir = tmp.newFolder("outbox")
-        val stray = File(dir, "33333333-3333-3333-3333-333333333333.json.tmp").apply { writeText("{}") }
-        assertTrue(FileCommandOutbox(dir).commands.value.isEmpty())
+        val id = "33333333-3333-3333-3333-333333333333"
+        val stray = File(dir, "$id.json.tmp").apply { writeText("{}") }
+        val entry = FileCommandOutbox(dir).commands.value.single()
+        assertEquals(id, entry.messageId)
+        assertEquals(PendingStatus.ManagerReconcile, entry.status)
+        assertTrue(stray.exists())
+    }
+
+    @Test
+    fun `a valid orphan tmp file is promoted and reloads as Unresolved`() {
+        // The move returned and the command was published, but the rename did not survive a power cut.
+        val dir = tmp.newFolder("outbox")
+        val original = command()
+        FileCommandOutbox(dir).save(original)
+        val json = File(dir, "${original.messageId}.json")
+        val orphan = File(dir, "${original.messageId}.json.tmp")
+        json.renameTo(orphan)
+
+        val reloaded = FileCommandOutbox(dir).commands.value.single()
+        assertEquals(original, reloaded)
+        assertEquals(PendingStatus.Unresolved, reloaded.status)
+        assertTrue(json.exists())
+        assertTrue(!orphan.exists())
+    }
+
+    @Test
+    fun `a garbage orphan tmp file becomes ManagerReconcile and its bytes are untouched`() {
+        val dir = tmp.newFolder("outbox")
+        val id = "55555555-5555-5555-5555-555555555555"
+        val orphan = File(dir, "$id.json.tmp").apply { writeText("{garbage") }
+        val before = orphan.readBytes()
+        val outbox = FileCommandOutbox(dir)
+        val entry = outbox.commands.value.single()
+        assertEquals(id, entry.messageId)
+        assertEquals(PendingStatus.ManagerReconcile, entry.status)
+        outbox.markManagerReconcile(id)
+        assertArrayEquals(before, orphan.readBytes())
+        assertArrayEquals(before, File(dir, "$id.json.tmp").readBytes())
+    }
+
+    @Test
+    fun `a tmp file beside a valid json is removed and the json loads`() {
+        val dir = tmp.newFolder("outbox")
+        val original = command()
+        FileCommandOutbox(dir).save(original)
+        val stray = File(dir, "${original.messageId}.json.tmp").apply { writeText("{half a write") }
+        val reloaded = FileCommandOutbox(dir).commands.value.single()
+        assertEquals(original, reloaded)
         assertTrue(!stray.exists())
     }
 

@@ -26,8 +26,16 @@ data class PendingCommand(
     val operatorId: String = "",
     /** The session it was sent with; an identical retry is only meaningful in that session. */
     val sessionId: String = "",
+    /**
+     * The scanner that published it; replies and recovery are only meaningful on that device's
+     * topics. Blank on entries written before this field existed, which are treated as this device's.
+     */
+    val deviceId: String = "",
     val createdAtUtc: String = "",
     val status: PendingStatus = PendingStatus.Unresolved,
 ) {
     val payloadBytes: ByteArray get() = payload.toByteArray(Charsets.UTF_8)
+
+    /** Whether this scanner ([currentDeviceId]) sent it. A blank [deviceId] is a legacy entry: assume so. */
+    fun isFromDevice(currentDeviceId: String): Boolean = deviceId.isBlank() || deviceId == currentDeviceId
 }

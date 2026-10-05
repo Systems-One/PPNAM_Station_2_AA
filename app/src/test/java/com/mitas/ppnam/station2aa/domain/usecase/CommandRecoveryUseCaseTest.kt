@@ -54,6 +54,7 @@ class CommandRecoveryUseCaseTest {
     @Before
     fun setup() {
         mqtt = mock()
+        whenever(mqtt.deviceId).thenReturn("scanner_1")
         outbox = InMemoryCommandOutbox().apply { save(command) }
         sessions = OperatorSessionHolder().apply { set(OperatorSession("new-session", "OP-1", "Op", "Worker")) }
         useCase = CommandRecoveryUseCase(mqtt, outbox, sessions)
@@ -61,6 +62,27 @@ class CommandRecoveryUseCaseTest {
 
     private suspend fun stub(outcome: MqttOutcome<Rev2Snapshot>) {
         whenever(mqtt.request(any(), any(), any(), eq(Rev2Snapshot::class.java))).thenReturn(outcome)
+    }
+
+    @Test
+    fun `a command sent from another scanner is not recovered here and goes to a manager`() = runTest {
+        val foreign = command.copy(deviceId = "scanner_2")
+        outbox.save(foreign)
+        val result = useCase.recover(foreign)
+        assertEquals(
+            RecoveryResult.NeedsManager(foreign, "Sent from another scanner — a manager must reconcile this"),
+            result,
+        )
+        assertEquals(PendingStatus.ManagerReconcile, outbox.commands.value.single().status)
+        verify(mqtt, never()).request(any(), any(), any(), eq(Rev2Snapshot::class.java))
+    }
+
+    @Test
+    fun `a command from this scanner is recovered`() = runTest {
+        stub(MqttOutcome.Accepted(fixture("general_recover_committed")))
+        val own = command.copy(deviceId = "scanner_1")
+        outbox.save(own)
+        assertTrue(useCase.recover(own) is RecoveryResult.Resolved)
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutbox
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,7 +43,14 @@ class PendingCommandCoordinator @Inject constructor(
                 it.sessionId != session.operatorSessionId
         }
         for (command in due) {
-            val result = recovery.recover(command)
+            // One failure (a disk error, say) must not stop the rest being checked.
+            val result = try {
+                recovery.recover(command)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                RecoveryResult.StillUnresolved(command, "Could not check this command: ${e.message}")
+            }
             _notices.update { list -> list.filterNot { it.command.messageId == command.messageId } + result }
         }
     }

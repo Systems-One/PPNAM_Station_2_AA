@@ -67,6 +67,29 @@ class PendingCommandCoordinatorTest {
     }
 
     @Test
+    fun `a recovery that throws becomes a notice and the next command is still recovered`() = runTest {
+        val outbox = InMemoryCommandOutbox().apply {
+            save(cmd("a", "OP-1", "old"))
+            save(cmd("b", "OP-1", "old"))
+        }
+        val sessions = OperatorSessionHolder().apply { set(OperatorSession("current", "OP-1", "Op", "Worker")) }
+        val recovery = mock<CommandRecoveryUseCase>()
+        whenever(recovery.recover(cmd("a", "OP-1", "old"))).thenAnswer { throw java.io.IOException("disk full") }
+        whenever(recovery.recover(cmd("b", "OP-1", "old"))).thenAnswer {
+            RecoveryResult.Resolved(it.getArgument(0), RecoveryOutcome.Committed, "done", Rev2Snapshot())
+        }
+        val coordinator = PendingCommandCoordinator(outbox, recovery, sessions)
+
+        coordinator.recoverForCurrentOperator()
+
+        val byId = coordinator.notices.value.associateBy { it.command.messageId }
+        assertEquals(setOf("a", "b"), byId.keys)
+        val failed = byId.getValue("a") as RecoveryResult.StillUnresolved
+        assertEquals("Could not check this command: disk full", failed.message)
+        assertTrue(byId.getValue("b") is RecoveryResult.Resolved)
+    }
+
+    @Test
     fun `dismiss removes a notice`() = runTest {
         val outbox = InMemoryCommandOutbox().apply { save(cmd("a", "OP-1", "old")) }
         val sessions = OperatorSessionHolder().apply { set(OperatorSession("current", "OP-1", "Op", "Worker")) }

@@ -139,7 +139,7 @@ class MqttRepositoryImpl @Inject constructor(
 
     // Derived from hardware (base standard §2), never configured. Lazy because deriving it can
     // touch SharedPreferences/NetworkInterface; first access is on Dispatchers.IO in connect().
-    private val deviceId: String by lazy { deviceIdentity.deviceId() }
+    override val deviceId: String by lazy { deviceIdentity.deviceId() }
     private var requestTimeoutMs: Long = AppSettings().requestTimeoutMs
     private var retryJob: Job? = null
 
@@ -483,7 +483,9 @@ class MqttRepositoryImpl @Inject constructor(
         val startedAt = System.currentTimeMillis()
         val waiter = CompletableDeferred<String>()
         val entry = PendingRequest(waiter, sessionId)
-        pending[messageId] = entry
+        // Atomic with the check: two callers delivering the same id must not both publish, and a
+        // second registration would orphan the first caller's waiter.
+        if (pending.putIfAbsent(messageId, entry) != null) return MqttOutcome.NoResponse(FailureKind.Timeout)
         // One attempt. Retrying is an explicit caller decision (audit S2-05; contract §9).
         try {
             try {
@@ -552,6 +554,7 @@ class MqttRepositoryImpl @Inject constructor(
             fingerprint = RequestFingerprint.of(json.toByteArray(Charsets.UTF_8)),
             operatorId = session.operatorId,
             sessionId = session.operatorSessionId,
+            deviceId = deviceId,
             createdAtUtc = now,
         )
         withContext(ioDispatcher) { commandOutbox.save(command) }   // contract §2: persisted BEFORE it can reach the broker
@@ -561,6 +564,14 @@ class MqttRepositoryImpl @Inject constructor(
     override suspend fun <T : Any> retryCommand(command: PendingCommand, responseClass: Class<T>): CommandOutcome<T> {
         if (command.status == PendingStatus.ManagerReconcile) {
             return CommandOutcome.Unresolved(command, UnresolvedReason.ManagerReconcile, null, null)
+        }
+        // The bytes name another scanner's topics: a reply would never reach this one, and recovery
+        // from here would report not_executed for something that may have happened.
+        if (!command.isFromDevice(deviceId)) {
+            withContext(NonCancellable + ioDispatcher) { commandOutbox.markManagerReconcile(command.messageId) }
+            return CommandOutcome.Unresolved(
+                command.copy(status = PendingStatus.ManagerReconcile), UnresolvedReason.ManagerReconcile, null, null,
+            )
         }
         // The bytes carry their original sessionId; replaying them under a new session is pointless.
         if (sessionHolder.currentSessionIdOrEmpty() != command.sessionId) {
@@ -590,11 +601,12 @@ class MqttRepositoryImpl @Inject constructor(
         val rejected = outcome as? MqttOutcome.Rejected<T>
         return when (val reason = unresolvedReasonOf(outcome)) {
             null -> {
-                withContext(ioDispatcher) { commandOutbox.remove(command.messageId) }
+                // The reply has arrived: cancelling the caller now must not leave a settled command behind.
+                withContext(NonCancellable + ioDispatcher) { commandOutbox.remove(command.messageId) }
                 CommandOutcome.Settled(outcome)
             }
             UnresolvedReason.ManagerReconcile -> {
-                withContext(ioDispatcher) { commandOutbox.markManagerReconcile(command.messageId) }
+                withContext(NonCancellable + ioDispatcher) { commandOutbox.markManagerReconcile(command.messageId) }
                 CommandOutcome.Unresolved(
                     command.copy(status = PendingStatus.ManagerReconcile), reason, rejected?.body, rejected?.operatorMessage,
                 )

@@ -39,6 +39,8 @@ interface MqttRepository {
      * logged; it does not block (the server enforces only the wire schema `rev2.1`).
      */
     val serverContractRevision: StateFlow<String?>
+    /** This scanner's device id, as used in its MQTT topics. */
+    val deviceId: String
     /** Clears the [upgradeRequired] latch (the gate's "Close app"), so a relaunch re-evaluates against the backend. */
     fun clearUpgradeRequired() {}
     suspend fun <T : Any> request(
