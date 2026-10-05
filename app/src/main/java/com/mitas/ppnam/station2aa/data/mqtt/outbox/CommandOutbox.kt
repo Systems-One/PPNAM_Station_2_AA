@@ -66,6 +66,8 @@ class FileCommandOutbox(
     override fun markManagerReconcile(messageId: String) {
         synchronized(lock) {
             val current = _commands.value.firstOrNull { it.messageId == messageId } ?: return
+            // Already flagged (possibly a stub for a damaged file): writing would overwrite the only copy.
+            if (current.status == PendingStatus.ManagerReconcile) return
             save(current.copy(status = PendingStatus.ManagerReconcile))
         }
     }
@@ -89,18 +91,24 @@ class FileCommandOutbox(
         files.filter { it.name.endsWith(TEMP_SUFFIX) }.forEach { it.delete() }
         return files.filter { it.name.endsWith(SUFFIX) }.map { file ->
             val id = file.name.removeSuffix(SUFFIX)
-            val parsed = try {
-                gson.fromJson(file.readText(Charsets.UTF_8), PendingCommand::class.java)
+            val stub = PendingCommand(messageId = id, status = PendingStatus.ManagerReconcile)
+            try {
+                val parsed = gson.fromJson(file.readText(Charsets.UTF_8), PendingCommand::class.java)
+                // Gson can write JSON nulls into non-null Kotlin fields, so check at runtime.
+                val required = listOf<Any?>(
+                    parsed, parsed?.messageId, parsed?.requestType, parsed?.responseType, parsed?.action,
+                    parsed?.payload, parsed?.fingerprint, parsed?.operatorId, parsed?.sessionId,
+                    parsed?.createdAtUtc, parsed?.status,
+                )
+                when {
+                    required.any { it == null } || parsed.messageId != id -> stub
+                    RequestFingerprint.of(parsed.payloadBytes) != parsed.fingerprint ->
+                        parsed.copy(status = PendingStatus.ManagerReconcile)
+                    else -> parsed
+                }
             } catch (e: Exception) {
                 Log.w(TAG, "Unreadable outbox entry $id", e)
-                null
-            }
-            when {
-                parsed == null || parsed.messageId != id ->
-                    PendingCommand(messageId = id, status = PendingStatus.ManagerReconcile)
-                RequestFingerprint.of(parsed.payloadBytes) != parsed.fingerprint ->
-                    parsed.copy(status = PendingStatus.ManagerReconcile)
-                else -> parsed
+                stub
             }
         }.sortedBy { it.createdAtUtc }
     }

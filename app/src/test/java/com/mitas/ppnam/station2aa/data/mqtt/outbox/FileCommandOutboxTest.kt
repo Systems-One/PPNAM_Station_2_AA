@@ -101,4 +101,45 @@ class FileCommandOutboxTest {
         outbox.remove(command().messageId)
         assertTrue(outbox.commands.value.isEmpty())
     }
+
+    @Test
+    fun `marking an unreadable entry leaves its file untouched`() {
+        val dir = tmp.newFolder("outbox")
+        val id = "22222222-2222-2222-2222-222222222222"
+        val file = File(dir, "$id.json").apply { writeText("{not json") }
+        val before = file.readBytes()
+        FileCommandOutbox(dir).markManagerReconcile(id)
+        assertArrayEquals(before, file.readBytes())
+    }
+
+    @Test
+    fun `marking a fingerprint-mismatch entry leaves its file untouched`() {
+        val dir = tmp.newFolder("outbox")
+        FileCommandOutbox(dir).save(command().copy(fingerprint = "0".repeat(64)))
+        val file = File(dir, "${command().messageId}.json")
+        val before = file.readBytes()
+        FileCommandOutbox(dir).markManagerReconcile(command().messageId)
+        assertArrayEquals(before, file.readBytes())
+    }
+
+    @Test
+    fun `a file with a null payload does not break loading the others`() {
+        val dir = tmp.newFolder("outbox")
+        FileCommandOutbox(dir).save(command())
+        val badId = "44444444-4444-4444-4444-444444444444"
+        File(dir, "$badId.json").writeText("""{"messageId":"$badId","payload":null}""")
+        val byId = FileCommandOutbox(dir).commands.value.associateBy { it.messageId }
+        assertEquals(2, byId.size)
+        assertEquals(PendingStatus.ManagerReconcile, byId.getValue(badId).status)
+        assertEquals(PendingStatus.Unresolved, byId.getValue(command().messageId).status)
+    }
+
+    @Test
+    fun `a file with an unknown status is ManagerReconcile`() {
+        val dir = tmp.newFolder("outbox")
+        FileCommandOutbox(dir).save(command())
+        val file = File(dir, "${command().messageId}.json")
+        file.writeText(file.readText().replace("\"Unresolved\"", "\"Bogus\""))
+        assertEquals(PendingStatus.ManagerReconcile, FileCommandOutbox(dir).commands.value.single().status)
+    }
 }
