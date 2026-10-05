@@ -102,3 +102,21 @@ Phase 1 keeps `Double` for display-only quantities, as today. Phase 2 moves outb
 - SAP mutations.
 - Pallet or holding messages (not in the active contract).
 - Editing the sibling repo beyond `RFID_MQTT_CONTRACT.md`.
+
+## 6. Phase 2 entry gate (carried from the Phase 1 reviews)
+
+Phase 1 has no production caller of `sendCommand`. These items were deliberately deferred. Do them before Phase 2 ships captures:
+
+- **Constructor default:** remove `MqttRepositoryImpl`'s `InMemoryCommandOutbox()` default, so a hand-built transport can't silently lose durability.
+- **Failed save:** return a typed result from `sendCommand` when the outbox save fails, instead of letting an `IOException` escape.
+- **Echoed fingerprint:** compare each reply's `requestFingerprint` with the saved command's fingerprint, and log any mismatch.
+- **`exceptionListRevision`:** make the snapshot field `Int?` before `prepare` echoes it back.
+- **Manager clear:** add a manager-gated way to clear `ManagerReconcile` entries on the scanner once they've been reconciled at the desktop.
+- **Retry copy:** have `retryCommand` re-read the outbox by id and return early when the entry is gone.
+- **Cancellation window:** the caller can be cancelled after the reply has completed the waiter but before the result is processed. The entry then stays Unresolved. This is safe, because recovery tells the truth.
+- **Other device and other operator:** a command from another scanner that also belongs to another operator currently shows the "sign in on this scanner" text. It should say a manager must reconcile it.
+- **Simulator:**
+  - check the size limit in UTF-8 bytes;
+  - fix the pre-existing self-test failure "retired 4.1 suffix → `client_upgrade_required`";
+  - `job.allocatedMixes` should exclude cancelled preparations.
+- **Device smoke test:** run Phase 1's on-device check against the simulator (plan Task 10, Step 2). It needs a device and a broker.
