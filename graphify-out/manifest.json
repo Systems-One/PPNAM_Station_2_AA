@@ -15700,8 +15700,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/MqttRepositoryImpl.kt": {
-    "mtime": 1791185722.163715,
-    "ast_hash": "a586f61934c420cd3bfb7cba2de9e572",
+    "mtime": 1791187003.9995656,
+    "ast_hash": "9aeceb4a1baa3ab7ce6bebaad2ccf9b6",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/MqttSchema.kt": {
@@ -15780,8 +15780,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/domain/repository/MqttRepository.kt": {
-    "mtime": 1791185540.6020596,
-    "ast_hash": "a9cdfbc1424bb16a851a2e993636984e",
+    "mtime": 1791187003.9995656,
+    "ast_hash": "2f82a752714a1b47dea3b915a4d0c01a",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/domain/repository/ScanRepository.kt": {
@@ -15835,13 +15835,13 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/ui/home/HomeScreen.kt": {
-    "mtime": 1791186152.3430884,
-    "ast_hash": "72cd0420c772e8a434cadfac8374b7e5",
+    "mtime": 1791187061.091684,
+    "ast_hash": "c77be112fd201c5497bde6cd46322334",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/ui/home/HomeViewModel.kt": {
-    "mtime": 1791186152.3440886,
-    "ast_hash": "4499810893423abf590f0ba06b33e245",
+    "mtime": 1791187100.2232177,
+    "ast_hash": "f154c967213181004acb45af47ddd652",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/ui/login/LoginScreen.kt": {
@@ -15980,8 +15980,8 @@
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/ui/home/HomeViewModelTest.kt": {
-    "mtime": 1791186152.3450868,
-    "ast_hash": "3976a75a71a140acf354d83d28d839dc",
+    "mtime": 1791187082.6492975,
+    "ast_hash": "de27c3330db8f82ff18d60d86fc2495e",
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/ui/login/LoginViewModelTest.kt": {
@@ -16150,8 +16150,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/outbox/CommandOutbox.kt": {
-    "mtime": 1791185404.038414,
-    "ast_hash": "f3aed7c5093af76c14d98c9628dbcbd6",
+    "mtime": 1791186987.037256,
+    "ast_hash": "7b45e684d660e1f229b04d6bf88f0df8",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/outbox/CommandOutcome.kt": {
@@ -16160,8 +16160,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/mqtt/outbox/PendingCommand.kt": {
-    "mtime": 1791185250.3692403,
-    "ast_hash": "8febfd9da251d9fc46d42de8d8d478a2",
+    "mtime": 1791187004.0090804,
+    "ast_hash": "96e9572b48e356ceb8db36ebc1939b01",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt": {
@@ -16195,8 +16195,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/CommandRecoveryUseCase.kt": {
-    "mtime": 1791185821.2012372,
-    "ast_hash": "bbd6b31ab72691cf677db7a590f13120",
+    "mtime": 1791187024.489333,
+    "ast_hash": "47055ba6c02ce704078c5712adef7a62",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/OperatorDirectoryUseCase.kt": {
@@ -16205,18 +16205,18 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/PendingCommandCoordinator.kt": {
-    "mtime": 1791186152.3430884,
-    "ast_hash": "264c4d721b61c1f1045a22205c2c4207",
+    "mtime": 1791187024.489333,
+    "ast_hash": "0bcffcc543769a74ab723c88c4df747e",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/ui/home/RecoveryNoticeText.kt": {
-    "mtime": 1791186152.3410883,
-    "ast_hash": "568b6d5be987fd3b6f1ecd984d435932",
+    "mtime": 1791187061.0906768,
+    "ast_hash": "61d65024e4d07e5791c5dcfb099b88e8",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/ui/home/UnresolvedCommandsCard.kt": {
-    "mtime": 1791186152.34209,
-    "ast_hash": "c9f3c73323220593980cbb63722433b5",
+    "mtime": 1791187061.091684,
+    "ast_hash": "5ef6f583c3870333c60a7373efdae4f5",
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/UserTagPolicyTest.kt": {
@@ -16235,8 +16235,8 @@
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/CommandTransportTest.kt": {
-    "mtime": 1791185722.1651156,
-    "ast_hash": "af6ab781710289bde4ae03747440aacb",
+    "mtime": 1791187043.7640738,
+    "ast_hash": "c653e70718d8370e794a07ace3b3517c",
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/ContractEnvelopeTest.kt": {
@@ -16265,8 +16265,8 @@
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/data/mqtt/outbox/FileCommandOutboxTest.kt": {
-    "mtime": 1791185404.038414,
-    "ast_hash": "6131e5ccef9a0403267ac414f66263db",
+    "mtime": 1791186894.0635898,
+    "ast_hash": "005b2d36936929bcce46ff8a6cbda701",
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt": {
@@ -16285,8 +16285,8 @@
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/CommandRecoveryUseCaseTest.kt": {
-    "mtime": 1791185821.17528,
-    "ast_hash": "abeef0e92a1301906f7954db456b9f22",
+    "mtime": 1791187061.01826,
+    "ast_hash": "a9c24f999198391a436b03f532cd03d7",
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/OperatorDirectoryUseCaseTest.kt": {
@@ -16295,13 +16295,13 @@
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/PendingCommandCoordinatorTest.kt": {
-    "mtime": 1791186152.3440886,
-    "ast_hash": "64bfce3d207e75b3226a4fd9047cdbc4",
+    "mtime": 1791186894.6441314,
+    "ast_hash": "2260dc7a82bb3acfcde4c63530625653",
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/ui/home/RecoveryNoticeTextTest.kt": {
-    "mtime": 1791186152.3450868,
-    "ast_hash": "13a0a4627e1b5ea932357d64db6cc597",
+    "mtime": 1791187082.648296,
+    "ast_hash": "e1d495b0d303342325b615ee4a6a5d93",
     "semantic_hash": ""
   },
   "app/src/test/resources/contract/2026-10-01/active_job_cards_invalidated.json": {
@@ -16760,8 +16760,8 @@
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-10-05-contract-2026-10-01-adoption-design.md": {
-    "mtime": 1791184594.7443135,
-    "ast_hash": "1a31fdc132ddb86b1f006c0317791f36",
+    "mtime": 1791186359.4420195,
+    "ast_hash": "3df2786fe8ded1883db675fa73c78d32",
     "semantic_hash": ""
   }
 }
