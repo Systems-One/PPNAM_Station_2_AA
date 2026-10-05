@@ -1,7 +1,7 @@
 # Adopting Station 2 contract revision 2026-10-01 on Android
 
 **Date:** 2026-10-05
-**Status:** Draft for review
+**Status:** Phase 1 implemented (branch feat/contract-2026-10-01-foundation)
 **Supersedes (scope only):** the Non-goals of `2026-09-30-job-lookup-on-rev2-1-design.md` §1
 **Authority:** `C:\Dev\Clients\PPNAM\Station 2\PPNAM-Station-2\RFID_MQTT_CONTRACT.md` as committed in sibling-repo commit `20a4a4c` ("mqtt", 2026-10-05). The heading reads "Wire schema `rev2.1`. Contract revision **2026-10-01**". Acceptance cases: `RFID_SCANNER_APP_TEST_CASES.md` in the same commit. Golden payloads: `DOCS/MQTT/Message_Examples/*.json` (exact request bytes plus complete responses, generated from the real processor).
 
