@@ -8,14 +8,26 @@ import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 /** "capture PREP_1" — what the operator did, in the terms the scanner showed them. */
 internal fun PendingCommand.label(): String = listOfNotNull(action.ifBlank { "command" }, targetId).joinToString(" ")
 
-/** Spec 4.3: another operator's command — only they, or a manager, can settle it. */
-private fun PendingCommand.otherOperatorText(): String =
-    "${label()}: sent by operator $operatorId. They must sign in on this scanner to resolve it, or a manager must reconcile it."
+/**
+ * Spec 4.3: another operator's command — only they, or a manager, can settle it. One sent from
+ * another scanner can't be retried or recovered here at all, so signing in here would not help.
+ * A null [currentDeviceId] (unknown) keeps the sign-in wording.
+ */
+private fun PendingCommand.otherOperatorText(currentDeviceId: String?): String =
+    if (currentDeviceId != null && !isFromDevice(currentDeviceId)) {
+        "${label()}: sent by operator $operatorId on another scanner. A manager must reconcile it."
+    } else {
+        "${label()}: sent by operator $operatorId. They must sign in on this scanner to resolve it, or a manager must reconcile it."
+    }
 
 /** One line per unanswered command, telling whose move it is (spec 4.3). */
-internal fun PendingCommand.statusLine(currentOperatorId: String?, currentSessionId: String?): String = when {
+internal fun PendingCommand.statusLine(
+    currentOperatorId: String?,
+    currentSessionId: String?,
+    currentDeviceId: String? = null,
+): String = when {
     status == PendingStatus.ManagerReconcile -> "${label()}: needs a manager"
-    currentOperatorId == null || operatorId != currentOperatorId -> otherOperatorText()
+    currentOperatorId == null || operatorId != currentOperatorId -> otherOperatorText(currentDeviceId)
     // Still in its own session: the job screen retries it identically; recovery would be premature.
     sessionId == currentSessionId -> "${label()}: waiting for Station 2 — reopen the job to retry it"
     else -> "${label()}: waiting for Station 2"
@@ -39,7 +51,7 @@ internal fun shouldOfferCheckAgain(
 internal fun List<RecoveryResult>.visibleTo(operatorId: String?): List<RecoveryResult> =
     if (operatorId == null) emptyList() else filter { it.command.operatorId == operatorId }
 
-internal fun RecoveryResult.noticeText(): String {
+internal fun RecoveryResult.noticeText(currentDeviceId: String? = null): String {
     val what = command.label()
     return when (this) {
         is RecoveryResult.Resolved -> when (outcome) {
@@ -51,6 +63,6 @@ internal fun RecoveryResult.noticeText(): String {
         is RecoveryResult.NeedsManager -> "$what: a manager must reconcile this at the station. $message"
         is RecoveryResult.StillUnresolved ->
             "$what: still unresolved — $message. It is checked again when the scanner reconnects or you tap Check again."
-        is RecoveryResult.OtherOperator -> command.otherOperatorText()
+        is RecoveryResult.OtherOperator -> command.otherOperatorText(currentDeviceId)
     }
 }

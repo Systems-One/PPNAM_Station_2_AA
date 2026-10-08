@@ -26,6 +26,7 @@ fun UnresolvedCommandsCard(
     notices: List<RecoveryResult>,
     currentOperatorId: String?,
     currentSessionId: String?,
+    currentDeviceId: String,
     onCheckAgain: () -> Unit,
     onDismiss: (RecoveryResult) -> Unit,
     modifier: Modifier = Modifier,
@@ -42,14 +43,14 @@ fun UnresolvedCommandsCard(
             }
             notices.forEach { notice ->
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Text(notice.noticeText(), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                    Text(notice.noticeText(currentDeviceId), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
                     if (notice !is RecoveryResult.StillUnresolved) {
                         TextButton(onClick = { onDismiss(notice) }) { Text("OK") }
                     }
                 }
             }
             pending.filter { it.messageId !in noticed }.forEach { command ->
-                Text(command.statusLine(currentOperatorId, currentSessionId), style = MaterialTheme.typography.bodySmall)
+                Text(command.statusLine(currentOperatorId, currentSessionId, currentDeviceId), style = MaterialTheme.typography.bodySmall)
             }
             if (shouldOfferCheckAgain(pending, currentOperatorId, currentSessionId)) {
                 OutlinedButton(onClick = onCheckAgain) { Text("Check again") }

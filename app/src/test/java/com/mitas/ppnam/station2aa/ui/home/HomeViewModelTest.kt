@@ -37,6 +37,7 @@ class HomeViewModelTest {
     private lateinit var connectionFlow: MutableStateFlow<MqttConnectionState>
     private lateinit var coordinator: PendingCommandCoordinator
     private lateinit var viewModel: HomeViewModel
+    private lateinit var identity: com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 
     private val sampleSession = OperatorSession(
         operatorSessionId = "sess-1",
@@ -59,15 +60,22 @@ class HomeViewModelTest {
         whenever(mockMqttRepository.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
         whenever(mockSessionHolder.session).thenReturn(sessionFlow)
 
+        identity = mock()
+        whenever(identity.deviceId()).thenReturn("scanner_1")
         coordinator = mock<PendingCommandCoordinator>()
         whenever(coordinator.pending).thenReturn(MutableStateFlow(emptyList()))
         whenever(coordinator.notices).thenReturn(MutableStateFlow(emptyList()))
-        viewModel = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator)
+        viewModel = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator, identity)
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `the card knows which scanner this is, to tell other scanners' commands apart`() {
+        assertEquals("scanner_1", viewModel.deviceId)
     }
 
     @Test
@@ -84,7 +92,7 @@ class HomeViewModelTest {
                 )
             )
         )
-        val vm = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator)
+        val vm = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator, identity)
         assertEquals(listOf("a"), vm.recoveryNotices.value.map { it.command.messageId })
 
         sessionFlow.value = null

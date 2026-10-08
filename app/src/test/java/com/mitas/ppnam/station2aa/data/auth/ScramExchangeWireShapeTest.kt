@@ -49,6 +49,7 @@ class ScramExchangeWireShapeTest {
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = OperatorSessionHolder(),
             deviceIdentity = identity,
+            commandOutbox = com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox(),
         )
         repo.publishFn = { topic, bytes -> answer(topic, JsonParser.parseString(String(bytes)).asJsonObject) }
         val field = MqttRepositoryImpl::class.java.getDeclaredField("_connectionState")

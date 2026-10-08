@@ -94,6 +94,7 @@ class Rev2GeneralWireShapeTest {
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = sessionHolder,
             deviceIdentity = identity,
+            commandOutbox = com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox(),
         )
         // Station 2 answers as soon as the request is published.
         repo.publishFn = { _, bytes ->

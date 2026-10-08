@@ -110,6 +110,7 @@ fun HomeScreen(
                 notices = recoveryNotices,
                 currentOperatorId = session?.operatorId,
                 currentSessionId = session?.operatorSessionId,
+                currentDeviceId = viewModel.deviceId,
                 onCheckAgain = viewModel::recoverPending,
                 onDismiss = viewModel::dismissNotice,
             )

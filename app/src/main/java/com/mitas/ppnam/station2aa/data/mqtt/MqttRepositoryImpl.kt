@@ -30,7 +30,8 @@ class MqttRepositoryImpl @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val sessionHolder: OperatorSessionHolder,
     private val deviceIdentity: DeviceIdentity,
-    private val commandOutbox: CommandOutbox = InMemoryCommandOutbox(),
+    // No default: a hand-built transport must choose its outbox, or it silently loses durability.
+    private val commandOutbox: CommandOutbox,
 ) : MqttRepository {
 
     companion object {
@@ -83,6 +84,16 @@ class MqttRepositoryImpl @Inject constructor(
     /** Outbox writes fsync; keep them off the caller's (usually Main) thread. Test seam. */
     @VisibleForTesting
     internal var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+
+    /**
+     * A reply echoed a `requestFingerprint` that is not the hash of the bytes we sent: Station 2
+     * answered a different request under this messageId. Logged, never acted on. Test seam.
+     */
+    @VisibleForTesting
+    internal var fingerprintMismatchFn: (messageId: String, sent: String, echoed: String) -> Unit =
+        { messageId, sent, echoed ->
+            Log.e(TAG, "Reply to $messageId echoed requestFingerprint $echoed; we sent $sent")
+        }
 
     // Correlation registry: messageId -> the caller awaiting that exact response, plus the session
     // the request was SENT with. rev2.1 replies do not echo the session, so this is the only way to
@@ -479,6 +490,7 @@ class MqttRepositoryImpl @Inject constructor(
         responseType: String,
         action: String?,
         responseClass: Class<T>,
+        sentFingerprint: String = RequestFingerprint.of(bytes),
     ): MqttOutcome<T> {
         val startedAt = System.currentTimeMillis()
         val waiter = CompletableDeferred<String>()
@@ -511,6 +523,7 @@ class MqttRepositoryImpl @Inject constructor(
                 )
                 return MqttOutcome.NoResponse(FailureKind.Timeout)
             }
+            checkEchoedFingerprint(raw, messageId, sentFingerprint)
             val outcome = parseOutcome(raw, responseClass, responseType)
             MqttLog.message(
                 Direction.RESULT, topic, 1, false, deviceId, requestType, action,
@@ -557,11 +570,22 @@ class MqttRepositoryImpl @Inject constructor(
             deviceId = deviceId,
             createdAtUtc = now,
         )
-        withContext(ioDispatcher) { commandOutbox.save(command) }   // contract §2: persisted BEFORE it can reach the broker
+        // Contract §2: persisted BEFORE it can reach the broker. Unsaved means unpublished.
+        try {
+            withContext(ioDispatcher) { commandOutbox.save(command) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not save $requestType ${command.action} to the outbox; not published", e)
+            return CommandOutcome.NotSaved(e)
+        }
         return deliver(command, responseClass)
     }
 
     override suspend fun <T : Any> retryCommand(command: PendingCommand, responseClass: Class<T>): CommandOutcome<T> {
+        // The caller's copy may be stale: recovery may have settled it, or a delivery flagged it.
+        val command = commandOutbox.commands.value.firstOrNull { it.messageId == command.messageId }
+            ?: return CommandOutcome.NoLongerPending(command.messageId)
         if (command.status == PendingStatus.ManagerReconcile) {
             return CommandOutcome.Unresolved(command, UnresolvedReason.ManagerReconcile, null, null)
         }
@@ -597,6 +621,7 @@ class MqttRepositoryImpl @Inject constructor(
             responseType = command.responseType,
             action = command.action,
             responseClass = responseClass,
+            sentFingerprint = command.fingerprint,
         )
         val rejected = outcome as? MqttOutcome.Rejected<T>
         return when (val reason = unresolvedReasonOf(outcome)) {
@@ -612,6 +637,18 @@ class MqttRepositoryImpl @Inject constructor(
                 )
             }
             else -> CommandOutcome.Unresolved(command, reason, rejected?.body, rejected?.operatorMessage)
+        }
+    }
+
+    /** Envelope-level rejections may echo no fingerprint; only a present, different one is reported. */
+    private fun checkEchoedFingerprint(raw: String, messageId: String, sent: String) {
+        val echoed = try {
+            gson.fromJson(raw, ResponseEnvelope::class.java)?.requestFingerprint.orEmpty()
+        } catch (e: Exception) {
+            return   // parseOutcome reports the unreadable reply
+        }
+        if (echoed.isNotBlank() && !echoed.equals(sent, ignoreCase = true)) {
+            fingerprintMismatchFn(messageId, sent, echoed)
         }
     }
 

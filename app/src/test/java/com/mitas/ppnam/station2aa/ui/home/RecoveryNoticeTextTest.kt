@@ -32,6 +32,20 @@ class RecoveryNoticeTextTest {
     }
 
     @Test
+    fun `another operator's command from another scanner needs a manager, not a sign-in here`() {
+        val foreign = cmd.copy(deviceId = "scanner_2")
+        val expected = "capture PREP_1: sent by operator OP-9 on another scanner. A manager must reconcile it."
+        assertEquals(expected, foreign.statusLine("OP-1", "S-now", currentDeviceId = "scanner_1"))
+        assertEquals(expected, foreign.statusLine(null, null, currentDeviceId = "scanner_1"))
+        assertEquals(expected, RecoveryResult.OtherOperator(foreign).noticeText(currentDeviceId = "scanner_1"))
+        // Sent here (or a legacy entry with no device): signing in on this scanner still works.
+        assertEquals(
+            "capture PREP_1: sent by operator OP-9. They must sign in on this scanner to resolve it, or a manager must reconcile it.",
+            cmd.copy(deviceId = "scanner_1").statusLine("OP-1", "S-now", currentDeviceId = "scanner_1"),
+        )
+    }
+
+    @Test
     fun `check again is offered only for the signed-in operator unresolved commands from an earlier session`() {
         val mine = cmd.copy(status = PendingStatus.Unresolved)
         assertTrue(shouldOfferCheckAgain(listOf(mine), "OP-9", "S-now"))

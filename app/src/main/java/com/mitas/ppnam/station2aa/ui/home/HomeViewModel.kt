@@ -2,6 +2,7 @@ package com.mitas.ppnam.station2aa.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
@@ -31,7 +32,11 @@ class HomeViewModel @Inject constructor(
     private val authUseCase: AuthUseCase,
     sessionHolder: OperatorSessionHolder,
     private val coordinator: PendingCommandCoordinator,
+    deviceIdentity: DeviceIdentity,
 ) : ViewModel() {
+
+    /** This scanner: an unanswered command from another one can only be settled by a manager. */
+    val deviceId: String by lazy { deviceIdentity.deviceId() }
 
     val session: StateFlow<OperatorSession?> = sessionHolder.session
 
