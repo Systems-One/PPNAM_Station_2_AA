@@ -32,6 +32,14 @@ class RecoveryNoticeTextTest {
     }
 
     @Test
+    fun `clear is offered to anyone signed in, only for a command awaiting reconciliation`() {
+        val reconcile = cmd.copy(status = PendingStatus.ManagerReconcile)
+        assertTrue(reconcile.canBeCleared(signedIn = true))
+        assertFalse(reconcile.canBeCleared(signedIn = false))
+        assertFalse(cmd.canBeCleared(signedIn = true))   // Unresolved: retry or recovery settles it
+    }
+
+    @Test
     fun `another operator's command from another scanner needs a manager, not a sign-in here`() {
         val foreign = cmd.copy(deviceId = "scanner_2")
         val expected = "capture PREP_1: sent by operator OP-9 on another scanner. A manager must reconcile it."

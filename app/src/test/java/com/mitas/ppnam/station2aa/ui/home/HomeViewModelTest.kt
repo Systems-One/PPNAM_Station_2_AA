@@ -79,6 +79,19 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `clearing goes to the coordinator, and a clear that could not be recorded is reported`() = runTest {
+        whenever(coordinator.clearReconciled("a")).thenReturn(com.mitas.ppnam.station2aa.domain.usecase.ClearResult.Cleared)
+        viewModel.clearReconciled("a")
+        verify(coordinator).clearReconciled("a")
+        assertNull(viewModel.clearError.value)
+
+        whenever(coordinator.clearReconciled("b"))
+            .thenReturn(com.mitas.ppnam.station2aa.domain.usecase.ClearResult.NotRecorded(java.io.IOException("disk full")))
+        viewModel.clearReconciled("b")
+        assertEquals("Not cleared: the scanner could not record it (disk full). Try again.", viewModel.clearError.value)
+    }
+
+    @Test
     fun `another operator notice is not exposed`() = runTest {
         val own = com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand(messageId = "a", operatorId = "OP-1", action = "capture")
         val foreign = own.copy(messageId = "b", operatorId = "OP-2")

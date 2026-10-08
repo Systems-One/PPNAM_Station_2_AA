@@ -47,6 +47,10 @@ internal fun shouldOfferCheckAgain(
             it.status == PendingStatus.Unresolved && it.operatorId == currentOperatorId && it.sessionId != currentSessionId
         }
 
+/** Only a command the scanner can't settle itself is cleared, by anyone signed in (there are no roles). */
+internal fun PendingCommand.canBeCleared(signedIn: Boolean): Boolean =
+    signedIn && status == PendingStatus.ManagerReconcile
+
 /** Notices belong to the operator who sent the command; nobody else ever sees them. */
 internal fun List<RecoveryResult>.visibleTo(operatorId: String?): List<RecoveryResult> =
     if (operatorId == null) emptyList() else filter { it.command.operatorId == operatorId }

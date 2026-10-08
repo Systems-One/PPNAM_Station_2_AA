@@ -1,5 +1,11 @@
 package com.mitas.ppnam.station2aa.domain.usecase
 
+import android.util.Log
+import androidx.annotation.VisibleForTesting
+import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
+import com.mitas.ppnam.station2aa.data.mqtt.MqttSchema
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.ClearedCommandLog
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.ClearedCommandRecord
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutbox
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
@@ -11,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,7 +31,12 @@ class PendingCommandCoordinator @Inject constructor(
     private val outbox: CommandOutbox,
     private val recovery: CommandRecoveryUseCase,
     private val sessionHolder: OperatorSessionHolder,
+    private val clearedLog: ClearedCommandLog,
+    private val deviceIdentity: DeviceIdentity,
 ) {
+    /** Test seam for the clock. */
+    @VisibleForTesting
+    internal var nowFn: () -> Instant = { Instant.now() }
     val pending: StateFlow<List<PendingCommand>> get() = outbox.commands
 
     private val _notices = MutableStateFlow<List<RecoveryResult>>(emptyList())
@@ -56,4 +68,51 @@ class PendingCommandCoordinator @Inject constructor(
     }
 
     fun dismiss(notice: RecoveryResult) = _notices.update { it - notice }
+
+    /**
+     * Removes a command the scanner can no longer settle itself ([PendingStatus.ManagerReconcile])
+     * once it has been reconciled at the station. There are no roles: anyone signed in may clear.
+     * Every clear is recorded — who, when, on which scanner, and the exact command — BEFORE the
+     * command leaves the outbox; if it can't be recorded, nothing is removed.
+     */
+    suspend fun clearReconciled(messageId: String): ClearResult = mutex.withLock {
+        val session = sessionHolder.session.value ?: return@withLock ClearResult.NotSignedIn
+        val command = outbox.commands.value.firstOrNull { it.messageId == messageId }
+            ?: return@withLock ClearResult.NotFound
+        // An Unresolved command is still settled truthfully by retry or recovery: never discard it.
+        if (command.status != PendingStatus.ManagerReconcile) return@withLock ClearResult.NotAwaitingReconciliation
+        val entry = ClearedCommandRecord(
+            clearedByOperatorId = session.operatorId,
+            clearedByOperatorName = session.operatorName,
+            clearedBySessionId = session.operatorSessionId,
+            clearedOnDeviceId = deviceIdentity.deviceId(),
+            clearedAtUtc = MqttSchema.formatTimestamp(nowFn()),
+            command = command,
+        )
+        try {
+            clearedLog.record(entry)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not record clearing $messageId; kept in the outbox", e)
+            return@withLock ClearResult.NotRecorded(e)
+        }
+        outbox.remove(messageId)
+        _notices.update { list -> list.filterNot { it.command.messageId == messageId } }
+        Log.w(TAG, "Operator ${session.operatorId} cleared ${command.action} ${command.targetId} ($messageId), sent by ${command.operatorId}")
+        ClearResult.Cleared
+    }
+
+    private companion object {
+        const val TAG = "PendingCommands"
+    }
+}
+
+sealed interface ClearResult {
+    data object Cleared : ClearResult
+    data object NotSignedIn : ClearResult
+    data object NotFound : ClearResult
+    data object NotAwaitingReconciliation : ClearResult
+    /** The clear could not be recorded, so the command was kept. */
+    data class NotRecorded(val cause: Exception) : ClearResult
 }

@@ -51,6 +51,7 @@ fun HomeScreen(
     val session by viewModel.session.collectAsState()
     val pendingCommands by viewModel.pendingCommands.collectAsState()
     val recoveryNotices by viewModel.recoveryNotices.collectAsState()
+    val clearError by viewModel.clearError.collectAsState()
     val connectionStatus by viewModel.connectionStatus.collectAsState()
     var showExitDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -113,6 +114,8 @@ fun HomeScreen(
                 currentDeviceId = viewModel.deviceId,
                 onCheckAgain = viewModel::recoverPending,
                 onDismiss = viewModel::dismissNotice,
+                onClear = viewModel::clearReconciled,
+                clearError = clearError,
             )
             HomeTile(
                 title = "Job Cards",
