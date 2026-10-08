@@ -11,7 +11,7 @@ are a second source of truth for diagnosis.
 ```powershell
 cd tools\backend-sim
 pip install -r requirements.txt
-python sim.py                      # uses mqtt.sysone.co.za:1883
+python sim.py                      # uses wss://mqtt.sysone.co.za:443/mqtt (shared broker)
 python sim.py --host 10.1.50.1     # or the factory broker
 ```
 
@@ -30,7 +30,7 @@ that retained presence topic (`online` on start, `offline` on exit).
 
 | Flag | Default | Meaning |
 | --- | --- | --- |
-| `--host` / `--port` | `mqtt.sysone.co.za` / `1883` | Broker |
+| `--host` / `--port` | `mqtt.sysone.co.za` / `443` (websockets + TLS) | Broker |
 | `--window` | 300 | Timestamp acceptance window (seconds) — raise it if the device clock drifts |
 | `--yield-to-real` | off | Exit if the real Station 2 is online |
 | `--no-color` | off | Plain console output |
@@ -81,7 +81,23 @@ Replies carry the body under `data`.
 
 ## Self-test
 
-`selftest.py` is being rewritten for rev2.1.
+In-process, no broker needed (runs every check):
+
+```powershell
+python selftest.py --direct
+```
+
+Over MQTT, the simulator and the self-test must use the **same** broker. The
+self-test defaults to `localhost:1883`, while `sim.py` defaults to the shared
+remote broker, so start the simulator locally:
+
+```powershell
+python sim.py --host localhost --port 1883 --transport tcp --no-tls --username ""
+python selftest.py
+```
+
+The self-test exits with code 2 and says so when no simulator is online on its
+broker (it used to fail its first check instead).
 
 ## What it deliberately does not do
 

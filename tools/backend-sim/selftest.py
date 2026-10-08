@@ -53,8 +53,24 @@ class Handheld:
         self.client.on_message = lambda c, u, m: self.rx.put(m)
         self.client.connect(host, port, keepalive=30)
         self.client.loop_start()
-        self.client.subscribe([(f"PPNAM/station_2/{DEVICE}/res/+", 1)])
-        time.sleep(0.5)
+        # sim.py defaults to a remote broker and this script to localhost: a mismatch used to
+        # surface as a misleading FAIL on the first check. Require the sim's retained presence.
+        self.client.subscribe([("PPNAM/station_2", 1), (f"PPNAM/station_2/{DEVICE}/res/+", 1)])
+        deadline, presence = time.time() + 3, None
+        while time.time() < deadline and presence != "online":
+            try:
+                m = self.rx.get(timeout=0.2)
+            except queue.Empty:
+                continue
+            if m.topic == "PPNAM/station_2":
+                presence = m.payload.decode(errors="replace")
+        self.client.unsubscribe("PPNAM/station_2")
+        if presence != "online":
+            print(f"no simulator is online on {host}:{port} (station presence: {presence or 'none'}).\n"
+                  f"Start it on the same broker, e.g.:\n"
+                  f"  python sim.py --host {host} --port {port} --transport tcp --no-tls --username \"\"\n"
+                  f"or run this self-test in-process with --direct.")
+            sys.exit(2)
         self.session = ""
 
     def send_raw(self, suffix, text):
@@ -229,6 +245,14 @@ def main():
     check(r and r["error"] == "invalid_envelope", "a case-insensitive duplicate field -> invalid_envelope")
     check(r["inResponseToMessageId"] == "", "…uncorrelatable, as on the server")
 
+    # The limit is 65,536 UTF-8 BYTES (contract §2): ~33k two-byte characters exceed it.
+    big = json.dumps(hh.envelope({"action": "read", "targetId": "é" * 33000}), ensure_ascii=False)
+    hh.send_raw("rev2_general_requested", big)
+    r = hh.await_reply("")
+    check(r and r["error"] == "invalid_envelope",
+          "a request over 65,536 UTF-8 bytes (but under 65,536 characters) -> invalid_envelope",
+          f"{len(big)} chars, {len(big.encode())} bytes")
+
     print("directory")
     r, body = hh.request("operator_list_requested", session=False)
     check_reply_shape(r, "operator list")
@@ -301,6 +325,16 @@ def main():
     check(r["data"]["job"]["id"] == "510019068", "read with a target returns that job")
     check(r["data"]["job"]["allocatedMixes"] == 2, "…with allocatedMixes from its preparations")
     check(any(p["jobId"] == "510019068" for p in r["data"]["preparations"]), "…and its preparations")
+
+    if isinstance(hh, DirectHandheld):
+        # A cancelled preparation no longer holds mixes (contract §8: non-cancelled only).
+        hh.sim.world.rev2_preparations["PREP_cancelled"] = dict(
+            hh.sim.world.rev2_preparations["PREP_demo0001"], id="PREP_cancelled", mixCount=3, stage="Cancelled")
+        r, _ = hh.request("rev2_general_requested", {"action": "read", "targetId": "510019068"})
+        check(r["data"]["job"]["allocatedMixes"] == 2, "job.allocatedMixes excludes cancelled preparations",
+              r["data"]["job"]["allocatedMixes"])
+        check(r["data"]["job"]["mixProgress"]["allocatedMixes"] == 2, "…as mixProgress.allocatedMixes does")
+        del hh.sim.world.rev2_preparations["PREP_cancelled"]
 
     print("push")
     hh.invalidate()
