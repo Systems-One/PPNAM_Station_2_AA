@@ -81,16 +81,19 @@ class PendingCommandCoordinator @Inject constructor(
             ?: return@withLock ClearResult.NotFound
         // An Unresolved command is still settled truthfully by retry or recovery: never discard it.
         if (command.status != PendingStatus.ManagerReconcile) return@withLock ClearResult.NotAwaitingReconciliation
-        val entry = ClearedCommandRecord(
-            clearedByOperatorId = session.operatorId,
-            clearedByOperatorName = session.operatorName,
-            clearedBySessionId = session.operatorSessionId,
-            clearedOnDeviceId = deviceIdentity.deviceId(),
-            clearedAtUtc = MqttSchema.formatTimestamp(nowFn()),
-            command = command,
-        )
         try {
-            clearedLog.record(entry)
+            clearedLog.record(
+                ClearedCommandRecord(
+                    clearedByOperatorId = session.operatorId,
+                    clearedByOperatorName = session.operatorName,
+                    clearedBySessionId = session.operatorSessionId,
+                    clearedOnDeviceId = deviceIdentity.deviceId(),
+                    clearedAtUtc = MqttSchema.formatTimestamp(nowFn()),
+                    command = command,
+                    // A damaged entry is only a stub in memory: keep the bytes on disk as evidence.
+                    rawOutboxEntry = outbox.rawEntry(messageId),
+                )
+            )
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

@@ -34,4 +34,13 @@ class FileClearedCommandLogTest {
         reopened.record(record("c"))
         assertEquals(listOf("a", "b", "c"), FileClearedCommandLog(file).entries().map { it.command.messageId })
     }
+
+    @Test
+    fun `a line torn by a crash costs only that line, never the next record`() {
+        val file = tmp.root.resolve("audit/cleared-commands.jsonl")
+        FileClearedCommandLog(file).record(record("a"))
+        file.appendText("""{"clearedByOperatorId":"OP-2","comm""")   // power cut mid-append
+        FileClearedCommandLog(file).record(record("b"))
+        assertEquals(listOf("a", "b"), FileClearedCommandLog(file).entries().map { it.command.messageId })
+    }
 }

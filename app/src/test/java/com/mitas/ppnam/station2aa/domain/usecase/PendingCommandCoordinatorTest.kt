@@ -60,6 +60,21 @@ class PendingCommandCoordinatorTest {
     }
 
     @Test
+    fun `clearing a damaged outbox entry keeps its raw bytes in the record`() = runTest {
+        val dir = java.nio.file.Files.createTempDirectory("outbox").toFile()
+        val id = "22222222-2222-2222-2222-222222222222"
+        java.io.File(dir, "$id.json").writeText("""{"messageId":"$id","payload":"{\"code\":\"TAG-7\"""")   // truncated
+        val outbox = com.mitas.ppnam.station2aa.data.mqtt.outbox.FileCommandOutbox(dir)
+        val sessions = OperatorSessionHolder().apply { set(OperatorSession("S-9", "OP-2", "Sam", "")) }
+        val log = FakeClearedLog()
+
+        assertEquals(ClearResult.Cleared, PendingCommandCoordinator(outbox, mock(), sessions, log, identity()).clearReconciled(id))
+
+        assertEquals("""{"messageId":"$id","payload":"{\"code\":\"TAG-7\"""", log.records.single().rawOutboxEntry)
+        assertTrue(outbox.commands.value.isEmpty())
+    }
+
+    @Test
     fun `a clear that cannot be recorded removes nothing`() = runTest {
         val outbox = InMemoryCommandOutbox().apply { save(reconcile("a")) }
         val sessions = OperatorSessionHolder().apply { set(OperatorSession("S-9", "OP-2", "Sam", "")) }
