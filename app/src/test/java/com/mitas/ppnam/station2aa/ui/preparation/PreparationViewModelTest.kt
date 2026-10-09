@@ -128,11 +128,11 @@ class PreparationViewModelTest {
     @After
     fun tearDown() { Dispatchers.resetMain() }
 
-    private suspend fun open(snapshot: PrepSnapshot = opened): PreparationViewModel {
-        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(snapshot))
+    private suspend fun open(snapshot: PrepSnapshot = opened, id: String = prepId): PreparationViewModel {
+        whenever(useCase.read(id)).thenReturn(ReadResult.Loaded(snapshot))
         return PreparationViewModel(
             useCase, recovery, coordinator, mqtt, scanBus, sessionHolder, mock<AuthUseCase>(),
-            SavedStateHandle(mapOf("prepId" to prepId)),
+            SavedStateHandle(mapOf("prepId" to id)),
         ).also { it.setScreenActive(true) }
     }
 
@@ -714,5 +714,117 @@ class PreparationViewModelTest {
         vm.setPartSheetOpen(false)
         scan("TAG-OTHER")
         assertEquals(Staged.WholeBag("TAG-OTHER"), vm.uiState.value.staged)
+    }
+
+    // ---- final review fixes ----
+
+    @Test
+    fun `a replacement that was not sent keeps the offer and its notice`() = runTest {
+        val vm = open()
+        val notice = notExecuted()
+        notices.value = listOf(notice)
+        val offer = vm.uiState.value.offer
+        assertNotNull(offer)
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10")))
+            .thenReturn(CollectionResult.NotSent("Not connected — nothing was sent"))
+        vm.acceptOffer()
+        verify(useCase, times(1)).capture(prepId, "TAG-RESIN", BigDecimal("10"))
+        verify(coordinator, never()).dismiss(any())
+        assertEquals(offer, vm.uiState.value.offer)
+        assertEquals(OutcomeMessage.Info("Not connected — nothing was sent"), vm.uiState.value.message)
+        // Once connected, the operator taps again: a NEW capture is sent, and Done dismisses the notice.
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10"))).thenReturn(CollectionResult.Done(afterOne))
+        vm.acceptOffer()
+        verify(useCase, times(2)).capture(prepId, "TAG-RESIN", BigDecimal("10"))
+        verify(useCase, never()).retry(any())
+        verify(coordinator).dismiss(notice)
+        assertNull(vm.uiState.value.offer)
+    }
+
+    @Test
+    fun `the offer stays until its send settles, a double tap sends once, and Unresolved dismisses`() = runTest {
+        val vm = open()
+        val notice = notExecuted()
+        notices.value = listOf(notice)
+        val reply = CompletableDeferred<CollectionResult>()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10"))).doSuspendableAnswer { reply.await() }
+        vm.acceptOffer()
+        assertTrue(vm.uiState.value.inFlight)
+        assertNotNull(vm.uiState.value.offer)
+        verify(coordinator, never()).dismiss(any())
+        vm.acceptOffer()                                    // second tap while in flight
+        val cmd = pending(id = "m-new")
+        outbox.value = listOf(cmd)
+        reply.complete(CollectionResult.Unresolved(cmd, UnresolvedReason.RetryIdentical, "Station 2 has not confirmed this yet."))
+        verify(useCase, times(1)).capture(prepId, "TAG-RESIN", BigDecimal("10"))
+        verify(coordinator).dismiss(notice)
+        assertNull(vm.uiState.value.offer)
+        assertFalse(vm.uiState.value.canScan)
+    }
+
+    @Test
+    fun `opening with the other-case PREP id stays blocked by an unresolved capture`() = runTest {
+        val cmd = pending(session = "sess-OLD")             // sent while open as PREP_440fbd…
+        outbox.value = listOf(cmd)
+        val vm = open(id = prepId.uppercase())              // reopened as PREP_440FBD…
+        assertEquals(listOf(cmd), vm.uiState.value.blocking)
+        assertFalse(vm.uiState.value.canScan)
+        vm.onScan("TAG-RESIN")
+        vm.recordStaged()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        // The snapshot for the same PREP in the other case is still this PREP's.
+        assertEquals(opened, vm.uiState.value.snapshot)
+    }
+
+    @Test
+    fun `a notice for this PREP in the other case is offered here`() = runTest {
+        val vm = open(id = prepId.uppercase())
+        notices.value = listOf(notExecuted())
+        assertNotNull(vm.uiState.value.offer)
+        whenever(useCase.capture(prepId.uppercase(), "TAG-RESIN", BigDecimal("10"))).thenReturn(CollectionResult.Done(afterOne))
+        vm.acceptOffer()
+        verify(useCase, times(1)).capture(prepId.uppercase(), "TAG-RESIN", BigDecimal("10"))
+    }
+
+    @Test
+    fun `a read snapshot for a different PREP is not applied`() = runTest {
+        val vm = open()
+        val other = afterOne.copy(preparation = afterOne.preparation!!.copy(id = "PREP_other"))
+        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(other))
+        vm.refresh()
+        assertEquals(opened, vm.uiState.value.snapshot)
+        // A later snapshot for this PREP still applies.
+        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(afterOne))
+        vm.refresh()
+        assertEquals(afterOne, vm.uiState.value.snapshot)
+    }
+
+    @Test
+    fun `a recovery snapshot for a different PREP is not applied`() = runTest {
+        val vm = open()
+        val cmd = pending()
+        val otherRev2 = WireJson.gson.fromJson(
+            JsonParser.parseString(ContractFixtures.text("general_capture_response.json")).asJsonObject["data"],
+            Rev2Snapshot::class.java,
+        ).let { it.copy(preparation = it.preparation!!.copy(id = "PREP_other")) }
+        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenReturn(
+            CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "Station 2 couldn't match this command."),
+        )
+        whenever(recovery.recover(cmd)).thenReturn(RecoveryResult.Resolved(cmd, RecoveryOutcome.Committed, "", otherRev2))
+        vm.onScan("TAG-RESIN")
+        vm.recordStaged()
+        assertEquals(opened, vm.uiState.value.snapshot)
+    }
+
+    @Test
+    fun `a rejection with no snapshot re-reads`() = runTest {
+        val vm = open()
+        whenever(useCase.capture(prepId, "TAG-X", null)).thenReturn(
+            CollectionResult.Rejected(ErrorCode("rev2_rejected"), "That pallet is not on this job", null),
+        )
+        vm.onScan("TAG-X")
+        vm.recordStaged()
+        verify(useCase, times(2)).read(prepId)
+        assertEquals(OutcomeMessage.Rejected("That pallet is not on this job", emptyList()), vm.uiState.value.message)
     }
 }

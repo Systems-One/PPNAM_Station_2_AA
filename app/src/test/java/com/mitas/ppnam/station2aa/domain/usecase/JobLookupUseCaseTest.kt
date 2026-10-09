@@ -156,6 +156,16 @@ class JobLookupUseCaseTest {
     }
 
     @Test
+    fun `a malformed PREP id is refused with the lookup error and never becomes a route`() = runTest {
+        for (raw in listOf("PREP_", "PREP_x/y", "PREP_ab cd", "PREP_a?b=c", "PREP_a#b")) {
+            val result = useCase.lookup(raw)
+            assertTrue("$raw -> $result", result is JobLookupResult.Failed)
+            assertEquals(JobLookupUseCase.NOT_DIGITS_MESSAGE, (result as JobLookupResult.Failed).message)
+        }
+        verify(mqtt, never()).request(any(), any(), any(), any<Class<Any>>())
+    }
+
+    @Test
     fun `a leading-space digit string with a letter still gives the digits error`() = runTest {
         val result = useCase.lookup(" 12a") as JobLookupResult.Failed
         assertEquals(JobLookupUseCase.NOT_DIGITS_MESSAGE, result.message)

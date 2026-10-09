@@ -51,7 +51,8 @@ class JobLookupUseCase @Inject constructor(
      */
     suspend fun lookup(rawJobCard: String): JobLookupResult {
         val jobCard = rawJobCard.trim()
-        if (jobCard.startsWith(PREP_ID_PREFIX)) return JobLookupResult.OpenPreparation(jobCard)
+        // Only a well-formed id becomes a nav route: `PREP_x/y` or a bare `PREP_` gets the lookup error.
+        if (isPrepId(jobCard)) return JobLookupResult.OpenPreparation(jobCard)
         // '0'..'9', not isDigit(): Station 2 accepts ASCII digits only, and isDigit() admits
         // full-width and other Unicode digits it would reject.
         if (jobCard.isEmpty() || !jobCard.all { it in '0'..'9' }) {
@@ -83,6 +84,10 @@ class JobLookupUseCase @Inject constructor(
         const val REQUEST_TYPE = "rev2_general_requested"
         const val RESPONSE_TYPE = "rev2_general_result"
         const val PREP_ID_PREFIX = "PREP_"
+        private val PREP_ID = Regex("^PREP_[A-Za-z0-9]+$")
+
+        /** True for a `PREP_` id safe to open (and to put in a nav route). */
+        fun isPrepId(value: String): Boolean = PREP_ID.matches(value)
         const val NOT_DIGITS_MESSAGE = "Scan or enter the production order number (digits only)"
         const val USER_BADGE_MESSAGE = "That is a user badge, not a job card. Use the login screen to sign in."
     }

@@ -16,12 +16,16 @@ import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.CollectionResult
 import com.mitas.ppnam.station2aa.domain.usecase.CommandRecoveryUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.GeneralCollectionUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.JobLookupUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.PrepareForm
 import com.mitas.ppnam.station2aa.domain.usecase.ReadResult
+import com.mitas.ppnam.station2aa.domain.usecase.RecoveryOutcome
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
 import com.mitas.ppnam.station2aa.ui.components.connectionStatusIn
+import com.mitas.ppnam.station2aa.ui.home.noticeText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,7 +100,8 @@ class PrepareViewModel @Inject constructor(
                 val reconnected = previous != null && previous != MqttConnectionState.CONNECTED &&
                     state == MqttConnectionState.CONNECTED
                 previous = state
-                if (reconnected) refresh()
+                // Signed out: nothing to retry or read for (as PreparationViewModel).
+                if (reconnected && sessionHolder.session.value != null) refresh()
             }
         }
         viewModelScope.launch {
@@ -144,9 +149,15 @@ class PrepareViewModel @Inject constructor(
 
     private suspend fun read() {
         _uiState.update { it.copy(loading = true) }
-        when (val result = useCase.read(jobCard)) {
-            is ReadResult.Loaded -> applySnapshot(result.snapshot, message = null)
-            is ReadResult.Failed -> _uiState.update { it.copy(loading = false, message = result.message) }
+        try {
+            when (val result = useCase.read(jobCard)) {
+                is ReadResult.Loaded -> applySnapshot(result.snapshot, message = null)
+                is ReadResult.Failed -> _uiState.update { it.copy(loading = false, message = result.message) }
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            _uiState.update { it.copy(loading = false, message = "Could not read this job: ${e.message}") }
         }
     }
 
@@ -158,11 +169,17 @@ class PrepareViewModel @Inject constructor(
         // Set before launching so a second tap in the same frame is ignored.
         _uiState.update { it.copy(sending = true, message = null) }
         viewModelScope.launch {
-            val result = useCase.prepare(
-                form.jobCard, mixCount, form.exceptionListRevision, form.answersForWire(),
-                form.reason.takeIf { it.isNotBlank() },
-            )
-            handle(result)
+            try {
+                val result = useCase.prepare(
+                    form.jobCard, mixCount, form.exceptionListRevision, form.answersForWire(),
+                    form.reason.takeIf { it.isNotBlank() },
+                )
+                handle(result)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                sendFailed(e)
+            }
         }
     }
 
@@ -177,9 +194,25 @@ class PrepareViewModel @Inject constructor(
         _uiState.update { it.copy(sending = true, message = null) }
         return try {
             useCase.retry(command).also { handle(it) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            sendFailed(e)
+            null
         } finally {
             retrying.remove(command.messageId)
         }
+    }
+
+    /** A send threw: whether it went out is unknown, so say so, free the buttons and re-read. */
+    private suspend fun sendFailed(e: Exception) {
+        _uiState.update {
+            it.copy(
+                sending = false,
+                message = "Something went wrong sending this: ${e.message}. Check the job's preparations before trying again.",
+            )
+        }
+        read()
     }
 
     private suspend fun handle(result: CollectionResult) {
@@ -235,20 +268,24 @@ class PrepareViewModel @Inject constructor(
         _uiState.update { it.copy(sending = true) }
         val result = try {
             recovery.recover(command)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             RecoveryResult.StillUnresolved(command, "Could not check this prepare: ${e.message}")
         }
-        val text = when (result) {
-            is RecoveryResult.Resolved -> result.message
-            is RecoveryResult.StillUnresolved -> result.message
-            is RecoveryResult.NeedsManager -> result.message
-            is RecoveryResult.OtherOperator -> "This prepare belongs to another operator."
-        }
+        // Same wording as the PREP screen and Home ("already done. It was not repeated.").
+        val text = result.noticeText(mqttRepository.deviceId)
         _uiState.update {
             if (result is RecoveryResult.Resolved) it.copy(sending = false, pending = null, blocking = null, message = text)
             else it.copy(sending = false, message = text)
         }
-        if (result is RecoveryResult.Resolved) read()
+        if (result !is RecoveryResult.Resolved) return
+        // A committed prepare already made a PREP: open it, so Prepare is not offered again for a second one.
+        val made = result.snapshot.recovery?.result?.targetId?.trim()
+        if (result.outcome == RecoveryOutcome.Committed && made != null && JobLookupUseCase.isPrepId(made)) {
+            _navigateToPrep.send(made)
+        }
+        read()
     }
 
     /**

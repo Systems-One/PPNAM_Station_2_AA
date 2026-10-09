@@ -18,6 +18,7 @@ import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.repository.ServerHint
 import com.mitas.ppnam.station2aa.domain.usecase.CollectionResult
 import com.mitas.ppnam.station2aa.domain.usecase.CommandRecoveryUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.RecoveryOutcome
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 import com.mitas.ppnam.station2aa.domain.usecase.GeneralCollectionUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.ReadResult
@@ -27,6 +28,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -34,6 +37,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -280,7 +284,10 @@ class PrepareViewModelTest {
         verify(useCase, never()).retry(any())
         assertNull(vm.uiState.value.pending)
         assertNotNull(vm.uiState.value.blocking)
-        assertEquals("Still checking", vm.uiState.value.message)
+        assertEquals(
+            "prepare 1: still unresolved — Still checking. It is checked again when the scanner reconnects or you tap Check again.",
+            vm.uiState.value.message,
+        )
     }
 
     @Test
@@ -339,5 +346,104 @@ class PrepareViewModelTest {
         verify(useCase, times(2)).read("1")
         assertEquals(false, vm.uiState.value.form!!.answers["OPTIONAL"])
         assertTrue(vm.uiState.value.form!!.problems.isEmpty())
+    }
+
+    // ---- final review fixes ----
+
+    private fun rev2(name: String): Rev2Snapshot = WireJson.gson.fromJson(
+        JsonParser.parseString(ContractFixtures.text("${name}_response.json")).asJsonObject["data"],
+        Rev2Snapshot::class.java,
+    )
+
+    @Test
+    fun `a prepare that throws resets sending and shows the message`() = runTest {
+        val vm = newVm()
+        advanceUntilIdle()
+        whenever(useCase.prepare(any(), any(), anyOrNull(), any(), anyOrNull())).thenThrow(IllegalStateException("boom"))
+        vm.fillAll()
+        vm.submit()
+        advanceUntilIdle()
+        assertFalse(vm.uiState.value.sending)
+        assertTrue(vm.uiState.value.message!!.contains("boom"))
+    }
+
+    @Test
+    fun `a retry that throws resets sending and shows the message`() = runTest {
+        val cmd = pendingPrepare()
+        outbox.save(cmd)
+        whenever(useCase.retry(cmd))
+            .thenThrow(IllegalStateException("boom"))
+            .thenReturn(CollectionResult.Unresolved(cmd, UnresolvedReason.RetryIdentical, "x"))
+        val vm = newVm()
+        advanceUntilIdle()
+        assertFalse(vm.uiState.value.sending)
+        assertTrue(vm.uiState.value.message!!.contains("boom"))
+        // The command is still retryable by hand.
+        vm.retryPending()
+        advanceUntilIdle()
+        verify(useCase, times(2)).retry(cmd)
+    }
+
+    @Test
+    fun `a read that throws stops loading and shows the message`() = runTest {
+        whenever(useCase.read("1")).thenThrow(IllegalStateException("boom"))
+        val vm = PrepareViewModel(useCase, outbox, sessionHolder, mqtt, recovery, SavedStateHandle(mapOf("jobCard" to "1")))
+        advanceUntilIdle()
+        assertFalse(vm.uiState.value.loading)
+        assertTrue(vm.uiState.value.message!!.contains("boom"))
+    }
+
+    @Test
+    fun `a committed prepare recovery opens the PREP it made and says it was not repeated`() = runTest {
+        val vm = newVm()
+        advanceUntilIdle()
+        val cmd = pendingPrepare()
+        whenever(useCase.prepare(any(), any(), anyOrNull(), any(), anyOrNull()))
+            .thenReturn(CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "checking"))
+        val result = RecoveryResult.Resolved(cmd, RecoveryOutcome.Committed, "Prepared", rev2("general_recover_committed"))
+        whenever(recovery.recover(cmd)).thenReturn(result)
+        val routes = mutableListOf<String>()
+        val job = launch { vm.navigateToPrep.toList(routes) }
+        vm.fillAll()
+        vm.submit()
+        advanceUntilIdle()
+        assertEquals(listOf("PREP_440fbd8f9cd3411e9be943a33f1a3ceb"), routes)
+        assertEquals("prepare 1: Station 2 had already done this. It was not repeated.", vm.uiState.value.message)
+        verify(useCase, times(2)).read("1")
+        verify(useCase, times(1)).prepare(any(), any(), anyOrNull(), any(), anyOrNull())
+        job.cancel()
+    }
+
+    @Test
+    fun `a committed prepare recovery without a PREP id shows the notice and re-reads`() = runTest {
+        val vm = newVm()
+        advanceUntilIdle()
+        val cmd = pendingPrepare()
+        whenever(useCase.prepare(any(), any(), anyOrNull(), any(), anyOrNull()))
+            .thenReturn(CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "checking"))
+        whenever(recovery.recover(cmd)).thenReturn(RecoveryResult.Resolved(cmd, RecoveryOutcome.Committed, "Prepared", Rev2Snapshot()))
+        val routes = mutableListOf<String>()
+        val job = launch { vm.navigateToPrep.toList(routes) }
+        vm.fillAll()
+        vm.submit()
+        advanceUntilIdle()
+        assertTrue(routes.isEmpty())
+        assertEquals("prepare 1: Station 2 had already done this. It was not repeated.", vm.uiState.value.message)
+        verify(useCase, times(2)).read("1")
+        job.cancel()
+    }
+
+    @Test
+    fun `reconnect without a session neither retries nor reads`() = runTest {
+        newVm()
+        advanceUntilIdle()
+        outbox.save(pendingPrepare())
+        sessionHolder.clear()
+        connection.value = MqttConnectionState.DISCONNECTED
+        advanceUntilIdle()
+        connection.value = MqttConnectionState.CONNECTED
+        advanceUntilIdle()
+        verify(useCase, never()).retry(any())
+        verify(useCase, times(1)).read("1")
     }
 }
