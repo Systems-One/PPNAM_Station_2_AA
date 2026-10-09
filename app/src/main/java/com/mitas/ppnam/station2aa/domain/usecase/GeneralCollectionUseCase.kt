@@ -73,8 +73,6 @@ class GeneralCollectionUseCase @Inject constructor(
     companion object {
         const val REQUEST = "rev2_general_requested"
         const val RESPONSE = "rev2_general_result"
-        /** Spec open question Q5. */
-        const val PREPARE_REASON_MAX = 1000
     }
 }
 

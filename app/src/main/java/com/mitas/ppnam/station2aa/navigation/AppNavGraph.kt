@@ -27,6 +27,8 @@ import com.mitas.ppnam.station2aa.ui.home.HomeScreen
 import com.mitas.ppnam.station2aa.ui.joblookup.JobDetailScreen
 import com.mitas.ppnam.station2aa.ui.joblookup.JobLookupScreen
 import com.mitas.ppnam.station2aa.ui.joblookup.JobLookupViewModel
+import com.mitas.ppnam.station2aa.ui.preparation.PrepareScreen
+import com.mitas.ppnam.station2aa.ui.preparation.PrepareViewModel
 import com.mitas.ppnam.station2aa.ui.session.SessionWatcher
 import com.mitas.ppnam.station2aa.ui.settings.SettingsScreen
 import com.mitas.ppnam.station2aa.ui.theme.rememberReducedMotion
@@ -118,9 +120,26 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                 JobDetailScreen(
                     jobCard = jobCard,
                     onBack = { navController.popBackStack() },
+                    onPrepare = { navController.navigate(NavRoutes.prepare(it)) },
+                    onOpenPrep = { navController.navigate(NavRoutes.prep(it)) },
                     viewModel = hiltViewModel<JobLookupViewModel>(parentEntry),
                 )
             }
+            composable(NavRoutes.PREPARE) {
+                // Its own PrepareViewModel (scoped to this entry), not the shared JobLookupViewModel.
+                PrepareScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenPrep = { navController.navigate(NavRoutes.prep(it)) },
+                    onPrepared = { prepId ->
+                        navController.navigate(NavRoutes.prep(prepId)) {
+                            popUpTo(NavRoutes.PREPARE) { inclusive = true }
+                        }
+                    },
+                    viewModel = hiltViewModel<PrepareViewModel>(),
+                )
+            }
+            // Placeholder: Task 9 replaces this with the PREP screen.
+            composable(NavRoutes.PREP) { }
         }
     }
     UpgradeRequiredGate(onCloseApp = { hostActivity?.finishAffinity() })

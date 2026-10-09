@@ -4,6 +4,9 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mitas.ppnam.station2aa.UserTagPolicy
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutbox
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
 import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
@@ -39,6 +42,8 @@ data class JobLookupUiState(
     val detail: JobDetail? = null,
     val detailLoading: Boolean = false,
     val detailError: String? = null,
+    /** An Unresolved `prepare` for the viewed job: Prepare is blocked until it is retried on the Prepare screen. */
+    val pendingPrepare: PendingCommand? = null,
 )
 
 /**
@@ -52,6 +57,7 @@ class JobLookupViewModel @Inject constructor(
     scanEventBus: ScanEventBus,
     private val sessionHolder: OperatorSessionHolder,
     private val authUseCase: AuthUseCase,
+    private val outbox: CommandOutbox,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(JobLookupUiState())
@@ -84,6 +90,7 @@ class JobLookupViewModel @Inject constructor(
     private var lastLookupInput: String? = null
 
     init {
+        viewModelScope.launch { outbox.commands.collect { refreshPendingPrepare() } }
         // rev2.1: after a preparation is created Station 2 pushes a hint telling General readers to
         // read again. It is a hint, not data, and never a reason to cancel a request in flight — so
         // it launches its own read alongside whatever is running.
@@ -132,7 +139,10 @@ class JobLookupViewModel @Inject constructor(
     /** Called by Job Lookup as it becomes visible or hidden, so scans only act on that screen. */
     fun setLookupScreenActive(active: Boolean) {
         lookupScreenActive = active
-        if (active) viewedJobCard = null
+        if (active) {
+            viewedJobCard = null
+            refreshPendingPrepare()
+        }
     }
 
     fun refreshList() {
@@ -196,11 +206,20 @@ class JobLookupViewModel @Inject constructor(
      */
     fun openDetail(jobCard: String) {
         viewedJobCard = jobCard
+        refreshPendingPrepare()
         val fresh = freshFromLookup
         freshFromLookup = null
         if (fresh == jobCard && _uiState.value.detail?.jobCard == jobCard) return
         if (_uiState.value.detail?.jobCard != jobCard) _uiState.update { it.copy(detail = null) }
         loadDetail(jobCard)
+    }
+
+    private fun refreshPendingPrepare() {
+        val job = viewedJobCard
+        val match = outbox.commands.value.firstOrNull {
+            job != null && it.action == "prepare" && it.targetId == job && it.status == PendingStatus.Unresolved
+        }
+        _uiState.update { it.copy(pendingPrepare = match) }
     }
 
     private fun loadDetail(jobCard: String) {

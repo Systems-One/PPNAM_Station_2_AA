@@ -1,5 +1,6 @@
 package com.mitas.ppnam.station2aa.ui.joblookup
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.components.LabelValueRow
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
+import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.util.formatStationTimestamp
@@ -22,6 +25,8 @@ import com.mitas.ppnam.station2aa.ui.util.formatStationTimestamp
 fun JobDetailScreen(
     jobCard: String,
     onBack: () -> Unit,
+    onPrepare: (String) -> Unit,
+    onOpenPrep: (String) -> Unit,
     viewModel: JobLookupViewModel,
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -68,6 +73,28 @@ fun JobDetailScreen(
                         detail.capturedAtUtc?.let { LabelValueRow("Loaded", formatStationTimestamp(it.toString())) }
                         if (detail.closed) LabelValueRow("Status", "Closed")
                         state.detailError?.let { Text(it, color = DangerRed, style = MaterialTheme.typography.bodySmall) }
+                        if (state.pendingPrepare != null) {
+                            Card(colors = CardDefaults.cardColors(containerColor = GraphiteSurface)) {
+                                Row(
+                                    Modifier.fillMaxWidth().padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        "A prepare for this job is waiting for Station 2",
+                                        color = WarningOrange,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                    TextButton(onClick = { onPrepare(jobCard) }) { Text("Open") }
+                                }
+                            }
+                        }
+                        Button(
+                            onClick = { onPrepare(jobCard) },
+                            enabled = !detail.closed && (detail.mixProgress?.availableToPrepareMixes ?: 0) > 0 &&
+                                state.pendingPrepare == null,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) { Text("Prepare mixes") }
                         HorizontalDivider(Modifier.padding(vertical = 8.dp))
                         Text("Materials", style = MaterialTheme.typography.labelMedium, color = TextMuted)
                     }
@@ -89,6 +116,7 @@ fun JobDetailScreen(
                     }
                     items(active, key = { "active-${it.id}" }) { prep ->
                         ListItem(
+                            modifier = Modifier.clickable { onOpenPrep(prep.id) },
                             headlineContent = { Text(prep.id, color = TextPrimary) },
                             supportingContent = { Text(prep.summaryLine(), color = TextMuted) },
                         )
@@ -101,6 +129,7 @@ fun JobDetailScreen(
                     }
                     items(detail.preparations, key = { it.id }) { prep ->
                         ListItem(
+                            modifier = Modifier.clickable { onOpenPrep(prep.id) },
                             headlineContent = { Text(prep.id, color = TextPrimary) },
                             supportingContent = { Text(prep.summaryLine(), color = TextMuted) },
                         )

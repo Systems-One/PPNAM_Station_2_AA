@@ -1,6 +1,7 @@
 package com.mitas.ppnam.station2aa.ui.joblookup
 
 import com.mitas.ppnam.station2aa.domain.repository.ServerHint
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox
 import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
@@ -47,6 +48,7 @@ class JobLookupViewModelTest {
     private lateinit var scans: MutableSharedFlow<ScanEvent>
     private lateinit var sessionHolder: OperatorSessionHolder
     private lateinit var vm: JobLookupViewModel
+    private val outbox = InMemoryCommandOutbox()
     private lateinit var hints: MutableSharedFlow<ServerHint>
     private lateinit var connection: MutableStateFlow<MqttConnectionState>
 
@@ -75,7 +77,7 @@ class JobLookupViewModelTest {
         whenever(mqtt.serverHints).thenReturn(hints)
         whenever(mqtt.stationOnline).thenReturn(MutableStateFlow(true))
         whenever(mqtt.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
-        vm = JobLookupViewModel(useCase, mqtt, scanBus, sessionHolder, mock<AuthUseCase>())
+        vm = JobLookupViewModel(useCase, mqtt, scanBus, sessionHolder, mock<AuthUseCase>(), outbox)
     }
 
     @After
@@ -83,6 +85,20 @@ class JobLookupViewModelTest {
 
     private fun push(mode: String = "General") {
         hints.tryEmit(ServerHint(mode, "preparation_created"))
+    }
+
+    @Test
+    fun `an unresolved prepare for the viewed job is exposed as pendingPrepare`() = runTest {
+        whenever(useCase.read("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        val cmd = com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand(
+            messageId = "m-1", action = "prepare", targetId = "510019068", payload = "{}",
+        )
+        outbox.save(cmd)
+        vm.openDetail("510019068")
+        assertEquals(cmd, vm.uiState.value.pendingPrepare)
+        outbox.remove("m-1")
+        kotlinx.coroutines.yield()
+        assertNull(vm.uiState.value.pendingPrepare)
     }
 
     @Test
