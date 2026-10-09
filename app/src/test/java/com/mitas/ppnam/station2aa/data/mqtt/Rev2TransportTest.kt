@@ -8,7 +8,12 @@ import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import com.mitas.ppnam.station2aa.contract.ContractFixtures
+import com.mitas.ppnam.station2aa.domain.repository.ServerHint
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
@@ -291,6 +296,18 @@ class Rev2TransportTest {
         repo.setServerPushHandler { _, _, _ -> count++ }
         push(null)
         assertEquals(1, count)
+    }
+
+    @Test
+    fun `a push is delivered to every hint subscriber and never touches a pending command`() = runTest {
+        val seen = mutableListOf<ServerHint>()
+        val job = launch(UnconfinedTestDispatcher(testScheduler)) { repo.serverHints.toList(seen) }
+        repo.handleIncomingResponse(
+            "PPNAM/station_2/$device/res/active_job_cards_invalidated",
+            ContractFixtures.bytes("active_job_cards_invalidated.json"),
+        )
+        assertEquals(listOf(ServerHint("General", "preparation_created")), seen)
+        job.cancel()
     }
 
     @Test
