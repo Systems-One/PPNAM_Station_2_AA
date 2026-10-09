@@ -79,6 +79,10 @@ class Handheld:
     def invalidate(self):
         self.client.publish("PPNAM/_sim/control", json.dumps({"cmd": "invalidate"}), qos=1)
 
+    def control(self, cmd):
+        self.client.publish("PPNAM/_sim/control", json.dumps(cmd), qos=1)
+        time.sleep(0.3)
+
     def close(self):
         self.client.loop_stop()
         self.client.disconnect()
@@ -107,6 +111,7 @@ class Handheld:
             r = json.loads(m.payload)
             if r.get("inResponseToMessageId") == msg_id:
                 r["_topic"] = m.topic
+                r["_raw"] = m.payload.decode("utf-8")
                 return r
         return None
 
@@ -195,6 +200,9 @@ class DirectHandheld(Handheld):
     def invalidate(self):
         self.sim.publish_invalidations()
 
+    def control(self, cmd):
+        self.sim._apply_control(json.dumps(cmd).encode())
+
     def close(self):
         self.sim.log.close()
 
@@ -207,6 +215,101 @@ def check_reply_shape(r, label):
     check(r["schemaVersion"] == "rev2.1", f"{label}: schemaVersion is rev2.1")
     check(TS_RE.match(r["sentAtUtc"] or "") is not None, f"{label}: sentAtUtc has six fractional digits")
     check(isinstance(r["durationMs"], (int, float)), f"{label}: durationMs is numeric")
+
+
+def fingerprint(text):
+    return hashlib.sha256(text.encode("utf-8")).hexdigest().upper()
+
+
+def collected(data, code):
+    return next(m["collected"] for m in data["preparation"]["materials"] if m["code"] == code)
+
+
+PREP = "PREP_demo0001"
+PAL_001 = "300833B2DDD9014000000001"   # PAL-001, 1600000301 HD WHITE, 25 kg bags
+
+
+def receipts(hh):
+    """Task 11: receipts, identical replay, recover with sealing, the drop_reply fault."""
+    print("receipts")
+    general = "rev2_general_requested"
+    direct = isinstance(hh, DirectHandheld)
+    stock_before = hh.sim.world.pallets[PAL_001]["remainingQuantity"] if direct else None
+
+    first, body = hh.request(general, {"action": "capture", "targetId": PREP, "code": PAL_001})
+    check(first and first["success"], "a whole-bag capture against the seeded preparation succeeds",
+          first and first["operatorMessage"])
+    hh.send_raw(general, json.dumps(body))
+    replay = hh.await_reply(body["messageId"])
+    check(replay and replay["success"] and replay["data"]["result"] == first["data"]["result"],
+          "an identical capture replay returns the saved result")
+    check(collected(replay["data"], "1600000301") == collected(first["data"], "1600000301") == 25,
+          "…and collects once", collected(replay["data"], "1600000301"))
+    if direct:
+        stock = hh.sim.world.pallets[PAL_001]["remainingQuantity"]
+        check(stock == stock_before - 25, "…and deducts the pallet stock once", stock)
+
+    hh.send_raw(general, json.dumps(dict(body, quantity=1)))
+    r = hh.await_reply(body["messageId"])
+    check(r and r["error"] == "message_id_conflict", "the same id with a changed body -> message_id_conflict",
+          r and r["error"])
+
+    r, _ = hh.request(general, {"action": "recover", "originalMessageId": body["messageId"],
+                                "originalRequestFingerprint": fingerprint(json.dumps(body))})
+    check(r and r["success"] and r["nextAction"] == "review_recovered_outcome",
+          "recover succeeds with nextAction review_recovered_outcome", r and r["error"])
+    check(r["data"]["recovery"]["outcome"] == "committed", "recover of a committed capture -> committed",
+          r["data"]["recovery"])
+    check(r["data"]["recovery"]["result"] == first["data"]["result"]
+          and r["data"]["recovery"]["originalMessageId"] == body["messageId"],
+          "…carrying the saved result and the original id")
+    check(r["data"]["preparation"]["id"] == PREP, "…with a snapshot of the saved result's target")
+
+    late = json.dumps(hh.envelope({"action": "capture", "targetId": PREP, "code": PAL_001}))
+    late_id = json.loads(late)["messageId"]
+    r, _ = hh.request(general, {"action": "recover", "originalMessageId": late_id,
+                                "originalRequestFingerprint": fingerprint(late)})
+    check(r and r["success"] and r["data"]["recovery"]["outcome"] == "not_executed",
+          "recover of an unknown id -> not_executed", r and r["data"])
+    check(r["data"]["recovery"]["result"].get("errorCode") == "receipt_sealed",
+          "…and the sealed result carries errorCode receipt_sealed")
+    hh.send_raw(general, late)
+    r = hh.await_reply(late_id)
+    check(r and r["error"] == "receipt_sealed", "a later delivery of the sealed id -> receipt_sealed",
+          r and r["error"])
+    check(collected(r["data"], "1600000301") == 25, "…and captures nothing", collected(r["data"], "1600000301"))
+
+    own_id = uuid.uuid4().hex
+    r, _ = hh.request(general, {"action": "recover", "originalMessageId": own_id,
+                                "originalRequestFingerprint": "A" * 64}, msg_id=own_id)
+    check(r and r["error"] == "invalid_envelope", "recover with originalMessageId == messageId -> invalid_envelope",
+          r and r["error"])
+    r, _ = hh.request(general, {"action": "recover", "originalMessageId": uuid.uuid4().hex,
+                                "originalRequestFingerprint": "XYZ"})
+    check(r and r["error"] == "invalid_envelope", "recover with a malformed fingerprint -> invalid_envelope")
+
+    hh.control({"cmd": "drop_reply", "match": general, "count": 1})
+    dropped = json.dumps(hh.envelope({"action": "capture", "targetId": PREP, "code": PAL_001}))
+    dropped_id = json.loads(dropped)["messageId"]
+    hh.send_raw(general, dropped)
+    check(hh.await_reply(dropped_id, timeout=1) is None, "drop_reply: no reply is published")
+    if direct:
+        check((DEVICE, general, dropped_id) in hh.sim.world.rev2_receipts, "…yet the receipt is saved")
+    r, _ = hh.request(general, {"action": "recover", "originalMessageId": dropped_id,
+                                "originalRequestFingerprint": fingerprint(dropped)})
+    check(r and r["success"] and r["data"]["recovery"]["outcome"] == "committed",
+          "…and recover finds it committed")
+
+    mgr = hh.scram_login("manager1", "secret")
+    check(mgr and mgr["success"], "manager1 signs in on the same device")
+    hh.session = mgr["data"]["session"]["sessionId"]
+    r, _ = hh.request(general, {"action": "recover", "originalMessageId": body["messageId"],
+                                "originalRequestFingerprint": fingerprint(json.dumps(body))})
+    check(r and r["error"] == "receipt_owner_mismatch", "recover by another operator -> receipt_owner_mismatch",
+          r and r["error"])
+    op = hh.scram_login("operator1", "pass")
+    check(op and op["success"], "operator1 signs in again")
+    hh.session = op["data"]["session"]["sessionId"]
 
 
 def main():
@@ -294,8 +397,8 @@ def main():
     r, _ = hh.request("rev2_general_requested", {"action": "read"}, session=False)
     check(r and r["error"] == "operator_session_invalid", "read without a session -> operator_session_invalid")
 
-    r, _ = hh.request("rev2_general_requested", {"action": "prepare", "targetId": "510019068"})
-    check(r and r["error"] == "action_not_allowed", "prepare is outside the slice -> action_not_allowed")
+    r, _ = hh.request("rev2_general_requested", {"action": "machine_start", "targetId": "PREP_demo0001"})
+    check(r and r["error"] == "action_not_allowed", "machine_start is outside the slice -> action_not_allowed")
     r, _ = hh.request("rev2_general_requested", {"action": "teleport"})
     check(r and r["error"] == "action_not_allowed", "an unknown action -> action_not_allowed")
 
@@ -335,6 +438,8 @@ def main():
               r["data"]["job"]["allocatedMixes"])
         check(r["data"]["job"]["mixProgress"]["allocatedMixes"] == 2, "…as mixProgress.allocatedMixes does")
         del hh.sim.world.rev2_preparations["PREP_cancelled"]
+
+    receipts(hh)
 
     print("push")
     hh.invalidate()

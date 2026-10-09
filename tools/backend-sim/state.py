@@ -109,6 +109,9 @@ class World:
         self.rev2_jobs = {}           # JC -> job dict (the General `job` snapshot shape)
         self.rev2_preparations = {}   # PREP_ id -> preparation dict
         self.general_readers = set()  # devices that made an authenticated General request
+        # (device, reqType, messageId) -> {"hash", "result", "operatorId", "sealed"}: durable
+        # business receipts for prepare/capture/confirm and recovery seals (contract §9).
+        self.rev2_receipts = {}
         self.auth_replies = {}        # (device, suffix, messageId) -> {"body", "data", "expires"}
         # 4.1 cross-area mixer plans. Keyed by collectionId; saved in Station 2 (WPF), never by
         # the handheld — the simulator seeds/creates them the same way.

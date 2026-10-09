@@ -66,10 +66,30 @@ State is in-memory only; restarting gives a fresh, repeatable world.
 Exactly five request suffixes are accepted: `scram_start_requested`,
 `scram_proof_requested`, `operator_list_requested` (pre-login, bare envelope;
 answers `operator_list` with the seeded SCRAM users under `data.operators`),
-`rev2_general_requested` (`read`, `lookup`; other actions answer
-`action_not_allowed`) and `rev2_rajoo_requested` (always `action_not_allowed`).
+`rev2_general_requested` (`read`, `lookup`, `recover`, `capture`; other actions
+answer `action_not_allowed`) and `rev2_rajoo_requested` (always `action_not_allowed`).
 Anything else answers `client_upgrade_required` on `res/rev2_general_result`.
 Replies carry the body under `data`.
+
+### Receipts and recovery (contract §9)
+
+Every mutation is saved as a receipt keyed `(deviceId, request suffix, messageId)`
+with the uppercase SHA-256 of its exact bytes and the signed-in operator, whether it
+succeeded or was rejected:
+
+- the identical bytes again replay the saved `result` with a fresh snapshot; nothing
+  executes twice (no second stock deduction);
+- the same id with any other body answers `message_id_conflict`;
+- `recover` (`originalMessageId`, `originalRequestFingerprint`, a new `messageId`)
+  answers `success:true`, `nextAction:"review_recovered_outcome"` and
+  `data.recovery = {originalMessageId, outcome, result}`, where `outcome` is
+  `committed`, `rejected` or `not_executed`. An unknown id is **sealed**: a later
+  delivery of it answers `receipt_sealed`. Another operator gets
+  `receipt_owner_mismatch`; a different fingerprint `message_id_conflict`; a missing
+  original id, one equal to `messageId`, or a fingerprint that is not 64 hex
+  characters `invalid_envelope`.
+
+Quantities are exact decimals and go on the wire as plain JSON numbers.
 
 ## Control frames (`PPNAM/_sim/control`)
 
@@ -78,6 +98,9 @@ Replies carry the body under `data`.
 - `{"cmd":"reset"}` — clears faults and restores retained `online` presence.
 - `{"cmd":"presence","value":"offline"}` — overrides the retained presence.
 - `{"cmd":"withhold","match":"*","count":1}` — drop the next request(s), no reply.
+- `{"cmd":"drop_reply","match":"rev2_general_requested","count":1}` — process the next
+  matching request normally (its receipt is saved, stock moves) but never publish the
+  reply: a lost reply, for testing identical retry and `recover`.
 
 ## Self-test
 
@@ -103,5 +126,5 @@ broker (it used to fail its first check instead).
 
 - No TLS / broker auth, no persistence across restarts, no SAP posting,
   no fixed-door-reader TCP.
-- Only General `read`/`lookup`; one-mix quantities are an approximation of the
+- No `prepare`/`confirm`/`adjust_ingredient`/machine actions yet; one-mix quantities are an approximation of the
   server's ProductTree arithmetic.
