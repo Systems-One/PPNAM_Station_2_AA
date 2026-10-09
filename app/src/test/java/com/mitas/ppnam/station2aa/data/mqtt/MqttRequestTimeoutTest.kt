@@ -39,6 +39,7 @@ class MqttRequestTimeoutTest {
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = OperatorSessionHolder(),
             deviceIdentity = deviceIdentity,
+            commandOutbox = com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox(),
         )
         published.clear()
         repo.publishFn = { topic, bytes -> published += topic to bytes }

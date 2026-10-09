@@ -37,6 +37,7 @@ class HomeViewModelTest {
     private lateinit var connectionFlow: MutableStateFlow<MqttConnectionState>
     private lateinit var coordinator: PendingCommandCoordinator
     private lateinit var viewModel: HomeViewModel
+    private lateinit var identity: com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 
     private val sampleSession = OperatorSession(
         operatorSessionId = "sess-1",
@@ -59,15 +60,35 @@ class HomeViewModelTest {
         whenever(mockMqttRepository.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
         whenever(mockSessionHolder.session).thenReturn(sessionFlow)
 
+        identity = mock()
+        whenever(identity.deviceId()).thenReturn("scanner_1")
         coordinator = mock<PendingCommandCoordinator>()
         whenever(coordinator.pending).thenReturn(MutableStateFlow(emptyList()))
         whenever(coordinator.notices).thenReturn(MutableStateFlow(emptyList()))
-        viewModel = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator)
+        viewModel = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator, identity)
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `the card knows which scanner this is, to tell other scanners' commands apart`() {
+        assertEquals("scanner_1", viewModel.deviceId)
+    }
+
+    @Test
+    fun `clearing goes to the coordinator, and a clear that could not be recorded is reported`() = runTest {
+        whenever(coordinator.clearReconciled("a")).thenReturn(com.mitas.ppnam.station2aa.domain.usecase.ClearResult.Cleared)
+        viewModel.clearReconciled("a")
+        verify(coordinator).clearReconciled("a")
+        assertNull(viewModel.clearError.value)
+
+        whenever(coordinator.clearReconciled("b"))
+            .thenReturn(com.mitas.ppnam.station2aa.domain.usecase.ClearResult.NotRecorded(java.io.IOException("disk full")))
+        viewModel.clearReconciled("b")
+        assertEquals("Not cleared: the scanner could not record it (disk full). Try again.", viewModel.clearError.value)
     }
 
     @Test
@@ -84,7 +105,7 @@ class HomeViewModelTest {
                 )
             )
         )
-        val vm = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator)
+        val vm = HomeViewModel(mockMqttRepository, mockAuthUseCase, mockSessionHolder, coordinator, identity)
         assertEquals(listOf("a"), vm.recoveryNotices.value.map { it.command.messageId })
 
         sessionFlow.value = null

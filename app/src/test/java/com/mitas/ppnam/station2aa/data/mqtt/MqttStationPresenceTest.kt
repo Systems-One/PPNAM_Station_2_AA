@@ -20,6 +20,7 @@ class MqttStationPresenceTest {
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = OperatorSessionHolder(),
             deviceIdentity = mock(),
+            commandOutbox = com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox(),
         )
     }
 

@@ -45,6 +45,7 @@ class Rev2TransportTest {
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = sessionHolder,
             deviceIdentity = identity,
+            commandOutbox = com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox(),
         )
         published.clear()
         repo.publishFn = { topic, bytes -> published += topic to bytes }

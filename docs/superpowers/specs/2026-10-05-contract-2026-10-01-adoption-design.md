@@ -120,3 +120,26 @@ Phase 1 has no production caller of `sendCommand`. These items were deliberately
   - fix the pre-existing self-test failure "retired 4.1 suffix → `client_upgrade_required`";
   - `job.allocatedMixes` should exclude cancelled preparations.
 - **Device smoke test:** run Phase 1's on-device check against the simulator (plan Task 10, Step 2). It needs a device and a broker.
+
+### 6.1 Gate status (2026-10-08, branch `fix/phase2-entry-gate`)
+
+Done, with unit tests:
+- **Constructor default:** `MqttRepositoryImpl` takes the outbox explicitly.
+- **Failed save:** `sendCommand` returns `CommandOutcome.NotSaved(cause)` and publishes nothing.
+- **Echoed fingerprint:** every reply is checked against the bytes sent (for commands, the saved fingerprint). A present, different echo is logged. A blank echo is ignored, because envelope-level rejections carry none.
+- **`exceptionListRevision`:** `Rev2Snapshot.exceptionListRevision` is now `Int?`.
+- **Clear (decided: no roles):** anyone signed in may clear a `ManagerReconcile` entry from Home, after a confirm dialog.
+  - Every clear is first appended to `filesDir/audit/cleared-commands.jsonl` (fsynced). The record holds who cleared it, the session, the scanner, the time and the whole command.
+  - If that write fails, nothing is removed.
+  - `Unresolved` entries cannot be cleared, because retry or recovery still settles them.
+  - The contract has no message to tell Station 2 about a clear, so the audit stays on the scanner.
+- **Retry copy:** `retryCommand` re-reads the outbox. It returns `CommandOutcome.NoLongerPending` when the entry is gone, and uses the saved copy over the caller's.
+- **Other device and other operator:** the text now says "sent by operator X on another scanner. A manager must reconcile it."
+- **Simulator:**
+  - the size limit counts UTF-8 bytes;
+  - `job.allocatedMixes` excludes cancelled preparations.
+  - The "retired 4.1 suffix" failure was a broker mismatch: `selftest.py` defaults to `localhost:1883`, while `sim.py` defaults to the shared remote broker. Every logged simulator run answered that check correctly. The self-test now checks the simulator's presence first and exits with code 2 and instructions.
+
+Still open:
+- **Device smoke test** (Phase 1 plan Task 10, Step 2). It needs a device and a broker.
+

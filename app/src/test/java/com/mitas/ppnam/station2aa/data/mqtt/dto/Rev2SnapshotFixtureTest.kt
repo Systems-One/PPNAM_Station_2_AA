@@ -117,4 +117,10 @@ class Rev2SnapshotFixtureTest {
         assertEquals("OPTIONAL", s.requiredIngredientChoices.single().code)
         assertEquals(1, s.exceptionListRevision)
     }
+
+    @Test
+    fun `a snapshot without a catalog revision has none, so prepare never echoes a made-up 0`() {
+        assertNull(WireJson.gson.fromJson("""{"mode":"General"}""", Rev2Snapshot::class.java).exceptionListRevision)
+        assertNull(WireJson.gson.fromJson("""{"mode":"General","exceptionListRevision":null}""", Rev2Snapshot::class.java).exceptionListRevision)
+    }
 }

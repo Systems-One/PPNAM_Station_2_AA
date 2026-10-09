@@ -26,6 +26,7 @@ class MqttRepositoryImplTest {
             mockSettingsRepository,
             OperatorSessionHolder(),
             mock(),
+            com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox(),
         )
     }
 

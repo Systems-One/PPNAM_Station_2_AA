@@ -39,7 +39,8 @@ data class Rev2Snapshot(
     val preparation: Rev2Preparation? = null,
     val preparations: List<Rev2Preparation> = emptyList(),
     val machines: List<Rev2Machine> = emptyList(),
-    val exceptionListRevision: Int = 0,
+    /** Null when Station 2 sent none: never echo a made-up revision back in `prepare`. */
+    val exceptionListRevision: Int? = null,
     val ingredientExceptions: List<Rev2CatalogEntry> = emptyList(),
     val requiredIngredientChoices: List<Rev2CatalogEntry> = emptyList(),
     val collectionExceptions: List<Rev2CollectionException> = emptyList(),

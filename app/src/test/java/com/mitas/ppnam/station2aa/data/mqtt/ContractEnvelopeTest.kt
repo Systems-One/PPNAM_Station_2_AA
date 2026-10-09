@@ -23,6 +23,7 @@ class ContractEnvelopeTest {
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = OperatorSessionHolder(),
             deviceIdentity = identity,
+            commandOutbox = com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox(),
         )
     }
 

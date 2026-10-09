@@ -168,6 +168,7 @@ class CommandTransportTest {
     fun `retry of a command sent from another scanner publishes nothing and goes to a manager`() = runTest {
         send().await()   // times out
         val foreign = outbox.commands.value.single().copy(deviceId = "scanner_2")
+        outbox.save(foreign)   // as if this outbox entry had been written by another scanner
         val result = repo.retryCommand(foreign, Body::class.java)
         assertEquals(UnresolvedReason.ManagerReconcile, (result as CommandOutcome.Unresolved).reason)
         assertEquals(1, published.size)
@@ -178,6 +179,7 @@ class CommandTransportTest {
     fun `retry of a legacy command with no device id is still republished`() = runTest {
         send().await()   // times out
         val legacy = outbox.commands.value.single().copy(deviceId = "")
+        outbox.save(legacy)   // an entry written before deviceId existed
         val retry = async { repo.retryCommand(legacy, Body::class.java) }
         runCurrent()
         assertEquals(2, published.size)
@@ -317,5 +319,80 @@ class CommandTransportTest {
         val result = repo.sendCommand("rev2_general_requested", "rev2_general_result", CaptureBody(), Body::class.java)
         assertEquals(UnresolvedReason.RetryIdentical, (result as CommandOutcome.Unresolved).reason)
         assertEquals(1, outbox.commands.value.size)
+    }
+
+    @Test
+    fun `a failed outbox save publishes nothing and says it was not saved`() = runTest {
+        val failing = object : com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutbox by outbox {
+            override fun save(command: com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand) =
+                throw java.io.IOException("disk full")
+        }
+        val fresh = MqttRepositoryImpl(
+            clientFactory = mock(),
+            settingsRepository = mock<SettingsRepository>(),
+            sessionHolder = sessionHolder,
+            deviceIdentity = mock<DeviceIdentity>().also { whenever(it.deviceId()).thenReturn(device) },
+            commandOutbox = failing,
+        )
+        fresh.ioDispatcher = kotlinx.coroutines.Dispatchers.Unconfined
+        fresh.publishFn = { topic, bytes -> published += topic to bytes }
+        val stateField = MqttRepositoryImpl::class.java.getDeclaredField("_connectionState").apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        (stateField.get(fresh) as MutableStateFlow<MqttConnectionState>).value = MqttConnectionState.CONNECTED
+
+        val result = fresh.sendCommand("rev2_general_requested", "rev2_general_result", CaptureBody(), Body::class.java)
+
+        assertTrue(result is CommandOutcome.NotSaved)
+        assertTrue(published.isEmpty())
+    }
+
+    @Test
+    fun `retry of a command that has left the outbox publishes nothing`() = runTest {
+        send().await()   // times out
+        val command = outbox.commands.value.single()
+        outbox.remove(command.messageId)   // settled meanwhile, e.g. by recovery
+        val result = repo.retryCommand(command, Body::class.java)
+        assertEquals(CommandOutcome.NoLongerPending(command.messageId), result)
+        assertEquals(1, published.size)
+    }
+
+    @Test
+    fun `retry uses the outbox copy, not the caller's stale one`() = runTest {
+        send().await()   // times out
+        val stale = outbox.commands.value.single()
+        outbox.markManagerReconcile(stale.messageId)
+        val result = repo.retryCommand(stale, Body::class.java)
+        assertEquals(UnresolvedReason.ManagerReconcile, (result as CommandOutcome.Unresolved).reason)
+        assertEquals(1, published.size)
+    }
+
+    private fun replyEchoing(id: String, fingerprint: String) {
+        val json = """{"schemaVersion":"rev2.1","contractRevision":"2026-10-01","deviceId":"$device",""" +
+            """"inResponseToMessageId":"$id","requestFingerprint":"$fingerprint","success":true,"error":"",""" +
+            """"operatorMessage":"","nextAction":"read_saved_state","data":{"value":"ok"}}"""
+        repo.handleIncomingResponse("PPNAM/station_2/$device/res/rev2_general_result", json.toByteArray())
+    }
+
+    @Test
+    fun `a reply echoing a different fingerprint is reported`() = runTest {
+        val mismatches = mutableListOf<String>()
+        repo.fingerprintMismatchFn = { messageId, _, _ -> mismatches += messageId }
+        val call = send()
+        replyEchoing(idOf(0), "0".repeat(64))
+        call.await()
+        assertEquals(listOf(idOf(0)), mismatches)
+    }
+
+    @Test
+    fun `a reply echoing the saved fingerprint, or none, is not reported`() = runTest {
+        val mismatches = mutableListOf<String>()
+        repo.fingerprintMismatchFn = { messageId, _, _ -> mismatches += messageId }
+        val first = send()
+        replyEchoing(idOf(0), outbox.commands.value.single().fingerprint)
+        first.await()
+        val second = send()
+        replyEchoing(idOf(1), "")   // envelope-level replies may carry none
+        second.await()
+        assertTrue(mismatches.isEmpty())
     }
 }

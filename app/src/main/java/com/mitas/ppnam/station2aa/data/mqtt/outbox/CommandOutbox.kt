@@ -21,6 +21,9 @@ interface CommandOutbox {
     fun save(command: PendingCommand)
     fun remove(messageId: String)
     fun markManagerReconcile(messageId: String)
+
+    /** The stored bytes of [messageId] exactly as kept (damaged or not), or null if none are kept. */
+    fun rawEntry(messageId: String): String? = null
 }
 
 /** For tests and as the transport's constructor default; production binds [FileCommandOutbox]. */
@@ -75,6 +78,10 @@ class FileCommandOutbox(
             if (current.status == PendingStatus.ManagerReconcile) return
             save(current.copy(status = PendingStatus.ManagerReconcile))
         }
+    }
+
+    override fun rawEntry(messageId: String): String? = synchronized(lock) {
+        listOf(fileFor(messageId), tempFor(messageId)).firstOrNull { it.exists() }?.readText(Charsets.UTF_8)
     }
 
     private fun fileFor(messageId: String) = File(dir, "$messageId$SUFFIX")

@@ -25,6 +25,7 @@ class MqttClockSkewTest {
             settingsRepository = mock<SettingsRepository>(),
             sessionHolder = OperatorSessionHolder(),
             deviceIdentity = mock<DeviceIdentity> { on { deviceId() } doReturn "handheld_1" },
+            commandOutbox = com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox(),
         )
         repo.nowFn = { deviceNow }
     }
