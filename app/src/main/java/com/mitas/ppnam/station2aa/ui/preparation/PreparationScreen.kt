@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +52,7 @@ import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
 import com.mitas.ppnam.station2aa.domain.model.CollectionExceptionRecord
 import com.mitas.ppnam.station2aa.domain.model.PrepMaterial
 import com.mitas.ppnam.station2aa.domain.model.PrepStage
+import com.mitas.ppnam.station2aa.domain.usecase.ReplacementOffer
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.joblookup.countsLine
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
@@ -94,8 +96,19 @@ fun PreparationScreen(
 
     val prep = state.snapshot?.preparation
     val collecting = state.stage == PrepStage.Collecting
+    val staged = state.staged
 
-    if (confirming) {
+    // A dialog or sheet opened for one state must not outlive it.
+    LaunchedEffect(state.canConfirm) { if (!state.canConfirm) confirming = false }
+    LaunchedEffect(state.stage) { partSheet = false }
+    LaunchedEffect(staged == null) { if (staged == null) partSheet = false }
+    val sheetOpen = partSheet && staged != null && collecting
+    // While the sheet is open, a bus scan must not silently replace the picked material and quantity.
+    LaunchedEffect(sheetOpen) { viewModel.setPartSheetOpen(sheetOpen) }
+
+    state.offer?.let { offer -> ReplacementDialog(offer, state, viewModel::acceptOffer, viewModel::declineOffer) }
+
+    if (confirming && state.canConfirm) {
         AlertDialog(
             onDismissRequest = { confirming = false },
             title = { Text("Confirm collection?", color = TextPrimary) },
@@ -111,8 +124,7 @@ fun PreparationScreen(
         )
     }
 
-    val staged = state.staged
-    if (partSheet && staged != null && collecting) {
+    if (sheetOpen) {
         PartBagSheet(
             state = state,
             onDismiss = { partSheet = false },
@@ -179,7 +191,7 @@ fun PreparationScreen(
                 items(prep.materials, key = { "material-${it.code}" }) { material ->
                     MaterialRow(
                         material,
-                        onClick = if (collecting && !material.excluded) ({ viewModel.stagePart(material.code) }) else null,
+                        onClick = if (state.canScan && !material.excluded) ({ viewModel.stagePart(material.code) }) else null,
                         picked = (staged as? Staged.PartBag)?.materialCode == material.code,
                     )
                 }
@@ -224,6 +236,48 @@ fun PreparationScreen(
             }
         }
     }
+}
+
+/**
+ * Spec §6: Station 2 never ran a capture/confirm and never will. Only an explicit tap sends a
+ * replacement (a new command); it is enabled only while a tap of its own kind would be.
+ */
+@Composable
+private fun ReplacementDialog(
+    offer: ReplacementOffer,
+    state: PreparationUiState,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit,
+) {
+    val (accept, decline, enabled) = when (offer) {
+        is ReplacementOffer.Capture -> Triple("Record bag", "Don't record", state.canScan)
+        is ReplacementOffer.Confirm -> Triple("Confirm collection", "Don't confirm", state.canConfirm)
+    }
+    val stillToCollect = state.snapshot?.preparation?.materials.orEmpty()
+        .filter { !it.excluded && !it.isComplete }
+        .joinToString(", ") { "${it.name} ${it.remaining.plainText()} ${it.unit}".trim() }
+    AlertDialog(
+        // An accidental tap outside must neither send nor dismiss: the operator chooses.
+        onDismissRequest = {},
+        title = { Text("Not received by Station 2", color = TextPrimary) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(offer.prompt(), color = TextPrimary)
+                if (offer is ReplacementOffer.Capture && stillToCollect.isNotEmpty()) {
+                    Text("Still to collect: $stillToCollect", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                }
+                if (!enabled) {
+                    Text(
+                        "Not possible right now — resolve the unanswered command or wait for Station 2.",
+                        color = WarningOrange, style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onAccept, enabled = enabled) { Text(accept) } },
+        dismissButton = { TextButton(onClick = onDecline) { Text(decline) } },
+        containerColor = GraphiteSurface,
+    )
 }
 
 @Composable
@@ -310,7 +364,7 @@ private fun ScanCard(
                     label = { Text("Code") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { if (manualCode.isNotBlank()) onUseCode() }),
+                    keyboardActions = KeyboardActions(onDone = { if (enabled && manualCode.isNotBlank()) onUseCode() }),
                     modifier = Modifier.weight(1f),
                 )
                 OutlinedButton(onClick = onUseCode, enabled = enabled && manualCode.isNotBlank()) { Text("Use code") }

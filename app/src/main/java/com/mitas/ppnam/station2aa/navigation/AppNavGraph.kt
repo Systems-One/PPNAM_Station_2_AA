@@ -93,6 +93,9 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
             val activity = LocalContext.current.findActivity()
             HomeScreen(
                 onOpenJobCards = { navController.navigate(NavRoutes.JOBS) },
+                // Both routes live inside the jobs graph; navigating into it from Home is allowed.
+                onOpenPrep = { navController.navigate(NavRoutes.prep(it)) },
+                onOpenPrepare = { navController.navigate(NavRoutes.prepare(it)) },
                 onSettings = { navController.navigate(NavRoutes.SETTINGS) },
                 // Navigation on logout is SessionWatcher's job alone (it reacts to
                 // the session going null, which authUseCase.logout() causes before this event fires).

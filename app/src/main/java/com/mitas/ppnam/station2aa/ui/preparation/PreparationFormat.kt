@@ -2,6 +2,7 @@ package com.mitas.ppnam.station2aa.ui.preparation
 
 import com.mitas.ppnam.station2aa.domain.model.CollectionExceptionRecord
 import com.mitas.ppnam.station2aa.domain.model.PrepMaterial
+import com.mitas.ppnam.station2aa.domain.usecase.ReplacementOffer
 import com.mitas.ppnam.station2aa.ui.util.formatStationDateTime
 import java.math.BigDecimal
 
@@ -39,3 +40,16 @@ internal fun CollectionExceptionRecord.lines(): List<String> = buildList {
 
 /** `PREP_…last 6`, for the title. */
 internal fun shortPrepId(prepId: String): String = "PREP_…${prepId.takeLast(6)}"
+
+/** The replacement dialog text (spec §6): what never happened, when (SAST), and the question. */
+internal fun ReplacementOffer.prompt(): String {
+    val at = notice?.command?.createdAtUtc?.takeIf { it.isNotBlank() }?.let { " at ${formatStationDateTime(it)}" }.orEmpty()
+    val cancelled = "It has been cancelled and can never happen later."
+    return when (this) {
+        is ReplacementOffer.Capture ->
+            "Station 2 never received the scan of ${intent.code} (${intent.quantity?.plainText() ?: "whole bag"})$at. " +
+                "$cancelled Record this bag now?"
+        is ReplacementOffer.Confirm ->
+            "Station 2 never received the confirmation$at. $cancelled Confirm collection now?"
+    }
+}

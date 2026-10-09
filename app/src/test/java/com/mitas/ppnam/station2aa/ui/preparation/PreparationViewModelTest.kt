@@ -25,7 +25,10 @@ import com.mitas.ppnam.station2aa.domain.usecase.CommandRecoveryUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.GeneralCollectionUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.PendingCommandCoordinator
 import com.mitas.ppnam.station2aa.domain.usecase.ReadResult
+import com.mitas.ppnam.station2aa.domain.usecase.RecoveryOutcome
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
+import com.mitas.ppnam.station2aa.domain.usecase.ReplacementOffer
+import com.mitas.ppnam.station2aa.domain.model.CaptureIntent
 import com.mitas.ppnam.station2aa.domain.usecase.toPrepSnapshot
 import java.math.BigDecimal
 import java.time.Instant
@@ -40,6 +43,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -66,6 +70,7 @@ class PreparationViewModelTest {
     private lateinit var hints: MutableSharedFlow<ServerHint>
     private lateinit var connection: MutableStateFlow<MqttConnectionState>
     private lateinit var outbox: MutableStateFlow<List<PendingCommand>>
+    private lateinit var notices: MutableStateFlow<List<RecoveryResult>>
     private lateinit var sessionHolder: OperatorSessionHolder
 
     private val prepId = "PREP_440fbd8f9cd3411e9be943a33f1a3ceb"
@@ -116,7 +121,8 @@ class PreparationViewModelTest {
         whenever(mqtt.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
         whenever(mqtt.deviceId).thenReturn("scanner_1")
         whenever(coordinator.pending).thenReturn(outbox)
-        whenever(coordinator.notices).thenReturn(MutableStateFlow(emptyList()))
+        notices = MutableStateFlow(emptyList())
+        whenever(coordinator.notices).thenReturn(notices)
     }
 
     @After
@@ -508,5 +514,205 @@ class PreparationViewModelTest {
         vm.refresh()
         assertEquals(opened, vm.uiState.value.snapshot)
         assertEquals("Station 2 did not respond.", vm.uiState.value.readError)
+    }
+
+    // ---- Task 10: the confirm-replacement offer ----
+
+    /** The delayed capture from the contract fixtures: TAG-RESIN, 10. */
+    private val delayedPayload by lazy { ContractFixtures.text("general_delayed_sealed_request.json") }
+
+    private fun notExecuted(action: String = "capture", target: String = prepId): RecoveryResult.Resolved {
+        val c = pending(id = "m-old", session = "sess-OLD", target = target).copy(
+            action = action,
+            payload = if (action == "capture") delayedPayload else "{\"action\":\"$action\"}",
+        )
+        return RecoveryResult.Resolved(c, RecoveryOutcome.NotExecuted, "", Rev2Snapshot())
+    }
+
+    @Test
+    fun `a notice for this PREP shows the offer after a fresh read`() = runTest {
+        val vm = open()
+        val fresh = CompletableDeferred<ReadResult>()
+        whenever(useCase.read(prepId)).doSuspendableAnswer { fresh.await() }
+        val notice = notExecuted()
+        notices.value = listOf(notice)
+        verify(useCase, times(2)).read(prepId)
+        assertNull(vm.uiState.value.offer)                  // not before the read has applied
+        fresh.complete(ReadResult.Loaded(afterOne))
+        assertEquals(afterOne, vm.uiState.value.snapshot)
+        assertEquals(
+            ReplacementOffer.Capture(notice, prepId, CaptureIntent("TAG-RESIN", BigDecimal("10"))),
+            vm.uiState.value.offer,
+        )
+        verify(useCase, never()).capture(any(), any(), anyOrNull())   // never sent without a tap
+        // The same notice re-emitted is not offered (or read) again.
+        notices.value = listOf(notice, notExecuted(target = "PREP_other"))
+        verify(useCase, times(2)).read(prepId)
+    }
+
+    @Test
+    fun `a notice for another PREP, or not not_executed, is not offered here`() = runTest {
+        val vm = open()
+        notices.value = listOf(
+            notExecuted(target = "PREP_other"),
+            notExecuted().copy(outcome = RecoveryOutcome.Committed),
+            notExecuted(action = "prepare"),
+        )
+        assertNull(vm.uiState.value.offer)
+        verify(useCase, times(1)).read(prepId)
+    }
+
+    @Test
+    fun `accepting the offer sends a NEW capture with the same code and quantity and dismisses the notice`() = runTest {
+        val vm = open()
+        val notice = notExecuted()
+        notices.value = listOf(notice)
+        assertNotNull(vm.uiState.value.offer)
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10"))).thenReturn(CollectionResult.Done(afterOne))
+        vm.acceptOffer()
+        vm.acceptOffer()                                    // a double tap sends once
+        verify(useCase, times(1)).capture(prepId, "TAG-RESIN", BigDecimal("10"))
+        verify(useCase, never()).retry(any())
+        verify(coordinator).dismiss(notice)
+        assertNull(vm.uiState.value.offer)
+        assertEquals(OutcomeMessage.Recorded("Recorded 10 kg Resin — 30 kg to go"), vm.uiState.value.message)
+    }
+
+    @Test
+    fun `the offer cannot be accepted while scanning is blocked`() = runTest {
+        val vm = open()
+        val notice = notExecuted()
+        notices.value = listOf(notice)
+        outbox.value = listOf(pending(session = "sess-OLD"))
+        vm.acceptOffer()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        verify(useCase, never()).confirm(any())
+        verify(coordinator, never()).dismiss(any())
+        assertNotNull(vm.uiState.value.offer)
+        assertTrue(vm.uiState.value.message is OutcomeMessage.Info)
+    }
+
+    @Test
+    fun `declining dismisses without sending`() = runTest {
+        val vm = open()
+        val notice = notExecuted()
+        notices.value = listOf(notice)
+        vm.declineOffer()
+        verify(coordinator).dismiss(notice)
+        assertNull(vm.uiState.value.offer)
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        verify(useCase, never()).retry(any())
+    }
+
+    @Test
+    fun `a confirm offer sends a new confirm, only while confirm is allowed`() = runTest {
+        val collecting = open(afterOne)
+        notices.value = listOf(notExecuted(action = "confirm"))
+        collecting.acceptOffer()
+        verify(useCase, never()).confirm(any())
+
+        val notice = notExecuted(action = "confirm")
+        notices.value = emptyList()
+        val ready = open(finalCapture)
+        notices.value = listOf(notice)
+        assertEquals(ReplacementOffer.Confirm(notice, prepId), ready.uiState.value.offer)
+        whenever(useCase.confirm(prepId)).thenReturn(CollectionResult.Done(confirmed))
+        ready.acceptOffer()
+        verify(useCase, times(1)).confirm(prepId)
+        verify(coordinator).dismiss(notice)
+        assertEquals(PrepStage.ReadyForMixer, ready.uiState.value.stage)
+    }
+
+    @Test
+    fun `a direct receipt_sealed reply re-reads, then offers the replacement`() = runTest {
+        val vm = open()
+        val cmd = pending().copy(payload = delayedPayload)
+        val fresh = CompletableDeferred<ReadResult>()
+        whenever(useCase.read(prepId)).doSuspendableAnswer { fresh.await() }
+        whenever(useCase.retry(cmd)).thenReturn(
+            CollectionResult.Rejected(ErrorCode.RECEIPT_SEALED, "Station 2 never ran this, and it can no longer run.", null),
+        )
+        vm.retry(cmd)
+        verify(useCase, times(2)).read(prepId)
+        assertNull(vm.uiState.value.offer)
+        fresh.complete(ReadResult.Loaded(afterOne))
+        assertEquals(
+            ReplacementOffer.Capture(null, prepId, CaptureIntent("TAG-RESIN", BigDecimal("10"))),
+            vm.uiState.value.offer,
+        )
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        verify(useCase, times(1)).retry(cmd)
+        // Accepting a sealed offer has no notice to dismiss.
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10"))).thenReturn(CollectionResult.Done(afterOne))
+        vm.acceptOffer()
+        verify(useCase, times(1)).capture(prepId, "TAG-RESIN", BigDecimal("10"))
+        verify(coordinator, never()).dismiss(any())
+    }
+
+    @Test
+    fun `a not_executed recovery after message_id_conflict re-reads, then offers the replacement`() = runTest {
+        val vm = open()
+        val cmd = pending().copy(payload = delayedPayload)
+        val result = RecoveryResult.Resolved(cmd, RecoveryOutcome.NotExecuted, "", Rev2Snapshot())
+        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenReturn(
+            CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "Station 2 couldn't match this command."),
+        )
+        whenever(recovery.recover(cmd)).thenReturn(result)
+        vm.onScan("TAG-RESIN")
+        vm.recordStaged()
+        verify(useCase, times(2)).read(prepId)
+        assertEquals(
+            ReplacementOffer.Capture(result, prepId, CaptureIntent("TAG-RESIN", BigDecimal("10"))),
+            vm.uiState.value.offer,
+        )
+        verify(useCase, times(1)).capture(any(), any(), anyOrNull())
+    }
+
+    // ---- folded review items ----
+
+    @Test
+    fun `a read that throws shows a message instead of crashing`() = runTest {
+        val vm = open()
+        whenever(useCase.read(prepId)).thenThrow(IllegalStateException("boom"))
+        vm.refresh()
+        assertEquals(OutcomeMessage.Info("Could not read this preparation: boom"), vm.uiState.value.message)
+        assertFalse(vm.uiState.value.loading)
+        assertEquals(opened, vm.uiState.value.snapshot)
+    }
+
+    @Test
+    fun `a capture that throws shows a message instead of crashing`() = runTest {
+        val vm = open()
+        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenThrow(IllegalStateException("boom"))
+        vm.onScan("TAG-RESIN")
+        vm.recordStaged()
+        assertEquals(
+            OutcomeMessage.Info("Something went wrong sending this: boom. Check the preparation before trying again."),
+            vm.uiState.value.message,
+        )
+        assertFalse(vm.uiState.value.inFlight)
+    }
+
+    @Test
+    fun `an open-time retry before the first read shows the result message, not the whole total`() = runTest {
+        val cmd = pending()
+        outbox.value = listOf(cmd)
+        whenever(useCase.retry(cmd)).thenReturn(CollectionResult.Done(finalCapture))
+        val vm = open()
+        assertEquals(OutcomeMessage.Info(finalCapture.resultMessage), vm.uiState.value.message)
+    }
+
+    @Test
+    fun `scans are ignored while the part-bag sheet is open`() = runTest {
+        val vm = open(afterOne)
+        vm.onScan("TAG-RESIN")
+        vm.stagePart("RESIN")
+        vm.onPartQuantity("5")
+        vm.setPartSheetOpen(true)
+        scan("TAG-OTHER")
+        assertEquals(Staged.PartBag("TAG-RESIN", "RESIN", "5"), vm.uiState.value.staged)
+        vm.setPartSheetOpen(false)
+        scan("TAG-OTHER")
+        assertEquals(Staged.WholeBag("TAG-OTHER"), vm.uiState.value.staged)
     }
 }

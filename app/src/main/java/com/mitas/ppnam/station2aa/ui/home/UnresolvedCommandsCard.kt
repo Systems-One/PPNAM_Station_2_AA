@@ -19,7 +19,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
+import com.mitas.ppnam.station2aa.domain.usecase.NoticeTarget
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
+import com.mitas.ppnam.station2aa.domain.usecase.openTarget
 
 /**
  * Unanswered commands and what recovery found. Shown only when there is something to say: an
@@ -37,6 +39,8 @@ fun UnresolvedCommandsCard(
     onClear: (messageId: String) -> Unit,
     clearError: String?,
     modifier: Modifier = Modifier,
+    /** A NotExecuted notice's "Open PREP_…" / "Open job …" (spec §6). */
+    onOpen: (NoticeTarget) -> Unit = {},
 ) {
     if (pending.isEmpty() && notices.isEmpty()) return
     val noticed = notices.map { it.command.messageId }.toSet()
@@ -68,6 +72,11 @@ fun UnresolvedCommandsCard(
             notices.forEach { notice ->
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Text(notice.noticeText(currentDeviceId), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                    val target = notice.openTarget()
+                    val openLabel = notice.openActionLabel()
+                    if (target != null && openLabel != null) {
+                        TextButton(onClick = { onOpen(target) }) { Text(openLabel) }
+                    }
                     if (notice !is RecoveryResult.StillUnresolved) {
                         TextButton(onClick = { onDismiss(notice) }) { Text("OK") }
                     }

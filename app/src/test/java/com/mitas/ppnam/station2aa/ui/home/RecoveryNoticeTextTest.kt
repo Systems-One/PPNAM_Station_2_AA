@@ -7,6 +7,7 @@ import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -98,5 +99,27 @@ class RecoveryNoticeTextTest {
             "capture PREP_1: sent by operator OP-9. They must sign in on this scanner to resolve it, or a manager must reconcile it.",
             RecoveryResult.OtherOperator(cmd).noticeText(),
         )
+    }
+
+    @Test
+    fun `a not-executed capture or confirm notice offers to open its PREP, a prepare its job`() {
+        val prep = "PREP_440fbd8f9cd3411e9be943a33f1a3ceb"
+        val capture = cmd.copy(targetId = prep)
+        assertEquals(
+            "Open PREP_…1a3ceb",
+            RecoveryResult.Resolved(capture, RecoveryOutcome.NotExecuted, "", Rev2Snapshot()).openActionLabel(),
+        )
+        assertEquals(
+            "Open PREP_…1a3ceb",
+            RecoveryResult.Resolved(capture.copy(action = "confirm"), RecoveryOutcome.NotExecuted, "", Rev2Snapshot())
+                .openActionLabel(),
+        )
+        assertEquals(
+            "Open job 510019068",
+            RecoveryResult.Resolved(cmd.copy(action = "prepare", targetId = "510019068"), RecoveryOutcome.NotExecuted, "", Rev2Snapshot())
+                .openActionLabel(),
+        )
+        assertNull(RecoveryResult.Resolved(capture, RecoveryOutcome.Committed, "", Rev2Snapshot()).openActionLabel())
+        assertNull(RecoveryResult.StillUnresolved(capture, "x").openActionLabel())
     }
 }

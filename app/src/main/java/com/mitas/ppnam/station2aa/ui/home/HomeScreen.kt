@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mitas.ppnam.station2aa.domain.usecase.NoticeTarget
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder
@@ -46,6 +47,10 @@ fun HomeScreen(
     onSettings: () -> Unit,
     onLogout: () -> Unit,
     onExitApp: () -> Unit = {},
+    /** A NotExecuted capture/confirm notice opens its PREP, where the replacement offer appears. */
+    onOpenPrep: (prepId: String) -> Unit = {},
+    /** A NotExecuted prepare notice opens its job's Prepare screen with a fresh read. */
+    onOpenPrepare: (jobCard: String) -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val session by viewModel.session.collectAsState()
@@ -116,6 +121,12 @@ fun HomeScreen(
                 onDismiss = viewModel::dismissNotice,
                 onClear = viewModel::clearReconciled,
                 clearError = clearError,
+                onOpen = { target ->
+                    when (target) {
+                        is NoticeTarget.Prep -> onOpenPrep(target.id)
+                        is NoticeTarget.Job -> onOpenPrepare(target.jobCard)
+                    }
+                },
             )
             HomeTile(
                 title = "Job Cards",
