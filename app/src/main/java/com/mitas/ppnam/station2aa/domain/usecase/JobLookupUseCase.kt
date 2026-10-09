@@ -111,7 +111,8 @@ private fun Rev2Snapshot.toDomain(): JobLookupSnapshot = JobLookupSnapshot(
             capturedAtUtc = job.capturedAtUtc?.let { runCatching { Instant.parse(it) }.getOrNull() },
             closed = job.closed,
             materials = job.materials.map {
-                JobMaterial(it.code, it.name, it.unit, it.perMix, it.required, it.collected, it.excluded, it.originalRequired)
+                JobMaterial(it.code, it.name, it.unit, it.perMix.toDouble(), it.required.toDouble(), it.collected.toDouble(),
+                    it.excluded, it.originalRequired?.toDouble())
             },
             preparations = preparations.filter { it.jobId == job.id }.map {
                 JobPreparation(it.id, it.mixCount, it.mixed, it.produced, it.stage)

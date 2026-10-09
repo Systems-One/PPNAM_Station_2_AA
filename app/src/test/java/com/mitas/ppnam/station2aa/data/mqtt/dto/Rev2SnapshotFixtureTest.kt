@@ -10,6 +10,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.math.BigDecimal
 
 class Rev2SnapshotFixtureTest {
 
@@ -72,8 +73,8 @@ class Rev2SnapshotFixtureTest {
         val s = snapshot("general_add")
         val added = s.preparation!!.materials.last()
         assertEquals("ADDITIVE", added.code)
-        assertEquals(0.0, added.originalRequired!!, 0.0)
-        assertEquals(4.0, added.required, 0.0)
+        assertEquals(0, BigDecimal.ZERO.compareTo(added.originalRequired!!))
+        assertEquals(0, BigDecimal("4").compareTo(added.required))
         val ex = s.commandExceptions.single()
         assertEquals("Ingredient added", ex.kind)
         assertEquals("scanner_1", ex.device)
@@ -104,7 +105,7 @@ class Rev2SnapshotFixtureTest {
         val s = snapshot("rajoo_read")
         assertEquals("Rajoo", s.mode)
         assertNull(s.job!!.mixProgress)
-        assertTrue(s.job!!.materials.all { it.perMix == 0.0 })
+        assertTrue(s.job!!.materials.all { it.perMix.signum() == 0 })
         assertNotNull(s.job!!.collectionRevision)
     }
 
@@ -122,5 +123,13 @@ class Rev2SnapshotFixtureTest {
     fun `a snapshot without a catalog revision has none, so prepare never echoes a made-up 0`() {
         assertNull(WireJson.gson.fromJson("""{"mode":"General"}""", Rev2Snapshot::class.java).exceptionListRevision)
         assertNull(WireJson.gson.fromJson("""{"mode":"General","exceptionListRevision":null}""", Rev2Snapshot::class.java).exceptionListRevision)
+    }
+
+    @Test
+    fun `remaining is max(0, required - collected) exactly`() {
+        val s = snapshot("final_capture")
+        for (m in s.preparation!!.materials) {
+            assertEquals(m.code, 0, m.remaining.compareTo((m.required - m.collected).max(BigDecimal.ZERO)))
+        }
     }
 }

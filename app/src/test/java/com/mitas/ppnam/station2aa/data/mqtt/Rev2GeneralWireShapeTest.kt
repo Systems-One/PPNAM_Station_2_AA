@@ -127,7 +127,7 @@ class Rev2GeneralWireShapeTest {
         assertEquals(400.0, job.overallQuantity, 0.0)
         assertEquals(50.0, job.outputPerMix, 0.0)
         assertEquals("2026-09-30T08:15:00.000000Z", job.capturedAtUtc)
-        assertEquals(37.25, job.materials[0].collected, 0.0)
+        assertEquals(0, java.math.BigDecimal("37.25").compareTo(job.materials[0].collected))
         assertTrue(job.materials[1].excluded)
         assertEquals(3, snapshot.preparations.size)
         assertEquals("ReadyForMixer", snapshot.preparations[0].stage)
