@@ -275,7 +275,8 @@ private fun ReplacementDialog(
             }
         },
         confirmButton = { TextButton(onClick = onAccept, enabled = enabled) { Text(accept) } },
-        dismissButton = { TextButton(onClick = onDecline) { Text(decline) } },
+        // The offer stays visible while its own send is in flight; neither button acts until it settles.
+        dismissButton = { TextButton(onClick = onDecline, enabled = !state.inFlight) { Text(decline) } },
         containerColor = GraphiteSurface,
     )
 }

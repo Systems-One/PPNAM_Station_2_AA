@@ -159,7 +159,7 @@ class PreparationViewModel @Inject constructor(
             coordinator.notices.collect { notices ->
                 notices.forEach { notice ->
                     if (notice !is RecoveryResult.Resolved || notice.outcome != RecoveryOutcome.NotExecuted) return@forEach
-                    if (notice.command.targetId != prepId) return@forEach
+                    if (!isThisPrep(notice.command.targetId)) return@forEach
                     offerAfterRead(notice.command.messageId, ReplacementOffer.from(notice))
                 }
             }
@@ -274,33 +274,41 @@ class PreparationViewModel @Inject constructor(
      * Review Focus 6: the operator tapped [Record bag] / [Confirm collection] on the offer. Sends a
      * NEW capture/confirm (a new message id) — never a retry of the sealed one — through the same
      * guards as a deliberate tap. Blocked: nothing is sent and the offer stays.
+     *
+     * The offer (the only record of the lost bag's code and quantity) and its notice stay until the
+     * send settles: [CollectionResult.NotSent] keeps both, so the operator can tap again. `inFlight`
+     * is set before this returns, so a second tap meanwhile is refused.
      */
     fun acceptOffer() {
         val state = _uiState.value
         val offer = state.offer ?: return
-        if (offer.prepId != prepId) return
+        if (!isThisPrep(offer.prepId)) return
         when (offer) {
             is ReplacementOffer.Capture ->
                 if (state.inFlight || !state.canScan) return show(OutcomeMessage.Info(whyNoScan(state)))
             is ReplacementOffer.Confirm ->
                 if (state.inFlight || !state.canConfirm) return show(OutcomeMessage.Info(whyNoConfirm(state)))
         }
-        closeOffer(offer)
         when (offer) {
-            is ReplacementOffer.Capture -> mutate(fromCapture = false, part = null) {
+            is ReplacementOffer.Capture -> mutate(fromCapture = false, part = null, replacing = offer) {
                 useCase.capture(prepId, offer.intent.code, offer.intent.quantity)
             }
-            is ReplacementOffer.Confirm -> mutate(fromCapture = false, part = null) { useCase.confirm(prepId) }
+            is ReplacementOffer.Confirm -> mutate(fromCapture = false, part = null, replacing = offer) {
+                useCase.confirm(prepId)
+            }
         }
     }
 
-    /** [Don't record]: dismiss the notice; nothing is sent. */
+    /** [Don't record]: dismiss the notice; nothing is sent. Not while the offer's own send is in flight. */
     fun declineOffer() {
-        val offer = _uiState.value.offer ?: return
+        val state = _uiState.value
+        val offer = state.offer ?: return
+        if (state.inFlight) return
         closeOffer(offer)
     }
 
     private fun closeOffer(offer: ReplacementOffer) {
+        if (_uiState.value.offer != offer) return
         offer.notice?.let(coordinator::dismiss)
         _uiState.update { it.copy(offer = queuedOffers.removeFirstOrNull()) }
     }
@@ -308,7 +316,7 @@ class PreparationViewModel @Inject constructor(
     /** Reads the PREP, then (once the read has finished) shows [offer] — at most once per [messageId]. */
     private fun offerAfterRead(messageId: String, offer: ReplacementOffer?) {
         if (!offered.add(messageId)) return
-        if (offer == null || offer.prepId != prepId) return
+        if (offer == null || !isThisPrep(offer.prepId)) return
         read {
             if (_uiState.value.offer == null) _uiState.update { it.copy(offer = offer) } else queuedOffers.addLast(offer)
         }
@@ -318,8 +326,11 @@ class PreparationViewModel @Inject constructor(
         viewModelScope.launch { authUseCase.logout() }
     }
 
+    /** PREP ids are compared ignoring case: the same PREP may be opened as `PREP_440fbd…` or `PREP_440FBD…`. */
+    private fun isThisPrep(id: String?): Boolean = id != null && id.equals(prepId, ignoreCase = true)
+
     private fun blocksThisPrep(c: PendingCommand): Boolean =
-        c.targetId == prepId && (c.status == PendingStatus.Unresolved || c.status == PendingStatus.ManagerReconcile)
+        isThisPrep(c.targetId) && (c.status == PendingStatus.Unresolved || c.status == PendingStatus.ManagerReconcile)
 
     /**
      * Rule 3/4: this session's own unresolved commands are retried identically here. One from an
@@ -364,12 +375,14 @@ class PreparationViewModel @Inject constructor(
     /**
      * Runs one mutation. [part] is the part bag being recorded (for the wrong-row warning);
      * [fromCapture] keeps the staged pallet ready for its next bag; [retried] is the command being
-     * republished, if any (a `receipt_sealed` reply to it becomes a replacement offer).
+     * republished, if any (a `receipt_sealed` reply to it becomes a replacement offer); [replacing]
+     * is the offer this send answers, closed once the send settles unless nothing was sent.
      */
     private fun mutate(
         fromCapture: Boolean,
         part: Staged.PartBag?,
         retried: PendingCommand? = null,
+        replacing: ReplacementOffer? = null,
         onFinally: () -> Unit = {},
         call: suspend () -> CollectionResult,
     ) {
@@ -379,10 +392,15 @@ class PreparationViewModel @Inject constructor(
         _uiState.update { it.copy(inFlight = true) }
         viewModelScope.launch {
             try {
-                handle(seq, call(), before, part, fromCapture, retried)
+                val result = call()
+                handle(seq, result, before, part, fromCapture, retried)
+                // Only NotSent proves nothing went out; any other answer settles the offer.
+                if (replacing != null && result !is CollectionResult.NotSent) closeOffer(replacing)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                // Unknown whether it went out: close the offer rather than invite a second capture.
+                replacing?.let(::closeOffer)
                 show(OutcomeMessage.Info("Something went wrong sending this: ${e.message}. Check the preparation before trying again."))
                 read()
             } finally {
@@ -424,6 +442,9 @@ class PreparationViewModel @Inject constructor(
                 // Spec §6/§7: a retry answered receipt_sealed never ran and never will. Re-read, then offer.
                 if (result.error == ErrorCode.RECEIPT_SEALED && retried != null) {
                     offerAfterRead(retried.messageId, ReplacementOffer.fromSealed(retried))
+                } else if (result.snapshot == null) {
+                    // Spec §7: a rejection with no state attached still means "read again".
+                    read()
                 }
             }
             // No local change: the outbox now holds the command, and blocking follows from it.
@@ -455,9 +476,12 @@ class PreparationViewModel @Inject constructor(
         }
     }
 
-    /** Rule 1: claims [seq] as the newest applied snapshot, or returns null for a stale one. */
+    /**
+     * Rule 1: claims [seq] as the newest applied snapshot, or returns null for a stale one — or one
+     * that is not this PREP's (spec §4.1: `snapshot.preparation.id == prepId`, ignoring case).
+     */
     private fun takeIfNewer(seq: Long, snapshot: PrepSnapshot?): PrepSnapshot? {
-        if (snapshot == null || seq <= applied) return null
+        if (snapshot == null || seq <= applied || !isThisPrep(snapshot.preparation?.id)) return null
         applied = seq
         return snapshot
     }
