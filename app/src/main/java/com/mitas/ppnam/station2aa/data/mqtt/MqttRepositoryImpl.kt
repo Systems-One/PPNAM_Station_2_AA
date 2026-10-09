@@ -12,6 +12,7 @@ import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import com.mitas.ppnam.station2aa.domain.model.AppSettings
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.domain.repository.ServerHint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.future.await
@@ -124,6 +125,10 @@ class MqttRepositoryImpl @Inject constructor(
     @Volatile
     private var serverPushHandler: ((String, ResponseEnvelope, String) -> Unit)? = null
 
+    private val _serverHints = MutableSharedFlow<ServerHint>(extraBufferCapacity = 16)
+    override val serverHints: SharedFlow<ServerHint> = _serverHints.asSharedFlow()
+
+    @Deprecated("Collect serverHints instead; this handler is single-slot.", ReplaceWith("serverHints"))
     override fun setServerPushHandler(handler: (topic: String, envelope: ResponseEnvelope, raw: String) -> Unit) {
         serverPushHandler = handler
     }
@@ -763,9 +768,8 @@ class MqttRepositoryImpl @Inject constructor(
                 Log.i(TAG, "Suppressing duplicate push on $topic (messageId=${envelope.messageId})")
                 return
             }
-            val handler = serverPushHandler
-            if (handler != null) handler(topic, envelope, raw)
-            else Log.w(TAG, "Dropping push on $topic — no handler registered")
+            _serverHints.tryEmit(ServerHint(envelope.mode, envelope.reason))
+            serverPushHandler?.invoke(topic, envelope, raw)
             return
         }
 

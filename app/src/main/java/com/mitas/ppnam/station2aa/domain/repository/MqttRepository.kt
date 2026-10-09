@@ -5,9 +5,13 @@ import com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutcome
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.domain.model.AppSettings
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 enum class MqttConnectionState { CONNECTED, RECONNECTING, DISCONNECTED }
+
+/** A rev2.1 `active_job_cards_invalidated` push: a reason to re-read, never data, never a command result. */
+data class ServerHint(val mode: String, val reason: String)
 
 interface MqttRepository {
     val connectionState: StateFlow<MqttConnectionState>
@@ -70,7 +74,10 @@ interface MqttRepository {
      * interpret them: the push is a hint to issue a fresh authenticated `read`, and only the layer
      * that owns the displayed list can do that.
      */
+    @Deprecated("Collect serverHints instead; this handler is single-slot.", ReplaceWith("serverHints"))
     fun setServerPushHandler(handler: (topic: String, envelope: ResponseEnvelope, raw: String) -> Unit)
+    /** Every server push, for every screen that shows server state. Replaces [setServerPushHandler]. */
+    val serverHints: SharedFlow<ServerHint>
     suspend fun connect()
     fun disconnect()
     suspend fun reconnectWith(settings: AppSettings): Result<Unit>

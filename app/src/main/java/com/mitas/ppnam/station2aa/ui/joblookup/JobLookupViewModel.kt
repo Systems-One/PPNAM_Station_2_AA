@@ -4,7 +4,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mitas.ppnam.station2aa.UserTagPolicy
-import com.mitas.ppnam.station2aa.data.mqtt.MqttTopics
 import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
@@ -88,13 +87,14 @@ class JobLookupViewModel @Inject constructor(
         // rev2.1: after a preparation is created Station 2 pushes a hint telling General readers to
         // read again. It is a hint, not data, and never a reason to cancel a request in flight — so
         // it launches its own read alongside whatever is running.
-        mqttRepository.setServerPushHandler { topic, envelope, _ ->
-            if (MqttTopics.responseTypeOf(topic) != "active_job_cards_invalidated") return@setServerPushHandler
-            if (envelope.mode.isNotBlank() && !envelope.mode.equals("General", ignoreCase = true)) return@setServerPushHandler
-            // Without a session the read would be rejected — and there is nothing on screen to refresh.
-            if (sessionHolder.session.value == null) return@setServerPushHandler
-            val target = viewedJobCard
-            if (target != null) loadDetail(target) else refreshList()
+        viewModelScope.launch {
+            mqttRepository.serverHints.collect { hint ->
+                if (hint.mode.isNotBlank() && !hint.mode.equals("General", ignoreCase = true)) return@collect
+                // Without a session the read would be rejected — and there is nothing on screen to refresh.
+                if (sessionHolder.session.value == null) return@collect
+                val target = viewedJobCard
+                if (target != null) loadDetail(target) else refreshList()
+            }
         }
         // Spec §6.4: Job Lookup reads on open and on reconnect. The first value is skipped — the
         // screen reads on resume — so only a transition back INTO CONNECTED triggers a read.
