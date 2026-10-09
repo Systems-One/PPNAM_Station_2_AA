@@ -227,3 +227,36 @@ data class Rev2CollectionException(
     val reviewedBy: String? = null,
     val reviewReason: String? = null,
 )
+
+/**
+ * Contract §4/§7 `prepare`. [ingredientChoices] is never null: `[]` when no code needs a choice.
+ * [exceptionListRevision] is the READ's top-level catalog revision (`data.exceptionListRevision`),
+ * never the job's. A blank [reason] must be passed as null so it is omitted.
+ */
+data class Rev2PrepareRequest(
+    val targetId: String,
+    val mixCount: Int,
+    val exceptionListRevision: Int?,
+    val ingredientChoices: List<Rev2ChoiceAnswer>,
+    val reason: String? = null,
+    val action: String = "prepare",
+)
+
+/** One explicit Include/Exclude answer. No default: an unanswered choice must not compile. */
+data class Rev2ChoiceAnswer(val code: String, val include: Boolean)
+
+/**
+ * Contract §4 `capture`: one physical bag ([quantity] null, so it is omitted) or one fraction.
+ * [quantity] must already be [com.mitas.ppnam.station2aa.domain.model.WireDecimal]-normalised.
+ */
+data class Rev2CaptureRequest(
+    val targetId: String,
+    val code: String,
+    val quantity: BigDecimal? = null,
+    val action: String = "capture",
+)
+
+data class Rev2ConfirmRequest(
+    val targetId: String,
+    val action: String = "confirm",
+)
