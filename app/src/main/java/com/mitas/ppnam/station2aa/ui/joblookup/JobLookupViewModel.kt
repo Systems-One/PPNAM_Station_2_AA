@@ -217,7 +217,7 @@ class JobLookupViewModel @Inject constructor(
     private fun refreshPendingPrepare() {
         val job = viewedJobCard
         val match = outbox.commands.value.firstOrNull {
-            job != null && it.action == "prepare" && it.targetId == job && it.status == PendingStatus.Unresolved
+            job != null && it.action == "prepare" && it.targetId == job && (it.status == PendingStatus.Unresolved || it.status == PendingStatus.ManagerReconcile)
         }
         _uiState.update { it.copy(pendingPrepare = match) }
     }

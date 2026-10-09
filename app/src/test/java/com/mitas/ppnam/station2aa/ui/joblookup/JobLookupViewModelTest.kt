@@ -102,6 +102,21 @@ class JobLookupViewModelTest {
     }
 
     @Test
+    fun `a ManagerReconcile prepare still counts as pending`() = runTest {
+        whenever(useCase.read("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        outbox.save(com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand(
+            messageId = "m-2", action = "prepare", targetId = "510019068", payload = "{}",
+        ))
+        vm.openDetail("510019068")
+        outbox.markManagerReconcile("m-2")
+        kotlinx.coroutines.yield()
+        assertEquals(
+            com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus.ManagerReconcile,
+            vm.uiState.value.pendingPrepare?.status,
+        )
+    }
+
+    @Test
     fun `refreshList loads the job list`() = runTest {
         whenever(useCase.read(null)).thenReturn(JobLookupResult.Loaded(listOnly))
         vm.refreshList()

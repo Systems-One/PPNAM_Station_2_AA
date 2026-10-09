@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.components.LabelValueRow
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
@@ -80,7 +81,9 @@ fun JobDetailScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Text(
-                                        "A prepare for this job is waiting for Station 2",
+                                        if (state.pendingPrepare?.status == PendingStatus.ManagerReconcile)
+                                            "A manager must reconcile this at the station before you prepare again."
+                                        else "A prepare for this job is waiting for Station 2",
                                         color = WarningOrange,
                                         style = MaterialTheme.typography.bodyMedium,
                                         modifier = Modifier.weight(1f),

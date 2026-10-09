@@ -119,6 +119,15 @@ fun PrepareScreen(
                     state.progress?.let { Text(it.countsLine(), style = MaterialTheme.typography.bodySmall, color = TextMuted) }
                 }
             }
+            if (state.pending == null && state.blocking != null) {
+                item {
+                    Text(
+                        if (state.managerHold) "A manager must reconcile this at the station before you prepare again."
+                        else "An earlier prepare for this job is being recovered — check Home",
+                        color = WarningOrange,
+                    )
+                }
+            }
             state.pending?.let {
                 item {
                     Card(colors = CardDefaults.cardColors(containerColor = GraphiteSurface)) {
@@ -192,7 +201,7 @@ fun PrepareScreen(
                     val n = form.mixCount
                     Button(
                         onClick = { confirming = true },
-                        enabled = form.problems.isEmpty() && !state.sending && state.pending == null,
+                        enabled = form.problems.isEmpty() && !state.sending && state.blocking == null,
                         modifier = Modifier.fillMaxWidth(),
                     ) { Text(if (n != null) "Prepare $n ${if (n == 1) "mix" else "mixes"}" else "Prepare mixes") }
                 }

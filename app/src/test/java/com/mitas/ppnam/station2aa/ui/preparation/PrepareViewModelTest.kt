@@ -17,6 +17,8 @@ import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.repository.ServerHint
 import com.mitas.ppnam.station2aa.domain.usecase.CollectionResult
+import com.mitas.ppnam.station2aa.domain.usecase.CommandRecoveryUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 import com.mitas.ppnam.station2aa.domain.usecase.GeneralCollectionUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.ReadResult
 import com.mitas.ppnam.station2aa.domain.usecase.toPrepSnapshot
@@ -54,6 +56,8 @@ class PrepareViewModelTest {
     private lateinit var outbox: InMemoryCommandOutbox
     private lateinit var sessionHolder: OperatorSessionHolder
     private lateinit var hints: MutableSharedFlow<ServerHint>
+    private lateinit var recovery: CommandRecoveryUseCase
+    private lateinit var connection: MutableStateFlow<MqttConnectionState>
 
     private fun snapshot(name: String): PrepSnapshot {
         val data = JsonParser.parseString(ContractFixtures.text("${name}_response.json")).asJsonObject["data"]
@@ -68,10 +72,12 @@ class PrepareViewModelTest {
         useCase = mock()
         mqtt = mock()
         outbox = InMemoryCommandOutbox()
+        recovery = mock()
         sessionHolder = OperatorSessionHolder()
         sessionHolder.set(OperatorSession("sess-1", "OP-1", "Op", "Worker"))
         hints = MutableSharedFlow(extraBufferCapacity = 8)
-        whenever(mqtt.connectionState).thenReturn(MutableStateFlow(MqttConnectionState.CONNECTED))
+        connection = MutableStateFlow(MqttConnectionState.CONNECTED)
+        whenever(mqtt.connectionState).thenReturn(connection)
         whenever(mqtt.serverHints).thenReturn(hints)
         whenever(mqtt.stationOnline).thenReturn(MutableStateFlow(true))
         whenever(mqtt.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
@@ -82,7 +88,7 @@ class PrepareViewModelTest {
 
     private suspend fun newVm(): PrepareViewModel {
         whenever(useCase.read("1")).thenReturn(ReadResult.Loaded(jobSnapshot))
-        return PrepareViewModel(useCase, outbox, sessionHolder, mqtt, SavedStateHandle(mapOf("jobCard" to "1")))
+        return PrepareViewModel(useCase, outbox, sessionHolder, mqtt, recovery, SavedStateHandle(mapOf("jobCard" to "1")))
     }
 
     private fun pendingPrepare(sessionId: String = "sess-1") = PendingCommand(
@@ -187,6 +193,7 @@ class PrepareViewModelTest {
     fun `opening with a same-session unresolved prepare for this JC offers Retry instead of a new form submit`() = runTest {
         val cmd = pendingPrepare()
         outbox.save(cmd)
+        whenever(useCase.retry(cmd)).thenReturn(CollectionResult.Unresolved(cmd, UnresolvedReason.RetryIdentical, "not confirmed"))
         val vm = newVm()
         advanceUntilIdle()
         assertEquals(cmd, vm.uiState.value.pending)
@@ -197,11 +204,97 @@ class PrepareViewModelTest {
     }
 
     @Test
-    fun `an unresolved prepare from another session is not offered here`() = runTest {
+    fun `an earlier-session unresolved prepare blocks submit, is not retried and offers no Retry`() = runTest {
         outbox.save(pendingPrepare(sessionId = "old"))
         val vm = newVm()
         advanceUntilIdle()
         assertNull(vm.uiState.value.pending)
+        assertNotNull(vm.uiState.value.blocking)
+        vm.fillAll()
+        vm.submit()
+        advanceUntilIdle()
+        verify(useCase, never()).prepare(any(), any(), anyOrNull(), any(), anyOrNull())
+        verify(useCase, never()).retry(any())
+    }
+
+    @Test
+    fun `a prepare marked ManagerReconcile keeps submit blocked`() = runTest {
+        val cmd = pendingPrepare()
+        outbox.save(cmd)
+        whenever(useCase.retry(cmd)).thenReturn(CollectionResult.Unresolved(cmd, UnresolvedReason.RetryIdentical, "x"))
+        val vm = newVm()
+        advanceUntilIdle()
+        outbox.markManagerReconcile("m-1")
+        advanceUntilIdle()
+        val state = vm.uiState.value
+        assertNull(state.pending)
+        assertNotNull(state.blocking)
+        assertTrue(state.managerHold)
+        vm.fillAll()
+        vm.submit()
+        advanceUntilIdle()
+        verify(useCase, never()).prepare(any(), any(), anyOrNull(), any(), anyOrNull())
+    }
+
+    @Test
+    fun `reconnect retries this session's unresolved prepare once, then reads`() = runTest {
+        val vm = newVm()
+        advanceUntilIdle()
+        val cmd = pendingPrepare()
+        outbox.save(cmd)
+        whenever(useCase.retry(cmd)).thenReturn(CollectionResult.Unresolved(cmd, UnresolvedReason.RetryIdentical, "x"))
+        connection.value = MqttConnectionState.DISCONNECTED
+        advanceUntilIdle()
+        connection.value = MqttConnectionState.CONNECTED
+        advanceUntilIdle()
+        verify(useCase, times(1)).retry(cmd)
+        verify(useCase, times(2)).read("1")
+        assertNotNull(vm.uiState.value.pending)
+    }
+
+    @Test
+    fun `a rejection without a snapshot re-reads`() = runTest {
+        val vm = newVm()
+        advanceUntilIdle()
+        whenever(useCase.prepare(any(), any(), anyOrNull(), any(), anyOrNull()))
+            .thenReturn(CollectionResult.Rejected(ErrorCode.RECEIPT_SEALED, "sealed", null))
+        vm.fillAll()
+        vm.submit()
+        advanceUntilIdle()
+        verify(useCase, times(2)).read("1")
+        assertEquals("sealed", vm.uiState.value.message)
+    }
+
+    @Test
+    fun `a message_id_conflict is recovered at once instead of offering Retry`() = runTest {
+        val vm = newVm()
+        advanceUntilIdle()
+        val cmd = pendingPrepare()
+        whenever(useCase.prepare(any(), any(), anyOrNull(), any(), anyOrNull()))
+            .thenReturn(CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "checking"))
+        whenever(recovery.recover(cmd)).thenReturn(RecoveryResult.StillUnresolved(cmd, "Still checking"))
+        vm.fillAll()
+        vm.submit()
+        advanceUntilIdle()
+        verify(recovery).recover(cmd)
+        verify(useCase, never()).retry(any())
+        assertNull(vm.uiState.value.pending)
+        assertNotNull(vm.uiState.value.blocking)
+        assertEquals("Still checking", vm.uiState.value.message)
+    }
+
+    @Test
+    fun `a background re-read keeps the message on screen`() = runTest {
+        val vm = newVm()
+        advanceUntilIdle()
+        whenever(useCase.prepare(any(), any(), anyOrNull(), any(), anyOrNull()))
+            .thenReturn(CollectionResult.Rejected(ErrorCode.REV2_REJECTED, "Try fewer", jobSnapshot))
+        vm.fillAll()
+        vm.submit()
+        advanceUntilIdle()
+        hints.tryEmit(ServerHint("General", "preparation_created"))
+        advanceUntilIdle()
+        assertEquals("Try fewer", vm.uiState.value.message)
     }
 
     @Test

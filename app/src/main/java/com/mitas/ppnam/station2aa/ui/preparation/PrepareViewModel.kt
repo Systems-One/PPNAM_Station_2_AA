@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutbox
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.UnresolvedReason
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.domain.model.ActivePreparation
 import com.mitas.ppnam.station2aa.domain.model.MixProgress
@@ -13,9 +14,11 @@ import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.CollectionResult
+import com.mitas.ppnam.station2aa.domain.usecase.CommandRecoveryUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.GeneralCollectionUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.PrepareForm
 import com.mitas.ppnam.station2aa.domain.usecase.ReadResult
+import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
 import com.mitas.ppnam.station2aa.ui.components.connectionStatusIn
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,6 +39,10 @@ data class PrepareUiState(
     val message: String? = null,
     /** A same-session prepare Station 2 has not confirmed: Retry it, never send a new one. */
     val pending: PendingCommand? = null,
+    /** Any unresolved prepare for this job, from any session. While set, a new prepare is refused. */
+    val blocking: PendingCommand? = null,
+    /** A manager must reconcile a prepare for this job; no Retry. */
+    val managerHold: Boolean = false,
     val activePreparations: List<ActivePreparation> = emptyList(),
     val product: String = "",
     val progress: MixProgress? = null,
@@ -47,6 +54,7 @@ class PrepareViewModel @Inject constructor(
     private val outbox: CommandOutbox,
     private val sessionHolder: OperatorSessionHolder,
     private val mqttRepository: MqttRepository,
+    private val recovery: CommandRecoveryUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -60,17 +68,26 @@ class PrepareViewModel @Inject constructor(
     private val _navigateToPrep = Channel<String>(Channel.BUFFERED)
     val navigateToPrep: Flow<String> = _navigateToPrep.receiveAsFlow()
 
+    private val retrying = mutableSetOf<String>()
+
     init {
-        // Contract §11: always read fresh before a new preparation, even if detail was just on screen.
-        reload()
+        // Contract section 11: always read fresh before a new preparation. Spec section 6: first retry
+        // this session's unresolved prepare, once.
+        refresh()
         viewModelScope.launch {
             outbox.commands.collect { commands ->
-                val sessionId = sessionHolder.session.value?.operatorSessionId
-                val match = commands.firstOrNull {
+                val mine = commands.filter {
                     it.action == "prepare" && it.targetId == jobCard &&
-                        it.status == PendingStatus.Unresolved && sessionId != null && it.sessionId == sessionId
+                        (it.status == PendingStatus.Unresolved || it.status == PendingStatus.ManagerReconcile)
                 }
-                _uiState.update { it.copy(pending = match) }
+                val retryable = ownUnresolved(commands).firstOrNull()
+                _uiState.update {
+                    it.copy(
+                        pending = retryable,
+                        blocking = retryable ?: mine.firstOrNull(),
+                        managerHold = mine.any { c -> c.status == PendingStatus.ManagerReconcile },
+                    )
+                }
             }
         }
         viewModelScope.launch {
@@ -79,7 +96,7 @@ class PrepareViewModel @Inject constructor(
                 val reconnected = previous != null && previous != MqttConnectionState.CONNECTED &&
                     state == MqttConnectionState.CONNECTED
                 previous = state
-                if (reconnected) reload()
+                if (reconnected) refresh()
             }
         }
         viewModelScope.launch {
@@ -101,20 +118,42 @@ class PrepareViewModel @Inject constructor(
         _uiState.update { state -> state.form?.let { state.copy(form = change(it)) } ?: state }
     }
 
-    fun reload() {
+    /** This session's unresolved prepares for this job. An earlier session's are the coordinator's to recover. */
+    private fun ownUnresolved(commands: List<PendingCommand>): List<PendingCommand> {
+        val sessionId = sessionHolder.session.value?.operatorSessionId ?: return emptyList()
+        return commands.filter {
+            it.action == "prepare" && it.targetId == jobCard &&
+                it.status == PendingStatus.Unresolved && it.sessionId == sessionId
+        }
+    }
+
+    /** On open and on reconnect: retry this session's unresolved prepare once, then read. */
+    private fun refresh() {
         viewModelScope.launch {
-            _uiState.update { it.copy(loading = true) }
-            when (val result = useCase.read(jobCard)) {
-                is ReadResult.Loaded -> applySnapshot(result.snapshot, message = null)
-                is ReadResult.Failed -> _uiState.update { it.copy(loading = false, message = result.message) }
+            var done = false
+            for (command in ownUnresolved(outbox.commands.value)) {
+                if (doRetry(command) is CollectionResult.Done) done = true
             }
+            if (!done) read()
+        }
+    }
+
+    fun reload() {
+        viewModelScope.launch { read() }
+    }
+
+    private suspend fun read() {
+        _uiState.update { it.copy(loading = true) }
+        when (val result = useCase.read(jobCard)) {
+            is ReadResult.Loaded -> applySnapshot(result.snapshot, message = null)
+            is ReadResult.Failed -> _uiState.update { it.copy(loading = false, message = result.message) }
         }
     }
 
     fun submit() {
         val state = _uiState.value
         val form = state.form ?: return
-        if (state.sending || state.pending != null || form.problems.isNotEmpty()) return
+        if (state.sending || state.blocking != null || form.problems.isNotEmpty()) return
         val mixCount = form.mixCount ?: return
         // Set before launching so a second tap in the same frame is ignored.
         _uiState.update { it.copy(sending = true, message = null) }
@@ -128,17 +167,25 @@ class PrepareViewModel @Inject constructor(
     }
 
     fun retryPending() {
-        val state = _uiState.value
-        val command = state.pending ?: return
-        if (state.sending) return
+        val command = _uiState.value.pending ?: return
+        viewModelScope.launch { doRetry(command) }
+    }
+
+    /** Republishes [command] (identical bytes, same id). Null when a send is already in flight. */
+    private suspend fun doRetry(command: PendingCommand): CollectionResult? {
+        if (_uiState.value.sending || !retrying.add(command.messageId)) return null
         _uiState.update { it.copy(sending = true, message = null) }
-        viewModelScope.launch { handle(useCase.retry(command)) }
+        return try {
+            useCase.retry(command).also { handle(it) }
+        } finally {
+            retrying.remove(command.messageId)
+        }
     }
 
     private suspend fun handle(result: CollectionResult) {
         when (result) {
             is CollectionResult.Done -> {
-                _uiState.update { it.copy(sending = false, pending = null) }
+                _uiState.update { it.copy(sending = false, pending = null, blocking = null) }
                 val id = result.snapshot.resultTargetId
                 if (id.isNullOrBlank()) {
                     applySnapshot(result.snapshot, "Prepared, but Station 2 did not say which preparation. Open it from the job.")
@@ -147,25 +194,67 @@ class PrepareViewModel @Inject constructor(
                 }
             }
             is CollectionResult.Rejected -> {
-                _uiState.update { it.copy(sending = false, pending = null) }
-                if (result.snapshot != null) applySnapshot(result.snapshot, result.message)
-                else _uiState.update { it.copy(message = result.message) }
+                _uiState.update { it.copy(sending = false, pending = null, blocking = null) }
+                if (result.snapshot != null) {
+                    applySnapshot(result.snapshot, result.message)
+                } else {
+                    // Spec section 7: a rejection with no state attached still means "read again".
+                    _uiState.update { it.copy(message = result.message) }
+                    read()
+                }
             }
-            is CollectionResult.Unresolved ->
-                _uiState.update { it.copy(sending = false, pending = result.command, message = result.message) }
+            is CollectionResult.Unresolved -> {
+                val retryable = result.reason == UnresolvedReason.RetryIdentical
+                _uiState.update {
+                    it.copy(
+                        sending = false,
+                        pending = if (retryable) result.command else null,
+                        blocking = result.command,
+                        managerHold = it.managerHold || result.reason == UnresolvedReason.ManagerReconcile,
+                        message = result.message,
+                    )
+                }
+                // message_id_conflict: an identical retry cannot work; ask Station 2 what happened instead.
+                if (result.reason == UnresolvedReason.Recover) recoverNow(result.command)
+            }
             is CollectionResult.NotSent ->
                 _uiState.update { it.copy(sending = false, message = result.message) }
             is CollectionResult.AlreadySettled -> {
                 _uiState.update {
-                    it.copy(sending = false, pending = null,
-                        message = "Station 2 already settled that prepare. Check the job's preparations.")
+                    it.copy(
+                        sending = false, pending = null, blocking = null,
+                        message = "Station 2 already settled that prepare. Check the job's preparations.",
+                    )
                 }
-                reload()
+                read()
             }
         }
     }
 
-    /** Takes the snapshot's choices and counts; answers and the typed N survive via [PrepareForm.rebasedOn]. */
+    private suspend fun recoverNow(command: PendingCommand) {
+        _uiState.update { it.copy(sending = true) }
+        val result = try {
+            recovery.recover(command)
+        } catch (e: Exception) {
+            RecoveryResult.StillUnresolved(command, "Could not check this prepare: ${e.message}")
+        }
+        val text = when (result) {
+            is RecoveryResult.Resolved -> result.message
+            is RecoveryResult.StillUnresolved -> result.message
+            is RecoveryResult.NeedsManager -> result.message
+            is RecoveryResult.OtherOperator -> "This prepare belongs to another operator."
+        }
+        _uiState.update {
+            if (result is RecoveryResult.Resolved) it.copy(sending = false, pending = null, blocking = null, message = text)
+            else it.copy(sending = false, message = text)
+        }
+        if (result is RecoveryResult.Resolved) read()
+    }
+
+    /**
+     * Takes the snapshot's choices and counts; answers and the typed N survive via [PrepareForm.rebasedOn].
+     * A background re-read passes no [message] and leaves the one on screen alone.
+     */
     private fun applySnapshot(snapshot: PrepSnapshot, message: String?) {
         val detail = snapshot.lookup.detail
         _uiState.update { state ->
@@ -173,7 +262,7 @@ class PrepareViewModel @Inject constructor(
             state.copy(
                 form = form,
                 loading = false,
-                message = message ?: if (form == null) "Station 2 sent no job to prepare" else null,
+                message = message ?: state.message ?: if (form == null) "Station 2 sent no job to prepare" else null,
                 activePreparations = detail?.mixProgress?.activePreparations.orEmpty(),
                 product = detail?.product.orEmpty(),
                 progress = detail?.mixProgress,
