@@ -67,3 +67,17 @@ class TimeFormatTest {
         assertNull(formatElapsedSince("garbage"))
     }
 }
+
+class StationDateTimeTest {
+    @Test
+    fun `renders in SAST whatever the device zone`() {
+        val raw = "2026-10-01T13:40:59.547851Z"
+        assertEquals("1 Oct 2026 15:40", formatStationDateTime(raw))
+        assertEquals("1 Oct 2026 15:40", formatStationDateTime(raw, STATION_ZONE))
+    }
+
+    @Test
+    fun `an unparseable value falls back to the raw string`() {
+        assertEquals("nope", formatStationDateTime("nope"))
+    }
+}

@@ -152,6 +152,15 @@ class JobLookupViewModelTest {
     }
 
     @Test
+    fun `a PREP id navigates to that preparation`() = runTest {
+        whenever(useCase.lookup("PREP_abc")).thenReturn(JobLookupResult.OpenPreparation("PREP_abc"))
+        vm.lookup("PREP_abc")
+        assertEquals("PREP_abc", vm.navigateToPrep.first())
+        assertFalse(vm.uiState.value.lookupInFlight)
+        assertNull(vm.uiState.value.lookupError)
+    }
+
+    @Test
     fun `a rejected lookup shows the message, stays put and applies the snapshot's job list`() = runTest {
         whenever(useCase.lookup("510018531")).thenReturn(
             JobLookupResult.Failed("Only Standard Planned or Released jobs can be loaded.", listOnly)
