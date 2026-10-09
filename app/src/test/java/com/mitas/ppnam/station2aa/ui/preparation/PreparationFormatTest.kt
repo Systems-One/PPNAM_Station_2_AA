@@ -6,6 +6,11 @@ import com.mitas.ppnam.station2aa.data.mqtt.WireJson
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
 import com.mitas.ppnam.station2aa.domain.model.CollectionExceptionRecord
 import com.mitas.ppnam.station2aa.domain.model.PrepMaterial
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
+import com.mitas.ppnam.station2aa.domain.model.CaptureIntent
+import com.mitas.ppnam.station2aa.domain.usecase.RecoveryOutcome
+import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
+import com.mitas.ppnam.station2aa.domain.usecase.ReplacementOffer
 import com.mitas.ppnam.station2aa.domain.usecase.toPrepSnapshot
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -84,5 +89,29 @@ class PreparationFormatTest {
         val lines = first.lines()
         assertEquals("1 Oct 2026 15:40 · operator 65cf… · Ingredient added", lines.first())
         assertEquals("Reviewed by 211c… on 1 Oct 2026 15:40", lines.last())
+    }
+
+    private val sentAt = RecoveryResult.Resolved(
+        PendingCommand(messageId = "m", action = "capture", targetId = "PREP_1", createdAtUtc = "2026-10-01T13:40:00Z"),
+        RecoveryOutcome.NotExecuted, "", Rev2Snapshot(),
+    )
+
+    @Test
+    fun `the replacement prompt names the code, quantity and SAST time`() {
+        assertEquals(
+            "Station 2 never received the scan of TAG-RESIN (10) at 1 Oct 2026 15:40. " +
+                "It has been cancelled and can never happen later. Record this bag now?",
+            ReplacementOffer.Capture(sentAt, "PREP_1", CaptureIntent("TAG-RESIN", BigDecimal("10.000"))).prompt(),
+        )
+        assertEquals(
+            "Station 2 never received the scan of TAG-RESIN (whole bag). " +
+                "It has been cancelled and can never happen later. Record this bag now?",
+            ReplacementOffer.Capture(null, "PREP_1", CaptureIntent("TAG-RESIN", null)).prompt(),
+        )
+        assertEquals(
+            "Station 2 never received the confirmation at 1 Oct 2026 15:40. " +
+                "It has been cancelled and can never happen later. Confirm collection now?",
+            ReplacementOffer.Confirm(sentAt, "PREP_1").prompt(),
+        )
     }
 }

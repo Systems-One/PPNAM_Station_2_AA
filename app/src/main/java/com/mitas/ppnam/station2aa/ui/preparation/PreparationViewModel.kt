@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mitas.ppnam.station2aa.UserTagPolicy
+import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.UnresolvedReason
@@ -23,7 +24,9 @@ import com.mitas.ppnam.station2aa.domain.usecase.CommandRecoveryUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.GeneralCollectionUseCase
 import com.mitas.ppnam.station2aa.domain.usecase.PendingCommandCoordinator
 import com.mitas.ppnam.station2aa.domain.usecase.ReadResult
+import com.mitas.ppnam.station2aa.domain.usecase.RecoveryOutcome
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
+import com.mitas.ppnam.station2aa.domain.usecase.ReplacementOffer
 import com.mitas.ppnam.station2aa.domain.usecase.toPrepSnapshot
 import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
 import com.mitas.ppnam.station2aa.ui.components.connectionStatusIn
@@ -54,6 +57,11 @@ data class PreparationUiState(
     /** Unresolved/ManagerReconcile outbox entries whose targetId is this PREP. */
     val blocking: List<PendingCommand> = emptyList(),
     val message: OutcomeMessage? = null,
+    /**
+     * A capture/confirm Station 2 never ran (spec §6), offered for an explicit replacement. Set
+     * only after a fresh read; accepting it sends a NEW command, guarded like a tap.
+     */
+    val offer: ReplacementOffer? = null,
 ) {
     val stage: PrepStage? get() = snapshot?.preparation?.stage
     val canScan: Boolean get() = stage == PrepStage.Collecting && !inFlight && blocking.isEmpty()
@@ -110,6 +118,15 @@ class PreparationViewModel @Inject constructor(
     @Volatile
     private var screenActive = false
 
+    /** While the part-bag sheet is open, a bus scan must not replace the picked material and quantity. */
+    @Volatile
+    private var partSheetOpen = false
+
+    /** Message ids already turned into an offer (or found to need none), so each is offered once. */
+    private val offered = mutableSetOf<String>()
+    /** Offers waiting behind the one on screen. */
+    private val queuedOffers = ArrayDeque<ReplacementOffer>()
+
     init {
         // Rule 2: blocking is the outbox's view of this PREP, never a read's.
         viewModelScope.launch {
@@ -137,10 +154,20 @@ class PreparationViewModel @Inject constructor(
                 read()
             }
         }
-        // Rule 9: scans reach this screen only while it is visible.
+        // Spec §6: a NotExecuted capture/confirm for this PREP becomes an offer, after a fresh read.
+        viewModelScope.launch {
+            coordinator.notices.collect { notices ->
+                notices.forEach { notice ->
+                    if (notice !is RecoveryResult.Resolved || notice.outcome != RecoveryOutcome.NotExecuted) return@forEach
+                    if (notice.command.targetId != prepId) return@forEach
+                    offerAfterRead(notice.command.messageId, ReplacementOffer.from(notice))
+                }
+            }
+        }
+        // Rule 9: scans reach this screen only while it is visible (and not while the part sheet is open).
         viewModelScope.launch {
             scanEventBus.events.collect { event ->
-                if (!screenActive) return@collect
+                if (!screenActive || partSheetOpen) return@collect
                 onScan(
                     when (event) {
                         is ScanEvent.Barcode -> event.value
@@ -157,6 +184,11 @@ class PreparationViewModel @Inject constructor(
     /** Called by the PREP screen as it becomes visible or hidden, so scans only act on that screen. */
     fun setScreenActive(active: Boolean) {
         screenActive = active
+    }
+
+    /** Called by the PREP screen as the part-bag sheet opens or closes. */
+    fun setPartSheetOpen(open: Boolean) {
+        partSheetOpen = open
     }
 
     fun refresh() = read()
@@ -231,8 +263,54 @@ class PreparationViewModel @Inject constructor(
     /** Republishes [command]'s identical saved bytes — never a new request for the same intent. */
     fun retry(command: PendingCommand) {
         if (!retrying.add(command.messageId)) return
-        mutate(fromCapture = false, part = null, onFinally = { retrying.remove(command.messageId) }) {
+        mutate(
+            fromCapture = false, part = null, retried = command, onFinally = { retrying.remove(command.messageId) },
+        ) {
             useCase.retry(command)
+        }
+    }
+
+    /**
+     * Review Focus 6: the operator tapped [Record bag] / [Confirm collection] on the offer. Sends a
+     * NEW capture/confirm (a new message id) — never a retry of the sealed one — through the same
+     * guards as a deliberate tap. Blocked: nothing is sent and the offer stays.
+     */
+    fun acceptOffer() {
+        val state = _uiState.value
+        val offer = state.offer ?: return
+        if (offer.prepId != prepId) return
+        when (offer) {
+            is ReplacementOffer.Capture ->
+                if (state.inFlight || !state.canScan) return show(OutcomeMessage.Info(whyNoScan(state)))
+            is ReplacementOffer.Confirm ->
+                if (state.inFlight || !state.canConfirm) return show(OutcomeMessage.Info(whyNoConfirm(state)))
+        }
+        closeOffer(offer)
+        when (offer) {
+            is ReplacementOffer.Capture -> mutate(fromCapture = false, part = null) {
+                useCase.capture(prepId, offer.intent.code, offer.intent.quantity)
+            }
+            is ReplacementOffer.Confirm -> mutate(fromCapture = false, part = null) { useCase.confirm(prepId) }
+        }
+    }
+
+    /** [Don't record]: dismiss the notice; nothing is sent. */
+    fun declineOffer() {
+        val offer = _uiState.value.offer ?: return
+        closeOffer(offer)
+    }
+
+    private fun closeOffer(offer: ReplacementOffer) {
+        offer.notice?.let(coordinator::dismiss)
+        _uiState.update { it.copy(offer = queuedOffers.removeFirstOrNull()) }
+    }
+
+    /** Reads the PREP, then (once the read has finished) shows [offer] — at most once per [messageId]. */
+    private fun offerAfterRead(messageId: String, offer: ReplacementOffer?) {
+        if (!offered.add(messageId)) return
+        if (offer == null || offer.prepId != prepId) return
+        read {
+            if (_uiState.value.offer == null) _uiState.update { it.copy(offer = offer) } else queuedOffers.addLast(offer)
         }
     }
 
@@ -254,7 +332,8 @@ class PreparationViewModel @Inject constructor(
             .forEach(::retry)
     }
 
-    private fun read() {
+    /** [then] runs once the read has finished (applied, failed, or stale) — never on cancellation. */
+    private fun read(then: (() -> Unit)? = null) {
         val seq = ++issued
         readsInFlight++
         _uiState.update { it.copy(loading = true) }
@@ -270,20 +349,27 @@ class PreparationViewModel @Inject constructor(
                         _uiState.update { it.copy(snapshot = fresh ?: it.snapshot, readError = result.message) }
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                show(OutcomeMessage.Info("Could not read this preparation: ${e.message}"))
             } finally {
                 readsInFlight--
                 _uiState.update { it.copy(loading = readsInFlight > 0) }
             }
+            then?.invoke()
         }
     }
 
     /**
      * Runs one mutation. [part] is the part bag being recorded (for the wrong-row warning);
-     * [fromCapture] keeps the staged pallet ready for its next bag.
+     * [fromCapture] keeps the staged pallet ready for its next bag; [retried] is the command being
+     * republished, if any (a `receipt_sealed` reply to it becomes a replacement offer).
      */
     private fun mutate(
         fromCapture: Boolean,
         part: Staged.PartBag?,
+        retried: PendingCommand? = null,
         onFinally: () -> Unit = {},
         call: suspend () -> CollectionResult,
     ) {
@@ -293,7 +379,12 @@ class PreparationViewModel @Inject constructor(
         _uiState.update { it.copy(inFlight = true) }
         viewModelScope.launch {
             try {
-                handle(seq, call(), before, part, fromCapture)
+                handle(seq, call(), before, part, fromCapture, retried)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                show(OutcomeMessage.Info("Something went wrong sending this: ${e.message}. Check the preparation before trying again."))
+                read()
             } finally {
                 mutationsInFlight--
                 onFinally()
@@ -308,6 +399,7 @@ class PreparationViewModel @Inject constructor(
         before: PrepSnapshot?,
         part: Staged.PartBag?,
         fromCapture: Boolean,
+        retried: PendingCommand?,
     ) {
         when (result) {
             is CollectionResult.Done -> {
@@ -321,7 +413,6 @@ class PreparationViewModel @Inject constructor(
                     )
                 }
             }
-            // receipt_sealed lands here too; Task 10 replaces it with a replacement offer.
             is CollectionResult.Rejected -> {
                 val fresh = takeIfNewer(seq, result.snapshot)
                 _uiState.update { s ->
@@ -329,6 +420,10 @@ class PreparationViewModel @Inject constructor(
                         snapshot = fresh ?: s.snapshot,
                         message = OutcomeMessage.Rejected(result.message, result.snapshot?.commandExceptions.orEmpty()),
                     )
+                }
+                // Spec §6/§7: a retry answered receipt_sealed never ran and never will. Re-read, then offer.
+                if (result.error == ErrorCode.RECEIPT_SEALED && retried != null) {
+                    offerAfterRead(retried.messageId, ReplacementOffer.fromSealed(retried))
                 }
             }
             // No local change: the outbox now holds the command, and blocking follows from it.
@@ -341,7 +436,7 @@ class PreparationViewModel @Inject constructor(
         }
     }
 
-    /** message_id_conflict: ask Station 2 at once what became of the command (Task 10 adds the offer). */
+    /** message_id_conflict: ask Station 2 at once what became of the command; NotExecuted becomes an offer. */
     private suspend fun recoverNow(command: PendingCommand) {
         val seq = ++issued
         val result = try {
@@ -354,6 +449,9 @@ class PreparationViewModel @Inject constructor(
         val fresh = (result as? RecoveryResult.Resolved)?.let { takeIfNewer(seq, it.snapshot.toPrepSnapshot()) }
         _uiState.update { s ->
             s.copy(snapshot = fresh ?: s.snapshot, message = OutcomeMessage.Info(result.noticeText(mqttRepository.deviceId)))
+        }
+        if (result is RecoveryResult.Resolved && result.outcome == RecoveryOutcome.NotExecuted) {
+            offerAfterRead(command.messageId, ReplacementOffer.from(result))
         }
     }
 
@@ -375,6 +473,13 @@ class PreparationViewModel @Inject constructor(
         else -> "This preparation is not collecting (${state.snapshot?.preparation?.stageRaw})"
     }
 
+    private fun whyNoConfirm(state: PreparationUiState): String = when {
+        state.inFlight -> "Wait — Station 2 is still answering"
+        state.blocking.isNotEmpty() -> "Resolve the unanswered command first"
+        state.stage == null -> "This preparation hasn't loaded yet"
+        else -> "Station 2 is not waiting for confirmation (${state.snapshot?.preparation?.stageRaw})"
+    }
+
     companion object {
         const val PREP_ID_ARG = "prepId"
         const val BADGE_MESSAGE = "That is a user badge, not a pallet"
@@ -382,7 +487,9 @@ class PreparationViewModel @Inject constructor(
 
         /** "Recorded 10 kg Resin — 30 kg to go", from the row whose collected grew. */
         internal fun doneMessage(before: PrepSnapshot?, after: PrepSnapshot, part: Staged.PartBag?): OutcomeMessage {
-            val old = before?.preparation?.materials.orEmpty().associateBy { it.code }
+            // Nothing read yet (an open-time retry): a diff would report the row's whole total.
+            val beforePrep = before?.preparation ?: return OutcomeMessage.Info(after.resultMessage)
+            val old = beforePrep.materials.associateBy { it.code }
             val row = after.preparation?.materials?.firstOrNull {
                 it.collected > (old[it.code]?.collected ?: BigDecimal.ZERO)
             } ?: return OutcomeMessage.Info(after.resultMessage)
