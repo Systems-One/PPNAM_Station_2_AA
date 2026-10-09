@@ -27,6 +27,8 @@ import com.mitas.ppnam.station2aa.ui.home.HomeScreen
 import com.mitas.ppnam.station2aa.ui.joblookup.JobDetailScreen
 import com.mitas.ppnam.station2aa.ui.joblookup.JobLookupScreen
 import com.mitas.ppnam.station2aa.ui.joblookup.JobLookupViewModel
+import com.mitas.ppnam.station2aa.ui.preparation.PreparationScreen
+import com.mitas.ppnam.station2aa.ui.preparation.PreparationViewModel
 import com.mitas.ppnam.station2aa.ui.preparation.PrepareScreen
 import com.mitas.ppnam.station2aa.ui.preparation.PrepareViewModel
 import com.mitas.ppnam.station2aa.ui.session.SessionWatcher
@@ -109,6 +111,7 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                 val parentEntry = remember(backStackEntry) { navController.getBackStackEntry(NavRoutes.JOBS) }
                 JobLookupScreen(
                     onJobFound = { jobCard -> navController.navigate(NavRoutes.jobDetail(jobCard)) },
+                    onOpenPrep = { prepId -> navController.navigate(NavRoutes.prep(prepId)) },
                     onSettings = { navController.navigate(NavRoutes.SETTINGS) },
                     onBack = { navController.popBackStack() },
                     viewModel = hiltViewModel<JobLookupViewModel>(parentEntry),
@@ -138,8 +141,15 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                     viewModel = hiltViewModel<PrepareViewModel>(),
                 )
             }
-            // Placeholder: Task 9 replaces this with the PREP screen.
-            composable(NavRoutes.PREP) { }
+            composable(NavRoutes.PREP) { backStackEntry ->
+                val prepId = backStackEntry.arguments?.getString("prepId") ?: return@composable
+                // Its own PreparationViewModel (scoped to this entry); it reads prepId from SavedStateHandle.
+                PreparationScreen(
+                    prepId = prepId,
+                    onBack = { navController.popBackStack() },
+                    viewModel = hiltViewModel<PreparationViewModel>(),
+                )
+            }
         }
     }
     UpgradeRequiredGate(onCloseApp = { hostActivity?.finishAffinity() })

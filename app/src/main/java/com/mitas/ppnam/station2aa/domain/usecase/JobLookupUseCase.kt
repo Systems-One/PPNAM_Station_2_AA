@@ -13,6 +13,9 @@ import javax.inject.Singleton
 sealed interface JobLookupResult {
     data class Loaded(val snapshot: JobLookupSnapshot) : JobLookupResult
 
+    /** The input was a `PREP_` id: open that preparation directly (GEN-06). Nothing was sent. */
+    data class OpenPreparation(val prepId: String) : JobLookupResult
+
     /** [snapshot] is set when Station 2 answered with one anyway (a `rev2_rejected` reply does). */
     data class Failed(
         val message: String,
@@ -48,6 +51,7 @@ class JobLookupUseCase @Inject constructor(
      */
     suspend fun lookup(rawJobCard: String): JobLookupResult {
         val jobCard = rawJobCard.trim()
+        if (jobCard.startsWith(PREP_ID_PREFIX)) return JobLookupResult.OpenPreparation(jobCard)
         // '0'..'9', not isDigit(): Station 2 accepts ASCII digits only, and isDigit() admits
         // full-width and other Unicode digits it would reject.
         if (jobCard.isEmpty() || !jobCard.all { it in '0'..'9' }) {
@@ -78,6 +82,7 @@ class JobLookupUseCase @Inject constructor(
     companion object {
         const val REQUEST_TYPE = "rev2_general_requested"
         const val RESPONSE_TYPE = "rev2_general_result"
+        const val PREP_ID_PREFIX = "PREP_"
         const val NOT_DIGITS_MESSAGE = "Scan or enter the production order number (digits only)"
         const val USER_BADGE_MESSAGE = "That is a user badge, not a job card. Use the login screen to sign in."
     }

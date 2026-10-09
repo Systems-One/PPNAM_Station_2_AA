@@ -70,6 +70,9 @@ class JobLookupViewModel @Inject constructor(
     private val _navigateToDetail = Channel<String>(Channel.BUFFERED)
     val navigateToDetail: Flow<String> = _navigateToDetail.receiveAsFlow()
 
+    private val _navigateToPrep = Channel<String>(Channel.BUFFERED)
+    val navigateToPrep: Flow<String> = _navigateToPrep.receiveAsFlow()
+
     /**
      * The job card Detail is showing, or null on the list. Drives what a push or reconnect re-reads,
      * and which detail reply may still land. Volatile: the push handler reads it on the MQTT thread.
@@ -151,6 +154,7 @@ class JobLookupViewModel @Inject constructor(
             when (val result = useCase.read()) {
                 is JobLookupResult.Loaded ->
                     _uiState.update { it.copy(jobs = result.snapshot.jobs, listLoading = false, listError = null) }
+                is JobLookupResult.OpenPreparation -> Unit
                 is JobLookupResult.Failed -> _uiState.update { state ->
                     state.copy(
                         jobs = result.snapshot?.jobs ?: state.jobs,
@@ -181,6 +185,10 @@ class JobLookupViewModel @Inject constructor(
                     }
                     freshFromLookup = detail.jobCard
                     _navigateToDetail.send(detail.jobCard)
+                }
+                is JobLookupResult.OpenPreparation -> {
+                    _uiState.update { it.copy(lookupInFlight = false) }
+                    _navigateToPrep.send(result.prepId)
                 }
                 is JobLookupResult.Failed -> _uiState.update { state ->
                     state.copy(
@@ -237,6 +245,8 @@ class JobLookupViewModel @Inject constructor(
                         it.copy(jobs = result.snapshot.jobs)
                     }
                 }
+                // read() never opens a preparation; only lookup() does.
+                is JobLookupResult.OpenPreparation -> Unit
                 is JobLookupResult.Failed -> _uiState.update {
                     when {
                         stillViewed -> it.copy(

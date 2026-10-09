@@ -149,6 +149,19 @@ class JobLookupUseCaseTest {
     }
 
     @Test
+    fun `a PREP id opens that preparation and sends nothing`() = runTest {
+        val result = useCase.lookup("  PREP_440fbd8f9cd3411e9be943a33f1a3ceb\n")
+        assertEquals(JobLookupResult.OpenPreparation("PREP_440fbd8f9cd3411e9be943a33f1a3ceb"), result)
+        verify(mqtt, never()).request(any(), any(), any(), any<Class<Any>>())
+    }
+
+    @Test
+    fun `a leading-space digit string with a letter still gives the digits error`() = runTest {
+        val result = useCase.lookup(" 12a") as JobLookupResult.Failed
+        assertEquals(JobLookupUseCase.NOT_DIGITS_MESSAGE, result.message)
+    }
+
+    @Test
     fun `lookup rejects a blank job card without sending anything`() = runTest {
         assertTrue(useCase.lookup("   ") is JobLookupResult.Failed)
         verify(mqtt, never()).request(any(), any(), any(), any<Class<Any>>())

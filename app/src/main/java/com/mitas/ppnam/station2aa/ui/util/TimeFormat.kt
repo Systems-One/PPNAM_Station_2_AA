@@ -67,3 +67,23 @@ fun formatElapsedSince(raw: String, now: Instant = Instant.now()): String? {
         else -> "${minutes / (60 * 24)} d ago"
     }
 }
+
+/** The plant's zone (contract section 2 and 6; spec Q6). One constant, so a different answer is a one-line change. */
+val STATION_ZONE: ZoneId = ZoneId.of("Africa/Johannesburg")
+
+private val STATION_DATE_TIME: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("d MMM yyyy HH:mm", java.util.Locale.ENGLISH)
+
+/**
+ * A Station 2 UTC timestamp as "1 Oct 2026 15:40" in [zone] (SAST by default), always with the date,
+ * unlike [formatStationTimestamp], which drops it for today. Unparseable input comes back as given.
+ */
+fun formatStationDateTime(raw: String, zone: ZoneId = STATION_ZONE): String {
+    if (raw.isBlank()) return ""
+    val instant = try {
+        Instant.parse(raw)
+    } catch (e: Exception) {
+        return raw
+    }
+    return instant.atZone(zone).format(STATION_DATE_TIME)
+}

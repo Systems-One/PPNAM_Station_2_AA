@@ -34,6 +34,7 @@ import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 @Composable
 fun JobLookupScreen(
     onJobFound: (jobCard: String) -> Unit,
+    onOpenPrep: (prepId: String) -> Unit,
     onSettings: () -> Unit,
     onBack: () -> Unit,
     viewModel: JobLookupViewModel,
@@ -72,6 +73,9 @@ fun JobLookupScreen(
     LaunchedEffect(Unit) {
         viewModel.navigateToDetail.collect { jobCard -> onJobFound(jobCard) }
     }
+    LaunchedEffect(Unit) {
+        viewModel.navigateToPrep.collect { prepId -> onOpenPrep(prepId) }
+    }
 
     AppScaffold(
         title = "Job Cards",
@@ -95,11 +99,11 @@ fun JobLookupScreen(
                 value = input,
                 // Digits only, capped: a 60-digit value was accepted and sent to the station
                 // (audit S2-13). SAP production order numbers are at most 12 digits.
-                onValueChange = { v -> if (v.length <= JOB_CARD_MAX_DIGITS && v.all { it in '0'..'9' }) input = v },
-                label = { Text("Production order number") },
-                supportingText = { Text("Scan the job card or type the number") },
+                onValueChange = { v -> if (acceptsLookupInput(v)) input = v },
+                label = { Text("Production order number or PREP id") },
+                supportingText = { Text("Scan the job card, or type the number or a PREP_ id") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Search),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { submit() }),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = BrandTint, focusedLabelColor = BrandTint, cursorColor = BrandTint,
@@ -202,4 +206,19 @@ private fun ErrorWithRetry(
         Spacer(Modifier.width(12.dp))
         if (showRetry) OutlinedButton(onClick = onRetry, enabled = enabled) { Text("Retry") }
     }
+}
+
+/** A PREP id is `PREP_` plus 32 hex characters; allow some slack. */
+private const val PREP_INPUT_MAX = 64
+private const val PREP_PREFIX = "PREP_"
+
+/**
+ * What the lookup field accepts: digits only (capped) for a job card, or - once the text is
+ * clearly a PREP id - letters, digits and underscores. Typing "P", "PR"... is allowed on the way.
+ */
+internal fun acceptsLookupInput(v: String): Boolean {
+    if (v.all { it in '0'..'9' }) return v.length <= JOB_CARD_MAX_DIGITS
+    val head = v.take(PREP_PREFIX.length)
+    if (!PREP_PREFIX.startsWith(head)) return false
+    return v.length <= PREP_INPUT_MAX && v.all { it in '0'..'9' || it in 'a'..'z' || it in 'A'..'Z' || it == '_' }
 }
