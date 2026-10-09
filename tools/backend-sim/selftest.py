@@ -20,6 +20,7 @@ import time
 import unicodedata
 import uuid
 from datetime import datetime, timezone
+from decimal import Decimal
 
 DEVICE = "scanner_selftest"
 CHECKS = {"passed": 0}
@@ -65,6 +66,7 @@ class Handheld:
             if m.topic == "PPNAM/station_2":
                 presence = m.payload.decode(errors="replace")
         self.client.unsubscribe("PPNAM/station_2")
+        self.pushes = []
         if presence != "online":
             print(f"no simulator is online on {host}:{port} (station presence: {presence or 'none'}).\n"
                   f"Start it on the same broker, e.g.:\n"
@@ -109,6 +111,8 @@ class Handheld:
             except queue.Empty:
                 break
             r = json.loads(m.payload)
+            if m.topic.endswith("/res/active_job_cards_invalidated"):
+                self.pushes.append(r)
             if r.get("inResponseToMessageId") == msg_id:
                 r["_topic"] = m.topic
                 r["_raw"] = m.payload.decode("utf-8")
@@ -192,6 +196,7 @@ class DirectHandheld(Handheld):
         self.rx = queue.Queue()
         self.sim.client = _FakeClient(self.rx)
         self.session = ""
+        self.pushes = []
         print(f"direct mode: simulator in-process, logs at {self.sim.log.run_dir}")
 
     def send_raw(self, suffix, text):
@@ -310,6 +315,166 @@ def receipts(hh):
     op = hh.scram_login("operator1", "pass")
     check(op and op["success"], "operator1 signs in again")
     hh.session = op["data"]["session"]["sessionId"]
+
+
+JOB = "510019068"
+ADDITIVE = "1500000331"                 # the catalog's exception code, on job 510019068's BOM
+# One usable pallet per included material of job 510019068.
+PALLET_FOR = {
+    "1500000326": "300833B2DDD9014000000009",   # PAL-009
+    "1600000301": PAL_001,                      # PAL-001
+    "1600000217": "300833B2DDD9014000000002",   # PAL-002 (no bag weight: the 25 kg default)
+    "1600000070": "300833B2DDD901400000000C",   # PAL-012
+    "1600000233": "300833B2DDD901400000000A",   # PAL-010
+    "1600000309": "300833B2DDD9014000000008",   # PAL-008
+}
+PAL_003_BLOCKED = "300833B2DDD9014000000003"
+PAL_007_ADDITIVE = "300833B2DDD9014000000007"
+
+
+def exact(r):
+    """The reply's data parsed with Decimal numbers, to check quantities exactly."""
+    return json.loads(r["_raw"], parse_float=Decimal)["data"]
+
+
+def row(data, code):
+    return next(m for m in data["preparation"]["materials"] if m["code"] == code)
+
+
+def collection(hh):
+    """Task 12: the exception catalog, Include/Exclude choices, prepare, capture and confirm."""
+    print("collection")
+    general = "rev2_general_requested"
+
+    r, _ = hh.request(general, {"action": "lookup", "jobCard": JOB})
+    check([c["code"] for c in r["data"]["requiredIngredientChoices"]] == [ADDITIVE],
+          "lookup lists the BOM's catalog code under requiredIngredientChoices",
+          r["data"]["requiredIngredientChoices"])
+    revision = r["data"]["exceptionListRevision"]
+    check(revision == 1 and r["data"]["ingredientExceptions"][0]["code"] == ADDITIVE,
+          "…with the catalog and its revision")
+    available = r["data"]["job"]["mixProgress"]["availableToPrepareMixes"]
+
+    r, _ = hh.request(general, {"action": "prepare", "targetId": JOB, "mixCount": 1,
+                                "exceptionListRevision": revision})
+    check(r and r["error"] == "rev2_rejected" and ADDITIVE in r["operatorMessage"],
+          "prepare without choices -> rev2_rejected naming the code", r and r["operatorMessage"])
+    choices = [{"code": ADDITIVE, "include": False}]
+    r, _ = hh.request(general, {"action": "prepare", "targetId": JOB, "mixCount": 1,
+                                "exceptionListRevision": revision + 1, "ingredientChoices": choices})
+    check(r and r["error"] == "rev2_rejected" and "changed" in r["operatorMessage"],
+          "prepare with a stale revision -> rev2_rejected", r and r["operatorMessage"])
+    r, _ = hh.request(general, {"action": "prepare", "targetId": JOB, "mixCount": 1, "includeTackifier": False,
+                                "exceptionListRevision": revision, "ingredientChoices": choices})
+    check(r and r["error"] == "rev2_rejected", "prepare with includeTackifier false -> rev2_rejected")
+    check(r["data"]["job"]["mixProgress"]["availableToPrepareMixes"] == available,
+          "…and no rejected prepare allocated anything")
+
+    hh.pushes.clear()
+    r, body = hh.request(general, {"action": "prepare", "targetId": JOB, "mixCount": 2,
+                                   "exceptionListRevision": revision, "ingredientChoices": choices,
+                                   "reason": "Without the additive"})
+    check(r and r["success"] and r["data"]["result"]["targetId"].startswith("PREP_"),
+          "prepare 2 excluding the additive succeeds", r and r["operatorMessage"])
+    prep_id = r["data"]["result"]["targetId"]
+    data = exact(r)
+    prep = data["preparation"]
+    check(prep["id"] == prep_id and prep["stage"] == "Collecting" and prep["collectionRevision"] == 0
+          and prep["startedBy"] == "OP-001" and prep["mixCount"] == 2,
+          "…the preparation is Collecting at revision 0, started by the operator")
+    additive = row(data, ADDITIVE)
+    check(additive["excluded"] and additive["required"] == 0
+          and additive["originalRequired"] == additive["perMix"] * 2,
+          "…the excluded row keeps its original quantity at required 0", additive)
+    resin = row(data, "1600000301")
+    check(resin["required"] == resin["originalRequired"] == resin["perMix"] * 2 and not resin["excluded"],
+          "…included rows are perMix x N exactly", resin)
+    omitted = [e for e in data["commandExceptions"] if e["kind"] == "Ingredient omitted"]
+    check(len(omitted) == 1 and omitted[0]["messageId"] == body["messageId"]
+          and omitted[0]["batchId"] == prep_id and omitted[0]["operatorId"] == "OP-001"
+          and omitted[0]["reason"] == "Without the additive" and ADDITIVE in omitted[0]["details"],
+          "…an Ingredient omitted exception is recorded for the command", data["commandExceptions"])
+    check(data["requiredIngredientChoices"] == [], "…a selected preparation needs no choices")
+    check(data["job"]["mixProgress"]["availableToPrepareMixes"] == available - 2,
+          "…available to prepare drops by 2", data["job"]["mixProgress"]["availableToPrepareMixes"])
+    check([p["reason"] for p in hh.pushes] == ["preparation_created"],
+          "…and a preparation_created hint is pushed", [p["reason"] for p in hh.pushes])
+    r, _ = hh.request(general, {"action": "prepare", "targetId": JOB, "mixCount": available - 1,
+                                "exceptionListRevision": revision, "ingredientChoices": choices})
+    check(r and r["error"] == "rev2_rejected" and str(available - 2) in r["operatorMessage"],
+          "a second prepare above available -> rev2_rejected", r and r["operatorMessage"])
+
+    def capture(code, quantity=None, target=None):
+        fields = {"action": "capture", "targetId": target or prep_id, "code": code}
+        if quantity is not None:
+            fields["quantity"] = quantity
+        reply, _ = hh.request(general, fields)
+        return reply
+
+    r = capture(PAL_001)
+    check(r and r["success"] and row(exact(r), "1600000301")["collected"] == 25,
+          "capture a whole bag of PAL-001 collects 25", r and r["operatorMessage"])
+    check(exact(r)["preparation"]["collectionRevision"] == 1, "…and increments collectionRevision")
+    active = {a["id"]: a for a in r["data"]["job"]["mixProgress"]["activePreparations"]}
+    check(active[prep_id]["collectionRevision"] == 1,
+          "…mixProgress carries the preparation's collectionRevision", active[prep_id])
+    r = capture(PAL_001, 0.5)
+    check(r and r["success"] and row(exact(r), "1600000301")["collected"] == Decimal("25.5")
+          and row(exact(r), "1600000301")["remaining"] == row(exact(r), "1600000301")["required"] - Decimal("25.5"),
+          "a part bag of 0.5 is exact", r and row(exact(r), "1600000301"))
+    check(re.search(r"[:,\[]\s*-?[0-9]+(\.[0-9]+)?[eE]", r["_raw"]) is None, "…and every number is written without an exponent")
+
+    hh.pushes.clear()
+    r = capture(PALLET_FOR["1500000326"], 20)
+    check(r and r["error"] == "rev2_rejected", "a part bag above the remaining target -> rev2_rejected")
+    rejected = [e for e in r["data"]["commandExceptions"] if e["kind"] == "Rejected collection action"]
+    check(len(rejected) == 1 and rejected[0]["batchId"] == prep_id,
+          "…its exception appears in commandExceptions", r["data"]["commandExceptions"])
+    check(any(e["id"] == rejected[0]["id"] for e in r["data"]["collectionExceptions"]),
+          "…and in the preparation's collectionExceptions")
+    check([p["reason"] for p in hh.pushes] == ["collection_exception_recorded"],
+          "…with a collection_exception_recorded hint", [p["reason"] for p in hh.pushes])
+    r = capture(PAL_003_BLOCKED)
+    check(r and r["error"] == "rev2_rejected" and "Holding or Mixing" in r["operatorMessage"],
+          "a blocked pallet (PAL-003) -> rev2_rejected", r and r["operatorMessage"])
+    r = capture(PAL_007_ADDITIVE)
+    check(r and r["error"] == "rev2_rejected" and "not outstanding" in r["operatorMessage"],
+          "an excluded material's pallet (PAL-007) -> rev2_rejected", r and r["operatorMessage"])
+
+    r, _ = hh.request(general, {"action": "confirm", "targetId": prep_id})
+    check(r and r["error"] == "rev2_rejected"
+          and any(e["kind"] == "Rejected collection action" for e in r["data"]["commandExceptions"]),
+          "confirm before everything is collected -> rev2_rejected, recorded")
+
+    hh.pushes.clear()
+    data = exact(r)
+    for _ in range(200):
+        todo = [m for m in data["preparation"]["materials"] if not m["excluded"] and m["remaining"] > 0]
+        if not todo:
+            break
+        m = todo[0]
+        r = capture(PALLET_FOR[m["code"]], None if m["remaining"] >= 25 else float(m["remaining"]))
+        check(r and r["success"], f"capture {m['code']} toward completion", r and r["operatorMessage"])
+        data = exact(r)
+    check(data["preparation"]["stage"] == "AwaitingConfirmation",
+          "capture to completion -> AwaitingConfirmation", data["preparation"]["stage"])
+    check(all(m["remaining"] == 0 for m in data["preparation"]["materials"]), "…with nothing remaining")
+    check(set(p["reason"] for p in hh.pushes) == {"capture"}, "…each capture pushed a capture hint")
+    progress = data["job"]["mixProgress"]
+    check(progress["collectedMixes"] == 2, "…collectedMixes counts the complete preparation",
+          progress["collectedMixes"])
+
+    r, _ = hh.request(general, {"action": "confirm", "targetId": prep_id})
+    check(r and r["success"] and r["data"]["preparation"]["stage"] == "ReadyForMixer"
+          and r["data"]["preparation"]["confirmedAtUtc"], "confirm -> ReadyForMixer",
+          r and r["operatorMessage"])
+    progress = r["data"]["job"]["mixProgress"]
+    check(progress["confirmedMixes"] == 2 and progress["collectedMixes"] == 2,
+          "…confirmedMixes and collectedMixes are updated", progress)
+
+    r, _ = hh.request(general, {"action": "read", "targetId": PREP})
+    check(r and r["success"] and len(r["data"]["preparation"]["materials"]) == 7,
+          "read PREP_demo0001 has materials", r and r["data"]["preparation"])
 
 
 def main():
@@ -440,6 +605,7 @@ def main():
         del hh.sim.world.rev2_preparations["PREP_cancelled"]
 
     receipts(hh)
+    collection(hh)
 
     print("push")
     hh.invalidate()

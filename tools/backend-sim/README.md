@@ -2,7 +2,8 @@
 
 Mimics the Station 2 WPF backend over MQTT so the Android app can be tested
 end-to-end without the real backend. It speaks **rev2.1** (schema `rev2.1`): SCRAM
-login plus the General `read` and `lookup` actions. Every message, validation step,
+login plus the General `read`, `lookup`, `recover`, `prepare`, `capture` and
+`confirm` actions. Every message, validation step,
 business decision, and state change is logged, so when the app misbehaves the logs
 are a second source of truth for diagnosis.
 
@@ -55,9 +56,27 @@ State is in-memory only; restarting gives a fresh, repeatable world.
   Login is SCRAM-SHA-256 only (`scram_start_requested` / `scram_proof_requested`,
   purpose `login`); any `password` field is rejected.
 - **Jobs:** SAP orders `510019068` and `510018531`, loaded from real SAP sample
-  dumps. Job `510019068` is held at start with preparation `PREP_demo0001`
-  (`--no-demo-collections` starts clean). `510018531` is a closed order, so a
-  lookup of it is rejected (`rev2_rejected`).
+  dumps. Job `510019068` (8 mixes) is held at start with preparation
+  `PREP_demo0001` (2 mixes, `Collecting`, real effective rows, so a resume can
+  collect against it; `--no-demo-collections` starts clean). `510018531` is a
+  closed order, so a lookup of it is rejected (`rev2_rejected`).
+- **Ingredient-exception catalog** (`ingredientExceptions` in `seed/seed.json`):
+  revision `1`, one code `1500000331` ("Additive (example exception)"). It is on
+  job `510019068`'s BOM, so a lookup or a JC read lists it under
+  `requiredIngredientChoices` and `prepare` needs an explicit choice for it.
+- **Pallets for job `510019068`'s BOM** (scan the RFID tag or the pallet id):
+
+  | Material | Pallet | RFID tag | Notes |
+  | --- | --- | --- | --- |
+  | `1500000326` | PAL-009 | `300833B2DDD9014000000009` | 25 kg bags |
+  | `1600000301` | PAL-001 | `300833B2DDD9014000000001` | 25 kg bags |
+  | `1600000217` | PAL-002 | `300833B2DDD9014000000002` | no bag weight: the 25 kg default |
+  | `1600000070` | PAL-012 | `300833B2DDD901400000000C` | 25 kg bags |
+  | `1600000070` | PAL-003 | `300833B2DDD9014000000003` | **blocked**: capture rejects |
+  | `1600000233` | PAL-010 | `300833B2DDD901400000000A` | 25 kg bags |
+  | `1600000309` | PAL-008 | `300833B2DDD9014000000008` | 25 kg bags |
+  | `1500000331` | PAL-011 / PAL-007 | `...000B` / `...0007` | the catalog code; rejects when excluded |
+  | `1600000233` | PAL-004 | `300833B2DDD9014000000004` | at Station 1: capture rejects |
 - Device ids are **auto-registered** on first sight (the app's `ANDROID_ID`
   can't be known ahead of time); the simulator logs a warning each time.
 
@@ -66,8 +85,8 @@ State is in-memory only; restarting gives a fresh, repeatable world.
 Exactly five request suffixes are accepted: `scram_start_requested`,
 `scram_proof_requested`, `operator_list_requested` (pre-login, bare envelope;
 answers `operator_list` with the seeded SCRAM users under `data.operators`),
-`rev2_general_requested` (`read`, `lookup`, `recover`, `capture`; other actions
-answer `action_not_allowed`) and `rev2_rajoo_requested` (always `action_not_allowed`).
+`rev2_general_requested` (`read`, `lookup`, `recover`, `prepare`, `capture`,
+`confirm`; other actions answer `action_not_allowed`) and `rev2_rajoo_requested` (always `action_not_allowed`).
 Anything else answers `client_upgrade_required` on `res/rev2_general_result`.
 Replies carry the body under `data`.
 
@@ -90,6 +109,31 @@ succeeded or was rejected:
   characters `invalid_envelope`.
 
 Quantities are exact decimals and go on the wire as plain JSON numbers.
+
+### Collection (contract §4, §6, §7)
+
+- `prepare` — `targetId` JC, integer `mixCount` (1 to the job's available mixes),
+  `exceptionListRevision` and one `ingredientChoices` entry per
+  `requiredIngredientChoices` code (`{"code","include"}`), optional `reason`.
+  Missing, duplicate or unknown choices, a stale revision, `includeTackifier:false`
+  or an all-excluded recipe reject. Effective rows are `perMix x mixCount`; an
+  excluded row keeps `originalRequired` at `required:0` and records an
+  `Ingredient omitted` exception. The new `PREP_...` starts `Collecting` at
+  `collectionRevision 0`.
+- `capture` — `targetId` PREP, `code` pallet tag or id, optional `quantity`
+  (omitted or 0 = one full bag). The pallet must be Holding/Mixing and unblocked,
+  its material an included row with something remaining, the unit equal; the
+  quantity at most a bag, the pallet stock and the remaining target. Each capture
+  deducts the pallet, adds to `collected` and bumps `collectionRevision`; when
+  nothing remains the stage becomes `AwaitingConfirmation`.
+- `confirm` — `targetId` PREP in `AwaitingConfirmation` -> `ReadyForMixer`.
+- A rejected `capture`/`confirm` against a loaded collection records a
+  `Rejected collection action` exception. `data.collectionExceptions` holds the
+  selected scope's records and `data.commandExceptions` the ones this command (or
+  the recovered original) created.
+- Each successful or exception-recording mutation pushes
+  `active_job_cards_invalidated` with reason `preparation_created`, `capture`,
+  `confirm` or `collection_exception_recorded`. A replay pushes nothing.
 
 ## Control frames (`PPNAM/_sim/control`)
 
@@ -126,5 +170,5 @@ broker (it used to fail its first check instead).
 
 - No TLS / broker auth, no persistence across restarts, no SAP posting,
   no fixed-door-reader TCP.
-- No `prepare`/`confirm`/`adjust_ingredient`/machine actions yet; one-mix quantities are an approximation of the
-  server's ProductTree arithmetic.
+- No `adjust_ingredient` or machine actions yet; one-mix quantities are an
+  approximation of the server's ProductTree arithmetic.

@@ -166,8 +166,8 @@ class Simulator:
                     f"inResponseTo={response.get('inResponseToMessageId')!r}")
         return topic
 
-    def publish_invalidations(self):
-        """The server's PreparationsChanged push, to every device that has read General."""
+    def publish_invalidations(self, reason="preparation_created"):
+        """The server's WorkspaceChanged push, to every device that has read General."""
         for device_id in sorted(self.world.general_readers):
             self.publish_response(device_id, "active_job_cards_invalidated", {
                 "schemaVersion": envelope.SCHEMA_VERSION,
@@ -175,7 +175,7 @@ class Simulator:
                 "messageId": f"rev2-preparations-{os.urandom(16).hex()}",
                 "timestampUtc": iso(utc_now()),
                 "mode": "General",
-                "reason": "preparation_created",
+                "reason": reason,
                 "nextAction": "read",
             })
 
@@ -323,8 +323,11 @@ class Simulator:
         if not session:
             self.log.fail(f"session: {err}")
             raise Rejection("operator_session_invalid", "Sign in on this device before continuing.")
-        result, snap = rev2_general.handle(self.world, self.log, req, action, request_type,
-                                           payload, session["operatorId"])
+        result, snap, hint = rev2_general.handle(self.world, self.log, req, action, request_type,
+                                                 payload, session["operatorId"])
+        if hint:
+            # After the durable change and before the reply, as the server's WorkspaceChanged.
+            self.publish_invalidations(hint)
         error = result.get("errorCode") or ("" if result["success"] else "rev2_rejected")
         next_action = ("review_recovered_outcome" if action == "recover" and result["success"]
                        else None)

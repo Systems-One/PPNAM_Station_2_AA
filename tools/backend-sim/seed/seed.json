@@ -81,6 +81,12 @@
     { "machineCode": "RAJ-GM-03", "displayName": "Rajoo Gravimetric Mixer Layer 3", "mixingArea": "RajooMachineMixing", "equipmentRole": "Mixer", "productLayer": 3, "validDestinationMachineCodes": ["RAJ-EXT-01"], "routeDescription": "Feeds Layer 3 of the Rajoo extruder." },
     { "machineCode": "RAJ-EXT-01", "displayName": "Rajoo 3-Layer Extruder", "mixingArea": "RajooMachineMixing", "equipmentRole": "ProductionMachine" }
   ],
+  "ingredientExceptions": {
+    "revision": 1,
+    "products": [
+      { "code": "1500000331", "description": "Additive (example exception)", "note": "" }
+    ]
+  },
   "materials": {
     "1600000217": { "bulk": true },
     "22306":      { "bulk": true }

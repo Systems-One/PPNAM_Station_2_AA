@@ -50,6 +50,8 @@ class World:
         self.config = seed["config"]
         self.operators = seed["operators"]
         self.materials = seed.get("materials", {})
+        # The Settings ingredient-exception catalog (contract §7): {"revision", "products"}.
+        self.ingredient_exceptions = seed["ingredientExceptions"]
 
         self.equipment = {}
         for e in seed["equipment"]:
@@ -112,6 +114,7 @@ class World:
         # (device, reqType, messageId) -> {"hash", "result", "operatorId", "sealed"}: durable
         # business receipts for prepare/capture/confirm and recovery seals (contract §9).
         self.rev2_receipts = {}
+        self.rev2_exceptions = []     # operator collection-exception records (contract §6)
         self.auth_replies = {}        # (device, suffix, messageId) -> {"body", "data", "expires"}
         # 4.1 cross-area mixer plans. Keyed by collectionId; saved in Station 2 (WPF), never by
         # the handheld — the simulator seeds/creates them the same way.
