@@ -1,21 +1,43 @@
-"""rev2_general_requested -> rev2_general_result, for the job-lookup slice: `read` and `lookup`.
+"""rev2_general_requested -> rev2_general_result: `read`, `lookup`, `recover`, `prepare`,
+`capture` and `confirm`.
 
 Mirrors Rev2ScannerProcessor.ProcessAsync: every reply's data is the full snapshot, with the
-command's own result under `result`. The other five General actions exist in the contract but are
-outside this slice, so they answer action_not_allowed with a message saying so.
+command's own result under `result`. The General actions outside this slice answer
+action_not_allowed with a message saying so.
+
+Mutations go through durable receipts keyed (device, request type, message id), as in
+Rev2MixingService.Mutate: an identical replay returns the saved result with a fresh snapshot and
+never executes again; a changed body under the same id is message_id_conflict. `recover` (from
+Rev2MixingService.Recovery) reports a saved receipt's outcome, or seals an absent one so a delayed
+original can never execute.
+
+`prepare` validates the per-code Include/Exclude choices against the Settings ingredient-exception
+catalog (IngredientExceptionRules) and freezes effective rows; an excluded row keeps its original
+quantity at required 0 and records an "Ingredient omitted" exception. A rejected capture or confirm
+against a loaded collection records a "Rejected collection action" exception. Every successful or
+exception-recording mutation pushes active_job_cards_invalidated with the action's reason.
+
+Quantities on preparation rows and pallets are Decimal, so a captured fraction stays exact; the
+envelope encoder writes them as plain JSON numbers.
 
 Simulator approximation: the real server builds one-mix quantities from the SAP ProductTree. The
 simulator divides each im_Manual line's planned quantity by a mix count derived from
 config.rev2OutputPerMix. The shape is exact; the arithmetic is illustrative.
 """
 
+import hashlib
 import re
+import uuid
+from decimal import Decimal
 
 from envelope import Rejection
 from state import iso, utc_now
 
-ACTIONS = ("lookup", "read", "prepare", "capture", "confirm", "machine_start", "machine_finish")
-SLICE_ACTIONS = ("lookup", "read")
+ACTIONS = ("lookup", "read", "recover", "prepare", "capture", "confirm", "machine_start",
+           "machine_finish")
+SLICE_ACTIONS = ("lookup", "read", "recover", "prepare", "capture", "confirm")
+MUTATIONS = ("prepare", "capture", "confirm")
+HEX64 = re.compile(r"^[0-9A-Fa-f]{64}$")
 OPEN_STATUSES = ("boposPlanned", "boposReleased")
 DIGITS = re.compile(r"^[0-9]+$")
 UNITS = {"269": "kg", "268": "each"}
@@ -30,26 +52,307 @@ def check_action(req):
         raise Rejection("action_not_allowed", "Action is not part of this process mode.")
     if action not in SLICE_ACTIONS:
         raise Rejection("action_not_allowed",
-                        "The simulator implements only read and lookup; '%s' is outside the "
-                        "job-lookup slice." % action)
+                        "The simulator implements only %s; '%s' is outside its slice."
+                        % (", ".join(SLICE_ACTIONS), action))
     return action
 
 
-def handle(world, log, req, action):
-    """Return (result, snapshot). result["success"] decides success/rev2_rejected."""
+def handle(world, log, req, action, request_type, raw, operator_id):
+    """Return (result, snapshot, hint_reason).
+
+    result["errorCode"], else result["success"], decides `error`. hint_reason is the
+    active_job_cards_invalidated reason to push, or None (reads, replays, plain rejections).
+    """
     world.general_readers.add(req["deviceId"])
+    recovery, hint = None, None
     if action == "lookup":
         result = lookup(world, log, str(req.get("jobCard") or ""))
+    elif action == "recover":
+        result, recovery = recover(world, log, req, request_type, operator_id)
+    elif action in MUTATIONS:
+        result, hint = mutate(world, log, req, action, request_type, raw, operator_id)
     else:
         result = {"success": True, "message": "Current progress.",
                   "targetId": req.get("targetId") or None, "cycleId": None}
-    snap = snapshot(world, result.get("targetId") or req.get("targetId") or None)
+    command_id = recovery["originalMessageId"] if recovery else req["messageId"]
+    snap = snapshot(world, result.get("targetId") or req.get("targetId") or None,
+                    req["deviceId"], command_id)
     snap["result"] = result
-    return result, snap
+    snap["recovery"] = recovery
+    return result, snap, hint
 
 
-def _fail(message):
-    return {"success": False, "message": message, "targetId": None, "cycleId": None}
+def _fail(message, error_code=None):
+    result = {"success": False, "message": message, "targetId": None, "cycleId": None}
+    if error_code:
+        # Rev2Result.ErrorCode is omitted from the wire when null.
+        result["errorCode"] = error_code
+    return result
+
+
+def _dec(value):
+    """Exact decimal from a seed/JSON number: Decimal(str(x)), so 0.1 stays 0.1."""
+    return value if isinstance(value, Decimal) else Decimal(str(value))
+
+
+def _remaining(row):
+    return max(Decimal(0), _dec(row["required"]) - _dec(row["collected"]))
+
+
+# ---- receipts (Rev2MixingService.Mutate / Recovery) ----------------------------------------------
+
+def mutate(world, log, req, action, request_type, raw, operator_id):
+    """Return (result, hint_reason). A replay or conflict executes nothing and pushes nothing."""
+    key = (req["deviceId"], request_type, req["messageId"])
+    body_hash = hashlib.sha256(raw).hexdigest().upper()
+    prior = world.rev2_receipts.get(key)
+    if prior is not None:
+        if prior["sealed"] and prior["hash"] == body_hash:
+            log.warn("%s %s: identity sealed by recovery -> receipt_sealed" % (action, key[2]))
+            return prior["result"], None
+        if prior["hash"] == body_hash:
+            log.step("%s %s: identical replay, saved result returned, nothing executed"
+                     % (action, key[2]))
+            return prior["result"], None
+        log.fail("%s %s: same message id, different body" % (action, key[2]))
+        return _fail("This message ID was already used with a different body.",
+                     "message_id_conflict"), None
+    exception_count = len(world.rev2_exceptions)
+    result = EXECUTORS[action](world, log, req, operator_id)
+    if not result["success"] and action in ("capture", "confirm"):
+        # Mutate: a rejected capture/confirm against a loaded collection is an operator event.
+        target = req.get("targetId") or ""
+        batch = world.rev2_preparations.get(target)
+        job = world.rev2_jobs.get(batch["jobId"] if batch else target)
+        if job is not None:
+            quantity = req.get("quantity")
+            record_exception(world, req, operator_id, job, batch, "Rejected collection action",
+                             "%s: %s Source: %s. Quantity: %s."
+                             % (action, result["message"], req.get("code") or "",
+                                0 if quantity is None else quantity))
+    world.rev2_receipts[key] = {"hash": body_hash, "result": result, "operatorId": operator_id,
+                                "sealed": False}
+    if result["success"]:
+        hint = "preparation_created" if action == "prepare" else action
+    elif len(world.rev2_exceptions) != exception_count:
+        hint = "collection_exception_recorded"
+    else:
+        hint = None
+    return result, hint
+
+
+def record_exception(world, req, operator_id, job, batch, kind, details):
+    """Rev2MixingService.RecordCollectionException: the contract §6 exception DTO."""
+    record = {
+        "id": uuid.uuid4().hex, "timestampUtc": iso(utc_now()), "operatorId": operator_id,
+        "device": req["deviceId"], "jobId": job["id"], "batchId": batch["id"] if batch else None,
+        "sessionId": job.get("activeSessionId"), "kind": kind, "details": details,
+        "reason": (req.get("reason") or "").strip() if isinstance(req.get("reason"), str) else "",
+        "beforeJson": "", "afterJson": "", "messageId": req["messageId"],
+        "reviewedAtUtc": None, "reviewedBy": None, "reviewReason": None,
+    }
+    world.rev2_exceptions.append(record)
+    return record
+
+
+def recover(world, log, req, request_type, operator_id):
+    """Return (result, recovery). recovery is None unless the lookup or seal succeeded."""
+    original_id = req.get("originalMessageId")
+    original_fp = req.get("originalRequestFingerprint")
+    if (not isinstance(original_id, str) or not original_id.strip() or len(original_id) > 100
+            or original_id == req["messageId"]
+            or not isinstance(original_fp, str) or not HEX64.match(original_fp)):
+        return _fail("Supply the original message ID and SHA-256 of its exact UTF-8 request body.",
+                     "invalid_envelope"), None
+    key = (req["deviceId"], request_type, original_id)
+    prior = world.rev2_receipts.get(key)
+    if prior is not None:
+        if prior["operatorId"] != operator_id:
+            log.fail("recover %s: receipt belongs to %s" % (original_id, prior["operatorId"]))
+            return _fail("Sign in as the operator who submitted the original command on this "
+                         "device.", "receipt_owner_mismatch"), None
+        if prior["hash"].upper() != original_fp.upper():
+            log.fail("recover %s: fingerprint differs from the saved receipt" % original_id)
+            return _fail("The saved receipt belongs to a different request body.",
+                         "message_id_conflict"), None
+        outcome = ("not_executed" if prior["sealed"]
+                   else "committed" if prior["result"]["success"] else "rejected")
+        saved = prior["result"]
+    else:
+        saved = {"success": False,
+                 "message": "The unanswered command did not execute and its message ID is now "
+                            "sealed. Reload before submitting a new intent.",
+                 "targetId": None, "cycleId": None, "errorCode": "receipt_sealed"}
+        world.rev2_receipts[key] = {"hash": original_fp.upper(), "result": saved,
+                                    "operatorId": operator_id, "sealed": True}
+        outcome = "not_executed"
+    log.transition("recover %s: %s" % (original_id, outcome))
+    return ({"success": True,
+             "message": "Original command outcome recovered. Follow the current saved state.",
+             "targetId": saved.get("targetId"), "cycleId": saved.get("cycleId")},
+            {"originalMessageId": original_id, "outcome": outcome, "result": saved})
+
+
+# ---- prepare (Rev2MixingService.Prepare, IngredientExceptionRules) ------------------------------
+
+def matching_exceptions(world, job):
+    """Catalog rows whose code is one of the job's BOM materials (case-insensitive)."""
+    codes = {m["code"].lower() for m in job["materials"]}
+    return [p for p in world.ingredient_exceptions["products"] if p["code"].lower() in codes]
+
+
+def validate_choices(world, job, req):
+    """Return (error_message_or_None, choices), in IngredientExceptionRules.Validate's order."""
+    if req.get("includeTackifier") is False:
+        return ("Use a separate Include or Exclude choice for each exception ingredient; the old "
+                "tackifier flag cannot exclude materials."), []
+    matches = matching_exceptions(world, job)
+    revision = req.get("exceptionListRevision")
+    if revision is not None and revision != world.ingredient_exceptions["revision"]:
+        return "The ingredient exception list changed. Reload and review the ingredient choices.", []
+    supplied = req.get("ingredientChoices") or []
+    if not isinstance(supplied, list):
+        supplied = [None]
+    keys = []
+    for c in supplied:
+        if (not isinstance(c, dict) or not isinstance(c.get("code"), str) or not c["code"].strip()
+                or not isinstance(c.get("include"), bool)):
+            return "Choose Include or Exclude once for each exception ingredient.", []
+        keys.append(c["code"].strip().lower())
+    if len(set(keys)) != len(keys):
+        return "Choose Include or Exclude once for each exception ingredient.", []
+    match_codes = [m["code"].lower() for m in matches]
+    if any(k not in match_codes for k in keys):
+        return "A supplied ingredient choice is not a matching BOM exception. Reload the choices.", []
+    if any(m not in keys for m in match_codes):
+        return ("Choose Include or Exclude for each exception ingredient: "
+                + ", ".join(m["code"] for m in matches) + "."), []
+    if matches and revision is None:
+        return "Reload the ingredient exception list before submitting these choices.", []
+    choices = [{"code": m["code"],
+                "include": next(c["include"] for c in supplied
+                                if c["code"].strip().lower() == m["code"].lower())}
+               for m in matches]
+    excluded = {c["code"].lower() for c in choices if c["include"] is False}
+    if all(m["code"].lower() in excluded for m in job["materials"]):
+        return "At least one ingredient must be included.", []
+    return None, choices
+
+
+def prepare(world, log, req, operator_id):
+    job = world.rev2_jobs.get(req.get("targetId") or "")
+    if job is None or job["mode"] != "General":
+        return _fail("Load a General Mixing JC first.")
+    allocated = sum(p["mixCount"] for p in world.rev2_preparations.values()
+                    if p["jobId"] == job["id"] and p["stage"] != "Cancelled")
+    available = job["requiredMixes"] - allocated
+    mix_count = req.get("mixCount")
+    if not isinstance(mix_count, int) or isinstance(mix_count, bool):
+        mix_count = 0
+    if mix_count <= 0 or mix_count > available:
+        log.fail("prepare %s: %d mixes requested, %d available" % (job["id"], mix_count, available))
+        return _fail("Choose a positive whole number up to %d mixes remaining to prepare."
+                     % available)
+    error, choices = validate_choices(world, job, req)
+    if error:
+        log.fail("prepare %s: %s" % (job["id"], error))
+        return _fail(error)
+    excluded = [c["code"] for c in choices if c["include"] is False]
+    batch = {
+        "id": "PREP_" + uuid.uuid4().hex, "jobId": job["id"], "mixCount": mix_count, "mixed": 0,
+        "produced": 0, "stage": "Collecting", "includeTackifier": None,
+        "ingredientChoices": choices,
+        "exceptionListRevision": world.ingredient_exceptions["revision"],
+        "collectionRevision": 0, "mixerId": None, "productionId": None, "cycleId": None,
+        "startedAtUtc": iso(utc_now()), "confirmedAtUtc": None, "startedBy": operator_id,
+        "materials": effective_rows(job, mix_count, excluded),
+    }
+    world.rev2_preparations[batch["id"]] = batch
+    for m in batch["materials"]:
+        if m["excluded"]:
+            record_exception(world, req, operator_id, job, batch, "Ingredient omitted",
+                             "%s %s: original target %s %s; excluded before collection."
+                             % (m["code"], m["name"], format(m["originalRequired"], "f"),
+                                m["unit"]))
+    log.transition("prepare %s: %s created, %d mixes, excluded %s"
+                   % (job["id"], batch["id"], mix_count, excluded or "nothing"))
+    return {"success": True,
+            "message": "Prepare %d mixes. Collect one-mix quantities \u00d7 %d; then explicitly "
+                       "confirm collection." % (mix_count, mix_count),
+            "targetId": batch["id"], "cycleId": None}
+
+
+# ---- capture (Rev2MixingService.Capture) ---------------------------------------------------------
+
+def find_pallet(world, code):
+    """By RFID tag or pallet id, trimmed and case-insensitive."""
+    code = (code or "").strip().lower()
+    if not code:
+        return None
+    for p in world.pallets.values():
+        if p["palletRfidTag"].lower() == code or p["palletId"].lower() == code:
+            return p
+    return None
+
+
+def capture(world, log, req, operator_id):
+    target = req.get("targetId") or ""
+    batch = world.rev2_preparations.get(target)
+    job = world.rev2_jobs.get(batch["jobId"] if batch else target)
+    if job is None:
+        return _fail("Select an active preparation or Rajoo JC.")
+    if batch is None or batch["stage"] != "Collecting":
+        return _fail("This preparation is not collecting ingredients.")
+    pallet = find_pallet(world, req.get("code") if isinstance(req.get("code"), str) else "")
+    if pallet is None or pallet["blocked"] or pallet["palletState"] not in ("Holding", "Mixing"):
+        log.fail("capture %s: pallet %r is unknown, blocked or not in Holding/Mixing"
+                 % (target, req.get("code")))
+        return _fail("Pallet must be an available local Station 1 pallet in Holding or Mixing.")
+    material = next((m for m in batch["materials"]
+                     if m["code"].lower() == pallet["productCode"].lower() and not m["excluded"]),
+                    None)
+    if material is None or _remaining(material) <= 0:
+        log.fail("capture %s: %s is not outstanding" % (target, pallet["productCode"]))
+        return _fail("This material is not outstanding on the collection BOM.")
+    if pallet["unit"] != material["unit"]:
+        return _fail("Pallet and recipe units do not match.")
+    bag = _dec(pallet.get("fullBagWeight") or world.config["defaultFullBagWeightKg"])
+    quantity = req.get("quantity")
+    q = bag if quantity in (None, 0) else _dec(quantity)
+    stock = _dec(pallet["remainingQuantity"])
+    if q <= 0 or q > bag or q > stock or q > _remaining(material):
+        log.fail("capture %s: %s of %s outside bag %s, stock %s, remaining %s"
+                 % (target, q, material["code"], bag, stock, _remaining(material)))
+        return _fail("Capture one bag or its actual fraction, within both pallet stock and the "
+                     "outstanding material target.")
+    pallet["remainingQuantity"] = stock - q
+    material["collected"] = _dec(material["collected"]) + q
+    batch["collectionRevision"] = batch.get("collectionRevision", 0) + 1
+    if all(_remaining(m) == 0 for m in batch["materials"]):
+        batch["stage"] = "AwaitingConfirmation"
+    log.transition("capture %s: %s %s %s from %s (pallet now %s), revision %d, stage %s"
+                   % (target, q, material["unit"], material["code"], pallet["palletId"],
+                      pallet["remainingQuantity"], batch["collectionRevision"], batch["stage"]))
+    return {"success": True, "message": "Bag recorded and local pallet stock deducted.",
+            "targetId": batch["id"], "cycleId": None}
+
+
+def confirm(world, log, req, operator_id):
+    """Rev2MixingService.Confirm."""
+    batch = world.rev2_preparations.get(req.get("targetId") or "")
+    if (batch is None or batch["stage"] != "AwaitingConfirmation"
+            or any(_remaining(m) > 0 for m in batch["materials"])):
+        log.fail("confirm %s: not every included material is collected" % req.get("targetId"))
+        return _fail("Collect every included material before confirming.")
+    batch["stage"] = "ReadyForMixer"
+    batch["confirmedAtUtc"] = iso(utc_now())
+    log.transition("confirm %s: -> ReadyForMixer" % batch["id"])
+    return {"success": True,
+            "message": "Ingredients confirmed. Scan a permitted mixer to assign this preparation.",
+            "targetId": batch["id"], "cycleId": None}
+
+
+EXECUTORS = {"prepare": prepare, "capture": capture, "confirm": confirm}
 
 
 def _round_half_away(value):
@@ -119,8 +422,15 @@ CAPABILITIES = {"operatorIngredientDecisions": True, "receiptRecovery": True,
                 "managerReviewDesktopOnly": True, "jobMixProgress": True}
 
 
+def _collected_all(p):
+    """Rev2JobProgress: a positive included row exists and every included row is collected."""
+    included = [m for m in p["materials"] if not m["excluded"]]
+    return (any(_dec(m["required"]) > 0 for m in included)
+            and all(_dec(m["collected"]) >= _dec(m["required"]) for m in included))
+
+
 def mix_progress(job, preparations):
-    """Contract §8.1, from the simulator's saved preparations (collectedMixes is not modelled: 0)."""
+    """Contract §8.1, from the simulator's saved preparations."""
     preps = [p for p in preparations if p["jobId"] == job["id"] and p["stage"] != "Cancelled"]
     active = [p for p in preps if p["stage"] != "Completed"]
     produced = sum(p["produced"] for p in preps)
@@ -132,7 +442,7 @@ def mix_progress(job, preparations):
         "activeMixes": sum(max(0, p["mixCount"] - p["produced"]) for p in active),
         "availableToPrepareMixes": max(0, required - allocated),
         "remainingToFinishMixes": max(0, required - produced),
-        "collectedMixes": 0,
+        "collectedMixes": sum(p["mixCount"] for p in preps if _collected_all(p)),
         "confirmedMixes": sum(p["mixCount"] for p in preps if p.get("confirmedAtUtc")),
         "mixedMixes": sum(p["mixed"] for p in preps),
         "producedMixes": produced,
@@ -148,11 +458,29 @@ def mix_progress(job, preparations):
     }
 
 
-def snapshot(world, target_id):
+def material_dto(m):
+    """Contract section 8 material: the stored row plus originalRequired and remaining."""
+    return dict(m, originalRequired=m.get("originalRequired", m["required"]),
+                remaining=_remaining(m))
+
+
+def preparation_dto(p):
+    return dict(p, materials=[material_dto(m) for m in p["materials"]])
+
+
+def snapshot(world, target_id, device_id=None, command_id=None):
     preparation = world.rev2_preparations.get(target_id) if target_id else None
     job_id = preparation["jobId"] if preparation else target_id
     job = world.rev2_jobs.get(job_id) if job_id else None
+    if job is None:
+        preparation = None
     preparations = list(world.rev2_preparations.values())
+    # Rev2ScannerProcessor: the selected scope's records (the PREP's, or a JC's own batch-less
+    # records), and the subset this device's command (or the recovered original) created.
+    selected = [e for e in world.rev2_exceptions
+                if job is not None and e["jobId"] == job["id"]
+                and e["batchId"] == (preparation["id"] if preparation else None)]
+    catalog = world.ingredient_exceptions
     return {
         "recovery": None,
         "mode": "General",
@@ -162,20 +490,36 @@ def snapshot(world, target_id):
                   "mixProgress": mix_progress(j, preparations)} for j in world.rev2_jobs.values()],
         "job": None if job is None else dict(
             job,
+            materials=[material_dto(m) for m in job["materials"]],
             # Contract §8: non-cancelled preparations only — the same total as mixProgress.
             allocatedMixes=sum(p["mixCount"] for p in preparations
                                if p["jobId"] == job["id"] and p["stage"] != "Cancelled"),
             collectionRevision=0,
             mixProgress=mix_progress(job, preparations)),
-        "preparation": preparation if job is not None else None,
-        "preparations": preparations,
+        "preparation": preparation_dto(preparation) if preparation else None,
+        "preparations": [preparation_dto(p) for p in preparations],
         "machines": [],
-        "exceptionListRevision": 1,
-        "ingredientExceptions": [],
-        "requiredIngredientChoices": [],
-        "collectionExceptions": [],
-        "commandExceptions": [],
+        "exceptionListRevision": catalog["revision"],
+        "ingredientExceptions": catalog["products"],
+        "requiredIngredientChoices": (matching_exceptions(world, job)
+                                      if job is not None and preparation is None else []),
+        "collectionExceptions": selected,
+        "commandExceptions": [e for e in selected
+                              if e["messageId"] == command_id and e["device"] == device_id],
     }
+
+
+def effective_rows(job, mix_count, excluded=()):
+    """A preparation's effective rows: Decimal(str(perMix)) x N, excluded rows at required 0."""
+    excluded = {c.lower() for c in excluded}
+    rows = []
+    for m in job["materials"]:
+        original = _dec(m["perMix"]) * mix_count
+        out = m["code"].lower() in excluded
+        rows.append({"code": m["code"], "name": m["name"], "unit": m["unit"], "perMix": m["perMix"],
+                     "required": Decimal(0) if out else original, "collected": Decimal(0),
+                     "excluded": out, "originalRequired": original})
+    return rows
 
 
 def seed_demo_jobs(world, log):
@@ -183,9 +527,11 @@ def seed_demo_jobs(world, log):
     if lookup(world, log, "510019068")["success"]:
         world.rev2_preparations["PREP_demo0001"] = {
             "id": "PREP_demo0001", "jobId": "510019068", "mixCount": 2, "mixed": 0,
-            "produced": 0, "stage": "Collecting", "ingredientChoices": [],
-            "exceptionListRevision": 1, "mixerId": None, "productionId": None, "cycleId": None,
+            "produced": 0, "stage": "Collecting", "includeTackifier": None,
+            "ingredientChoices": [{"code": "1500000331", "include": True}],
+            "exceptionListRevision": 1, "collectionRevision": 0,
+            "mixerId": None, "productionId": None, "cycleId": None,
             "startedAtUtc": iso(utc_now()), "confirmedAtUtc": None, "startedBy": "SEEDED",
-            "materials": [],
+            "materials": effective_rows(world.rev2_jobs["510019068"], 2),
         }
         log.transition("seed: job 510019068 held with preparation PREP_demo0001")

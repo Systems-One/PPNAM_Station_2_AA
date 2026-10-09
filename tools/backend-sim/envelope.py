@@ -14,6 +14,7 @@ Direct replies carry no messageId of their own — correlation is inResponseToMe
 
 import json
 import re
+from decimal import Decimal
 
 from state import iso, utc_now
 
@@ -38,6 +39,19 @@ TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$")
 
 SUCCESS_NEXT_ACTION = "read_saved_state"
 FAILURE_NEXT_ACTION = "correct_request"
+# Contract §10 / Rev2ScannerProcessor.Guidance: failure guidance by error code.
+GUIDANCE = {
+    "outcome_unconfirmed": "retry_identical",
+    "operator_session_invalid": "login_then_recover",
+    "message_id_conflict": "recover_original",
+    "receipt_recovery_unavailable": "manager_reconcile",
+    "receipt_owner_mismatch": "manager_reconcile",
+    "collection_revision_conflict": "read_and_review_decision",
+    "receipt_sealed": "read_before_new_intent",
+}
+# json.dumps escapes the control character, so the marker cannot collide with real data.
+_DECIMAL_MARK = "\u0001DEC\u0001"
+_DECIMAL_RE = re.compile(r'"\\u0001DEC\\u0001(-?[0-9]+(?:\.[0-9]+)?)\\u0001DEC\\u0001"')
 
 
 class Rejection(Exception):
@@ -55,7 +69,8 @@ def response_suffix(request_suffix):
     return _RESPONSE_SUFFIX.get(request_suffix, "rev2_general_result")
 
 
-def reply(device_id, message_id, received_at, success, message, error="", data=None):
+def reply(device_id, message_id, received_at, success, message, error="", data=None,
+          next_action=None):
     sent_at = utc_now()
     return {
         "schemaVersion": SCHEMA_VERSION,
@@ -69,9 +84,30 @@ def reply(device_id, message_id, received_at, success, message, error="", data=N
         "success": success,
         "error": error,
         "operatorMessage": message,
-        "nextAction": SUCCESS_NEXT_ACTION if success else FAILURE_NEXT_ACTION,
+        "nextAction": next_action or (SUCCESS_NEXT_ACTION if success
+                                      else GUIDANCE.get(error, FAILURE_NEXT_ACTION)),
         "data": data,
     }
+
+
+def _wire_numbers(obj):
+    """Decimals become floats when exactly representable, else a marker dumps() unwraps."""
+    if isinstance(obj, Decimal):
+        as_float = float(obj)
+        if Decimal(as_float) == obj:
+            return as_float
+        return _DECIMAL_MARK + format(obj, "f") + _DECIMAL_MARK
+    if isinstance(obj, dict):
+        return {k: _wire_numbers(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_wire_numbers(v) for v in obj]
+    return obj
+
+
+def dumps(obj):
+    """JSON text with every Decimal as a plain JSON number (no exponent, no float rounding)."""
+    text = json.dumps(_wire_numbers(obj), ensure_ascii=False)
+    return _DECIMAL_RE.sub(r"\1", text)
 
 
 def _unique_fields(pairs):
