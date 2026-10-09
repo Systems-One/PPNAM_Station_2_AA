@@ -1,7 +1,7 @@
 # Phase 2: General preparation and material collection from a job
 
 **Date:** 2026-10-08
-**Status:** Draft for review
+**Status:** Implemented (branch feat/contract-2026-10-01-phase2-collection). On-device check (plan Task 13 Step 2) not yet run.
 **Parent spec:** `2026-10-05-contract-2026-10-01-adoption-design.md`, §3 row 2 and §6 (entry gate)
 **Authority:** `PPNAM-Station-2/RFID_MQTT_CONTRACT.md` (wire `rev2.1`, revision 2026-10-01). Where the contract is silent, the server source decides. This spec cites `PPNAM.Station2.Core` by file and line, as read on 2026-10-08.
 **Acceptance:** `RFID_SCANNER_APP_TEST_CASES.md`: GEN-02 to GEN-13 and REC-01. GEN-01 and GEN-14 are server-side. REC-05's "one newly confirmed intent" is covered on the client by the replacement prompt.
@@ -338,6 +338,8 @@ Today the simulator answers only `lookup` and `read`; other actions get `action_
 ## 12. Open questions for the user
 
 The contract and server leave these undecided. The plan applies the **proposed default** but flags each one so it can be changed before release.
+
+**Answers (2026-10-09):** Q1–Q9 not yet answered by the user; the proposed defaults are kept, each in one named place (`CaptureMode`/staged-then-tap, `QuantityInput.MAX_SCALE`, `PREPARE_REASON_MAX`, `STATION_ZONE`).
 
 1. **One tap per bag, or auto-send on scan?** Proposed: a scan stages and a tap sends (§9). This is safer with an RFID reader that reports continuously. Auto-send would be faster for barcode-only use.
 2. **Should RFID reads be accepted as bag sources at all?** An RFID reader can pick up a *neighbouring* pallet's tag, and that capture would deduct from the wrong pallet. Proposed: accept both, and show the staged code before the tap. Alternative: barcode only for captures.
