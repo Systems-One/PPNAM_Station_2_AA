@@ -7,7 +7,9 @@ import com.mitas.ppnam.station2aa.data.settings.PrefsOperatorDirectoryStore
 import com.mitas.ppnam.station2aa.data.settings.PrefsPinLockoutStore
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import android.content.Context
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.ClearedCommandLog
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutbox
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.FileClearedCommandLog
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.FileCommandOutbox
 import dagger.Module
 import dagger.Provides
@@ -37,4 +39,9 @@ object AppModule {
     @Singleton
     fun provideCommandOutbox(@ApplicationContext context: Context): CommandOutbox =
         FileCommandOutbox(File(context.filesDir, "outbox"))
+
+    @Provides
+    @Singleton
+    fun provideClearedCommandLog(@ApplicationContext context: Context): ClearedCommandLog =
+        FileClearedCommandLog(File(context.filesDir, "audit/cleared-commands.jsonl"))
 }

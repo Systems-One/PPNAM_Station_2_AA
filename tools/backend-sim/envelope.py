@@ -32,7 +32,8 @@ _RESPONSE_SUFFIX = {
     "rev2_rajoo_requested": "rev2_rajoo_result",
     "operator_list_requested": "operator_list",
 }
-MAX_PAYLOAD_CHARS = 65536
+# Contract §2: at most 65,536 UTF-8 bytes. Bytes, not characters: é counts twice.
+MAX_PAYLOAD_BYTES = 65536
 TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$")
 
 SUCCESS_NEXT_ACTION = "read_saved_state"
@@ -91,9 +92,9 @@ def validate(topic_device, suffix, payload_bytes, ctx):
     """
     if suffix not in REQUEST_SUFFIXES:
         raise Rejection("client_upgrade_required", "Use the Rev 2 scanner contract.")
-    text = payload_bytes.decode("utf-8", errors="replace")
-    if len(text) > MAX_PAYLOAD_CHARS:
+    if len(payload_bytes) > MAX_PAYLOAD_BYTES:
         raise Rejection("invalid_envelope", "Request too large.")
+    text = payload_bytes.decode("utf-8", errors="replace")
     try:
         req = json.loads(text, object_pairs_hook=_unique_fields)
     except Rejection:

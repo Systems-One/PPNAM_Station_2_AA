@@ -2,12 +2,14 @@ package com.mitas.ppnam.station2aa.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mitas.ppnam.station2aa.data.identity.DeviceIdentity
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import com.mitas.ppnam.station2aa.domain.usecase.AuthUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.ClearResult
 import com.mitas.ppnam.station2aa.domain.usecase.PendingCommandCoordinator
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 import com.mitas.ppnam.station2aa.ui.components.ConnectionStatus
@@ -16,6 +18,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
@@ -31,7 +35,11 @@ class HomeViewModel @Inject constructor(
     private val authUseCase: AuthUseCase,
     sessionHolder: OperatorSessionHolder,
     private val coordinator: PendingCommandCoordinator,
+    deviceIdentity: DeviceIdentity,
 ) : ViewModel() {
+
+    /** This scanner: an unanswered command from another one can only be settled by a manager. */
+    val deviceId: String by lazy { deviceIdentity.deviceId() }
 
     val session: StateFlow<OperatorSession?> = sessionHolder.session
 
@@ -65,6 +73,23 @@ class HomeViewModel @Inject constructor(
     }
 
     fun dismissNotice(notice: RecoveryResult) = coordinator.dismiss(notice)
+
+    private val _clearError = MutableStateFlow<String?>(null)
+    /** Why the last clear did not happen, for the card to show; null when it worked. */
+    val clearError: StateFlow<String?> = _clearError.asStateFlow()
+
+    /** Anyone signed in may clear a reconciled command; the coordinator records who and when. */
+    fun clearReconciled(messageId: String) {
+        viewModelScope.launch {
+            _clearError.value = when (val result = coordinator.clearReconciled(messageId)) {
+                ClearResult.Cleared, ClearResult.NotFound -> null
+                ClearResult.NotSignedIn -> "Sign in to clear it."
+                ClearResult.NotAwaitingReconciliation -> "Not cleared: Station 2 can still settle this one."
+                is ClearResult.NotRecorded ->
+                    "Not cleared: the scanner could not record it (${result.cause.message}). Try again."
+            }
+        }
+    }
 
     private val _logoutEvent = Channel<Unit>(Channel.BUFFERED)
     val logoutEvent: Flow<Unit> = _logoutEvent.receiveAsFlow()

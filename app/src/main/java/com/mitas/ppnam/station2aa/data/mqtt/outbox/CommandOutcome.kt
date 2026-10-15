@@ -20,6 +20,18 @@ sealed interface CommandOutcome<out T> {
         val body: T?,
         val operatorMessage: String?,
     ) : CommandOutcome<T>
+
+    /**
+     * The outbox could not save the command, so nothing was published (contract §2: persisted
+     * before it can reach the broker). Safe to try again as a brand-new command.
+     */
+    data class NotSaved(val cause: Exception) : CommandOutcome<Nothing>
+
+    /**
+     * A retry found [messageId] no longer in the outbox: something else (recovery, or another
+     * delivery) has already settled it. Nothing was published; re-read to see the result.
+     */
+    data class NoLongerPending(val messageId: String) : CommandOutcome<Nothing>
 }
 
 enum class UnresolvedReason {

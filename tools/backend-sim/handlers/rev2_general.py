@@ -162,7 +162,9 @@ def snapshot(world, target_id):
                   "mixProgress": mix_progress(j, preparations)} for j in world.rev2_jobs.values()],
         "job": None if job is None else dict(
             job,
-            allocatedMixes=sum(p["mixCount"] for p in preparations if p["jobId"] == job["id"]),
+            # Contract §8: non-cancelled preparations only — the same total as mixProgress.
+            allocatedMixes=sum(p["mixCount"] for p in preparations
+                               if p["jobId"] == job["id"] and p["stage"] != "Cancelled"),
             collectionRevision=0,
             mixProgress=mix_progress(job, preparations)),
         "preparation": preparation if job is not None else None,
