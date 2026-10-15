@@ -337,7 +337,11 @@ class PreparationViewModel @Inject constructor(
             is CollectStep.Identified -> {
                 if (!state.canScan) return show(OutcomeMessage.Info(whyNoScan(state)))
                 // Re-check against the freshest row: a read may have landed since the amount was typed.
-                val row = freshRow(materials, step.fit.material)
+                val row = materials.firstOrNull { it.code == step.fit.material.code }
+                if (row == null || row.excluded) {
+                    _uiState.update { it.copy(step = CollectStep.Idle) }
+                    return show(OutcomeMessage.Info("${step.fit.material.name} is no longer in this mix — scan again"))
+                }
                 val current = identified(step.source, step.fit.copy(material = row), step.amountText)
                 val valid = current.check as? AmountCheck.Valid
                 if (valid == null) {

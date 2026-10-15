@@ -1198,4 +1198,32 @@ class PreparationViewModelTest {
         val text = (vm.uiState.value.message as OutcomeMessage.Info).text
         assertTrue(text, text.startsWith("Recorded 1 of 3 (15 kg)"))
     }
+
+    // ---- fix(collect) 4: submit refuses a row that is gone or excluded ----
+
+    @Test
+    fun `submit after the row became excluded sends nothing and returns to Idle`() = runTest {
+        val vm = open()
+        scanIdentified(vm)
+        val excluded = opened.copy(preparation = opened.preparation!!.copy(
+            materials = opened.preparation!!.materials.map { if (it.code == "RESIN") it.copy(excluded = true) else it }))
+        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(excluded))
+        vm.refresh()
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        assertEquals(CollectStep.Idle, vm.step())
+        assertEquals(OutcomeMessage.Info("Resin is no longer in this mix — scan again"), vm.uiState.value.message)
+    }
+
+    @Test
+    fun `submit after the row disappeared sends nothing and returns to Idle`() = runTest {
+        val vm = open()
+        scanIdentified(vm)
+        val gone = opened.copy(preparation = opened.preparation!!.copy(materials = opened.preparation!!.materials.filter { it.code != "RESIN" }))
+        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(gone))
+        vm.refresh()
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        assertEquals(CollectStep.Idle, vm.step())
+    }
 }
