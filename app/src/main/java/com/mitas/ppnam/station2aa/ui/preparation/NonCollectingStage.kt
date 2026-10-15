@@ -30,8 +30,7 @@ import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 
 /**
- * Every stage after collection (ready for a mixer, mixing, produced, completed, cancelled): the
- * previous read-only view. A later release replaces this one composable with the mixer stage.
+ * Cancelled (or unrecognised) preparations: a read-only view. Mixer stages use [MixerStage].
  */
 @Composable
 internal fun NonCollectingStage(
@@ -83,16 +82,7 @@ internal fun NonCollectingStage(
         } else {
             item { HorizontalDivider() }
             items(prep.materials, key = { "material-${it.code}" }) { MaterialRow(it) }
-            when (state.stage) {
-                PrepStage.Completed, PrepStage.Cancelled -> item { Text("${prep.stageRaw} — history only", color = TextMuted) }
-                PrepStage.Unknown, null -> Unit
-                else -> item {
-                    Text(
-                        "Ingredients confirmed — next: scan a permitted mixer (coming in a later release)",
-                        color = TextMuted,
-                    )
-                }
-            }
+            if (state.stage == PrepStage.Cancelled) item { Text("${prep.stageRaw} — history only", color = TextMuted) }
         }
     }
 }

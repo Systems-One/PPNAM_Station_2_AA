@@ -40,6 +40,7 @@ import java.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -1136,5 +1137,125 @@ class PreparationViewModelTest {
         vm.submit()
         verify(useCase, times(2)).read(prepId)
         assertEquals(ResultBanner.Rejected("That pallet is not on this job", null), vm.uiState.value.banner)
+    }
+
+    // ---- fix(collect) 3: canConfirm ----
+
+    @Test
+    fun `awaiting confirmation can confirm even with no local rows or only excluded rows`() = runTest {
+        val awaiting = finalCapture.preparation!!
+        val empty = finalCapture.copy(preparation = awaiting.copy(materials = emptyList()))
+        assertTrue(open(empty).uiState.value.canConfirm)
+        val excluded = finalCapture.copy(preparation = awaiting.copy(materials = awaiting.materials.map { it.copy(excluded = true) }))
+        assertTrue(open(excluded).uiState.value.canConfirm)
+    }
+
+    @Test
+    fun `collecting with everything collected can confirm and with one outstanding cannot`() = runTest {
+        assertTrue(open(withResinCollected(opened, null)).uiState.value.canConfirm)
+        assertFalse(open(opened).uiState.value.canConfirm)
+    }
+
+    // ---- fix(collect) 1: a read racing the last capture must not drop its snapshot ----
+
+    @Test
+    fun `a hint read that lands during the last capture does not leave a stale snapshot`() = runTest {
+        val vm = open()
+        // A read answered while the last capture is in flight returns older data; later reads are the truth.
+        var racing = false
+        whenever(useCase.read(prepId)).thenAnswer { ReadResult.Loaded(if (racing) afterOne else finalCapture) }
+        val gate = CompletableDeferred<Unit>()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).thenReturn(CollectionResult.Done(afterOne))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10"))).doSuspendableAnswer {
+            gate.await()
+            CollectionResult.Done(finalCapture)
+        }
+        scanIdentified(vm, source(bag = "15"))
+        vm.submit()
+        // The last capture is in flight; a hint's read takes a higher sequence number.
+        racing = true
+        vm.refresh()
+        racing = false
+        gate.complete(Unit)
+        assertEquals(finalCapture, vm.uiState.value.snapshot)
+    }
+
+
+    // ---- fix(collect) 2: nothing is sent between bags once the PREP is blocked ----
+
+    @Test
+    fun `a block that appears after the first bag stops the sequence and reports Recorded 1 of 3`() = runTest {
+        val vm = open()
+        val cmd = pending(status = PendingStatus.ManagerReconcile)
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).doSuspendableAnswer {
+            outbox.value = listOf(cmd)
+            yield()   // let the outbox collector publish `blocking`
+            CollectionResult.Done(afterOne)
+        }
+        scanIdentified(vm, source(bag = "15"))
+        vm.submit()
+        verify(useCase, times(1)).capture(any(), any(), anyOrNull())
+        val text = (vm.uiState.value.message as OutcomeMessage.Info).text
+        assertTrue(text, text.startsWith("Recorded 1 of 3 (15 kg)"))
+    }
+
+    // ---- fix(collect) 4: submit refuses a row that is gone or excluded ----
+
+    @Test
+    fun `submit after the row became excluded sends nothing and returns to Idle`() = runTest {
+        val vm = open()
+        scanIdentified(vm)
+        val excluded = opened.copy(preparation = opened.preparation!!.copy(
+            materials = opened.preparation!!.materials.map { if (it.code == "RESIN") it.copy(excluded = true) else it }))
+        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(excluded))
+        vm.refresh()
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        assertEquals(CollectStep.Idle, vm.step())
+        assertEquals(OutcomeMessage.Info("Resin is no longer in this mix — scan again"), vm.uiState.value.message)
+    }
+
+    @Test
+    fun `submit after the row disappeared sends nothing and returns to Idle`() = runTest {
+        val vm = open()
+        scanIdentified(vm)
+        val gone = opened.copy(preparation = opened.preparation!!.copy(materials = opened.preparation!!.materials.filter { it.code != "RESIN" }))
+        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(gone))
+        vm.refresh()
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        assertEquals(CollectStep.Idle, vm.step())
+    }
+
+    // ---- fix(collect) 6: timeout vs unsupported wording ----
+
+    @Test
+    fun `an identify timeout falls back with its own wording and unsupported keeps the old one`() = runTest {
+        val vm = open()
+        whenever(useCase.identify(prepId, "TAG-A")).thenReturn(IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK, timedOut = true))
+        vm.onScan("TAG-A")
+        val timedOut = vm.step() as CollectStep.Fallback
+        assertEquals("Station 2 didn't answer in time — pick the ingredient", timedOut.fallbackTitle())
+        vm.cancelCollect()
+        whenever(useCase.identify(prepId, "TAG-B")).thenReturn(IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK))
+        vm.onScan("TAG-B")
+        assertEquals("Station 2 couldn't identify this pallet — pick the ingredient", (vm.step() as CollectStep.Fallback).fallbackTitle())
+    }
+
+    // ---- fix(collect) 5: Recover keeps the "Recorded k of n" prefix ----
+
+    @Test
+    fun `a message_id_conflict part-way still reports how many bags were recorded`() = runTest {
+        val vm = open()
+        val cmd = pending()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("25"))).thenReturn(CollectionResult.Done(afterOne))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).thenReturn(
+            CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "Station 2 couldn't match this command."),
+        )
+        whenever(recovery.recover(cmd)).thenReturn(RecoveryResult.StillUnresolved(cmd, "Still not sure."))
+        scanIdentified(vm, source(bag = "25"))
+        vm.submit()
+        val text = (vm.uiState.value.message as OutcomeMessage.Info).text
+        assertTrue(text, text.startsWith("Recorded 1 of 2 (25 kg) — then: "))
     }
 }

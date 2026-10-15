@@ -37,7 +37,7 @@ sealed interface IdentifyResult {
     /** `unknown_source`: Station 2 doesn't know this code. */
     data class Unknown(val message: String, val snapshot: PrepSnapshot?) : IdentifyResult
     /** Station 2 can't identify (action unsupported, or no reply in time): let the operator pick the ingredient. */
-    data class Unsupported(val message: String) : IdentifyResult
+    data class Unsupported(val message: String, val timedOut: Boolean = false) : IdentifyResult
     data class Failed(val message: String, val retryable: Boolean) : IdentifyResult
 }
 
@@ -91,7 +91,7 @@ class GeneralCollectionUseCase @Inject constructor(
                 }
             }
             is MqttOutcome.NoResponse -> when (o.kind) {
-                FailureKind.Timeout -> IdentifyResult.Unsupported(IDENTIFY_FALLBACK)
+                FailureKind.Timeout -> IdentifyResult.Unsupported(IDENTIFY_FALLBACK, timedOut = true)
                 FailureKind.NotConnected -> IdentifyResult.Failed(o.kind.message(), retryable = true)
                 FailureKind.MalformedResponse -> IdentifyResult.Failed(o.kind.message(), retryable = false)
             }

@@ -3,6 +3,7 @@ package com.mitas.ppnam.station2aa.ui.preparation
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.domain.model.AmountCheck
 import com.mitas.ppnam.station2aa.domain.model.BagGuide
+import com.mitas.ppnam.station2aa.domain.model.MachineScan
 import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
 import com.mitas.ppnam.station2aa.domain.model.PrepStage
 import com.mitas.ppnam.station2aa.domain.model.SourceFit
@@ -51,7 +52,13 @@ sealed interface CollectStep {
         val pickedMaterial: String?,
         val amountText: String,
         val check: AmountCheck? = null,
-    ) : CollectStep
+        /** The identify got no reply in time (as opposed to being unsupported). */
+        val timedOut: Boolean = false,
+    ) : CollectStep {
+        fun fallbackTitle(): String =
+            if (timedOut) "Station 2 didn't answer in time — pick the ingredient"
+            else "Station 2 couldn't identify this pallet — pick the ingredient"
+    }
 
     /** [done] of [total] captures answered so far. */
     data class Submitting(val code: String, val name: String, val done: Int, val total: Int) : CollectStep
@@ -70,7 +77,10 @@ sealed interface ResultBanner {
     ) : ResultBanner
 
     /** [loggedLine] is the server's logged exception (date/time, operator), when it sent one. */
-    data class Rejected(val text: String, val loggedLine: String? = null) : ResultBanner
+    data class Rejected(val text: String, val loggedLine: String? = null, val title: String = "Not recorded") : ResultBanner
+
+    /** A red banner with no Station 2 reply behind it (e.g. "Not a machine — X"). */
+    data class Error(val title: String, val detail: String? = null) : ResultBanner
 
     /** [recorded] of [total] captures went through ([recordedKg] kg); [rejection] stopped the rest. */
     data class Partial(
@@ -81,6 +91,24 @@ sealed interface ResultBanner {
         val loggedLine: String? = null,
     ) : ResultBanner
 }
+
+/**
+ * Mixer / production stage: a scanned machine waiting for the operator's tap. [protects] means a
+ * new scan is refused with "Finish or cancel first".
+ */
+sealed interface MachineStep {
+    data object Idle : MachineStep
+
+    /** [scan] is StartMix, StartProduction, Finish or Disabled; [code] is the text that was scanned. */
+    data class Confirm(val code: String, val scan: MachineScan) : MachineStep
+
+    data object Sending : MachineStep
+}
+
+/** Stages in which a scan means a machine, not a pallet. */
+internal val PrepStage.isMachineStage: Boolean
+    get() = this == PrepStage.ReadyForMixer || this == PrepStage.Mixing || this == PrepStage.ReadyForNextMix ||
+        this == PrepStage.ReadyForProduction || this == PrepStage.Producing
 
 sealed interface OutcomeMessage {
     data class Info(val text: String) : OutcomeMessage
@@ -93,6 +121,7 @@ data class PreparationUiState(
     val readError: String? = null,
     val inFlight: Boolean = false,
     val step: CollectStep = CollectStep.Idle,
+    val machine: MachineStep = MachineStep.Idle,
     val banner: ResultBanner? = null,
     /** Unresolved/ManagerReconcile outbox entries whose targetId is this PREP. */
     val blocking: List<PendingCommand> = emptyList(),
@@ -105,14 +134,15 @@ data class PreparationUiState(
 ) {
     val stage: PrepStage? get() = snapshot?.preparation?.stage
     val canScan: Boolean get() = stage == PrepStage.Collecting && !inFlight && blocking.isEmpty()
+    val canScanMachine: Boolean get() = stage?.isMachineStage == true && !inFlight && blocking.isEmpty()
 
     /** Every non-excluded row is collected (and there is at least one). */
     val allCollected: Boolean
         get() = snapshot?.preparation?.materials.orEmpty().filterNot { it.excluded }
             .let { rows -> rows.isNotEmpty() && rows.all { it.isComplete } }
 
-    /** "Mix complete": Station 2 is waiting for it, or every ingredient is collected. */
+    /** "Mix complete": Station 2 is waiting for it (enough on its own), or every ingredient is collected. */
     val canConfirm: Boolean
-        get() = (stage == PrepStage.AwaitingConfirmation || stage == PrepStage.Collecting) &&
-            allCollected && !inFlight && blocking.isEmpty()
+        get() = (stage == PrepStage.AwaitingConfirmation || (stage == PrepStage.Collecting && allCollected)) &&
+            !inFlight && blocking.isEmpty()
 }

@@ -84,8 +84,12 @@ internal fun ResultBannerView(banner: ResultBanner, completedName: String?) {
             ),
         )
         is ResultBanner.Rejected -> StatusBanner(
-            icon = "✕", title = "Not recorded", tint = DangerRed, background = BannerRedBg,
+            icon = "✕", title = banner.title, tint = DangerRed, background = BannerRedBg,
             details = listOfNotNull(banner.text to false, banner.loggedLine?.let { it to true }),
+        )
+        is ResultBanner.Error -> StatusBanner(
+            icon = "✕", title = banner.title, tint = DangerRed, background = BannerRedBg,
+            details = listOfNotNull(banner.detail?.let { it to false }),
         )
         is ResultBanner.Partial -> StatusBanner(
             icon = "✕",
