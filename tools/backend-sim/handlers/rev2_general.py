@@ -1,5 +1,6 @@
 """rev2_general_requested -> rev2_general_result: `read`, `identify`, `lookup`, `recover`,
-`prepare`, `capture`, `adjust_ingredient` (kind Add only) and `confirm`.
+`prepare`, `capture`, `adjust_ingredient` (kind Add only), `confirm`, `machine_start` and
+`machine_finish`.
 
 Mirrors Rev2ScannerProcessor.ProcessAsync: every reply's data is the full snapshot, with the
 command's own result under `result`. The General actions outside this slice answer
@@ -41,8 +42,9 @@ from state import iso, utc_now
 ACTIONS = ("lookup", "read", "identify", "recover", "prepare", "capture", "adjust_ingredient",
            "confirm", "machine_start", "machine_finish")
 SLICE_ACTIONS = ("lookup", "read", "identify", "recover", "prepare", "capture",
-                 "adjust_ingredient", "confirm")
-MUTATIONS = ("prepare", "capture", "adjust_ingredient", "confirm")
+                 "adjust_ingredient", "confirm", "machine_start", "machine_finish")
+MUTATIONS = ("prepare", "capture", "adjust_ingredient", "confirm", "machine_start",
+             "machine_finish")
 HEX64 = re.compile(r"^[0-9A-Fa-f]{64}$")
 OPEN_STATUSES = ("boposPlanned", "boposReleased")
 DIGITS = re.compile(r"^[0-9]+$")
@@ -466,8 +468,132 @@ def confirm(world, log, req, operator_id):
             "targetId": batch["id"], "cycleId": None}
 
 
+# ---- machine_start / machine_finish (contract section 4) -------------------------------------------
+# Machine rejections are plain rev2_rejected results: contract section 6 records exceptions only
+# for rejected capture, confirmation or ingredient decisions, so none is recorded here.
+
+def find_machine(world, code):
+    """A configured machine by its commissioned (non-blank) code, trimmed, case-insensitive."""
+    code = (code or "").strip().lower()
+    if not code:
+        return None
+    return next((m for m in world.rev2_machines if m["code"].strip().lower() == code), None)
+
+
+def machine_by_id(world, machine_id):
+    return next((m for m in world.rev2_machines if m["id"] == machine_id), None)
+
+
+def _occupant(world, machine, batch):
+    """Another non-completed PREP that holds this machine as its mixer or production machine."""
+    return next((p for p in world.rev2_preparations.values()
+                 if p["id"] != batch["id"] and p["stage"] not in ("Completed", "Cancelled")
+                 and machine["id"] in (p.get("mixerId"), p.get("productionId"))), None)
+
+
+def machine_start(world, log, req, operator_id):
+    batch = world.rev2_preparations.get(req.get("targetId") or "")
+    if batch is None:
+        return _fail("Select an active preparation.")
+    stage = batch["stage"]
+    if stage not in ("ReadyForMixer", "ReadyForNextMix", "ReadyForProduction"):
+        log.fail("machine_start %s: stage %s" % (batch["id"], stage))
+        return _fail("A machine cannot be started while the preparation is %s." % stage)
+    code = req.get("code") if isinstance(req.get("code"), str) else ""
+    machine = find_machine(world, code)
+    if machine is None:
+        log.fail("machine_start %s: %r is not a configured machine" % (batch["id"], code))
+        return _fail("The scanned code is not a configured machine.")
+    if not machine["enabled"]:
+        log.fail("machine_start %s: %s is disabled" % (batch["id"], machine["id"]))
+        return _fail("%s is disabled and cannot be started." % machine["name"])
+    mixer = machine_by_id(world, batch["mixerId"]) if batch["mixerId"] else None
+    if stage == "ReadyForMixer":
+        if machine["isProduction"]:
+            return _fail("Scan a mixer; %s is a production machine." % machine["name"])
+    elif stage == "ReadyForNextMix":
+        if mixer is None or machine["id"] != mixer["id"]:
+            return _fail("Scan the assigned mixer %s for the next mix."
+                         % (mixer["name"] if mixer else batch["mixerId"]))
+    else:
+        if not machine["isProduction"]:
+            return _fail("Scan a production machine; %s is a mixer." % machine["name"])
+        if mixer is None or machine["id"] not in mixer["destinations"]:
+            return _fail("%s is not a permitted destination of %s."
+                         % (machine["name"], mixer["name"] if mixer else batch["mixerId"]))
+        if batch["productionId"] and batch["productionId"] != machine["id"]:
+            return _fail("This preparation is assigned to production machine %s; scan that one."
+                         % batch["productionId"])
+    other = _occupant(world, machine, batch)
+    if other is not None:
+        log.fail("machine_start %s: %s is held by %s" % (batch["id"], machine["id"], other["id"]))
+        return _fail("%s is occupied by preparation %s." % (machine["name"], other["id"]))
+    cycle = "CYC_" + uuid.uuid4().hex
+    mixing = stage != "ReadyForProduction"
+    if stage == "ReadyForMixer":
+        batch["mixerId"] = machine["id"]
+    elif stage == "ReadyForProduction":
+        batch["productionId"] = machine["id"]
+    batch["cycleId"] = cycle
+    batch["stage"] = "Mixing" if mixing else "Producing"
+    number = (batch["mixed"] if mixing else batch["produced"]) + 1
+    log.transition("machine_start %s: %s %d on %s, cycle %s, stage %s"
+                   % (batch["id"], "mix" if mixing else "production", number, machine["id"],
+                      cycle, batch["stage"]))
+    return {"success": True,
+            "message": "JC %s: mix %d of %d started on %s." % (batch["jobId"], number,
+                                                               batch["mixCount"], machine["name"]),
+            "targetId": batch["id"], "cycleId": cycle}
+
+
+def machine_finish(world, log, req, operator_id):
+    batch = world.rev2_preparations.get(req.get("targetId") or "")
+    if batch is None:
+        return _fail("Select an active preparation.")
+    if batch["stage"] not in ("Mixing", "Producing") or not batch["cycleId"]:
+        log.fail("machine_finish %s: stage %s has no active cycle" % (batch["id"], batch["stage"]))
+        return _fail("No machine cycle is running for this preparation.")
+    mixing = batch["stage"] == "Mixing"
+    active = machine_by_id(world, batch["mixerId"] if mixing else batch["productionId"])
+    code = req.get("code") if isinstance(req.get("code"), str) else ""
+    if active is None or code != active["code"]:
+        log.fail("machine_finish %s: code %r is not the active machine" % (batch["id"], code))
+        return _fail("Finish the running cycle on its own machine%s."
+                     % (" (%s)" % active["code"] if active else ""))
+    cycle = req.get("cycleId")
+    if cycle != batch["cycleId"]:
+        log.fail("machine_finish %s: cycle %r is not the active cycle" % (batch["id"], cycle))
+        return _fail("That cycle is not the active cycle. Read the saved state and use its "
+                     "current cycle ID.")
+    mixer = machine_by_id(world, batch["mixerId"])
+    fixed = mixer is not None and mixer["kind"] == "FixedPair"
+    if mixing:
+        batch["mixed"] += 1
+        if fixed:
+            batch["produced"] += 1
+        if batch["mixed"] < batch["mixCount"]:
+            batch["stage"] = "ReadyForNextMix"
+        elif fixed:
+            batch["stage"] = "Completed"
+        else:
+            batch["stage"] = "ReadyForProduction"
+    else:
+        batch["produced"] += 1
+        batch["stage"] = "ReadyForProduction" if batch["produced"] < batch["mixCount"] else "Completed"
+    batch["cycleId"] = None
+    log.transition("machine_finish %s: cycle %s on %s done, mixed %d produced %d of %d, stage %s"
+                   % (batch["id"], cycle, active["id"], batch["mixed"], batch["produced"],
+                      batch["mixCount"], batch["stage"]))
+    return {"success": True,
+            "message": "JC %s: %d/%d mixed; %d/%d finished through production."
+                       % (batch["jobId"], batch["mixed"], batch["mixCount"], batch["produced"],
+                          batch["mixCount"]),
+            "targetId": batch["id"], "cycleId": cycle}
+
+
 EXECUTORS = {"prepare": prepare, "capture": capture, "adjust_ingredient": adjust_ingredient,
-             "confirm": confirm}
+             "confirm": confirm, "machine_start": machine_start,
+             "machine_finish": machine_finish}
 
 
 def _round_half_away(value):
@@ -613,7 +739,7 @@ def snapshot(world, target_id, device_id=None, command_id=None):
             mixProgress=mix_progress(job, preparations)),
         "preparation": preparation_dto(preparation) if preparation else None,
         "preparations": [preparation_dto(p) for p in preparations],
-        "machines": [],
+        "machines": [dict(m, destinations=list(m["destinations"])) for m in world.rev2_machines],
         "exceptionListRevision": catalog["revision"],
         "ingredientExceptions": catalog["products"],
         "requiredIngredientChoices": (matching_exceptions(world, job)

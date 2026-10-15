@@ -160,7 +160,43 @@ Quantities are exact decimals and go on the wire as plain JSON numbers.
   the recovered original) created.
 - Each successful or exception-recording mutation pushes
   `active_job_cards_invalidated` with reason `preparation_created`, `capture`,
-  `adjust_ingredient`, `confirm` or `collection_exception_recorded`. A replay pushes nothing.
+  `adjust_ingredient`, `confirm`, `machine_start`, `machine_finish` or
+  `collection_exception_recorded`. A replay pushes nothing.
+
+### Machines (contract §4, §8)
+
+`data.machines` is the General machine list in the contract DTO
+(`id,name,area,code,enabled,kind,isProduction,pairId,destinations`), seeded in
+`state.build_machines`. Codes to scan:
+
+- DOLCI FixedPair: `DOL-MIX-01`->`DOL-01`, `DOL-MIX-02`->`DOL-02`, `DOL-MIX-11`->`DOL-11`;
+  Mackie `MAC-MIX-01`->`MAC-EXT-01`; Bubblewrap `BUB-MIX-01`->`BUB-EXT-01`.
+- Main mixers `MAIN-MIX-01`..`05` (kind Main) -> any of `MAIN-EXT-01`..`25`.
+- Mixer 6 `MAIN-MIX-06` (kind Mixer6) -> only `JAN-02`, `JAN-03`, `JAN-04`.
+- `DOL-MIX-03`/`DOL-03` are **disabled**; `DOL-MIX-04`/`DOL-04` have a **blank code**
+  (unconfigured, so nothing can be scanned for them).
+
+The server decides the route from the machine scanned: any enabled mixer is permitted for
+any job.
+
+- `machine_start` — `targetId` PREP, `code` machine. `ReadyForMixer`: an enabled mixer,
+  assigned as `mixerId` the first time. `ReadyForNextMix`: must be the saved mixer.
+  `ReadyForProduction`: a production machine in the saved mixer's `destinations`
+  (FixedPair never gets here); `productionId` is saved on the first production cycle and
+  later cycles must reuse it. A new `CYC_<hex>` goes in `result.cycleId` and
+  `preparation.cycleId`, and the stage becomes `Mixing` or `Producing`. Rejected
+  (`rev2_rejected`, readable message): unknown, disabled or blank code, wrong kind for
+  the stage, wrong stage (including an already running cycle), a machine that another
+  non-Completed/Cancelled PREP holds as mixer or production machine.
+- `machine_finish` — `targetId` PREP, exact machine `code` (case-sensitive), exact active
+  `cycleId`; anything else is rejected. Mixing: `mixed += 1` (FixedPair also
+  `produced += 1`), then `ReadyForNextMix` while `mixed < mixCount`, else `Completed`
+  (FixedPair) or `ReadyForProduction`. Producing: `produced += 1`, then
+  `ReadyForProduction` or `Completed`. `preparation.cycleId` returns to null
+  (`result.cycleId` names the finished cycle); `mixProgress` is derived from the same counts.
+- Both are durable mutations (receipts, replay, `drop_reply`, `recover`) and push the
+  `machine_start` / `machine_finish` hints. Machine rejections record **no** exception
+  (contract §6 lists only capture, confirmation and decisions).
 
 ## Control frames (`PPNAM/_sim/control`)
 
