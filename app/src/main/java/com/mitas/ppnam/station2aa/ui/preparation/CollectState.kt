@@ -3,6 +3,7 @@ package com.mitas.ppnam.station2aa.ui.preparation
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.domain.model.AmountCheck
 import com.mitas.ppnam.station2aa.domain.model.BagGuide
+import com.mitas.ppnam.station2aa.domain.model.MachineScan
 import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
 import com.mitas.ppnam.station2aa.domain.model.PrepStage
 import com.mitas.ppnam.station2aa.domain.model.SourceFit
@@ -70,7 +71,10 @@ sealed interface ResultBanner {
     ) : ResultBanner
 
     /** [loggedLine] is the server's logged exception (date/time, operator), when it sent one. */
-    data class Rejected(val text: String, val loggedLine: String? = null) : ResultBanner
+    data class Rejected(val text: String, val loggedLine: String? = null, val title: String = "Not recorded") : ResultBanner
+
+    /** A red banner with no Station 2 reply behind it (e.g. "Not a machine — X"). */
+    data class Error(val title: String, val detail: String? = null) : ResultBanner
 
     /** [recorded] of [total] captures went through ([recordedKg] kg); [rejection] stopped the rest. */
     data class Partial(
@@ -81,6 +85,24 @@ sealed interface ResultBanner {
         val loggedLine: String? = null,
     ) : ResultBanner
 }
+
+/**
+ * Mixer / production stage: a scanned machine waiting for the operator's tap. [protects] means a
+ * new scan is refused with "Finish or cancel first".
+ */
+sealed interface MachineStep {
+    data object Idle : MachineStep
+
+    /** [scan] is StartMix, StartProduction, Finish or Disabled; [code] is the text that was scanned. */
+    data class Confirm(val code: String, val scan: MachineScan) : MachineStep
+
+    data object Sending : MachineStep
+}
+
+/** Stages in which a scan means a machine, not a pallet. */
+internal val PrepStage.isMachineStage: Boolean
+    get() = this == PrepStage.ReadyForMixer || this == PrepStage.Mixing || this == PrepStage.ReadyForNextMix ||
+        this == PrepStage.ReadyForProduction || this == PrepStage.Producing
 
 sealed interface OutcomeMessage {
     data class Info(val text: String) : OutcomeMessage
@@ -93,6 +115,7 @@ data class PreparationUiState(
     val readError: String? = null,
     val inFlight: Boolean = false,
     val step: CollectStep = CollectStep.Idle,
+    val machine: MachineStep = MachineStep.Idle,
     val banner: ResultBanner? = null,
     /** Unresolved/ManagerReconcile outbox entries whose targetId is this PREP. */
     val blocking: List<PendingCommand> = emptyList(),
@@ -105,6 +128,7 @@ data class PreparationUiState(
 ) {
     val stage: PrepStage? get() = snapshot?.preparation?.stage
     val canScan: Boolean get() = stage == PrepStage.Collecting && !inFlight && blocking.isEmpty()
+    val canScanMachine: Boolean get() = stage?.isMachineStage == true && !inFlight && blocking.isEmpty()
 
     /** Every non-excluded row is collected (and there is at least one). */
     val allCollected: Boolean

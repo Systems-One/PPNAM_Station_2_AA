@@ -26,7 +26,7 @@ import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 /**
  * The PREP screen. While collecting it is the simplified collect flow: [CollectHome] (ingredient
  * list + scan zone) and, once a pallet is scanned, [CollectSheet]. Later stages are the isolated
- * [NonCollectingStage].
+ * [MixerStage] (mixer & production); cancelled preparations use [NonCollectingStage].
  */
 @Composable
 fun PreparationScreen(
@@ -59,6 +59,8 @@ fun PreparationScreen(
     val prep = state.snapshot?.preparation
     val collectFlow = state.stage == PrepStage.Collecting || state.stage == PrepStage.AwaitingConfirmation
     val inSheet = collectFlow && state.step != CollectStep.Idle
+    val machineStage = state.stage?.isMachineStage == true || state.stage == PrepStage.Completed
+    val inMachineCard = machineStage && state.machine != MachineStep.Idle
 
     // A dialog opened for one state must not outlive it.
     LaunchedEffect(state.canConfirm) { if (!state.canConfirm) confirming = false }
@@ -83,10 +85,12 @@ fun PreparationScreen(
 
     // Back from the Collect screen cancels the pallet; it never leaves the PREP with a pallet staged.
     BackHandler(enabled = inSheet) { viewModel.cancelCollect() }
+    BackHandler(enabled = inMachineCard) { viewModel.cancelMachine() }
 
     val detail = state.snapshot?.lookup?.detail
     val title = when {
         inSheet -> "Collect"
+        inMachineCard -> machineCardTitle(state)
         prep != null -> listOf(prep.jobId, detail?.product.orEmpty()).filter { it.isNotBlank() }.joinToString(" · ")
             .ifBlank { shortPrepId(prepId) }
         else -> shortPrepId(prepId)
@@ -95,7 +99,7 @@ fun PreparationScreen(
     AppScaffold(
         title = title,
         status = connectionStatus,
-        onBack = if (inSheet) viewModel::cancelCollect else onBack,
+        onBack = if (inSheet) viewModel::cancelCollect else if (inMachineCard) viewModel::cancelMachine else onBack,
         operatorName = session?.operatorName,
         operatorRole = session?.role,
         onLogout = viewModel::logout,
@@ -125,7 +129,26 @@ fun PreparationScreen(
                 onMixComplete = { confirming = true },
                 modifier = body,
             )
+            machineStage -> MixerStage(
+                state, sessionId,
+                MixerActions(
+                    onRetry = viewModel::retry,
+                    onRefresh = viewModel::refresh,
+                    onUseCode = viewModel::onScan,
+                    onConfirm = viewModel::confirmMachine,
+                    onCancel = viewModel::cancelMachine,
+                    onBack = onBack,
+                ),
+                body,
+            )
             else -> NonCollectingStage(state, sessionId, viewModel::retry, viewModel::refresh, body)
         }
     }
+}
+
+private fun machineCardTitle(state: PreparationUiState): String = when ((state.machine as? MachineStep.Confirm)?.scan) {
+    is com.mitas.ppnam.station2aa.domain.model.MachineScan.StartMix -> "Start mix"
+    is com.mitas.ppnam.station2aa.domain.model.MachineScan.StartProduction -> "Start production"
+    is com.mitas.ppnam.station2aa.domain.model.MachineScan.Finish -> "Finish"
+    else -> "Machine"
 }

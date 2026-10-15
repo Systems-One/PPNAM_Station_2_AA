@@ -12,7 +12,11 @@ import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.model.MachineScan
 import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
+import com.mitas.ppnam.station2aa.domain.model.savedMixer
+import com.mitas.ppnam.station2aa.domain.model.savedProduction
+import com.mitas.ppnam.station2aa.domain.model.scanMachine
 import com.mitas.ppnam.station2aa.domain.model.PrepStage
 import com.mitas.ppnam.station2aa.domain.model.AmountCheck
 import com.mitas.ppnam.station2aa.domain.model.PrepMaterial
@@ -44,6 +48,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -149,6 +155,16 @@ class PreparationViewModel @Inject constructor(
                 )
             }
         }
+        // A stage change while a machine card is open cancels it (the action may no longer apply).
+        viewModelScope.launch {
+            _uiState.map { it.stage }.distinctUntilChanged().collect {
+                _uiState.update { s ->
+                    if (s.machine is MachineStep.Confirm) {
+                        s.copy(machine = MachineStep.Idle, message = OutcomeMessage.Info("The preparation moved on — scan the machine again"))
+                    } else s
+                }
+            }
+        }
         // Rule 3: on open, retry this session's unresolved commands and read the PREP.
         retryOwnUnresolved()
         read()
@@ -173,6 +189,10 @@ class PreparationViewModel @Inject constructor(
             return
         }
         val state = _uiState.value
+        if (state.stage?.isMachineStage == true) {
+            machineScan(trimmed, state)
+            return
+        }
         if (!state.canScan) {
             show(OutcomeMessage.Info(whyNoScan(state)))
             return
@@ -183,6 +203,83 @@ class PreparationViewModel @Inject constructor(
             return
         }
         identify(trimmed)
+    }
+
+    // ---- mixer / production stage ----
+
+    /** A machine code in a mixer/production stage: classify it against the snapshot; never sends. */
+    private fun machineScan(code: String, state: PreparationUiState) {
+        if (!state.canScanMachine) {
+            show(OutcomeMessage.Info(whyNoMachineScan(state)))
+            return
+        }
+        if (state.machine != MachineStep.Idle) {
+            show(OutcomeMessage.Info(MACHINE_FINISH_FIRST_MESSAGE))
+            return
+        }
+        val snapshot = state.snapshot ?: return
+        _uiState.update { it.copy(banner = null, message = null) }
+        when (val scan = snapshot.scanMachine(code)) {
+            is MachineScan.NotAMachine -> setBanner(ResultBanner.Error("Not a machine — ${scan.code}"))
+            is MachineScan.NotActive -> setBanner(
+                ResultBanner.Error("Only ${scan.activeName} can finish this ${if (state.stage == PrepStage.Producing) "production" else "mix"}"),
+            )
+            is MachineScan.NotNow -> show(OutcomeMessage.Info(scan.message))
+            else -> _uiState.update { it.copy(machine = MachineStep.Confirm(code, scan)) }
+        }
+    }
+
+    private fun setBanner(banner: ResultBanner) {
+        _uiState.update { it.copy(banner = banner) }
+    }
+
+    fun cancelMachine() {
+        _uiState.update { if (it.machine is MachineStep.Confirm) it.copy(machine = MachineStep.Idle) else it }
+    }
+
+    /**
+     * The Start / Finish tap. Everything is re-derived from the CURRENT snapshot (never the scan
+     * result): if the stage moved so the same action no longer applies, the card is cancelled and
+     * nothing is sent. The cycle id of a finish is the current preparation's.
+     */
+    fun confirmMachine() {
+        val state = _uiState.value
+        val confirm = state.machine as? MachineStep.Confirm ?: return
+        if (state.inFlight) return
+        if (!state.canScanMachine) return show(OutcomeMessage.Info(whyNoMachineScan(state)))
+        val snapshot = state.snapshot ?: return
+        val fresh = snapshot.scanMachine(confirm.code)
+        val send: suspend () -> CollectionResult = when {
+            fresh is MachineScan.StartMix && confirm.scan is MachineScan.StartMix && fresh.machine.id == confirm.scan.machine.id ->
+                { { useCase.machineStart(prepId, confirm.code) } }
+            fresh is MachineScan.StartProduction && confirm.scan is MachineScan.StartProduction && fresh.machine.id == confirm.scan.machine.id ->
+                { { useCase.machineStart(prepId, confirm.code) } }
+            fresh is MachineScan.Finish && confirm.scan is MachineScan.Finish && fresh.machine.id == confirm.scan.machine.id ->
+                { { useCase.machineFinish(prepId, confirm.code, fresh.cycleId) } }
+            fresh is MachineScan.Disabled -> return   // nothing to send
+            else -> {
+                _uiState.update { it.copy(machine = MachineStep.Idle) }
+                return show(OutcomeMessage.Info("The preparation changed — scan the machine again"))
+            }
+        }
+        _uiState.update { it.copy(machine = MachineStep.Sending) }
+        mutate(rejectedTitle = "Not done") {
+            val result = try {
+                send()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(machine = MachineStep.Idle) }
+                throw e
+            }
+            // Nothing went out: the card stays so the operator can tap again.
+            _uiState.update { it.copy(machine = if (result is CollectionResult.NotSent) confirm else MachineStep.Idle) }
+            result
+        }
+    }
+
+    private fun whyNoMachineScan(state: PreparationUiState): String = when {
+        state.inFlight -> "Wait — Station 2 is still answering"
+        state.blocking.isNotEmpty() -> "Resolve the unanswered command first — don't scan again"
+        else -> "This preparation hasn't loaded yet"
     }
 
     /** Cancel / Done on the Collect screen: drop the step. Not while captures are being sent. */
@@ -559,6 +656,7 @@ class PreparationViewModel @Inject constructor(
         endsStep: Boolean = false,
         onFinally: () -> Unit = {},
         onDone: (suspend (Long, CollectionResult.Done) -> Unit)? = null,
+        rejectedTitle: String? = null,
         call: suspend () -> CollectionResult,
     ) {
         val seq = ++issued
@@ -571,7 +669,7 @@ class PreparationViewModel @Inject constructor(
                 if (result is CollectionResult.Done && onDone != null) {
                     onDone(seq, result)
                 } else {
-                    handle(seq, result, before, retried)
+                    handle(seq, result, before, retried, rejectedTitle)
                     if (endsStep && result !is CollectionResult.NotSent && result !is CollectionResult.Done) {
                         _uiState.update { it.copy(step = CollectStep.Idle) }
                         // A rejection that carried state (revision conflict): read again before the next scan.
@@ -601,10 +699,11 @@ class PreparationViewModel @Inject constructor(
         result: CollectionResult,
         before: PrepSnapshot?,
         retried: PendingCommand?,
+        rejectedTitle: String? = null,
     ) {
         if (result is CollectionResult.Done) {
             val fresh = takeIfNewer(seq, result.snapshot)
-            val banner = doneBanner(before, result.snapshot, null)
+            val banner = doneBanner(before, result.snapshot, null) ?: machineDoneBanner(before, result.snapshot)
             _uiState.update { s ->
                 s.copy(
                     snapshot = fresh ?: s.snapshot,
@@ -613,19 +712,21 @@ class PreparationViewModel @Inject constructor(
                 )
             }
         } else {
-            handleNotDone(seq, result, retried, sofar = null)
+            handleNotDone(seq, result, retried, sofar = null, rejectedTitle = rejectedTitle)
         }
     }
 
     /** Everything but Done. [sofar] is what an earlier capture of the same Submit already recorded. */
-    private suspend fun handleNotDone(seq: Long, result: CollectionResult, retried: PendingCommand?, sofar: RecordedSoFar?) {
+    private suspend fun handleNotDone(
+        seq: Long, result: CollectionResult, retried: PendingCommand?, sofar: RecordedSoFar?, rejectedTitle: String? = null,
+    ) {
         when (result) {
             is CollectionResult.Done -> Unit
             is CollectionResult.Rejected -> {
                 val fresh = takeIfNewer(seq, result.snapshot)
                 val logged = loggedLineOf(result.snapshot)
                 val banner = if (sofar == null) {
-                    ResultBanner.Rejected(result.message, logged)
+                    ResultBanner.Rejected(result.message, logged, rejectedTitle ?: "Not recorded")
                 } else {
                     ResultBanner.Partial(sofar.count, sofar.total, sofar.kg.plainText(), result.message, logged)
                 }
@@ -705,6 +806,7 @@ class PreparationViewModel @Inject constructor(
         const val PREP_ID_ARG = "prepId"
         const val BADGE_MESSAGE = "That is a user badge, not a pallet"
         const val FINISH_FIRST_MESSAGE = "Finish or cancel this pallet first"
+        const val MACHINE_FINISH_FIRST_MESSAGE = "Finish or cancel first"
         private const val IDENTIFY_NO_PREP = "This preparation hasn't loaded yet"
 
         /**
@@ -712,6 +814,26 @@ class PreparationViewModel @Inject constructor(
          * from the diff (no earlier read, or no row grew). [pickedCode] is the row the operator picked
          * in the fallback, to warn when Station 2 booked the capture elsewhere.
          */
+        /**
+         * What a machine command did, read from the stage and counts: "Mix 1 started on Mixer 2",
+         * "Mix 1 finished", "Production 2 finished", "Preparation complete". Null when nothing moved.
+         */
+        internal fun machineDoneBanner(before: PrepSnapshot?, after: PrepSnapshot): ResultBanner.Accepted? {
+            val b = before?.preparation ?: return null
+            val a = after.preparation ?: return null
+            val text = when {
+                a.stage == PrepStage.Completed && b.stage != PrepStage.Completed -> "Preparation complete"
+                a.mixed > b.mixed -> "Mix ${a.mixed} finished"
+                a.produced > b.produced -> "Production ${a.produced} finished"
+                a.stage == PrepStage.Mixing && b.stage != PrepStage.Mixing ->
+                    "Mix ${a.mixed + 1} started" + (after.savedMixer()?.let { " on ${it.name}" } ?: "")
+                a.stage == PrepStage.Producing && b.stage != PrepStage.Producing ->
+                    "Production ${a.produced + 1} started" + (after.savedProduction()?.let { " on ${it.name}" } ?: "")
+                else -> return null
+            }
+            return ResultBanner.Accepted(text)
+        }
+
         internal fun doneBanner(before: PrepSnapshot?, after: PrepSnapshot, pickedCode: String?): ResultBanner.Accepted? {
             // Nothing read yet (an open-time retry): a diff would report the row's whole total.
             val beforePrep = before?.preparation ?: return null

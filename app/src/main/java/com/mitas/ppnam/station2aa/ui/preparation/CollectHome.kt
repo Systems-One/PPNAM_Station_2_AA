@@ -240,13 +240,18 @@ internal fun IngredientRow(material: PrepMaterial, highlighted: Boolean) {
 /** Dashed-style scan target with the prompt for the current moment and a small type-the-code field. */
 @Composable
 private fun ScanZone(state: PreparationUiState, onUseCode: (String) -> Unit) {
-    var manualCode by rememberSaveable { mutableStateOf("") }
-    val enabled = state.canScan
     val prompt = when (state.banner) {
         null -> "Scan a pallet tag"
         is ResultBanner.Accepted -> "Scan next pallet"
         else -> "Scan another pallet"
     }
+    ScanBox(prompt, null, state.canScan, state.blocking.isNotEmpty(), onUseCode)
+}
+
+/** The shared scan target: [title] (and muted [subtitle]) over a type-the-code fallback field. */
+@Composable
+internal fun ScanBox(title: String, subtitle: String?, enabled: Boolean, paused: Boolean, onUseCode: (String) -> Unit) {
+    var manualCode by rememberSaveable { mutableStateOf("") }
     Column(
         Modifier
             .fillMaxWidth()
@@ -257,9 +262,10 @@ private fun ScanZone(state: PreparationUiState, onUseCode: (String) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            if (state.blocking.isNotEmpty()) "Scanning paused" else prompt,
-            color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
+            if (paused) "Scanning paused" else title,
+            color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
         )
+        if (subtitle != null && !paused) Text(subtitle, color = TextMuted, style = MaterialTheme.typography.bodySmall)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
                 value = manualCode,
