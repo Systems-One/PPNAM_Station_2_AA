@@ -38,6 +38,13 @@ internal fun CollectionExceptionRecord.lines(): List<String> = buildList {
     )
 }
 
+/** "Logged 1 Oct 2026 15:40 · operator 65cf…": the server's logged exception behind a rejection. */
+internal fun CollectionExceptionRecord.loggedLine(): String =
+    "Logged ${formatStationDateTime(timestampUtc)} · operator ${operatorId.shortId()}"
+
+/** The ingredient row's right-hand side: `✓ 50 kg`, `10 kg` + `of 100 left`. */
+internal fun PrepMaterial.collectedText(): String = "${collected.plainText()} ${unit}".trim()
+
 /** `PREP_…last 6`, for the title. */
 internal fun shortPrepId(prepId: String): String = "PREP_…${prepId.takeLast(6)}"
 

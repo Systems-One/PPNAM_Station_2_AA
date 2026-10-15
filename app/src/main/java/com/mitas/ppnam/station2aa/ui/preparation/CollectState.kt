@@ -1,0 +1,118 @@
+package com.mitas.ppnam.station2aa.ui.preparation
+
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
+import com.mitas.ppnam.station2aa.domain.model.AmountCheck
+import com.mitas.ppnam.station2aa.domain.model.BagGuide
+import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
+import com.mitas.ppnam.station2aa.domain.model.PrepStage
+import com.mitas.ppnam.station2aa.domain.model.SourceFit
+import com.mitas.ppnam.station2aa.domain.model.SourceInfo
+import com.mitas.ppnam.station2aa.domain.model.validateAmount
+import com.mitas.ppnam.station2aa.domain.usecase.GeneralCollectionUseCase
+import com.mitas.ppnam.station2aa.domain.usecase.ReplacementOffer
+
+/**
+ * Where the operator is in collecting one pallet (simplified collect flow). A step that
+ * [protectsPallet] holds work in progress: a new scan must not silently replace it.
+ */
+sealed interface CollectStep {
+    data object Idle : CollectStep
+
+    /** `identify` sent for [code]; waiting for Station 2. */
+    data class Identifying(val code: String) : CollectStep
+
+    /** An outstanding row of this PREP: take [amountText] kg ([guide] is display only). */
+    data class Identified(
+        val source: SourceInfo,
+        val fit: SourceFit.InMix,
+        val amountText: String,
+        val guide: BagGuide?,
+        val check: AmountCheck,
+    ) : CollectStep
+
+    /** The pallet's material is not a row of this PREP: add it, with a required [reason]. */
+    data class NotInMix(val source: SourceInfo, val amountText: String, val reason: String) : CollectStep {
+        val check: AmountCheck get() = validateAmount(amountText, null, source.available, source.unit.ifBlank { "kg" })
+        val canAdd: Boolean
+            get() = check is AmountCheck.Valid && reason.trim().length in 1..GeneralCollectionUseCase.ADJUST_REASON_MAX
+    }
+
+    /** The pallet's material is an excluded row: it cannot be collected. */
+    data class Excluded(val source: SourceInfo, val materialName: String) : CollectStep
+
+    /** Station 2 says the pallet cannot be used ([reason]), or its row is already complete. */
+    data class Unusable(val source: SourceInfo, val reason: String) : CollectStep
+
+    data class Unknown(val message: String) : CollectStep
+
+    /** Station 2 could not identify the pallet: the operator picks the ingredient row. */
+    data class Fallback(
+        val code: String,
+        val pickedMaterial: String?,
+        val amountText: String,
+        val check: AmountCheck? = null,
+    ) : CollectStep
+
+    /** [done] of [total] captures answered so far. */
+    data class Submitting(val code: String, val name: String, val done: Int, val total: Int) : CollectStep
+
+    /** A pallet the operator is part-way through: a new scan is refused with "Finish or cancel". */
+    val protectsPallet: Boolean
+        get() = this is Identifying || this is Identified || this is NotInMix || this is Fallback || this is Submitting
+}
+
+/** The outcome of the last submit, shown at the top of the list until the next scan. */
+sealed interface ResultBanner {
+    data class Accepted(
+        val text: String,
+        val completedMaterialCode: String? = null,
+        val warning: String? = null,
+    ) : ResultBanner
+
+    /** [loggedLine] is the server's logged exception (date/time, operator), when it sent one. */
+    data class Rejected(val text: String, val loggedLine: String? = null) : ResultBanner
+
+    /** [recorded] of [total] captures went through ([recordedKg] kg); [rejection] stopped the rest. */
+    data class Partial(
+        val recorded: Int,
+        val total: Int,
+        val recordedKg: String,
+        val rejection: String,
+        val loggedLine: String? = null,
+    ) : ResultBanner
+}
+
+sealed interface OutcomeMessage {
+    data class Info(val text: String) : OutcomeMessage
+}
+
+data class PreparationUiState(
+    val prepId: String,
+    val snapshot: PrepSnapshot? = null,
+    val loading: Boolean = false,
+    val readError: String? = null,
+    val inFlight: Boolean = false,
+    val step: CollectStep = CollectStep.Idle,
+    val banner: ResultBanner? = null,
+    /** Unresolved/ManagerReconcile outbox entries whose targetId is this PREP. */
+    val blocking: List<PendingCommand> = emptyList(),
+    val message: OutcomeMessage? = null,
+    /**
+     * A capture/confirm Station 2 never ran (spec §6), offered for an explicit replacement. Set
+     * only after a fresh read; accepting it sends a NEW command, guarded like a tap.
+     */
+    val offer: ReplacementOffer? = null,
+) {
+    val stage: PrepStage? get() = snapshot?.preparation?.stage
+    val canScan: Boolean get() = stage == PrepStage.Collecting && !inFlight && blocking.isEmpty()
+
+    /** Every non-excluded row is collected (and there is at least one). */
+    val allCollected: Boolean
+        get() = snapshot?.preparation?.materials.orEmpty().filterNot { it.excluded }
+            .let { rows -> rows.isNotEmpty() && rows.all { it.isComplete } }
+
+    /** "Mix complete": Station 2 is waiting for it, or every ingredient is collected. */
+    val canConfirm: Boolean
+        get() = (stage == PrepStage.AwaitingConfirmation || stage == PrepStage.Collecting) &&
+            allCollected && !inFlight && blocking.isEmpty()
+}
