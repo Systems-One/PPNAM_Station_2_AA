@@ -759,7 +759,7 @@ class PreparationViewModel @Inject constructor(
             }
             // No local change: the outbox now holds the command, and blocking follows from it.
             is CollectionResult.Unresolved -> {
-                if (result.reason == UnresolvedReason.Recover) recoverNow(result.command)
+                if (result.reason == UnresolvedReason.Recover) recoverNow(result.command, sofar.prefix())
                 else show(OutcomeMessage.Info(sofar.prefix() + result.message))
             }
             is CollectionResult.NotSent -> show(OutcomeMessage.Info(sofar.prefix() + result.message))
@@ -774,7 +774,7 @@ class PreparationViewModel @Inject constructor(
         snapshot?.commandExceptions.orEmpty().maxByOrNull { it.timestampUtc }?.loggedLine()
 
     /** message_id_conflict: ask Station 2 at once what became of the command; NotExecuted becomes an offer. */
-    private suspend fun recoverNow(command: PendingCommand) {
+    private suspend fun recoverNow(command: PendingCommand, prefix: String = "") {
         val seq = ++issued
         val result = try {
             recovery.recover(command)
@@ -785,7 +785,7 @@ class PreparationViewModel @Inject constructor(
         }
         val fresh = (result as? RecoveryResult.Resolved)?.let { takeIfNewer(seq, it.snapshot.toPrepSnapshot()) }
         _uiState.update { s ->
-            s.copy(snapshot = fresh ?: s.snapshot, message = OutcomeMessage.Info(result.noticeText(mqttRepository.deviceId)))
+            s.copy(snapshot = fresh ?: s.snapshot, message = OutcomeMessage.Info(prefix + result.noticeText(mqttRepository.deviceId)))
         }
         if (result is RecoveryResult.Resolved && result.outcome == RecoveryOutcome.NotExecuted) {
             offerAfterRead(command.messageId, ReplacementOffer.from(result))

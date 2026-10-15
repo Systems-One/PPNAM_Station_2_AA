@@ -1226,4 +1226,21 @@ class PreparationViewModelTest {
         verify(useCase, never()).capture(any(), any(), anyOrNull())
         assertEquals(CollectStep.Idle, vm.step())
     }
+
+    // ---- fix(collect) 5: Recover keeps the "Recorded k of n" prefix ----
+
+    @Test
+    fun `a message_id_conflict part-way still reports how many bags were recorded`() = runTest {
+        val vm = open()
+        val cmd = pending()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("25"))).thenReturn(CollectionResult.Done(afterOne))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).thenReturn(
+            CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "Station 2 couldn't match this command."),
+        )
+        whenever(recovery.recover(cmd)).thenReturn(RecoveryResult.StillUnresolved(cmd, "Still not sure."))
+        scanIdentified(vm, source(bag = "25"))
+        vm.submit()
+        val text = (vm.uiState.value.message as OutcomeMessage.Info).text
+        assertTrue(text, text.startsWith("Recorded 1 of 2 (25 kg) — then: "))
+    }
 }
