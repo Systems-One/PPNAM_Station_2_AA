@@ -48,6 +48,25 @@ data class Rev2Snapshot(
     val collectionExceptions: List<Rev2CollectionException> = emptyList(),
     /** The subset of [collectionExceptions] created by this device's message (or the recovered original). */
     val commandExceptions: List<Rev2CollectionException> = emptyList(),
+    /** `identify` only (proposed): the scanned pallet; null for an unknown code and every other action. */
+    val source: Rev2Source? = null,
+)
+
+/** Proposed `identify` response `data.source`. Quantities are in [unit]. */
+data class Rev2Source(
+    /** The scanned code, echoed. */
+    val code: String = "",
+    val materialCode: String = "",
+    val name: String = "",
+    val unit: String = "",
+    /** Configured bag quantity; null when unconfigured. */
+    val bagSize: BigDecimal? = null,
+    /** Physical stock on the pallet. */
+    val available: BigDecimal? = null,
+    /** Unblocked local Station 1 pallet in Holding/Mixing with fresh evidence. */
+    val usable: Boolean = false,
+    /** Readable reason when [usable] is false, else empty. */
+    val reason: String = "",
 )
 
 data class Rev2CommandResult(
@@ -259,4 +278,53 @@ data class Rev2CaptureRequest(
 data class Rev2ConfirmRequest(
     val targetId: String,
     val action: String = "confirm",
+)
+
+/** Contract §4 `machine_start`: [code] is the scanned machine code, exactly as scanned. */
+data class Rev2MachineStartRequest(
+    val targetId: String,
+    val code: String,
+    val action: String = "machine_start",
+)
+
+/** Contract §4 `machine_finish`: [cycleId] is the PREP's current `cycleId` from the latest snapshot. */
+data class Rev2MachineFinishRequest(
+    val targetId: String,
+    val code: String,
+    val cycleId: String,
+    val action: String = "machine_finish",
+)
+
+/**
+ * Proposed `identify`: read-only, no receipt. A plain request like `read` — never outboxed, safe to
+ * resend. [targetId] is the PREP, [code] the scanned pallet/label code.
+ */
+data class Rev2IdentifyRequest(
+    val targetId: String,
+    val code: String,
+    val action: String = "identify",
+)
+
+/**
+ * Contract §6 `adjust_ingredient` for a General PREP. [collectionRevision] is the PREPARATION's
+ * current revision; [reason] is trimmed, 1–1000 characters.
+ */
+data class Rev2AdjustIngredientRequest(
+    val targetId: String,
+    val collectionRevision: Int,
+    val reason: String,
+    val adjustment: Rev2Adjustment,
+    val action: String = "adjust_ingredient",
+)
+
+/**
+ * Contract §6 `adjustment`. Only `Add` is built here: [materialCode] stays `""`, as in Station 2's
+ * own generated request. [targetQuantity] is the PREP's total target for the new row and must
+ * already be [com.mitas.ppnam.station2aa.domain.model.WireDecimal]-normalised.
+ */
+data class Rev2Adjustment(
+    val kind: String = "Add",
+    val materialCode: String = "",
+    val sourceCode: String,
+    val targetQuantity: BigDecimal,
 )

@@ -29,12 +29,18 @@ import com.mitas.ppnam.station2aa.domain.usecase.RecoveryOutcome
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 import com.mitas.ppnam.station2aa.domain.usecase.ReplacementOffer
 import com.mitas.ppnam.station2aa.domain.model.CaptureIntent
+import com.mitas.ppnam.station2aa.domain.model.AmountCheck
+import com.mitas.ppnam.station2aa.domain.model.AmountProblem
+import com.mitas.ppnam.station2aa.domain.model.PrepMaterial
+import com.mitas.ppnam.station2aa.domain.model.SourceInfo
+import com.mitas.ppnam.station2aa.domain.usecase.IdentifyResult
 import com.mitas.ppnam.station2aa.domain.usecase.toPrepSnapshot
 import java.math.BigDecimal
 import java.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -51,6 +57,7 @@ import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doSuspendableAnswer
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
@@ -138,6 +145,39 @@ class PreparationViewModelTest {
 
     private fun scan(tag: String) = scans.tryEmit(ScanEvent.RfidTag(tag, Instant.EPOCH))
 
+
+    // ---- test helpers for the collect flow ----
+
+    private fun source(
+        code: String = "TAG-RESIN", material: String = "RESIN", name: String = "Resin",
+        bag: String? = null, available: String? = "100", usable: Boolean = true, reason: String = "",
+    ) = SourceInfo(
+        code = code, materialCode = material, name = name, unit = "kg", bagSize = bag?.let(::BigDecimal),
+        available = available?.let(::BigDecimal), usable = usable, reason = reason,
+    )
+
+    /** Station 2 identifies [source] against [snapshot]; then the scan arrives. */
+    private suspend fun scanIdentified(vm: PreparationViewModel, source: SourceInfo = source(), snapshot: PrepSnapshot = opened) {
+        whenever(useCase.identify(prepId, source.code)).thenReturn(IdentifyResult.Identified(source, snapshot))
+        vm.onScan(source.code)
+    }
+
+    private fun PreparationViewModel.step() = uiState.value.step
+
+    private fun withMaterial(base: PrepSnapshot, material: PrepMaterial): PrepSnapshot =
+        base.copy(preparation = base.preparation!!.copy(materials = base.preparation!!.materials + material))
+
+    private fun withResinCollected(base: PrepSnapshot, collected: String?): PrepSnapshot =
+        base.copy(preparation = base.preparation!!.copy(materials = base.preparation!!.materials.map {
+            if (it.code == "RESIN") it.copy(collected = collected?.let(::BigDecimal) ?: it.required) else it
+        }))
+
+    private fun rejectionRecord() = CollectionExceptionRecord(
+        id = "EX-1", timestampUtc = "2026-10-01T08:00:00Z", operatorId = "65cf955ae506431b9d0d0025ca9fe8fa", device = "scanner_1",
+        messageId = "m-9", jobId = "510019068", batchId = null, kind = "Capture rejected",
+        details = "Pallet not on the job", reason = "", reviewedAtUtc = null, reviewedBy = null, reviewReason = null,
+    )
+
     @Test
     fun `opening reads the exact PREP id`() = runTest {
         val vm = open()
@@ -145,15 +185,30 @@ class PreparationViewModelTest {
         verify(useCase, never()).prepare(any(), any(), anyOrNull(), any(), anyOrNull())
         assertEquals(PrepStage.Collecting, vm.uiState.value.stage)
         assertTrue(vm.uiState.value.canScan)
+        assertEquals(CollectStep.Idle, vm.step())
     }
 
     @Test
-    fun `a scan stages and never sends`() = runTest {
-        val vm = open()
+    fun `a scan identifies the pallet and never sends`() = runTest {
+        open()
+        whenever(useCase.identify(prepId, "TAG-RESIN")).thenReturn(IdentifyResult.Identified(source(), opened))
         scan("  TAG-RESIN ")
-        assertEquals(Staged.WholeBag("TAG-RESIN"), vm.uiState.value.staged)
+        verify(useCase).identify(prepId, "TAG-RESIN")
         verify(useCase, never()).capture(any(), any(), anyOrNull())
         verify(useCase, never()).confirm(any())
+    }
+
+    @Test
+    fun `an identified in-mix pallet shows the guide and prefills the smaller of remaining and stock`() = runTest {
+        val vm = open(afterOne)
+        scanIdentified(vm, source(bag = "25", available = "100"), afterOne)
+        val step = vm.step() as CollectStep.Identified
+        assertEquals("30", step.amountText)                      // remaining 30
+        assertEquals("1 bag + ≈ ¼", step.guide!!.text)
+        assertEquals(AmountCheck.Valid(BigDecimal("30")), step.check)
+        vm.cancelCollect()
+        scanIdentified(vm, source(code = "TAG-2", bag = "25", available = "12"), afterOne)
+        assertEquals("12", (vm.step() as CollectStep.Identified).amountText)   // pallet stock caps the prefill
     }
 
     @Test
@@ -161,88 +216,295 @@ class PreparationViewModelTest {
         val vm = open()
         vm.setScreenActive(false)
         scan("TAG-RESIN")
-        assertNull(vm.uiState.value.staged)
+        assertEquals(CollectStep.Idle, vm.step())
+        verify(useCase, never()).identify(any(), any())
     }
 
     @Test
-    fun `record sends one capture with an omitted quantity, and the same code stays staged`() = runTest {
+    fun `submit with no bag size sends one capture of the exact amount and shows Accepted`() = runTest {
         val vm = open()
-        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenReturn(CollectionResult.Done(afterOne))
-        vm.onScan("TAG-RESIN")
-        vm.recordStaged()
-        verify(useCase, times(1)).capture(prepId, "TAG-RESIN", null)
-        assertEquals(Staged.WholeBag("TAG-RESIN"), vm.uiState.value.staged)
-        assertEquals(OutcomeMessage.Recorded("Recorded 10 kg Resin — 30 kg to go"), vm.uiState.value.message)
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10"))).thenReturn(CollectionResult.Done(afterOne))
+        scanIdentified(vm)
+        vm.onAmountChange("10")
+        vm.submit()
+        verify(useCase, times(1)).capture(prepId, "TAG-RESIN", BigDecimal("10"))
+        assertEquals(CollectStep.Idle, vm.step())
+        assertEquals(ResultBanner.Accepted("Recorded 10 kg Resin"), vm.uiState.value.banner)
         assertEquals(afterOne, vm.uiState.value.snapshot)
         assertFalse(vm.uiState.value.inFlight)
     }
 
     @Test
-    fun `two taps while in flight send one capture`() = runTest {
+    fun `two taps on Submit while in flight send one capture`() = runTest {
         val vm = open()
         val reply = CompletableDeferred<CollectionResult>()
-        whenever(useCase.capture(prepId, "TAG-RESIN", null)).doSuspendableAnswer { reply.await() }
-        vm.onScan("TAG-RESIN")
-        vm.recordStaged()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("40"))).doSuspendableAnswer { reply.await() }
+        scanIdentified(vm)
+        vm.submit()
         assertTrue(vm.uiState.value.inFlight)
-        vm.recordStaged()
-        reply.complete(CollectionResult.Done(afterOne))
+        assertTrue(vm.step() is CollectStep.Submitting)
+        vm.submit()
+        reply.complete(CollectionResult.Done(finalCapture))
         verify(useCase, times(1)).capture(any(), any(), anyOrNull())
         assertFalse(vm.uiState.value.inFlight)
     }
 
     @Test
-    fun `a part bag above the picked row's remaining is refused locally`() = runTest {
+    fun `an amount above the row's remaining is refused locally and nothing is sent`() = runTest {
         val vm = open(afterOne)
-        vm.onScan("TAG-RESIN")
-        vm.stagePart("RESIN")
-        vm.onPartQuantity("30.001")
-        vm.recordStaged()
+        scanIdentified(vm, snapshot = afterOne)
+        vm.onAmountChange("30.001")
+        val step = vm.step() as CollectStep.Identified
+        assertEquals(AmountCheck.Invalid(AmountProblem.MoreThanNeeded(BigDecimal("30"), "kg")), step.check)
+        vm.submit()
         verify(useCase, never()).capture(any(), any(), anyOrNull())
-        assertEquals(OutcomeMessage.Info("Enter up to 30 kg"), vm.uiState.value.message)
-        assertEquals(Staged.PartBag("TAG-RESIN", "RESIN", "30.001"), vm.uiState.value.staged)
+        assertEquals(step, vm.step())
     }
 
     @Test
-    fun `a part bag that is not a quantity is refused locally`() = runTest {
+    fun `an amount above the pallet stock, zero, or blank is refused locally`() = runTest {
         val vm = open(afterOne)
-        vm.onScan("TAG-RESIN")
-        vm.stagePart("RESIN")
-        vm.onPartQuantity("0")
-        vm.recordStaged()
+        scanIdentified(vm, source(available = "5"), afterOne)
+        vm.onAmountChange("5.5")
+        assertTrue((vm.step() as CollectStep.Identified).check is AmountCheck.Invalid)
+        vm.onAmountChange("0")
+        assertTrue((vm.step() as CollectStep.Identified).check is AmountCheck.Invalid)
+        vm.onAmountChange("")
+        assertTrue((vm.step() as CollectStep.Identified).check is AmountCheck.Invalid)
+        vm.submit()
         verify(useCase, never()).capture(any(), any(), anyOrNull())
-        assertEquals(OutcomeMessage.Info("Enter up to 30 kg"), vm.uiState.value.message)
     }
 
     @Test
-    fun `a part bag equal to remaining is sent exactly, then the mode resets to whole bag`() = runTest {
+    fun `an amount equal to remaining is sent exactly and reports the completed row`() = runTest {
         val vm = open(afterOne)
         whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("30"))).thenReturn(CollectionResult.Done(finalCapture))
-        vm.onScan("TAG-RESIN")
-        vm.stagePart("RESIN")
-        vm.onPartQuantity("30")
-        vm.recordStaged()
+        scanIdentified(vm, snapshot = afterOne)
+        vm.submit()
         verify(useCase).capture(prepId, "TAG-RESIN", BigDecimal("30"))
-        assertEquals(Staged.WholeBag("TAG-RESIN"), vm.uiState.value.staged)
-        assertEquals(OutcomeMessage.Recorded("Recorded 30 kg Resin — 0 kg to go"), vm.uiState.value.message)
+        assertEquals(ResultBanner.Accepted("Recorded 30 kg Resin", completedMaterialCode = "RESIN"), vm.uiState.value.banner)
     }
 
     @Test
-    fun `scanning the code staged as a part bag keeps the part mode`() = runTest {
+    fun `with a bag size Submit sends one capture per bag then the rest, in order`() = runTest {
+        val vm = open()
+        val order = mutableListOf<BigDecimal?>()
+        whenever(useCase.capture(eq(prepId), eq("TAG-RESIN"), anyOrNull())).thenAnswer {
+            order += it.arguments[2] as BigDecimal?
+            CollectionResult.Done(if (order.size == 2) finalCapture else afterOne)
+        }
+        scanIdentified(vm, source(bag = "25"))
+        assertEquals("40", (vm.step() as CollectStep.Identified).amountText)
+        vm.submit()
+        assertEquals(listOf(BigDecimal("25"), BigDecimal("15")), order)
+        assertEquals(CollectStep.Idle, vm.step())
+        assertTrue(vm.uiState.value.banner is ResultBanner.Accepted)
+        assertFalse(vm.uiState.value.inFlight)
+    }
+
+    @Test
+    fun `a rejection part-way stops the sequence and reports how many were recorded`() = runTest {
+        val vm = open()
+        val record = rejectionRecord()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("25"))).thenReturn(CollectionResult.Done(afterOne))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).thenReturn(
+            CollectionResult.Rejected(ErrorCode("rev2_rejected"), "Pallet is blocked", afterOne.copy(commandExceptions = listOf(record))),
+        )
+        scanIdentified(vm, source(bag = "25"))
+        vm.submit()
+        verify(useCase, times(2)).capture(any(), any(), anyOrNull())
+        assertEquals(CollectStep.Idle, vm.step())
+        assertEquals(
+            ResultBanner.Partial(
+                recorded = 1, total = 2, recordedKg = "25", rejection = "Pallet is blocked", loggedLine = record.loggedLine(),
+            ),
+            vm.uiState.value.banner,
+        )
+    }
+
+    @Test
+    fun `a lost reply part-way stops the sequence, never sends the next, and the hold blocks scans`() = runTest {
+        val vm = open()
+        val cmd = pending()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("25"))).thenReturn(CollectionResult.Done(afterOne))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).thenAnswer {
+            outbox.value = listOf(cmd)
+            CollectionResult.Unresolved(cmd, UnresolvedReason.RetryIdentical, "Station 2 has not confirmed this yet.")
+        }
+        scanIdentified(vm, source(bag = "25"))
+        vm.submit()
+        verify(useCase, times(2)).capture(any(), any(), anyOrNull())
+        assertEquals(listOf(cmd), vm.uiState.value.blocking)
+        assertEquals(CollectStep.Idle, vm.step())
+        assertFalse(vm.uiState.value.canScan)
+        scan("TAG-OTHER")
+        verify(useCase, never()).identify(prepId, "TAG-OTHER")
+    }
+
+    @Test
+    fun `an already-settled capture counts as done for that element and re-reads`() = runTest {
+        val vm = open()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("25"))).thenReturn(CollectionResult.AlreadySettled("m"))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).thenReturn(CollectionResult.Done(finalCapture))
+        scanIdentified(vm, source(bag = "25"))
+        vm.submit()
+        verify(useCase, times(2)).capture(any(), any(), anyOrNull())
+        verify(useCase, times(2)).read(prepId)
+        assertEquals(CollectStep.Idle, vm.step())
+    }
+
+    @Test
+    fun `not sent on the first capture keeps the identified pallet so Submit can be tapped again`() = runTest {
+        val vm = open()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("40")))
+            .thenReturn(CollectionResult.NotSent("Not connected — nothing was sent"))
+        scanIdentified(vm)
+        val before = vm.step()
+        vm.submit()
+        assertEquals(OutcomeMessage.Info("Not connected — nothing was sent"), vm.uiState.value.message)
+        assertEquals(before, vm.step())
+        assertFalse(vm.uiState.value.inFlight)
+    }
+
+    @Test
+    fun `a rejected capture shows the reason and the logged exception line`() = runTest {
+        val vm = open()
+        val record = rejectionRecord()
+        val withRecord = opened.copy(commandExceptions = listOf(record))
+        whenever(useCase.capture(prepId, "TAG-X", BigDecimal("40"))).thenReturn(
+            CollectionResult.Rejected(ErrorCode("rev2_rejected"), "That pallet is not on this job", withRecord),
+        )
+        scanIdentified(vm, source(code = "TAG-X"))
+        vm.submit()
+        assertEquals(ResultBanner.Rejected("That pallet is not on this job", record.loggedLine()), vm.uiState.value.banner)
+        assertEquals("Logged 1 Oct 2026 10:00 · operator 65cf…", record.loggedLine())
+        assertEquals(withRecord, vm.uiState.value.snapshot)
+        assertEquals(CollectStep.Idle, vm.step())
+    }
+
+    @Test
+    fun `a sealed receipt is shown as a rejection`() = runTest {
+        val vm = open()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("40"))).thenReturn(
+            CollectionResult.Rejected(ErrorCode.RECEIPT_SEALED, "Station 2 never ran this, and it can no longer run.", opened),
+        )
+        scanIdentified(vm)
+        vm.submit()
+        assertEquals(
+            ResultBanner.Rejected("Station 2 never ran this, and it can no longer run.", null),
+            vm.uiState.value.banner,
+        )
+    }
+
+    // ---- the Collect sheet protects the staged pallet ----
+
+    @Test
+    fun `a new scan while a pallet is identified is refused with Finish or cancel`() = runTest {
         val vm = open(afterOne)
-        vm.onScan("TAG-RESIN")
-        vm.stagePart("RESIN")
-        vm.onPartQuantity("5")
-        vm.onScan("TAG-RESIN")
-        assertEquals(Staged.PartBag("TAG-RESIN", "RESIN", "5"), vm.uiState.value.staged)
-        vm.onScan("TAG-OTHER")
-        assertEquals(Staged.WholeBag("TAG-OTHER"), vm.uiState.value.staged)
+        scanIdentified(vm, snapshot = afterOne)
+        vm.onAmountChange("5")
+        val staged = vm.step()
+        scan("TAG-OTHER")
+        verify(useCase, never()).identify(prepId, "TAG-OTHER")
+        assertEquals(staged, vm.step())
+        assertEquals(OutcomeMessage.Info(PreparationViewModel.FINISH_FIRST_MESSAGE), vm.uiState.value.message)
+        assertEquals("Finish or cancel this pallet first", PreparationViewModel.FINISH_FIRST_MESSAGE)
+        vm.cancelCollect()
+        assertEquals(CollectStep.Idle, vm.step())
+        scanIdentified(vm, source(code = "TAG-OTHER"), afterOne)
+        assertEquals("TAG-OTHER", (vm.step() as CollectStep.Identified).source.code)
     }
 
     @Test
-    fun `a part bag recorded against another material warns`() = runTest {
-        // Two open rows: RESIN (remaining 30) and an added ALT (remaining 8). The operator picks ALT;
-        // Station 2 decides the pallet is resin.
+    fun `a new scan while identifying or picking a fallback row does not replace the step`() = runTest {
+        val vm = open()
+        val reply = CompletableDeferred<IdentifyResult>()
+        whenever(useCase.identify(prepId, "TAG-A")).doSuspendableAnswer { reply.await() }
+        vm.onScan("TAG-A")
+        assertEquals(CollectStep.Identifying("TAG-A"), vm.step())
+        vm.onScan("TAG-B")
+        verify(useCase, never()).identify(prepId, "TAG-B")
+        reply.complete(IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK))
+        assertTrue(vm.step() is CollectStep.Fallback)
+        vm.onScan("TAG-B")
+        verify(useCase, never()).identify(prepId, "TAG-B")
+        assertEquals("TAG-A", (vm.step() as CollectStep.Fallback).code)
+    }
+
+    @Test
+    fun `cancelling while identifying drops a late reply`() = runTest {
+        val vm = open()
+        val reply = CompletableDeferred<IdentifyResult>()
+        whenever(useCase.identify(prepId, "TAG-A")).doSuspendableAnswer { reply.await() }
+        vm.onScan("TAG-A")
+        vm.cancelCollect()
+        reply.complete(IdentifyResult.Identified(source(code = "TAG-A"), opened))
+        assertEquals(CollectStep.Idle, vm.step())
+    }
+
+    @Test
+    fun `an unknown pallet shows its message and a later scan replaces it`() = runTest {
+        val vm = open()
+        whenever(useCase.identify(prepId, "TAG-?")).thenReturn(IdentifyResult.Unknown("Station 2 doesn't know this pallet code.", null))
+        vm.onScan("TAG-?")
+        assertEquals(CollectStep.Unknown("Station 2 doesn't know this pallet code."), vm.step())
+        scanIdentified(vm)
+        assertTrue(vm.step() is CollectStep.Identified)
+    }
+
+    @Test
+    fun `an unusable pallet shows Station 2's reason and sends nothing`() = runTest {
+        val vm = open()
+        val src = source(usable = false, reason = "Pallet is blocked at Station 1")
+        scanIdentified(vm, src)
+        assertEquals(CollectStep.Unusable(src, "Pallet is blocked at Station 1"), vm.step())
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+    }
+
+    @Test
+    fun `an excluded material cannot be collected`() = runTest {
+        val vm = open()
+        val src = source(material = "OPTIONAL", name = "Optional ingredient")
+        scanIdentified(vm, src)
+        assertEquals(CollectStep.Excluded(src, "Optional ingredient"), vm.step())
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+    }
+
+    @Test
+    fun `an already complete material cannot be collected again`() = runTest {
+        val complete = withResinCollected(opened, null)
+        val vm = open(complete)
+        scanIdentified(vm, snapshot = complete)
+        assertTrue(vm.step() is CollectStep.Unusable)
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+    }
+
+    // ---- Fallback when Station 2 cannot identify ----
+
+    @Test
+    fun `unsupported identify falls back to picking the ingredient, then one capture of the typed amount`() = runTest {
+        val vm = open(afterOne)
+        whenever(useCase.identify(prepId, "TAG-RESIN")).thenReturn(IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK))
+        vm.onScan("TAG-RESIN")
+        assertEquals(CollectStep.Fallback("TAG-RESIN", null, ""), vm.step())
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        vm.pickFallbackMaterial("RESIN")
+        assertEquals("30", (vm.step() as CollectStep.Fallback).amountText)
+        vm.pickFallbackMaterial("OPTIONAL")                     // excluded rows cannot be picked
+        assertEquals("RESIN", (vm.step() as CollectStep.Fallback).pickedMaterial)
+        vm.onAmountChange("12.5")
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("12.5"))).thenReturn(CollectionResult.Done(afterOne))
+        vm.submit()
+        verify(useCase, times(1)).capture(prepId, "TAG-RESIN", BigDecimal("12.5"))
+        assertEquals(CollectStep.Idle, vm.step())
+    }
+
+    @Test
+    fun `a fallback capture Station 2 books to another material warns`() = runTest {
         val prep = afterOne.preparation!!
         val alt = prep.materials.first { it.code == "RESIN" }.copy(
             code = "ALT", name = "Alternative", required = BigDecimal("8"), collected = BigDecimal.ZERO,
@@ -253,78 +515,143 @@ class PreparationViewModelTest {
             if (it.code == "RESIN") resin.copy(collected = BigDecimal("15")) else it
         }))
         val vm = open(before)
+        whenever(useCase.identify(prepId, "TAG-RESIN")).thenReturn(IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK))
         whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("5"))).thenReturn(CollectionResult.Done(after))
         vm.onScan("TAG-RESIN")
-        vm.stagePart("ALT")
-        vm.onPartQuantity("5")
-        vm.recordStaged()
+        vm.pickFallbackMaterial("ALT")
+        vm.onAmountChange("5")
+        vm.submit()
         assertEquals(
-            OutcomeMessage.Recorded(
-                "Recorded 5 kg Resin — 25 kg to go",
-                warning = "Station 2 recorded this against Resin, not Alternative",
-            ),
-            vm.uiState.value.message,
+            ResultBanner.Accepted("Recorded 5 kg Resin", warning = "Station 2 recorded this against Resin, not Alternative"),
+            vm.uiState.value.banner,
         )
     }
 
     @Test
-    fun `a rejected capture shows the server's exception record`() = runTest {
+    fun `a failed identify shows the message and stays idle`() = runTest {
         val vm = open()
-        val record = CollectionExceptionRecord(
-            id = "EX-1", timestampUtc = "2026-10-01T08:00:00Z", operatorId = "OP-1", device = "scanner_1",
-            messageId = "m-9", jobId = "510019068", batchId = null, kind = "Capture rejected",
-            details = "Pallet not on the job", reason = "", reviewedAtUtc = null, reviewedBy = null, reviewReason = null,
-        )
-        val withRecord = opened.copy(commandExceptions = listOf(record))
-        whenever(useCase.capture(prepId, "TAG-X", null)).thenReturn(
-            CollectionResult.Rejected(ErrorCode("rev2_rejected"), "That pallet is not on this job", withRecord),
-        )
-        vm.onScan("TAG-X")
-        vm.recordStaged()
-        assertEquals(OutcomeMessage.Rejected("That pallet is not on this job", listOf(record)), vm.uiState.value.message)
-        assertEquals(withRecord, vm.uiState.value.snapshot)
-    }
-
-    @Test
-    fun `a sealed receipt is shown as a rejection`() = runTest {
-        val vm = open()
-        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenReturn(
-            CollectionResult.Rejected(ErrorCode.RECEIPT_SEALED, "Station 2 never ran this, and it can no longer run.", opened),
-        )
+        whenever(useCase.identify(prepId, "TAG-RESIN")).thenReturn(IdentifyResult.Failed("Not connected", retryable = true))
         vm.onScan("TAG-RESIN")
-        vm.recordStaged()
-        assertEquals(
-            OutcomeMessage.Rejected("Station 2 never ran this, and it can no longer run.", emptyList()),
-            vm.uiState.value.message,
-        )
+        assertEquals(CollectStep.Idle, vm.step())
+        assertEquals(OutcomeMessage.Info("Not connected"), vm.uiState.value.message)
     }
 
+    // ---- Not in this mix ----
+
+    private fun caco3(): PrepMaterial = PrepMaterial(
+        code = "CACO3", name = "Calcium Carbonate", unit = "kg", perMix = BigDecimal.ZERO, required = BigDecimal("5"),
+        collected = BigDecimal.ZERO, excluded = false, originalRequired = BigDecimal.ZERO,
+    )
+
+    private fun caSource() = source(code = "TAG-CA", material = "CACO3", name = "Calcium Carbonate", bag = "25")
+
     @Test
-    fun `not sent shows the message and keeps the staged bag`() = runTest {
+    fun `a pallet whose material is not in the mix needs an amount and a reason before adding`() = runTest {
         val vm = open()
-        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenReturn(CollectionResult.NotSent("Not connected — nothing was sent"))
-        vm.onScan("TAG-RESIN")
-        vm.recordStaged()
-        assertEquals(OutcomeMessage.Info("Not connected — nothing was sent"), vm.uiState.value.message)
-        assertEquals(Staged.WholeBag("TAG-RESIN"), vm.uiState.value.staged)
+        scanIdentified(vm, caSource())
+        assertEquals(CollectStep.NotInMix(caSource(), "", ""), vm.step())
+        vm.onAmountChange("5")
+        vm.addToMix()                                            // no reason yet
+        verify(useCase, never()).addIngredient(any(), any(), any(), any(), any())
+        vm.onReasonChange("   ")
+        vm.addToMix()
+        verify(useCase, never()).addIngredient(any(), any(), any(), any(), any())
     }
 
     @Test
-    fun `an unresolved capture blocks the next scan`() = runTest {
+    fun `adding sends the PREP's current revision, never captures, then shows Identified for the same pallet`() = runTest {
+        val vm = open()
+        val added = withMaterial(opened, caco3())
+        whenever(useCase.addIngredient(prepId, opened.preparation!!.collectionRevision, "TAG-CA", BigDecimal("5"), "Recipe correction"))
+            .thenReturn(CollectionResult.Done(added))
+        scanIdentified(vm, caSource())
+        vm.onAmountChange("5")
+        vm.onReasonChange("  Recipe correction ")
+        vm.addToMix()
+        verify(useCase, times(1)).addIngredient(
+            prepId, opened.preparation!!.collectionRevision, "TAG-CA", BigDecimal("5"), "Recipe correction",
+        )
+        verify(useCase, never()).capture(any(), any(), anyOrNull())      // an adjustment never captures
+        val step = vm.step() as CollectStep.Identified
+        assertEquals("5", step.amountText)
+        assertEquals("TAG-CA", step.source.code)
+        assertEquals(added, vm.uiState.value.snapshot)
+    }
+
+    @Test
+    fun `a revision conflict shows the reason, re-reads, and returns to idle without resending`() = runTest {
+        val vm = open()
+        whenever(useCase.addIngredient(any(), any(), any(), any(), any())).thenReturn(
+            CollectionResult.Rejected(ErrorCode("collection_revision_conflict"), "The mix changed — try again", opened),
+        )
+        scanIdentified(vm, caSource())
+        vm.onAmountChange("5")
+        vm.onReasonChange("Why")
+        vm.addToMix()
+        verify(useCase, times(1)).addIngredient(any(), any(), any(), any(), any())
+        verify(useCase, times(2)).read(prepId)
+        assertEquals(CollectStep.Idle, vm.step())
+        assertEquals(ResultBanner.Rejected("The mix changed — try again", null), vm.uiState.value.banner)
+    }
+
+    @Test
+    fun `adding is blocked while a command is unresolved`() = runTest {
+        val vm = open()
+        scanIdentified(vm, caSource())
+        vm.onAmountChange("5")
+        vm.onReasonChange("Why")
+        outbox.value = listOf(pending())
+        vm.addToMix()
+        verify(useCase, never()).addIngredient(any(), any(), any(), any(), any())
+    }
+
+    // ---- Mix complete ----
+
+    @Test
+    fun `Mix complete is offered in Collecting once every non-excluded row is complete`() = runTest {
+        val vm = open(withResinCollected(opened, null))
+        assertEquals(PrepStage.Collecting, vm.uiState.value.stage)
+        assertTrue(vm.uiState.value.canConfirm)
+        whenever(useCase.confirm(prepId)).thenReturn(CollectionResult.Done(confirmed))
+        vm.confirm()
+        verify(useCase, times(1)).confirm(prepId)
+        assertEquals(PrepStage.ReadyForMixer, vm.uiState.value.stage)
+    }
+
+    @Test
+    fun `Mix complete is not offered while a row is outstanding`() = runTest {
+        val vm = open(afterOne)
+        assertFalse(vm.uiState.value.canConfirm)
+        vm.confirm()
+        verify(useCase, never()).confirm(any())
+    }
+
+    @Test
+    fun `an unresolved capture blocks the next scan and Submit`() = runTest {
         val vm = open()
         val cmd = pending()
-        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenAnswer {
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("40"))).thenAnswer {
             outbox.value = listOf(cmd)
             CollectionResult.Unresolved(cmd, UnresolvedReason.RetryIdentical, "Station 2 has not confirmed this yet.")
         }
-        vm.onScan("TAG-RESIN")
-        vm.recordStaged()
+        scanIdentified(vm)
+        vm.submit()
         assertEquals(listOf(cmd), vm.uiState.value.blocking)
         assertFalse(vm.uiState.value.canScan)
+        assertEquals(CollectStep.Idle, vm.step())
         vm.onScan("TAG-RESIN-2")
         assertTrue(vm.uiState.value.message is OutcomeMessage.Info)
-        vm.recordStaged()
+        verify(useCase, never()).identify(prepId, "TAG-RESIN-2")
         verify(useCase, times(1)).capture(any(), any(), anyOrNull())
+    }
+
+    @Test
+    fun `Submit is refused when a command became unresolved after the pallet was identified`() = runTest {
+        val vm = open()
+        scanIdentified(vm)
+        outbox.value = listOf(pending())
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
     }
 
     @Test
@@ -413,7 +740,7 @@ class PreparationViewModelTest {
         vm.refresh()
         assertFalse(vm.uiState.value.canScan)
         vm.onScan("TAG-RESIN")
-        assertNull(vm.uiState.value.staged)
+        assertEquals(CollectStep.Idle, vm.step())
         verify(useCase, never()).capture(any(), any(), anyOrNull())
     }
 
@@ -421,12 +748,12 @@ class PreparationViewModelTest {
     fun `message_id_conflict triggers recovery immediately`() = runTest {
         val vm = open()
         val cmd = pending()
-        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenReturn(
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("40"))).thenReturn(
             CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "Station 2 couldn't match this command."),
         )
         whenever(recovery.recover(cmd)).thenReturn(RecoveryResult.StillUnresolved(cmd, "no reply"))
-        vm.onScan("TAG-RESIN")
-        vm.recordStaged()
+        scanIdentified(vm)
+        vm.submit()
         verify(recovery, times(1)).recover(cmd)
         assertTrue(vm.uiState.value.message is OutcomeMessage.Info)
         verify(useCase, times(1)).capture(any(), any(), anyOrNull())
@@ -503,7 +830,7 @@ class PreparationViewModelTest {
     fun `a badge scan is refused`() = runTest {
         val vm = open()
         scan("505055AABBCC")
-        assertNull(vm.uiState.value.staged)
+        assertEquals(CollectStep.Idle, vm.step())
         assertEquals(OutcomeMessage.Info("That is a user badge, not a pallet"), vm.uiState.value.message)
     }
 
@@ -575,7 +902,7 @@ class PreparationViewModelTest {
         verify(useCase, never()).retry(any())
         verify(coordinator).dismiss(notice)
         assertNull(vm.uiState.value.offer)
-        assertEquals(OutcomeMessage.Recorded("Recorded 10 kg Resin — 30 kg to go"), vm.uiState.value.message)
+        assertEquals(ResultBanner.Accepted("Recorded 10 kg Resin"), vm.uiState.value.banner)
     }
 
     @Test
@@ -654,12 +981,12 @@ class PreparationViewModelTest {
         val vm = open()
         val cmd = pending().copy(payload = delayedPayload)
         val result = RecoveryResult.Resolved(cmd, RecoveryOutcome.NotExecuted, "", Rev2Snapshot())
-        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenReturn(
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("40"))).thenReturn(
             CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "Station 2 couldn't match this command."),
         )
         whenever(recovery.recover(cmd)).thenReturn(result)
-        vm.onScan("TAG-RESIN")
-        vm.recordStaged()
+        scanIdentified(vm)
+        vm.submit()
         verify(useCase, times(2)).read(prepId)
         assertEquals(
             ReplacementOffer.Capture(result, prepId, CaptureIntent("TAG-RESIN", BigDecimal("10"))),
@@ -683,9 +1010,9 @@ class PreparationViewModelTest {
     @Test
     fun `a capture that throws shows a message instead of crashing`() = runTest {
         val vm = open()
-        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenThrow(IllegalStateException("boom"))
-        vm.onScan("TAG-RESIN")
-        vm.recordStaged()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("40"))).thenThrow(IllegalStateException("boom"))
+        scanIdentified(vm)
+        vm.submit()
         assertEquals(
             OutcomeMessage.Info("Something went wrong sending this: boom. Check the preparation before trying again."),
             vm.uiState.value.message,
@@ -701,22 +1028,6 @@ class PreparationViewModelTest {
         val vm = open()
         assertEquals(OutcomeMessage.Info(finalCapture.resultMessage), vm.uiState.value.message)
     }
-
-    @Test
-    fun `scans are ignored while the part-bag sheet is open`() = runTest {
-        val vm = open(afterOne)
-        vm.onScan("TAG-RESIN")
-        vm.stagePart("RESIN")
-        vm.onPartQuantity("5")
-        vm.setPartSheetOpen(true)
-        scan("TAG-OTHER")
-        assertEquals(Staged.PartBag("TAG-RESIN", "RESIN", "5"), vm.uiState.value.staged)
-        vm.setPartSheetOpen(false)
-        scan("TAG-OTHER")
-        assertEquals(Staged.WholeBag("TAG-OTHER"), vm.uiState.value.staged)
-    }
-
-    // ---- final review fixes ----
 
     @Test
     fun `a replacement that was not sent keeps the offer and its notice`() = runTest {
@@ -769,8 +1080,8 @@ class PreparationViewModelTest {
         val vm = open(id = prepId.uppercase())              // reopened as PREP_440FBD…
         assertEquals(listOf(cmd), vm.uiState.value.blocking)
         assertFalse(vm.uiState.value.canScan)
-        vm.onScan("TAG-RESIN")
-        vm.recordStaged()
+        scanIdentified(vm)
+        vm.submit()
         verify(useCase, never()).capture(any(), any(), anyOrNull())
         // The snapshot for the same PREP in the other case is still this PREP's.
         assertEquals(opened, vm.uiState.value.snapshot)
@@ -807,24 +1118,144 @@ class PreparationViewModelTest {
             JsonParser.parseString(ContractFixtures.text("general_capture_response.json")).asJsonObject["data"],
             Rev2Snapshot::class.java,
         ).let { it.copy(preparation = it.preparation!!.copy(id = "PREP_other")) }
-        whenever(useCase.capture(prepId, "TAG-RESIN", null)).thenReturn(
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("40"))).thenReturn(
             CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "Station 2 couldn't match this command."),
         )
         whenever(recovery.recover(cmd)).thenReturn(RecoveryResult.Resolved(cmd, RecoveryOutcome.Committed, "", otherRev2))
-        vm.onScan("TAG-RESIN")
-        vm.recordStaged()
+        scanIdentified(vm)
+        vm.submit()
         assertEquals(opened, vm.uiState.value.snapshot)
     }
 
     @Test
     fun `a rejection with no snapshot re-reads`() = runTest {
         val vm = open()
-        whenever(useCase.capture(prepId, "TAG-X", null)).thenReturn(
+        whenever(useCase.capture(prepId, "TAG-X", BigDecimal("40"))).thenReturn(
             CollectionResult.Rejected(ErrorCode("rev2_rejected"), "That pallet is not on this job", null),
         )
-        vm.onScan("TAG-X")
-        vm.recordStaged()
+        scanIdentified(vm, source(code = "TAG-X"))
+        vm.submit()
         verify(useCase, times(2)).read(prepId)
-        assertEquals(OutcomeMessage.Rejected("That pallet is not on this job", emptyList()), vm.uiState.value.message)
+        assertEquals(ResultBanner.Rejected("That pallet is not on this job", null), vm.uiState.value.banner)
+    }
+
+    // ---- fix(collect) 3: canConfirm ----
+
+    @Test
+    fun `awaiting confirmation can confirm even with no local rows or only excluded rows`() = runTest {
+        val awaiting = finalCapture.preparation!!
+        val empty = finalCapture.copy(preparation = awaiting.copy(materials = emptyList()))
+        assertTrue(open(empty).uiState.value.canConfirm)
+        val excluded = finalCapture.copy(preparation = awaiting.copy(materials = awaiting.materials.map { it.copy(excluded = true) }))
+        assertTrue(open(excluded).uiState.value.canConfirm)
+    }
+
+    @Test
+    fun `collecting with everything collected can confirm and with one outstanding cannot`() = runTest {
+        assertTrue(open(withResinCollected(opened, null)).uiState.value.canConfirm)
+        assertFalse(open(opened).uiState.value.canConfirm)
+    }
+
+    // ---- fix(collect) 1: a read racing the last capture must not drop its snapshot ----
+
+    @Test
+    fun `a hint read that lands during the last capture does not leave a stale snapshot`() = runTest {
+        val vm = open()
+        // A read answered while the last capture is in flight returns older data; later reads are the truth.
+        var racing = false
+        whenever(useCase.read(prepId)).thenAnswer { ReadResult.Loaded(if (racing) afterOne else finalCapture) }
+        val gate = CompletableDeferred<Unit>()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).thenReturn(CollectionResult.Done(afterOne))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10"))).doSuspendableAnswer {
+            gate.await()
+            CollectionResult.Done(finalCapture)
+        }
+        scanIdentified(vm, source(bag = "15"))
+        vm.submit()
+        // The last capture is in flight; a hint's read takes a higher sequence number.
+        racing = true
+        vm.refresh()
+        racing = false
+        gate.complete(Unit)
+        assertEquals(finalCapture, vm.uiState.value.snapshot)
+    }
+
+
+    // ---- fix(collect) 2: nothing is sent between bags once the PREP is blocked ----
+
+    @Test
+    fun `a block that appears after the first bag stops the sequence and reports Recorded 1 of 3`() = runTest {
+        val vm = open()
+        val cmd = pending(status = PendingStatus.ManagerReconcile)
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).doSuspendableAnswer {
+            outbox.value = listOf(cmd)
+            yield()   // let the outbox collector publish `blocking`
+            CollectionResult.Done(afterOne)
+        }
+        scanIdentified(vm, source(bag = "15"))
+        vm.submit()
+        verify(useCase, times(1)).capture(any(), any(), anyOrNull())
+        val text = (vm.uiState.value.message as OutcomeMessage.Info).text
+        assertTrue(text, text.startsWith("Recorded 1 of 3 (15 kg)"))
+    }
+
+    // ---- fix(collect) 4: submit refuses a row that is gone or excluded ----
+
+    @Test
+    fun `submit after the row became excluded sends nothing and returns to Idle`() = runTest {
+        val vm = open()
+        scanIdentified(vm)
+        val excluded = opened.copy(preparation = opened.preparation!!.copy(
+            materials = opened.preparation!!.materials.map { if (it.code == "RESIN") it.copy(excluded = true) else it }))
+        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(excluded))
+        vm.refresh()
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        assertEquals(CollectStep.Idle, vm.step())
+        assertEquals(OutcomeMessage.Info("Resin is no longer in this mix — scan again"), vm.uiState.value.message)
+    }
+
+    @Test
+    fun `submit after the row disappeared sends nothing and returns to Idle`() = runTest {
+        val vm = open()
+        scanIdentified(vm)
+        val gone = opened.copy(preparation = opened.preparation!!.copy(materials = opened.preparation!!.materials.filter { it.code != "RESIN" }))
+        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(gone))
+        vm.refresh()
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        assertEquals(CollectStep.Idle, vm.step())
+    }
+
+    // ---- fix(collect) 6: timeout vs unsupported wording ----
+
+    @Test
+    fun `an identify timeout falls back with its own wording and unsupported keeps the old one`() = runTest {
+        val vm = open()
+        whenever(useCase.identify(prepId, "TAG-A")).thenReturn(IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK, timedOut = true))
+        vm.onScan("TAG-A")
+        val timedOut = vm.step() as CollectStep.Fallback
+        assertEquals("Station 2 didn't answer in time — pick the ingredient", timedOut.fallbackTitle())
+        vm.cancelCollect()
+        whenever(useCase.identify(prepId, "TAG-B")).thenReturn(IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK))
+        vm.onScan("TAG-B")
+        assertEquals("Station 2 couldn't identify this pallet — pick the ingredient", (vm.step() as CollectStep.Fallback).fallbackTitle())
+    }
+
+    // ---- fix(collect) 5: Recover keeps the "Recorded k of n" prefix ----
+
+    @Test
+    fun `a message_id_conflict part-way still reports how many bags were recorded`() = runTest {
+        val vm = open()
+        val cmd = pending()
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("25"))).thenReturn(CollectionResult.Done(afterOne))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).thenReturn(
+            CollectionResult.Unresolved(cmd, UnresolvedReason.Recover, "Station 2 couldn't match this command."),
+        )
+        whenever(recovery.recover(cmd)).thenReturn(RecoveryResult.StillUnresolved(cmd, "Still not sure."))
+        scanIdentified(vm, source(bag = "25"))
+        vm.submit()
+        val text = (vm.uiState.value.message as OutcomeMessage.Info).text
+        assertTrue(text, text.startsWith("Recorded 1 of 2 (25 kg) — then: "))
     }
 }

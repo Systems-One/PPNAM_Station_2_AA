@@ -82,4 +82,68 @@ class Rev2CollectionRequestTest {
         val (actual, expected) = built(Rev2ConfirmRequest("PREP_440fbd8f9cd3411e9be943a33f1a3ceb"), "general_confirm")
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun `adjust_ingredient Add matches the generated request`() {
+        val (actual, expected) = built(
+            Rev2AdjustIngredientRequest(
+                targetId = "PREP_dbd54e211aa0456fb3a680e9cbba20d5", collectionRevision = 0,
+                reason = "Add 4 kg additive to this whole preparation",
+                adjustment = Rev2Adjustment(sourceCode = "TAG-ADD", targetQuantity = BigDecimal("4")),
+            ),
+            "general_add",
+        )
+        assertEquals(expected, actual)
+        assertTrue(actual["collectionRevision"].asJsonPrimitive.isNumber)
+        assertTrue(actual["adjustment"].asJsonObject["targetQuantity"].asJsonPrimitive.isNumber)
+    }
+
+    @Test
+    fun `adjust_ingredient writes a plain decimal target`() {
+        for (q in listOf("100", "0.125", "1E+2", "0.001", "999999999")) {
+            val value = com.mitas.ppnam.station2aa.domain.model.WireDecimal.of(BigDecimal(q))
+            val json = RequestEnvelope.build(
+                WireJson.gson,
+                Rev2AdjustIngredientRequest("PREP_1", 7, "r", Rev2Adjustment(sourceCode = "TAG-1", targetQuantity = value)),
+                "m-1", "scanner_1", "s", "2026-10-01T08:00:00.000000Z",
+            )
+            assertFalse(json, Regex("[0-9]E").containsMatchIn(json))
+        }
+        val json = RequestEnvelope.build(
+            WireJson.gson,
+            Rev2AdjustIngredientRequest("PREP_1", 7, "r", Rev2Adjustment(sourceCode = "TAG-1", targetQuantity = BigDecimal("12.5"))),
+            "m-1", "scanner_1", "s", "2026-10-01T08:00:00.000000Z",
+        )
+        assertTrue(json, json.contains("\"adjustment\":{\"kind\":\"Add\",\"materialCode\":\"\",\"sourceCode\":\"TAG-1\",\"targetQuantity\":12.5}"))
+        assertTrue(json, json.contains("\"action\":\"adjust_ingredient\""))
+    }
+
+    @Test
+    fun `identify sends the PREP and the scanned code`() {
+        val json = RequestEnvelope.build(
+            WireJson.gson, Rev2IdentifyRequest("PREP_1", "TAG-1"), "m-1", "scanner_1", "s", "2026-10-01T08:00:00.000000Z",
+        )
+        val obj = JsonParser.parseString(json).asJsonObject
+        assertEquals("identify", obj["action"].asString)
+        assertEquals("PREP_1", obj["targetId"].asString)
+        assertEquals("TAG-1", obj["code"].asString)
+    }
+
+    @Test
+    fun `machine_start matches the generated request`() {
+        val (actual, expected) = built(
+            Rev2MachineStartRequest("PREP_440fbd8f9cd3411e9be943a33f1a3ceb", "MAIN-MIX-01"), "general_machine_start",
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `machine_finish matches the generated request`() {
+        val (actual, expected) = built(
+            Rev2MachineFinishRequest("PREP_440fbd8f9cd3411e9be943a33f1a3ceb", "MAIN-MIX-01",
+                "CYC_068ddebe6f714407b88d0b77697fb691"),
+            "general_machine_finish",
+        )
+        assertEquals(expected, actual)
+    }
 }

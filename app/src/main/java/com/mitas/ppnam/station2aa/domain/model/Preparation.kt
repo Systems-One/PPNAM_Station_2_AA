@@ -44,6 +44,10 @@ data class Preparation(
     val startedBy: String?,
     val confirmedAtUtc: String?,
     val materials: List<PrepMaterial>,
+    val mixerId: String? = null,
+    val productionId: String? = null,
+    /** The active mix/production cycle (`CYC_…`); send it in `machine_finish`. */
+    val cycleId: String? = null,
 ) {
     val allIncludedCollected: Boolean get() = materials.filterNot { it.excluded }.all { it.isComplete }
 }
@@ -76,6 +80,9 @@ data class PrepSnapshot(
     val commandExceptions: List<CollectionExceptionRecord>,
     val resultTargetId: String?,
     val resultMessage: String,
+    val machines: List<Machine> = emptyList(),
+    /** `data.preparations`: every preparation Station 2 listed (used to see which machines are busy). */
+    val preparations: List<PrepSummary> = emptyList(),
 )
 
 /** What an outboxed `capture` asked for, read back from its exact saved JSON (for a replacement). */

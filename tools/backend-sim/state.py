@@ -38,6 +38,46 @@ def parse_iso(s):
     return datetime.fromisoformat(s)
 
 
+def _machine(mid, name, area, kind, production, code=None, enabled=True, pair=None, dest=()):
+    return {"id": mid, "name": name, "area": area, "code": mid if code is None else code,
+            "enabled": enabled, "kind": kind, "isProduction": production, "pairId": pair,
+            "destinations": list(dest)}
+
+
+def build_machines():
+    """The General machine topology (contract section 4 and 8), as machine DTOs.
+
+    Static topology and commissioned codes are separate: a blank `code` is an unconfigured
+    machine, and `enabled:false` a disabled one; neither can start. The simulator seeds one of
+    each (DOL-MIX-03/DOL-03 disabled, DOL-MIX-04/DOL-04 with blank codes).
+    """
+    out = []
+    for n, enabled, code in ((1, True, None), (2, True, None), (11, True, None),
+                             (3, False, None), (4, True, "")):
+        mix, prod = "DOL-MIX-%02d" % n, "DOL-%02d" % n
+        blank = code == ""
+        out.append(_machine(mix, "DOLCI mixer %d" % n, "DOLCI", "FixedPair", False,
+                            code="" if blank else mix, enabled=enabled, pair=prod))
+        out.append(_machine(prod, "DOLCI %d" % n, "DOLCI", "FixedPair", True,
+                            code="" if blank else prod, enabled=enabled))
+    extruders = ["MAIN-EXT-%02d" % n for n in range(1, 26)]
+    for n in range(1, 6):
+        mid = "MAIN-MIX-%02d" % n
+        out.append(_machine(mid, "Main mixer %d" % n, "Main", "Main", False, dest=extruders))
+    jan = ["JAN-02", "JAN-03", "JAN-04"]
+    out.append(_machine("MAIN-MIX-06", "Main mixer 6", "Main", "Mixer6", False, dest=jan))
+    for n, mid in enumerate(extruders, start=1):
+        out.append(_machine(mid, "Main extruder %d" % n, "Main", "Main", True))
+    for j in jan:
+        out.append(_machine(j, "JANDI %d" % int(j[-2:]), "JANDI", "Mixer6", True))
+    out.append(_machine("MAC-MIX-01", "Mackie mixer", "Mackie", "FixedPair", False, pair="MAC-EXT-01"))
+    out.append(_machine("MAC-EXT-01", "Mackie production", "Mackie", "FixedPair", True))
+    out.append(_machine("BUB-MIX-01", "Bubblewrap mixer", "Bubblewrap", "FixedPair", False,
+                        pair="BUB-EXT-01"))
+    out.append(_machine("BUB-EXT-01", "Bubblewrap production", "Bubblewrap", "FixedPair", True))
+    return out
+
+
 class World:
     # The five fixed v4.0 mixing areas (contract §6). Server-authoritative.
     MIXING_AREAS = ("DolciBulkMixing", "MainMixingRoom", "JandiBulkMixing",
@@ -114,6 +154,7 @@ class World:
         # (device, reqType, messageId) -> {"hash", "result", "operatorId", "sealed"}: durable
         # business receipts for prepare/capture/confirm and recovery seals (contract §9).
         self.rev2_receipts = {}
+        self.rev2_machines = build_machines()  # General machine DTOs (contract section 8)
         self.rev2_exceptions = []     # operator collection-exception records (contract §6)
         self.auth_replies = {}        # (device, suffix, messageId) -> {"body", "data", "expires"}
         # 4.1 cross-area mixer plans. Keyed by collectionId; saved in Station 2 (WPF), never by

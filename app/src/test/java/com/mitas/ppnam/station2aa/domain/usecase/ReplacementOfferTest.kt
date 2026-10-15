@@ -83,4 +83,24 @@ class ReplacementOfferTest {
         assertNull(ReplacementOffer.fromSealed(prepareCmd))
         assertNull(ReplacementOffer.fromSealed(null))
     }
+
+    @Test
+    fun `a not_executed adjust_ingredient is never an offer but opens its PREP`() {
+        val adjust = cmd("adjust_ingredient", ContractFixtures.text("general_add_request.json"))
+        val notice = resolved(adjust, RecoveryOutcome.NotExecuted)
+        assertNull(ReplacementOffer.from(notice))
+        assertNull(ReplacementOffer.fromSealed(adjust))
+        assertEquals(NoticeTarget.Prep(prepId), notice.openTarget())
+    }
+
+    @Test
+    fun `machine commands are never offered as a replacement but open their prep`() {
+        for (action in listOf("machine_start", "machine_finish")) {
+            val c = cmd(action, "{\"action\":\"$action\"}")
+            val notice = resolved(c, RecoveryOutcome.NotExecuted)
+            assertNull(ReplacementOffer.from(notice))
+            assertNull(ReplacementOffer.fromSealed(c))
+            assertEquals(NoticeTarget.Prep(prepId), notice.openTarget())
+        }
+    }
 }

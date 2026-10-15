@@ -3,6 +3,8 @@ package com.mitas.ppnam.station2aa.domain.usecase
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2CollectionException
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MixProgress
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Source
+import com.mitas.ppnam.station2aa.domain.model.SourceInfo
 import com.mitas.ppnam.station2aa.domain.model.ActivePreparation
 import com.mitas.ppnam.station2aa.domain.model.ChoicePrompt
 import com.mitas.ppnam.station2aa.domain.model.CollectionExceptionRecord
@@ -11,6 +13,9 @@ import com.mitas.ppnam.station2aa.domain.model.JobLookupSnapshot
 import com.mitas.ppnam.station2aa.domain.model.JobMaterial
 import com.mitas.ppnam.station2aa.domain.model.JobPreparation
 import com.mitas.ppnam.station2aa.domain.model.JobSummary
+import com.mitas.ppnam.station2aa.domain.model.Machine
+import com.mitas.ppnam.station2aa.domain.model.MachineKind
+import com.mitas.ppnam.station2aa.domain.model.PrepSummary
 import com.mitas.ppnam.station2aa.domain.model.MixProgress
 import com.mitas.ppnam.station2aa.domain.model.PrepMaterial
 import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
@@ -67,6 +72,7 @@ internal fun Rev2Snapshot.toPrepSnapshot(): PrepSnapshot = PrepSnapshot(
             materials = p.materials.map {
                 PrepMaterial(it.code, it.name, it.unit, it.perMix, it.required, it.collected, it.excluded, it.originalRequired)
             },
+            mixerId = p.mixerId, productionId = p.productionId, cycleId = p.cycleId,
         )
     },
     requiredChoices = requiredIngredientChoices.map { ChoicePrompt(it.code, it.description, it.note) },
@@ -75,9 +81,20 @@ internal fun Rev2Snapshot.toPrepSnapshot(): PrepSnapshot = PrepSnapshot(
     commandExceptions = commandExceptions.map { it.toDomain() },
     resultTargetId = result?.targetId,
     resultMessage = result?.message.orEmpty(),
+    machines = machines.map {
+        Machine(it.id, it.name, it.area, it.code, it.enabled, MachineKind.fromWire(it.kind), it.isProduction,
+            it.pairId, it.destinations)
+    },
+    preparations = preparations.map { PrepSummary(it.id, it.jobId, PrepStage.fromWire(it.stage), it.mixerId, it.productionId) },
 )
 
-private fun Rev2CollectionException.toDomain() = CollectionExceptionRecord(
+/** A non-positive bag size is treated as unconfigured. */
+internal fun Rev2Source.toDomain(): SourceInfo = SourceInfo(
+    code = code, materialCode = materialCode, name = name, unit = unit,
+    bagSize = bagSize?.takeIf { it.signum() > 0 }, available = available, usable = usable, reason = reason,
+)
+
+private fun Rev2CollectionException.toDomain() =CollectionExceptionRecord(
     id, timestampUtc, operatorId, device, messageId, jobId, batchId, kind, details, reason,
     reviewedAtUtc, reviewedBy, reviewReason,
 )

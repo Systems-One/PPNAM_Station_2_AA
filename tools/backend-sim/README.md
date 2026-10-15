@@ -2,8 +2,8 @@
 
 Mimics the Station 2 WPF backend over MQTT so the Android app can be tested
 end-to-end without the real backend. It speaks **rev2.1** (schema `rev2.1`): SCRAM
-login plus the General `read`, `lookup`, `recover`, `prepare`, `capture` and
-`confirm` actions. Every message, validation step,
+login plus the General `read`, `identify` (proposed), `lookup`, `recover`, `prepare`,
+`capture`, `adjust_ingredient` (kind `Add` only) and `confirm` actions. Every message, validation step,
 business decision, and state change is logged, so when the app misbehaves the logs
 are a second source of truth for diagnosis.
 
@@ -77,6 +77,11 @@ State is in-memory only; restarting gives a fresh, repeatable world.
   | `1600000309` | PAL-008 | `300833B2DDD9014000000008` | 25 kg bags |
   | `1500000331` | PAL-011 / PAL-007 | `...000B` / `...0007` | the catalog code; rejects when excluded |
   | `1600000233` | PAL-004 | `300833B2DDD9014000000004` | at Station 1: capture rejects |
+  | `1500000400` | PAL-013 | `300833B2DDD901400000000D` | blue pigment, 20 kg bags, **not on any BOM**: use it to test `identify` + Add |
+
+  Each pallet's `bagSize` (seed `bagSize`, null when unconfigured) is what `identify`
+  reports and what a capture with an omitted quantity records. PAL-007 and PAL-011
+  (additive) have 10 kg bags, PAL-013 20 kg, the rest 25 kg; PAL-002 has none.
 - Device ids are **auto-registered** on first sight (the app's `ANDROID_ID`
   can't be known ahead of time); the simulator logs a warning each time.
 
@@ -85,8 +90,8 @@ State is in-memory only; restarting gives a fresh, repeatable world.
 Exactly five request suffixes are accepted: `scram_start_requested`,
 `scram_proof_requested`, `operator_list_requested` (pre-login, bare envelope;
 answers `operator_list` with the seeded SCRAM users under `data.operators`),
-`rev2_general_requested` (`read`, `lookup`, `recover`, `prepare`, `capture`,
-`confirm`; other actions answer `action_not_allowed`) and `rev2_rajoo_requested` (always `action_not_allowed`).
+`rev2_general_requested` (`read`, `identify`, `lookup`, `recover`, `prepare`, `capture`,
+`adjust_ingredient`, `confirm`; other actions answer `action_not_allowed`) and `rev2_rajoo_requested` (always `action_not_allowed`).
 Anything else answers `client_upgrade_required` on `res/rev2_general_result`.
 Replies carry the body under `data`.
 
@@ -127,13 +132,71 @@ Quantities are exact decimals and go on the wire as plain JSON numbers.
   deducts the pallet, adds to `collected` and bumps `collectionRevision`; when
   nothing remains the stage becomes `AwaitingConfirmation`.
 - `confirm` — `targetId` PREP in `AwaitingConfirmation` -> `ReadyForMixer`.
-- A rejected `capture`/`confirm` against a loaded collection records a
+- `identify` (**proposed**, not in the contract yet) — `targetId` PREP, `code` a pallet
+  tag or id. Read-only like `read`: no receipt, no exception, no stock change, safe to
+  resend. `data` is the normal snapshot for `targetId` plus
+  `source = {code, materialCode, name, unit, bagSize, available, usable, reason}`
+  (decimals are JSON numbers; `bagSize` is `null` for an unconfigured pallet; `reason`
+  is `""` when `usable`). A blocked pallet, one not in Holding/Mixing or one without
+  stock answers `success:true` with `usable:false` and a reason. An unknown code
+  answers `success:false`, `errorCode:"unknown_source"`, `source:null`; an unknown
+  PREP `rev2_rejected`, `source:null`.
+- `adjust_ingredient` — kind `Add` only (any other kind is a `rev2_rejected` with a
+  message saying so). `targetId` PREP in Collecting/AwaitingConfirmation, integer
+  `collectionRevision` (stale -> `collection_revision_conflict` plus a recorded
+  `Rejected collection action` exception and the current snapshot), `reason` 1-1000
+  trimmed characters, `adjustment = {kind:"Add", sourceCode, targetQuantity}`. The
+  source must be a known usable kg pallet whose material is not already a row
+  (excluded rows count), `targetQuantity` positive. It appends an effective row
+  (`perMix 0`, `originalRequired 0`, `required = targetQuantity`, `collected 0`),
+  bumps `collectionRevision`, returns the stage to `Collecting`, records an
+  `Ingredient added` exception and pushes the `adjust_ingredient` hint. It is a
+  mutation, so it uses the same durable receipts, replay and `drop_reply` handling as
+  `capture`. No stock is deducted: capture the new row afterwards; `confirm` needs it
+  collected too.
+- A rejected `capture`/`adjust_ingredient`/`confirm` against a loaded collection records a
   `Rejected collection action` exception. `data.collectionExceptions` holds the
   selected scope's records and `data.commandExceptions` the ones this command (or
   the recovered original) created.
 - Each successful or exception-recording mutation pushes
   `active_job_cards_invalidated` with reason `preparation_created`, `capture`,
-  `confirm` or `collection_exception_recorded`. A replay pushes nothing.
+  `adjust_ingredient`, `confirm`, `machine_start`, `machine_finish` or
+  `collection_exception_recorded`. A replay pushes nothing.
+
+### Machines (contract §4, §8)
+
+`data.machines` is the General machine list in the contract DTO
+(`id,name,area,code,enabled,kind,isProduction,pairId,destinations`), seeded in
+`state.build_machines`. Codes to scan:
+
+- DOLCI FixedPair: `DOL-MIX-01`->`DOL-01`, `DOL-MIX-02`->`DOL-02`, `DOL-MIX-11`->`DOL-11`;
+  Mackie `MAC-MIX-01`->`MAC-EXT-01`; Bubblewrap `BUB-MIX-01`->`BUB-EXT-01`.
+- Main mixers `MAIN-MIX-01`..`05` (kind Main) -> any of `MAIN-EXT-01`..`25`.
+- Mixer 6 `MAIN-MIX-06` (kind Mixer6) -> only `JAN-02`, `JAN-03`, `JAN-04`.
+- `DOL-MIX-03`/`DOL-03` are **disabled**; `DOL-MIX-04`/`DOL-04` have a **blank code**
+  (unconfigured, so nothing can be scanned for them).
+
+The server decides the route from the machine scanned: any enabled mixer is permitted for
+any job.
+
+- `machine_start` — `targetId` PREP, `code` machine. `ReadyForMixer`: an enabled mixer,
+  assigned as `mixerId` the first time. `ReadyForNextMix`: must be the saved mixer.
+  `ReadyForProduction`: a production machine in the saved mixer's `destinations`
+  (FixedPair never gets here); `productionId` is saved on the first production cycle and
+  later cycles must reuse it. A new `CYC_<hex>` goes in `result.cycleId` and
+  `preparation.cycleId`, and the stage becomes `Mixing` or `Producing`. Rejected
+  (`rev2_rejected`, readable message): unknown, disabled or blank code, wrong kind for
+  the stage, wrong stage (including an already running cycle), a machine that another
+  non-Completed/Cancelled PREP holds as mixer or production machine.
+- `machine_finish` — `targetId` PREP, exact machine `code` (case-sensitive), exact active
+  `cycleId`; anything else is rejected. Mixing: `mixed += 1` (FixedPair also
+  `produced += 1`), then `ReadyForNextMix` while `mixed < mixCount`, else `Completed`
+  (FixedPair) or `ReadyForProduction`. Producing: `produced += 1`, then
+  `ReadyForProduction` or `Completed`. `preparation.cycleId` returns to null
+  (`result.cycleId` names the finished cycle); `mixProgress` is derived from the same counts.
+- Both are durable mutations (receipts, replay, `drop_reply`, `recover`) and push the
+  `machine_start` / `machine_finish` hints. Machine rejections record **no** exception
+  (contract §6 lists only capture, confirmation and decisions).
 
 ## Control frames (`PPNAM/_sim/control`)
 
@@ -170,5 +233,5 @@ broker (it used to fail its first check instead).
 
 - No TLS / broker auth, no persistence across restarts, no SAP posting,
   no fixed-door-reader TCP.
-- No `adjust_ingredient` or machine actions yet; one-mix quantities are an
-  approximation of the server's ProductTree arithmetic.
+- No machine actions, and `adjust_ingredient` handles only `Add`; one-mix quantities
+  are an approximation of the server's ProductTree arithmetic.
