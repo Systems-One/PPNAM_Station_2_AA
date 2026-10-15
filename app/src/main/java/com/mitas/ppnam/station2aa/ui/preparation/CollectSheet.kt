@@ -257,7 +257,7 @@ private fun FallbackForm(state: PreparationUiState, step: CollectStep.Fallback, 
     val materials = state.snapshot?.preparation?.materials.orEmpty().filter { !it.excluded && !it.isComplete }
     val picked = materials.firstOrNull { it.code == step.pickedMaterial }
     StatusBanner(
-        "?", "Station 2 couldn't identify this pallet — pick the ingredient", WarningOrange, BannerAmberBg,
+        "?", step.fallbackTitle(), WarningOrange, BannerAmberBg,
         details = listOf("Pallet ${step.code}" to true),
     )
     materials.forEach { m ->

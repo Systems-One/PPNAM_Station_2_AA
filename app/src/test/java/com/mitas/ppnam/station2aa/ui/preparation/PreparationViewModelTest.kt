@@ -1227,6 +1227,21 @@ class PreparationViewModelTest {
         assertEquals(CollectStep.Idle, vm.step())
     }
 
+    // ---- fix(collect) 6: timeout vs unsupported wording ----
+
+    @Test
+    fun `an identify timeout falls back with its own wording and unsupported keeps the old one`() = runTest {
+        val vm = open()
+        whenever(useCase.identify(prepId, "TAG-A")).thenReturn(IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK, timedOut = true))
+        vm.onScan("TAG-A")
+        val timedOut = vm.step() as CollectStep.Fallback
+        assertEquals("Station 2 didn't answer in time — pick the ingredient", timedOut.fallbackTitle())
+        vm.cancelCollect()
+        whenever(useCase.identify(prepId, "TAG-B")).thenReturn(IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK))
+        vm.onScan("TAG-B")
+        assertEquals("Station 2 couldn't identify this pallet — pick the ingredient", (vm.step() as CollectStep.Fallback).fallbackTitle())
+    }
+
     // ---- fix(collect) 5: Recover keeps the "Recorded k of n" prefix ----
 
     @Test

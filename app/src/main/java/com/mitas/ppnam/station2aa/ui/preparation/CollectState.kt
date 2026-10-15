@@ -52,7 +52,13 @@ sealed interface CollectStep {
         val pickedMaterial: String?,
         val amountText: String,
         val check: AmountCheck? = null,
-    ) : CollectStep
+        /** The identify got no reply in time (as opposed to being unsupported). */
+        val timedOut: Boolean = false,
+    ) : CollectStep {
+        fun fallbackTitle(): String =
+            if (timedOut) "Station 2 didn't answer in time — pick the ingredient"
+            else "Station 2 couldn't identify this pallet — pick the ingredient"
+    }
 
     /** [done] of [total] captures answered so far. */
     data class Submitting(val code: String, val name: String, val done: Int, val total: Int) : CollectStep

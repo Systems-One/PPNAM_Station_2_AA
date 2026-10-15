@@ -274,7 +274,7 @@ class GeneralCollectionUseCaseTest {
     fun `an unsupported action falls back`() = runTest {
         for (code in listOf("action_not_allowed", "unsupported_action", "invalid_action", "unknown_action")) {
             stubRequest(MqttOutcome.Rejected(null, ErrorCode(code), "Action is not part of this process mode."))
-            assertTrue(code, useCase.identify("P", "T") is IdentifyResult.Unsupported)
+            assertEquals(code, IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK, timedOut = false), useCase.identify("P", "T"))
         }
     }
 
@@ -287,7 +287,7 @@ class GeneralCollectionUseCaseTest {
     @Test
     fun `no reply within the timeout falls back`() = runTest {
         stubRequest(MqttOutcome.NoResponse(FailureKind.Timeout))
-        assertTrue(useCase.identify("P", "T") is IdentifyResult.Unsupported)
+        assertEquals(IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK, timedOut = true), useCase.identify("P", "T"))
     }
 
     @Test

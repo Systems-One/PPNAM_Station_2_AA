@@ -420,7 +420,7 @@ class PreparationViewModel @Inject constructor(
                     _uiState.update { it.copy(step = CollectStep.Unknown(result.message)) }
                 }
                 is IdentifyResult.Unsupported ->
-                    _uiState.update { it.copy(step = CollectStep.Fallback(code, null, "")) }
+                    _uiState.update { it.copy(step = CollectStep.Fallback(code, null, "", timedOut = result.timedOut)) }
                 is IdentifyResult.Failed -> {
                     _uiState.update { it.copy(step = CollectStep.Idle) }
                     show(OutcomeMessage.Info(result.message))
