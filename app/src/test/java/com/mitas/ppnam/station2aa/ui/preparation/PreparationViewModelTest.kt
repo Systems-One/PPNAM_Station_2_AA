@@ -1154,4 +1154,22 @@ class PreparationViewModelTest {
         assertTrue(open(withResinCollected(opened, null)).uiState.value.canConfirm)
         assertFalse(open(opened).uiState.value.canConfirm)
     }
+
+    // ---- fix(collect) 1: a read racing the last capture must not drop its snapshot ----
+
+    @Test
+    fun `a hint read that lands during the last capture does not leave a stale snapshot`() = runTest {
+        val vm = open()
+        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(afterOne))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).thenReturn(CollectionResult.Done(afterOne))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10"))).thenAnswer {
+            // The hint's read takes a higher sequence number and returns an older snapshot.
+            hints.tryEmit(ServerHint("General", "capture"))
+            CollectionResult.Done(finalCapture)
+        }
+        scanIdentified(vm, source(bag = "15"))
+        vm.submit()
+        assertEquals(finalCapture, vm.uiState.value.snapshot)
+    }
+
 }

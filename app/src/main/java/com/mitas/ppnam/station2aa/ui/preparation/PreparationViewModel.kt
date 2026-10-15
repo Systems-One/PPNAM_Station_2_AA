@@ -506,6 +506,13 @@ class PreparationViewModel @Inject constructor(
                     handleNotDone(seq, result, retried = null, sofar = sofar)
                     return@launch
                 }
+                // A hint/reconnect read may have taken a higher sequence number while a capture was
+                // in flight and made takeIfNewer drop that capture's snapshot: the last Done reply
+                // is the freshest word on the PREP, so make sure it is what is on screen.
+                if (lastDone != null && _uiState.value.snapshot !== lastDone && isThisPrep(lastDone.preparation?.id)) {
+                    applied = ++issued
+                    _uiState.update { it.copy(snapshot = lastDone) }
+                }
                 _uiState.update { it.copy(step = CollectStep.Idle) }
                 val banner = lastDone?.let { doneBanner(before, it, plan.pickedCode) }
                 if (banner != null) _uiState.update { it.copy(banner = banner) }
