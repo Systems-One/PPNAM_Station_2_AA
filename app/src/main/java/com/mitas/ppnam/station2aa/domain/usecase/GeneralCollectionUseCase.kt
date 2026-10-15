@@ -10,6 +10,8 @@ import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2ChoiceAnswer
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2ConfirmRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2IdentifyRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MachineFinishRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MachineStartRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2PrepareRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutcome
@@ -107,6 +109,19 @@ class GeneralCollectionUseCase @Inject constructor(
     }
 
     suspend fun confirm(prepId: String): CollectionResult = send(Rev2ConfirmRequest(prepId))
+
+    /** Contract §4 `machine_start`, outboxed. Never offered as a replacement. */
+    suspend fun machineStart(prepId: String, code: String): CollectionResult {
+        require(code.isNotBlank()) { "blank machine code" }
+        return send(Rev2MachineStartRequest(prepId.trim(), code.trim()))
+    }
+
+    /** Contract §4 `machine_finish`, outboxed. [cycleId] must come from the latest snapshot's preparation. */
+    suspend fun machineFinish(prepId: String, code: String, cycleId: String): CollectionResult {
+        require(code.isNotBlank()) { "blank machine code" }
+        require(cycleId.isNotBlank()) { "blank cycle id" }
+        return send(Rev2MachineFinishRequest(prepId.trim(), code.trim(), cycleId.trim()))
+    }
 
     /**
      * Contract §6 `adjust_ingredient` kind `Add`: adds the scanned source's material to PREP [prepId]

@@ -13,6 +13,9 @@ import com.mitas.ppnam.station2aa.domain.model.JobLookupSnapshot
 import com.mitas.ppnam.station2aa.domain.model.JobMaterial
 import com.mitas.ppnam.station2aa.domain.model.JobPreparation
 import com.mitas.ppnam.station2aa.domain.model.JobSummary
+import com.mitas.ppnam.station2aa.domain.model.Machine
+import com.mitas.ppnam.station2aa.domain.model.MachineKind
+import com.mitas.ppnam.station2aa.domain.model.PrepSummary
 import com.mitas.ppnam.station2aa.domain.model.MixProgress
 import com.mitas.ppnam.station2aa.domain.model.PrepMaterial
 import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
@@ -69,6 +72,7 @@ internal fun Rev2Snapshot.toPrepSnapshot(): PrepSnapshot = PrepSnapshot(
             materials = p.materials.map {
                 PrepMaterial(it.code, it.name, it.unit, it.perMix, it.required, it.collected, it.excluded, it.originalRequired)
             },
+            mixerId = p.mixerId, productionId = p.productionId, cycleId = p.cycleId,
         )
     },
     requiredChoices = requiredIngredientChoices.map { ChoicePrompt(it.code, it.description, it.note) },
@@ -77,6 +81,11 @@ internal fun Rev2Snapshot.toPrepSnapshot(): PrepSnapshot = PrepSnapshot(
     commandExceptions = commandExceptions.map { it.toDomain() },
     resultTargetId = result?.targetId,
     resultMessage = result?.message.orEmpty(),
+    machines = machines.map {
+        Machine(it.id, it.name, it.area, it.code, it.enabled, MachineKind.fromWire(it.kind), it.isProduction,
+            it.pairId, it.destinations)
+    },
+    preparations = preparations.map { PrepSummary(it.id, it.jobId, PrepStage.fromWire(it.stage), it.mixerId, it.productionId) },
 )
 
 /** A non-positive bag size is treated as unconfigured. */

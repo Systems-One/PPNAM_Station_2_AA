@@ -6,6 +6,8 @@ import com.mitas.ppnam.station2aa.data.mqtt.WireJson
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
 import com.mitas.ppnam.station2aa.domain.model.CaptureIntent
 import com.mitas.ppnam.station2aa.domain.model.PrepStage
+import com.mitas.ppnam.station2aa.domain.model.matchMachine
+import com.mitas.ppnam.station2aa.domain.model.savedMixer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -19,6 +21,17 @@ class Rev2MappingTest {
         JsonParser.parseString(ContractFixtures.text("${name}_response.json")).asJsonObject["data"],
         Rev2Snapshot::class.java,
     )
+
+    @Test
+    fun `machine_finish reply maps machines and the saved mixer`() {
+        val s = data("general_machine_finish").toPrepSnapshot()
+        assertEquals(44, s.machines.size)
+        assertEquals(com.mitas.ppnam.station2aa.domain.model.MachineKind.FixedPair, s.matchMachine("DOL-MIX-01")!!.kind)
+        assertEquals("MAIN-MIX-01", s.preparation!!.mixerId)
+        assertEquals(PrepStage.ReadyForNextMix, s.preparation!!.stage)
+        assertEquals("MAIN-MIX-01", s.savedMixer()!!.code)
+        assertEquals(1, s.preparations.size)
+    }
 
     @Test
     fun `lookup carries the choices and the catalog revision to echo`() {

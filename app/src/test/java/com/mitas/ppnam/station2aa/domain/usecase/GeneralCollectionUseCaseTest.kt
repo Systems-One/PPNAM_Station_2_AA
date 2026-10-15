@@ -20,6 +20,9 @@ import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.UnresolvedReason
 import com.mitas.ppnam.station2aa.domain.model.SourceInfo
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MachineFinishRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MachineStartRequest
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -88,6 +91,34 @@ class GeneralCollectionUseCaseTest {
         assertEquals("rev2_general_result", res.firstValue)
         assertEquals(Rev2CaptureRequest("PREP_1", "TAG-1", null), payload.firstValue)
         verify(mqtt, never()).request(any(), any(), any(), eq(Rev2Snapshot::class.java))
+    }
+
+    @Test
+    fun `machineStart sends one outboxed machine_start for the prep`() = runTest {
+        stubSend(CommandOutcome.Settled(MqttOutcome.Accepted(fixture("general_machine_start"))))
+        val result = useCase.machineStart(" PREP_1 ", " MAIN-MIX-01 ")
+        assertTrue(result is CollectionResult.Done)
+        assertEquals(Rev2MachineStartRequest("PREP_1", "MAIN-MIX-01"), sentPayload())
+        verify(mqtt, never()).request(any(), any(), any(), eq(Rev2Snapshot::class.java))
+    }
+
+    @Test
+    fun `machineFinish sends the cycle id it was given and the exact scanned code`() = runTest {
+        stubSend(CommandOutcome.Settled(MqttOutcome.Accepted(fixture("general_machine_finish"))))
+        useCase.machineFinish("PREP_1", "main-mix-01", "CYC_1")
+        assertEquals(Rev2MachineFinishRequest("PREP_1", "main-mix-01", "CYC_1"), sentPayload())
+    }
+
+    @Test
+    fun `an unresolved machine command surfaces as Unresolved`() = runTest {
+        stubSend(CommandOutcome.Unresolved(cmd, UnresolvedReason.RetryIdentical, null, null))
+        assertTrue(useCase.machineStart("PREP_1", "M") is CollectionResult.Unresolved)
+    }
+
+    @Test
+    fun `machine commands need a code and a cycle`() {
+        assertThrows(IllegalArgumentException::class.java) { runBlocking { useCase.machineStart("P", " ") } }
+        assertThrows(IllegalArgumentException::class.java) { runBlocking { useCase.machineFinish("P", "M", "") } }
     }
 
     @Test
