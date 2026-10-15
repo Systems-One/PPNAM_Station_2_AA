@@ -3,16 +3,20 @@ package com.mitas.ppnam.station2aa.domain.usecase
 import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
 import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
 import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2AdjustIngredientRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Adjustment
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2CaptureRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2ChoiceAnswer
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2ConfirmRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2IdentifyRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2PrepareRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutcome
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.UnresolvedReason
 import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
+import com.mitas.ppnam.station2aa.domain.model.SourceInfo
 import com.mitas.ppnam.station2aa.domain.model.WireDecimal
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
 import java.math.BigDecimal
@@ -22,6 +26,17 @@ import javax.inject.Singleton
 sealed interface ReadResult {
     data class Loaded(val snapshot: PrepSnapshot) : ReadResult
     data class Failed(val message: String, val snapshot: PrepSnapshot?, val retryable: Boolean) : ReadResult
+}
+
+/** Proposed `identify` (simplified collect spec). Read-only: nothing here was recorded. */
+sealed interface IdentifyResult {
+    /** Station 2 knows the pallet; [snapshot] is the PREP's fresh state. */
+    data class Identified(val source: SourceInfo, val snapshot: PrepSnapshot) : IdentifyResult
+    /** `unknown_source`: Station 2 doesn't know this code. */
+    data class Unknown(val message: String, val snapshot: PrepSnapshot?) : IdentifyResult
+    /** Station 2 can't identify (action unsupported, or no reply in time): let the operator pick the ingredient. */
+    data class Unsupported(val message: String) : IdentifyResult
+    data class Failed(val message: String, val retryable: Boolean) : IdentifyResult
 }
 
 sealed interface CollectionResult {
@@ -51,6 +66,35 @@ class GeneralCollectionUseCase @Inject constructor(
                 retryable = o.kind == FailureKind.Timeout || o.kind == FailureKind.NotConnected)
         }
 
+    /**
+     * Asks Station 2 what is on the pallet [code] for PREP [prepId]. A plain request like [read]:
+     * never outboxed, safe to resend. An unsupported action, a success without `source`, or no reply
+     * within the read timeout all become [IdentifyResult.Unsupported], so the UI falls back to
+     * picking the ingredient.
+     */
+    suspend fun identify(prepId: String, code: String): IdentifyResult =
+        when (val o = mqtt.request(REQUEST, RESPONSE, Rev2IdentifyRequest(prepId.trim(), code.trim()),
+            Rev2Snapshot::class.java)) {
+            is MqttOutcome.Accepted -> o.body.source?.toDomain()
+                ?.let { IdentifyResult.Identified(it, o.body.toPrepSnapshot()) }
+                ?: IdentifyResult.Unsupported(IDENTIFY_FALLBACK)
+            is MqttOutcome.Rejected -> {
+                val codes = setOfNotNull(o.error?.raw, o.body?.result?.errorCode)
+                val message = o.operatorMessage ?: o.body?.result?.message?.takeIf { it.isNotBlank() }
+                when {
+                    UNKNOWN_SOURCE in codes ->
+                        IdentifyResult.Unknown(message ?: "Station 2 doesn't know this pallet code.", o.body?.toPrepSnapshot())
+                    codes.any { it in UNSUPPORTED_ACTION } -> IdentifyResult.Unsupported(IDENTIFY_FALLBACK)
+                    else -> IdentifyResult.Failed(message ?: rejectedText(o.error), retryable = false)
+                }
+            }
+            is MqttOutcome.NoResponse -> when (o.kind) {
+                FailureKind.Timeout -> IdentifyResult.Unsupported(IDENTIFY_FALLBACK)
+                FailureKind.NotConnected -> IdentifyResult.Failed(o.kind.message(), retryable = true)
+                FailureKind.MalformedResponse -> IdentifyResult.Failed(o.kind.message(), retryable = false)
+            }
+        }
+
     suspend fun prepare(jobCard: String, mixCount: Int, exceptionListRevision: Int?,
                         answers: List<Rev2ChoiceAnswer>, reason: String?): CollectionResult =
         send(Rev2PrepareRequest(jobCard, mixCount, exceptionListRevision, answers,
@@ -64,6 +108,21 @@ class GeneralCollectionUseCase @Inject constructor(
 
     suspend fun confirm(prepId: String): CollectionResult = send(Rev2ConfirmRequest(prepId))
 
+    /**
+     * Contract §6 `adjust_ingredient` kind `Add`: adds the scanned source's material to PREP [prepId]
+     * with total target [quantity]. Outboxed like every command; it never captures. A stale
+     * [collectionRevision] is rejected `collection_revision_conflict` — re-read, never auto-resend.
+     */
+    suspend fun addIngredient(prepId: String, collectionRevision: Int, sourceCode: String, quantity: BigDecimal,
+                              reason: String): CollectionResult {
+        val trimmedReason = reason.trim()
+        require(trimmedReason.length in 1..ADJUST_REASON_MAX) { "reason must be 1..$ADJUST_REASON_MAX characters" }
+        require(sourceCode.isNotBlank()) { "blank source code" }
+        require(quantity.signum() > 0) { "quantity must be positive" }
+        return send(Rev2AdjustIngredientRequest(prepId.trim(), collectionRevision, trimmedReason,
+            Rev2Adjustment(sourceCode = sourceCode.trim(), targetQuantity = WireDecimal.of(quantity))))
+    }
+
     suspend fun retry(command: PendingCommand): CollectionResult =
         mqtt.retryCommand(command, Rev2Snapshot::class.java).toCollectionResult()
 
@@ -73,6 +132,12 @@ class GeneralCollectionUseCase @Inject constructor(
     companion object {
         const val REQUEST = "rev2_general_requested"
         const val RESPONSE = "rev2_general_result"
+        const val ADJUST_REASON_MAX = 1000
+        const val IDENTIFY_FALLBACK = "Station 2 couldn't identify this pallet — pick the ingredient"
+        private const val UNKNOWN_SOURCE = "unknown_source"
+        /** Station 2 and the simulator answer `action_not_allowed` for an action they don't run. */
+        private val UNSUPPORTED_ACTION =
+            setOf("action_not_allowed", "unsupported_action", "invalid_action", "unknown_action")
     }
 }
 

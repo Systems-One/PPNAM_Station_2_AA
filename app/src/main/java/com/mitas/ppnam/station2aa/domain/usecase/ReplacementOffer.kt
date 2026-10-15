@@ -43,6 +43,8 @@ sealed interface ReplacementOffer {
 private const val ACTION_CAPTURE = "capture"
 private const val ACTION_CONFIRM = "confirm"
 private const val ACTION_PREPARE = "prepare"
+/** Targets its PREP, so it opens (and blocks) that PREP; never offered as a replacement. */
+private const val ACTION_ADJUST_INGREDIENT = "adjust_ingredient"
 
 /** Home: where a NotExecuted notice's "Open" goes. */
 sealed interface NoticeTarget {
@@ -58,7 +60,7 @@ fun RecoveryResult.openTarget(): NoticeTarget? {
     if (this !is RecoveryResult.Resolved || outcome != RecoveryOutcome.NotExecuted) return null
     val target = command.targetId?.takeIf { it.isNotBlank() } ?: return null
     return when (command.action) {
-        ACTION_CAPTURE, ACTION_CONFIRM -> NoticeTarget.Prep(target)
+        ACTION_CAPTURE, ACTION_CONFIRM, ACTION_ADJUST_INGREDIENT -> NoticeTarget.Prep(target)
         ACTION_PREPARE -> NoticeTarget.Job(target)
         else -> null
     }

@@ -83,4 +83,13 @@ class ReplacementOfferTest {
         assertNull(ReplacementOffer.fromSealed(prepareCmd))
         assertNull(ReplacementOffer.fromSealed(null))
     }
+
+    @Test
+    fun `a not_executed adjust_ingredient is never an offer but opens its PREP`() {
+        val adjust = cmd("adjust_ingredient", ContractFixtures.text("general_add_request.json"))
+        val notice = resolved(adjust, RecoveryOutcome.NotExecuted)
+        assertNull(ReplacementOffer.from(notice))
+        assertNull(ReplacementOffer.fromSealed(adjust))
+        assertEquals(NoticeTarget.Prep(prepId), notice.openTarget())
+    }
 }

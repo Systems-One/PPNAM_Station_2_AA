@@ -3,6 +3,8 @@ package com.mitas.ppnam.station2aa.domain.usecase
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2CollectionException
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MixProgress
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Source
+import com.mitas.ppnam.station2aa.domain.model.SourceInfo
 import com.mitas.ppnam.station2aa.domain.model.ActivePreparation
 import com.mitas.ppnam.station2aa.domain.model.ChoicePrompt
 import com.mitas.ppnam.station2aa.domain.model.CollectionExceptionRecord
@@ -77,7 +79,13 @@ internal fun Rev2Snapshot.toPrepSnapshot(): PrepSnapshot = PrepSnapshot(
     resultMessage = result?.message.orEmpty(),
 )
 
-private fun Rev2CollectionException.toDomain() = CollectionExceptionRecord(
+/** A non-positive bag size is treated as unconfigured. */
+internal fun Rev2Source.toDomain(): SourceInfo = SourceInfo(
+    code = code, materialCode = materialCode, name = name, unit = unit,
+    bagSize = bagSize?.takeIf { it.signum() > 0 }, available = available, usable = usable, reason = reason,
+)
+
+private fun Rev2CollectionException.toDomain() =CollectionExceptionRecord(
     id, timestampUtc, operatorId, device, messageId, jobId, batchId, kind, details, reason,
     reviewedAtUtc, reviewedBy, reviewReason,
 )
