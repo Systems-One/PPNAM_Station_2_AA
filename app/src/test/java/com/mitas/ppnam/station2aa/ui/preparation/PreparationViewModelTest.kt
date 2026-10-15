@@ -1137,4 +1137,21 @@ class PreparationViewModelTest {
         verify(useCase, times(2)).read(prepId)
         assertEquals(ResultBanner.Rejected("That pallet is not on this job", null), vm.uiState.value.banner)
     }
+
+    // ---- fix(collect) 3: canConfirm ----
+
+    @Test
+    fun `awaiting confirmation can confirm even with no local rows or only excluded rows`() = runTest {
+        val awaiting = finalCapture.preparation!!
+        val empty = finalCapture.copy(preparation = awaiting.copy(materials = emptyList()))
+        assertTrue(open(empty).uiState.value.canConfirm)
+        val excluded = finalCapture.copy(preparation = awaiting.copy(materials = awaiting.materials.map { it.copy(excluded = true) }))
+        assertTrue(open(excluded).uiState.value.canConfirm)
+    }
+
+    @Test
+    fun `collecting with everything collected can confirm and with one outstanding cannot`() = runTest {
+        assertTrue(open(withResinCollected(opened, null)).uiState.value.canConfirm)
+        assertFalse(open(opened).uiState.value.canConfirm)
+    }
 }

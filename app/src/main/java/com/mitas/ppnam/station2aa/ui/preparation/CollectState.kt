@@ -135,8 +135,8 @@ data class PreparationUiState(
         get() = snapshot?.preparation?.materials.orEmpty().filterNot { it.excluded }
             .let { rows -> rows.isNotEmpty() && rows.all { it.isComplete } }
 
-    /** "Mix complete": Station 2 is waiting for it, or every ingredient is collected. */
+    /** "Mix complete": Station 2 is waiting for it (enough on its own), or every ingredient is collected. */
     val canConfirm: Boolean
-        get() = (stage == PrepStage.AwaitingConfirmation || stage == PrepStage.Collecting) &&
-            allCollected && !inFlight && blocking.isEmpty()
+        get() = (stage == PrepStage.AwaitingConfirmation || (stage == PrepStage.Collecting && allCollected)) &&
+            !inFlight && blocking.isEmpty()
 }
