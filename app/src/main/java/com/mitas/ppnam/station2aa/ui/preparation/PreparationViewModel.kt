@@ -482,6 +482,12 @@ class PreparationViewModel @Inject constructor(
                 var lastDone: PrepSnapshot? = null
                 var needRead = false
                 for (quantity in plan.parts) {
+                    // Another command for this PREP became unresolved meanwhile: send nothing more.
+                    if (recorded > 0 && _uiState.value.blocking.isNotEmpty()) {
+                        _uiState.update { it.copy(step = CollectStep.Idle) }
+                        show(OutcomeMessage.Info(RecordedSoFar(recorded, total, recordedKg).prefix() + "resolve the unanswered command first"))
+                        return@launch
+                    }
                     val seq = ++issued
                     val result = useCase.capture(prepId, plan.code, quantity)
                     if (result is CollectionResult.Done || result is CollectionResult.AlreadySettled) {

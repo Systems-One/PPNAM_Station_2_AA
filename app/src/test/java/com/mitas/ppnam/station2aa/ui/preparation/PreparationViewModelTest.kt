@@ -40,6 +40,7 @@ import java.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -1179,4 +1180,22 @@ class PreparationViewModelTest {
         assertEquals(finalCapture, vm.uiState.value.snapshot)
     }
 
+
+    // ---- fix(collect) 2: nothing is sent between bags once the PREP is blocked ----
+
+    @Test
+    fun `a block that appears after the first bag stops the sequence and reports Recorded 1 of 3`() = runTest {
+        val vm = open()
+        val cmd = pending(status = PendingStatus.ManagerReconcile)
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).doSuspendableAnswer {
+            outbox.value = listOf(cmd)
+            yield()   // let the outbox collector publish `blocking`
+            CollectionResult.Done(afterOne)
+        }
+        scanIdentified(vm, source(bag = "15"))
+        vm.submit()
+        verify(useCase, times(1)).capture(any(), any(), anyOrNull())
+        val text = (vm.uiState.value.message as OutcomeMessage.Info).text
+        assertTrue(text, text.startsWith("Recorded 1 of 3 (15 kg)"))
+    }
 }
