@@ -27,6 +27,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.math.BigDecimal
 
 class JobLookupUseCaseTest {
 
@@ -38,8 +39,8 @@ class JobLookupUseCaseTest {
         outputPerMix = 50.0, requiredMixes = 8, allocatedMixes = 2,
         capturedAtUtc = "2026-09-30T10:00:00.000000Z",
         materials = listOf(
-            Rev2Material("1600000301", "HD WHITE", "kg", perMix = 69.631, required = 557.049, collected = 100.0),
-            Rev2Material("1500000306", "TACKIFIER", "kg", perMix = 1.5, required = 0.0, collected = 0.0, excluded = true),
+            Rev2Material("1600000301", "HD WHITE", "kg", perMix = BigDecimal("69.631"), required = BigDecimal("557.049"), collected = BigDecimal("100")),
+            Rev2Material("1500000306", "TACKIFIER", "kg", perMix = BigDecimal("1.5"), required = BigDecimal.ZERO, collected = BigDecimal.ZERO, excluded = true),
         ),
     )
     private val snapshot = Rev2Snapshot(
@@ -145,6 +146,29 @@ class JobLookupUseCaseTest {
         val result = useCase.lookup("JC-24001") as JobLookupResult.Failed
         assertEquals(JobLookupUseCase.NOT_DIGITS_MESSAGE, result.message)
         verify(mqtt, never()).request(any(), any(), any(), any<Class<Any>>())
+    }
+
+    @Test
+    fun `a PREP id opens that preparation and sends nothing`() = runTest {
+        val result = useCase.lookup("  PREP_440fbd8f9cd3411e9be943a33f1a3ceb\n")
+        assertEquals(JobLookupResult.OpenPreparation("PREP_440fbd8f9cd3411e9be943a33f1a3ceb"), result)
+        verify(mqtt, never()).request(any(), any(), any(), any<Class<Any>>())
+    }
+
+    @Test
+    fun `a malformed PREP id is refused with the lookup error and never becomes a route`() = runTest {
+        for (raw in listOf("PREP_", "PREP_x/y", "PREP_ab cd", "PREP_a?b=c", "PREP_a#b")) {
+            val result = useCase.lookup(raw)
+            assertTrue("$raw -> $result", result is JobLookupResult.Failed)
+            assertEquals(JobLookupUseCase.NOT_DIGITS_MESSAGE, (result as JobLookupResult.Failed).message)
+        }
+        verify(mqtt, never()).request(any(), any(), any(), any<Class<Any>>())
+    }
+
+    @Test
+    fun `a leading-space digit string with a letter still gives the digits error`() = runTest {
+        val result = useCase.lookup(" 12a") as JobLookupResult.Failed
+        assertEquals(JobLookupUseCase.NOT_DIGITS_MESSAGE, result.message)
     }
 
     @Test

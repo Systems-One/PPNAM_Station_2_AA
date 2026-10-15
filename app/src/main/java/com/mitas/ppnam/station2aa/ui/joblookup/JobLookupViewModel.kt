@@ -4,7 +4,9 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mitas.ppnam.station2aa.UserTagPolicy
-import com.mitas.ppnam.station2aa.data.mqtt.MqttTopics
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutbox
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
 import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
@@ -40,6 +42,8 @@ data class JobLookupUiState(
     val detail: JobDetail? = null,
     val detailLoading: Boolean = false,
     val detailError: String? = null,
+    /** An Unresolved `prepare` for the viewed job: Prepare is blocked until it is retried on the Prepare screen. */
+    val pendingPrepare: PendingCommand? = null,
 )
 
 /**
@@ -53,6 +57,7 @@ class JobLookupViewModel @Inject constructor(
     scanEventBus: ScanEventBus,
     private val sessionHolder: OperatorSessionHolder,
     private val authUseCase: AuthUseCase,
+    private val outbox: CommandOutbox,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(JobLookupUiState())
@@ -64,6 +69,9 @@ class JobLookupViewModel @Inject constructor(
 
     private val _navigateToDetail = Channel<String>(Channel.BUFFERED)
     val navigateToDetail: Flow<String> = _navigateToDetail.receiveAsFlow()
+
+    private val _navigateToPrep = Channel<String>(Channel.BUFFERED)
+    val navigateToPrep: Flow<String> = _navigateToPrep.receiveAsFlow()
 
     /**
      * The job card Detail is showing, or null on the list. Drives what a push or reconnect re-reads,
@@ -85,16 +93,18 @@ class JobLookupViewModel @Inject constructor(
     private var lastLookupInput: String? = null
 
     init {
+        viewModelScope.launch { outbox.commands.collect { refreshPendingPrepare() } }
         // rev2.1: after a preparation is created Station 2 pushes a hint telling General readers to
         // read again. It is a hint, not data, and never a reason to cancel a request in flight — so
         // it launches its own read alongside whatever is running.
-        mqttRepository.setServerPushHandler { topic, envelope, _ ->
-            if (MqttTopics.responseTypeOf(topic) != "active_job_cards_invalidated") return@setServerPushHandler
-            if (envelope.mode.isNotBlank() && !envelope.mode.equals("General", ignoreCase = true)) return@setServerPushHandler
-            // Without a session the read would be rejected — and there is nothing on screen to refresh.
-            if (sessionHolder.session.value == null) return@setServerPushHandler
-            val target = viewedJobCard
-            if (target != null) loadDetail(target) else refreshList()
+        viewModelScope.launch {
+            mqttRepository.serverHints.collect { hint ->
+                if (hint.mode.isNotBlank() && !hint.mode.equals("General", ignoreCase = true)) return@collect
+                // Without a session the read would be rejected — and there is nothing on screen to refresh.
+                if (sessionHolder.session.value == null) return@collect
+                val target = viewedJobCard
+                if (target != null) loadDetail(target) else refreshList()
+            }
         }
         // Spec §6.4: Job Lookup reads on open and on reconnect. The first value is skipped — the
         // screen reads on resume — so only a transition back INTO CONNECTED triggers a read.
@@ -132,7 +142,10 @@ class JobLookupViewModel @Inject constructor(
     /** Called by Job Lookup as it becomes visible or hidden, so scans only act on that screen. */
     fun setLookupScreenActive(active: Boolean) {
         lookupScreenActive = active
-        if (active) viewedJobCard = null
+        if (active) {
+            viewedJobCard = null
+            refreshPendingPrepare()
+        }
     }
 
     fun refreshList() {
@@ -141,6 +154,7 @@ class JobLookupViewModel @Inject constructor(
             when (val result = useCase.read()) {
                 is JobLookupResult.Loaded ->
                     _uiState.update { it.copy(jobs = result.snapshot.jobs, listLoading = false, listError = null) }
+                is JobLookupResult.OpenPreparation -> Unit
                 is JobLookupResult.Failed -> _uiState.update { state ->
                     state.copy(
                         jobs = result.snapshot?.jobs ?: state.jobs,
@@ -172,6 +186,10 @@ class JobLookupViewModel @Inject constructor(
                     freshFromLookup = detail.jobCard
                     _navigateToDetail.send(detail.jobCard)
                 }
+                is JobLookupResult.OpenPreparation -> {
+                    _uiState.update { it.copy(lookupInFlight = false) }
+                    _navigateToPrep.send(result.prepId)
+                }
                 is JobLookupResult.Failed -> _uiState.update { state ->
                     state.copy(
                         jobs = result.snapshot?.jobs ?: state.jobs,
@@ -196,11 +214,20 @@ class JobLookupViewModel @Inject constructor(
      */
     fun openDetail(jobCard: String) {
         viewedJobCard = jobCard
+        refreshPendingPrepare()
         val fresh = freshFromLookup
         freshFromLookup = null
         if (fresh == jobCard && _uiState.value.detail?.jobCard == jobCard) return
         if (_uiState.value.detail?.jobCard != jobCard) _uiState.update { it.copy(detail = null) }
         loadDetail(jobCard)
+    }
+
+    private fun refreshPendingPrepare() {
+        val job = viewedJobCard
+        val match = outbox.commands.value.firstOrNull {
+            job != null && it.action == "prepare" && it.targetId == job && (it.status == PendingStatus.Unresolved || it.status == PendingStatus.ManagerReconcile)
+        }
+        _uiState.update { it.copy(pendingPrepare = match) }
     }
 
     private fun loadDetail(jobCard: String) {
@@ -218,6 +245,8 @@ class JobLookupViewModel @Inject constructor(
                         it.copy(jobs = result.snapshot.jobs)
                     }
                 }
+                // read() never opens a preparation; only lookup() does.
+                is JobLookupResult.OpenPreparation -> Unit
                 is JobLookupResult.Failed -> _uiState.update {
                     when {
                         stillViewed -> it.copy(

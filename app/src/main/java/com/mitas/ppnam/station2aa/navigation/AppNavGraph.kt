@@ -27,6 +27,10 @@ import com.mitas.ppnam.station2aa.ui.home.HomeScreen
 import com.mitas.ppnam.station2aa.ui.joblookup.JobDetailScreen
 import com.mitas.ppnam.station2aa.ui.joblookup.JobLookupScreen
 import com.mitas.ppnam.station2aa.ui.joblookup.JobLookupViewModel
+import com.mitas.ppnam.station2aa.ui.preparation.PreparationScreen
+import com.mitas.ppnam.station2aa.ui.preparation.PreparationViewModel
+import com.mitas.ppnam.station2aa.ui.preparation.PrepareScreen
+import com.mitas.ppnam.station2aa.ui.preparation.PrepareViewModel
 import com.mitas.ppnam.station2aa.ui.session.SessionWatcher
 import com.mitas.ppnam.station2aa.ui.settings.SettingsScreen
 import com.mitas.ppnam.station2aa.ui.theme.rememberReducedMotion
@@ -89,6 +93,9 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
             val activity = LocalContext.current.findActivity()
             HomeScreen(
                 onOpenJobCards = { navController.navigate(NavRoutes.JOBS) },
+                // Both routes live inside the jobs graph; navigating into it from Home is allowed.
+                onOpenPrep = { navController.navigate(NavRoutes.prep(it)) },
+                onOpenPrepare = { navController.navigate(NavRoutes.prepare(it)) },
                 onSettings = { navController.navigate(NavRoutes.SETTINGS) },
                 // Navigation on logout is SessionWatcher's job alone (it reacts to
                 // the session going null, which authUseCase.logout() causes before this event fires).
@@ -107,6 +114,7 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                 val parentEntry = remember(backStackEntry) { navController.getBackStackEntry(NavRoutes.JOBS) }
                 JobLookupScreen(
                     onJobFound = { jobCard -> navController.navigate(NavRoutes.jobDetail(jobCard)) },
+                    onOpenPrep = { prepId -> navController.navigate(NavRoutes.prep(prepId)) },
                     onSettings = { navController.navigate(NavRoutes.SETTINGS) },
                     onBack = { navController.popBackStack() },
                     viewModel = hiltViewModel<JobLookupViewModel>(parentEntry),
@@ -118,7 +126,31 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                 JobDetailScreen(
                     jobCard = jobCard,
                     onBack = { navController.popBackStack() },
+                    onPrepare = { navController.navigate(NavRoutes.prepare(it)) },
+                    onOpenPrep = { navController.navigate(NavRoutes.prep(it)) },
                     viewModel = hiltViewModel<JobLookupViewModel>(parentEntry),
+                )
+            }
+            composable(NavRoutes.PREPARE) {
+                // Its own PrepareViewModel (scoped to this entry), not the shared JobLookupViewModel.
+                PrepareScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenPrep = { navController.navigate(NavRoutes.prep(it)) },
+                    onPrepared = { prepId ->
+                        navController.navigate(NavRoutes.prep(prepId)) {
+                            popUpTo(NavRoutes.PREPARE) { inclusive = true }
+                        }
+                    },
+                    viewModel = hiltViewModel<PrepareViewModel>(),
+                )
+            }
+            composable(NavRoutes.PREP) { backStackEntry ->
+                val prepId = backStackEntry.arguments?.getString("prepId") ?: return@composable
+                // Its own PreparationViewModel (scoped to this entry); it reads prepId from SavedStateHandle.
+                PreparationScreen(
+                    prepId = prepId,
+                    onBack = { navController.popBackStack() },
+                    viewModel = hiltViewModel<PreparationViewModel>(),
                 )
             }
         }

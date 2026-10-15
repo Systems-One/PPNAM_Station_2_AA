@@ -1,5 +1,7 @@
 package com.mitas.ppnam.station2aa.data.mqtt.dto
 
+import java.math.BigDecimal
+
 /**
  * rev2.1 workflow DTOs, contract revision 2026-10-01 (§8). General (`rev2_general_*`) and Rajoo
  * (`rev2_rajoo_*`) replies share one snapshot shape; [Rev2Snapshot.mode] says which.
@@ -147,14 +149,14 @@ data class Rev2Material(
     val code: String = "",
     val name: String = "",
     val unit: String = "",
-    val perMix: Double = 0.0,
-    val required: Double = 0.0,
-    val collected: Double = 0.0,
+    val perMix: BigDecimal = BigDecimal.ZERO,
+    val required: BigDecimal = BigDecimal.ZERO,
+    val collected: BigDecimal = BigDecimal.ZERO,
     /** Excluded (initial choice, omit, or substituted away): shown, never collected. */
     val excluded: Boolean = false,
     /** Original scope target; 0 for an operator-added row; null when a legacy baseline is unknown. */
-    val originalRequired: Double? = null,
-    val remaining: Double = 0.0,
+    val originalRequired: BigDecimal? = null,
+    val remaining: BigDecimal = BigDecimal.ZERO,
 )
 
 data class Rev2Preparation(
@@ -224,4 +226,37 @@ data class Rev2CollectionException(
     val reviewedAtUtc: String? = null,
     val reviewedBy: String? = null,
     val reviewReason: String? = null,
+)
+
+/**
+ * Contract §4/§7 `prepare`. [ingredientChoices] is never null: `[]` when no code needs a choice.
+ * [exceptionListRevision] is the READ's top-level catalog revision (`data.exceptionListRevision`),
+ * never the job's. A blank [reason] must be passed as null so it is omitted.
+ */
+data class Rev2PrepareRequest(
+    val targetId: String,
+    val mixCount: Int,
+    val exceptionListRevision: Int?,
+    val ingredientChoices: List<Rev2ChoiceAnswer>,
+    val reason: String? = null,
+    val action: String = "prepare",
+)
+
+/** One explicit Include/Exclude answer. No default: an unanswered choice must not compile. */
+data class Rev2ChoiceAnswer(val code: String, val include: Boolean)
+
+/**
+ * Contract §4 `capture`: one physical bag ([quantity] null, so it is omitted) or one fraction.
+ * [quantity] must already be [com.mitas.ppnam.station2aa.domain.model.WireDecimal]-normalised.
+ */
+data class Rev2CaptureRequest(
+    val targetId: String,
+    val code: String,
+    val quantity: BigDecimal? = null,
+    val action: String = "capture",
+)
+
+data class Rev2ConfirmRequest(
+    val targetId: String,
+    val action: String = "confirm",
 )

@@ -10,5 +10,10 @@ object NavRoutes {
     const val JOB_LOOKUP = "jobs/lookup"
     const val JOB_DETAIL = "jobs/detail/{jobCard}"
 
+    const val PREPARE = "jobs/prepare/{jobCard}"
+    const val PREP = "jobs/prep/{prepId}"
+
     fun jobDetail(jobCard: String) = "jobs/detail/$jobCard"
+    fun prepare(jobCard: String) = "jobs/prepare/$jobCard"
+    fun prep(prepId: String) = "jobs/prep/$prepId"
 }

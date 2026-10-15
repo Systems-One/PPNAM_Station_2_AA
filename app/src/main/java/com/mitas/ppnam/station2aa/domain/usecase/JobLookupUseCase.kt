@@ -4,22 +4,17 @@ import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
 import com.mitas.ppnam.station2aa.data.mqtt.FailureKind
 import com.mitas.ppnam.station2aa.data.mqtt.MqttOutcome
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralRequest
-import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MixProgress
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
-import com.mitas.ppnam.station2aa.domain.model.ActivePreparation
-import com.mitas.ppnam.station2aa.domain.model.JobDetail
 import com.mitas.ppnam.station2aa.domain.model.JobLookupSnapshot
-import com.mitas.ppnam.station2aa.domain.model.JobMaterial
-import com.mitas.ppnam.station2aa.domain.model.JobPreparation
-import com.mitas.ppnam.station2aa.domain.model.JobSummary
-import com.mitas.ppnam.station2aa.domain.model.MixProgress
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
-import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
 sealed interface JobLookupResult {
     data class Loaded(val snapshot: JobLookupSnapshot) : JobLookupResult
+
+    /** The input was a `PREP_` id: open that preparation directly (GEN-06). Nothing was sent. */
+    data class OpenPreparation(val prepId: String) : JobLookupResult
 
     /** [snapshot] is set when Station 2 answered with one anyway (a `rev2_rejected` reply does). */
     data class Failed(
@@ -56,6 +51,8 @@ class JobLookupUseCase @Inject constructor(
      */
     suspend fun lookup(rawJobCard: String): JobLookupResult {
         val jobCard = rawJobCard.trim()
+        // Only a well-formed id becomes a nav route: `PREP_x/y` or a bare `PREP_` gets the lookup error.
+        if (isPrepId(jobCard)) return JobLookupResult.OpenPreparation(jobCard)
         // '0'..'9', not isDigit(): Station 2 accepts ASCII digits only, and isDigit() admits
         // full-width and other Unicode digits it would reject.
         if (jobCard.isEmpty() || !jobCard.all { it in '0'..'9' }) {
@@ -75,8 +72,8 @@ class JobLookupUseCase @Inject constructor(
             payload = request,
             responseClass = Rev2Snapshot::class.java,
         )) {
-            is MqttOutcome.Accepted -> JobLookupResult.Loaded(outcome.body.toDomain())
-            is MqttOutcome.Rejected -> JobLookupResult.Failed(outcome.message(), outcome.body?.toDomain())
+            is MqttOutcome.Accepted -> JobLookupResult.Loaded(outcome.body.toJobLookupSnapshot())
+            is MqttOutcome.Rejected -> JobLookupResult.Failed(outcome.message(), outcome.body?.toJobLookupSnapshot())
             is MqttOutcome.NoResponse -> JobLookupResult.Failed(
                 outcome.kind.message(),
                 retryable = outcome.kind == FailureKind.Timeout || outcome.kind == FailureKind.NotConnected,
@@ -86,6 +83,11 @@ class JobLookupUseCase @Inject constructor(
     companion object {
         const val REQUEST_TYPE = "rev2_general_requested"
         const val RESPONSE_TYPE = "rev2_general_result"
+        const val PREP_ID_PREFIX = "PREP_"
+        private val PREP_ID = Regex("^PREP_[A-Za-z0-9]+$")
+
+        /** True for a `PREP_` id safe to open (and to put in a nav route). */
+        fun isPrepId(value: String): Boolean = PREP_ID.matches(value)
         const val NOT_DIGITS_MESSAGE = "Scan or enter the production order number (digits only)"
         const val USER_BADGE_MESSAGE = "That is a user badge, not a job card. Use the login screen to sign in."
     }
@@ -97,41 +99,3 @@ private fun MqttOutcome.Rejected<*>.message(): String = when (error) {
     ErrorCode.CLIENT_UPGRADE_REQUIRED -> "This app needs updating before it can talk to Station 2"
     else -> operatorMessage ?: "Station 2 rejected the request"
 }
-
-private fun Rev2Snapshot.toDomain(): JobLookupSnapshot = JobLookupSnapshot(
-    jobs = jobs.map { JobSummary(it.id, it.product, it.requiredMixes, it.closed, it.mixProgress?.toDomain()) },
-    detail = job?.let { job ->
-        JobDetail(
-            jobCard = job.id,
-            product = job.product,
-            unit = job.unit,
-            outputPerMix = job.outputPerMix,
-            requiredMixes = job.requiredMixes,
-            allocatedMixes = job.allocatedMixes,
-            capturedAtUtc = job.capturedAtUtc?.let { runCatching { Instant.parse(it) }.getOrNull() },
-            closed = job.closed,
-            materials = job.materials.map {
-                JobMaterial(it.code, it.name, it.unit, it.perMix, it.required, it.collected, it.excluded, it.originalRequired)
-            },
-            preparations = preparations.filter { it.jobId == job.id }.map {
-                JobPreparation(it.id, it.mixCount, it.mixed, it.produced, it.stage)
-            },
-            mixProgress = job.mixProgress?.toDomain(),
-        )
-    },
-)
-
-private fun Rev2MixProgress.toDomain(): MixProgress = MixProgress(
-    requiredMixes = requiredMixes,
-    allocatedMixes = allocatedMixes,
-    activeMixes = activeMixes,
-    availableToPrepareMixes = availableToPrepareMixes,
-    remainingToFinishMixes = remainingToFinishMixes,
-    collectedMixes = collectedMixes,
-    confirmedMixes = confirmedMixes,
-    mixedMixes = mixedMixes,
-    producedMixes = producedMixes,
-    activePreparations = activePreparations.map {
-        ActivePreparation(it.id, it.mixCount, it.stage, it.mixed, it.produced, it.remainingToFinishMixes)
-    },
-)

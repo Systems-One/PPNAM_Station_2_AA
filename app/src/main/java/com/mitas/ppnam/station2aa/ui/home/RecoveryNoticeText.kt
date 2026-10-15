@@ -2,8 +2,11 @@ package com.mitas.ppnam.station2aa.ui.home
 
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus
+import com.mitas.ppnam.station2aa.domain.usecase.NoticeTarget
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryOutcome
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
+import com.mitas.ppnam.station2aa.domain.usecase.openTarget
+import com.mitas.ppnam.station2aa.ui.preparation.shortPrepId
 
 /** "capture PREP_1" — what the operator did, in the terms the scanner showed them. */
 internal fun PendingCommand.label(): String = listOfNotNull(action.ifBlank { "command" }, targetId).joinToString(" ")
@@ -69,4 +72,11 @@ internal fun RecoveryResult.noticeText(currentDeviceId: String? = null): String 
             "$what: still unresolved — $message. It is checked again when the scanner reconnects or you tap Check again."
         is RecoveryResult.OtherOperator -> command.otherOperatorText(currentDeviceId)
     }
+}
+
+/** The Open action on a NotExecuted notice: "Open PREP_…1a3ceb" or "Open job 510019068"; null for none. */
+internal fun RecoveryResult.openActionLabel(): String? = when (val target = openTarget()) {
+    is NoticeTarget.Prep -> "Open ${shortPrepId(target.id)}"
+    is NoticeTarget.Job -> "Open job ${target.jobCard}"
+    null -> null
 }

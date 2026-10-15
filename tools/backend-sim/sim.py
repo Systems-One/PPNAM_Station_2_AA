@@ -154,8 +154,9 @@ class Simulator:
 
     def publish_response(self, device_id, response_type, response):
         topic = f"{STATION_BASE}/{device_id}/res/{response_type}"
-        self.client.publish(topic, json.dumps(response, ensure_ascii=False), qos=1, retain=False)
-        self.log.wire("out", topic, response)
+        text = envelope.dumps(response)
+        self.client.publish(topic, text, qos=1, retain=False)
+        self.log.wire("out", topic, text)
         if "success" not in response:
             # A server push (active_job_cards_invalidated) has no success flag and answers nothing.
             self.log.tx(f"res/{response_type} -> {device_id}: PUSH {response.get('reason')}")
@@ -165,8 +166,8 @@ class Simulator:
                     f"inResponseTo={response.get('inResponseToMessageId')!r}")
         return topic
 
-    def publish_invalidations(self):
-        """The server's PreparationsChanged push, to every device that has read General."""
+    def publish_invalidations(self, reason="preparation_created"):
+        """The server's WorkspaceChanged push, to every device that has read General."""
         for device_id in sorted(self.world.general_readers):
             self.publish_response(device_id, "active_job_cards_invalidated", {
                 "schemaVersion": envelope.SCHEMA_VERSION,
@@ -174,7 +175,7 @@ class Simulator:
                 "messageId": f"rev2-preparations-{os.urandom(16).hex()}",
                 "timestampUtc": iso(utc_now()),
                 "mode": "General",
-                "reason": "preparation_created",
+                "reason": reason,
                 "nextAction": "read",
             })
 
@@ -209,7 +210,8 @@ class Simulator:
             self.publish_invalidations()
             self.log.ok("sim-control: INVALIDATE — active_job_cards_invalidated pushed")
             return
-        if kind in ("withhold", "malformed", "uncorrelated", "reject", "login_mangle"):
+        if kind in ("withhold", "malformed", "uncorrelated", "reject", "login_mangle",
+                    "drop_reply"):
             fault = {
                 "cmd": kind,
                 "match": cmd.get("match", "*"),
@@ -281,6 +283,12 @@ class Simulator:
                 "outcome_unconfirmed")
         # Contract §2: uppercase hex SHA-256 of the exact request bytes the station received.
         response["requestFingerprint"] = hashlib.sha256(payload or b"").hexdigest().upper()
+        if self._faults and self._take_fault(request_type, ("drop_reply",)):
+            # A lost reply: the request was processed (its receipt is saved), only the answer is
+            # never published, so the handheld must retry identically or recover.
+            self.log.warn(f"sim-control: FAULT drop_reply — req/{request_type} processed, "
+                          f"reply to {ctx['messageId']!r} not published")
+            return
         self.publish_response(device_id, envelope.response_suffix(request_type), response)
 
     def _dispatch(self, device_id, request_type, payload, req, received_at):
@@ -315,9 +323,16 @@ class Simulator:
         if not session:
             self.log.fail(f"session: {err}")
             raise Rejection("operator_session_invalid", "Sign in on this device before continuing.")
-        result, snap = rev2_general.handle(self.world, self.log, req, action)
+        result, snap, hint = rev2_general.handle(self.world, self.log, req, action, request_type,
+                                                 payload, session["operatorId"])
+        if hint:
+            # After the durable change and before the reply, as the server's WorkspaceChanged.
+            self.publish_invalidations(hint)
+        error = result.get("errorCode") or ("" if result["success"] else "rev2_rejected")
+        next_action = ("review_recovered_outcome" if action == "recover" and result["success"]
+                       else None)
         return envelope.reply(device_id, message_id, received_at, result["success"],
-                              result["message"], "" if result["success"] else "rev2_rejected", snap)
+                              result["message"], error, snap, next_action)
 
     # ------------------------------------------------------------- run ----
     def run(self):

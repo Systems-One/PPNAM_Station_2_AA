@@ -1,6 +1,7 @@
 package com.mitas.ppnam.station2aa.ui.joblookup
 
-import com.mitas.ppnam.station2aa.data.mqtt.dto.ResponseEnvelope
+import com.mitas.ppnam.station2aa.domain.repository.ServerHint
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox
 import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
@@ -31,7 +32,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doSuspendableAnswer
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -48,7 +48,8 @@ class JobLookupViewModelTest {
     private lateinit var scans: MutableSharedFlow<ScanEvent>
     private lateinit var sessionHolder: OperatorSessionHolder
     private lateinit var vm: JobLookupViewModel
-    private var pushHandler: ((String, ResponseEnvelope, String) -> Unit)? = null
+    private val outbox = InMemoryCommandOutbox()
+    private lateinit var hints: MutableSharedFlow<ServerHint>
     private lateinit var connection: MutableStateFlow<MqttConnectionState>
 
     private val jobs = listOf(JobSummary("510019068", "BAG CARRIER", 8, false))
@@ -72,22 +73,48 @@ class JobLookupViewModelTest {
         whenever(scanBus.events).thenReturn(scans)
         connection = MutableStateFlow(MqttConnectionState.CONNECTED)
         whenever(mqtt.connectionState).thenReturn(connection)
+        hints = MutableSharedFlow(extraBufferCapacity = 8)
+        whenever(mqtt.serverHints).thenReturn(hints)
         whenever(mqtt.stationOnline).thenReturn(MutableStateFlow(true))
         whenever(mqtt.clockSkewMillis).thenReturn(MutableStateFlow<Long?>(null))
-        vm = JobLookupViewModel(useCase, mqtt, scanBus, sessionHolder, mock<AuthUseCase>())
-        val captor = argumentCaptor<(String, ResponseEnvelope, String) -> Unit>()
-        verify(mqtt).setServerPushHandler(captor.capture())
-        pushHandler = captor.firstValue
+        vm = JobLookupViewModel(useCase, mqtt, scanBus, sessionHolder, mock<AuthUseCase>(), outbox)
     }
 
     @After
     fun tearDown() { Dispatchers.resetMain() }
 
-    private fun push(mode: String = "General") = pushHandler!!(
-        "PPNAM/station_2/scanner_x/res/active_job_cards_invalidated",
-        ResponseEnvelope(messageId = "p-1", mode = mode, reason = "preparation_created", nextAction = "read"),
-        "{}",
-    )
+    private fun push(mode: String = "General") {
+        hints.tryEmit(ServerHint(mode, "preparation_created"))
+    }
+
+    @Test
+    fun `an unresolved prepare for the viewed job is exposed as pendingPrepare`() = runTest {
+        whenever(useCase.read("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        val cmd = com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand(
+            messageId = "m-1", action = "prepare", targetId = "510019068", payload = "{}",
+        )
+        outbox.save(cmd)
+        vm.openDetail("510019068")
+        assertEquals(cmd, vm.uiState.value.pendingPrepare)
+        outbox.remove("m-1")
+        kotlinx.coroutines.yield()
+        assertNull(vm.uiState.value.pendingPrepare)
+    }
+
+    @Test
+    fun `a ManagerReconcile prepare still counts as pending`() = runTest {
+        whenever(useCase.read("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        outbox.save(com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand(
+            messageId = "m-2", action = "prepare", targetId = "510019068", payload = "{}",
+        ))
+        vm.openDetail("510019068")
+        outbox.markManagerReconcile("m-2")
+        kotlinx.coroutines.yield()
+        assertEquals(
+            com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingStatus.ManagerReconcile,
+            vm.uiState.value.pendingPrepare?.status,
+        )
+    }
 
     @Test
     fun `refreshList loads the job list`() = runTest {
@@ -122,6 +149,15 @@ class JobLookupViewModelTest {
         vm.lookup("510019068")
         assertEquals(detail, vm.uiState.value.detail)
         assertEquals("510019068", vm.navigateToDetail.first())
+    }
+
+    @Test
+    fun `a PREP id navigates to that preparation`() = runTest {
+        whenever(useCase.lookup("PREP_abc")).thenReturn(JobLookupResult.OpenPreparation("PREP_abc"))
+        vm.lookup("PREP_abc")
+        assertEquals("PREP_abc", vm.navigateToPrep.first())
+        assertFalse(vm.uiState.value.lookupInFlight)
+        assertNull(vm.uiState.value.lookupError)
     }
 
     @Test
