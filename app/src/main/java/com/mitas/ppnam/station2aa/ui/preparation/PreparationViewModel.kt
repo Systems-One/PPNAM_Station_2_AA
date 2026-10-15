@@ -512,6 +512,7 @@ class PreparationViewModel @Inject constructor(
                 if (lastDone != null && _uiState.value.snapshot !== lastDone && isThisPrep(lastDone.preparation?.id)) {
                     applied = ++issued
                     _uiState.update { it.copy(snapshot = lastDone) }
+                    needRead = true   // the racing read may still land after this; the next read settles it
                 }
                 _uiState.update { it.copy(step = CollectStep.Idle) }
                 val banner = lastDone?.let { doneBanner(before, it, plan.pickedCode) }

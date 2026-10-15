@@ -1160,15 +1160,22 @@ class PreparationViewModelTest {
     @Test
     fun `a hint read that lands during the last capture does not leave a stale snapshot`() = runTest {
         val vm = open()
-        whenever(useCase.read(prepId)).thenReturn(ReadResult.Loaded(afterOne))
+        // A read answered while the last capture is in flight returns older data; later reads are the truth.
+        var racing = false
+        whenever(useCase.read(prepId)).thenAnswer { ReadResult.Loaded(if (racing) afterOne else finalCapture) }
+        val gate = CompletableDeferred<Unit>()
         whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("15"))).thenReturn(CollectionResult.Done(afterOne))
-        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10"))).thenAnswer {
-            // The hint's read takes a higher sequence number and returns an older snapshot.
-            hints.tryEmit(ServerHint("General", "capture"))
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("10"))).doSuspendableAnswer {
+            gate.await()
             CollectionResult.Done(finalCapture)
         }
         scanIdentified(vm, source(bag = "15"))
         vm.submit()
+        // The last capture is in flight; a hint's read takes a higher sequence number.
+        racing = true
+        vm.refresh()
+        racing = false
+        gate.complete(Unit)
         assertEquals(finalCapture, vm.uiState.value.snapshot)
     }
 
