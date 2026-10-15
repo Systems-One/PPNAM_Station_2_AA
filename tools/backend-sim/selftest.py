@@ -475,6 +475,7 @@ def collection(hh):
     r, _ = hh.request(general, {"action": "read", "targetId": PREP})
     check(r and r["success"] and len(r["data"]["preparation"]["materials"]) == 7,
           "read PREP_demo0001 has materials", r and r["data"]["preparation"])
+    return prep_id
 
 
 PAL_013_PIGMENT = "300833B2DDD901400000000D"   # PAL-013, 1500000400 BLUE PIGMENT, 20 kg bags, not on the BOM
@@ -641,6 +642,201 @@ def identify_and_add(hh):
     check(r and r["error"] == "rev2_rejected", "Add after confirmation -> rejected")
 
 
+def machines(hh, confirmed):
+    """machine_start / machine_finish: routes, rejections, replay, drop_reply and recover."""
+    print("machines")
+    general = "rev2_general_requested"
+    direct = isinstance(hh, DirectHandheld)
+
+    def start(prep, code, **kw):
+        return hh.request(general, {"action": "machine_start", "targetId": prep, "code": code}, **kw)
+
+    def finish(prep, code, cycle, **kw):
+        return hh.request(general, {"action": "machine_finish", "targetId": prep, "code": code,
+                                    "cycleId": cycle}, **kw)
+
+    def injected(pid, mixes, stage="ReadyForMixer"):
+        hh.sim.world.rev2_preparations[pid] = dict(
+            hh.sim.world.rev2_preparations["PREP_demo0001"], id=pid, mixCount=mixes, stage=stage,
+            mixed=0, produced=0, mixerId=None, productionId=None, cycleId=None, materials=[])
+        return pid
+
+    def rejected(r, text, label):
+        check(r and not r["success"] and r["error"] == "rev2_rejected" and text in r["operatorMessage"],
+              label, r and r["operatorMessage"])
+
+    r, _ = hh.request(general, {"action": "read", "targetId": confirmed})
+    machines_list = r["data"]["machines"]
+    by_id = {m["id"]: m for m in machines_list}
+    check(all(set(m) == {"id", "name", "area", "code", "enabled", "kind", "isProduction", "pairId",
+                         "destinations"} for m in machines_list),
+          "snapshot machines use the contract machine DTO fields")
+    check(by_id["DOL-MIX-01"]["pairId"] == "DOL-01" and by_id["DOL-01"]["isProduction"],
+          "DOL-MIX-01 pairs with DOL-01")
+    check(by_id["MAIN-MIX-03"]["destinations"] == ["MAIN-EXT-%02d" % n for n in range(1, 26)]
+          and by_id["MAIN-MIX-06"]["destinations"] == ["JAN-02", "JAN-03", "JAN-04"],
+          "Main mixers feed MAIN-EXT-01..25; Mixer 6 feeds JAN-02..04")
+    check(any(not m["enabled"] for m in machines_list) and any(m["code"] == "" for m in machines_list),
+          "the seed has a disabled machine and one with a blank code")
+
+    # -- Main route over the wire on the real, confirmed preparation (2 mixes) --------------------
+    check(r["data"]["preparation"]["stage"] == "ReadyForMixer", "the confirmed preparation is ReadyForMixer")
+    rejected(start(confirmed, "NOPE-01")[0], "not a configured machine", "an unknown machine code -> rejected")
+    rejected(start(confirmed, "")[0], "not a configured machine", "a blank scanned code -> rejected")
+    rejected(start(confirmed, "DOL-MIX-03")[0], "disabled", "a disabled machine -> rejected")
+    rejected(start(confirmed, "DOL-MIX-04")[0], "not a configured machine", "a blank-code machine cannot be scanned")
+    rejected(start(confirmed, "MAIN-EXT-01")[0], "production machine", "a production machine at ReadyForMixer -> rejected")
+    rejected(finish(confirmed, "MAIN-MIX-01", "CYC_x")[0], "No machine cycle", "machine_finish at ReadyForMixer -> rejected")
+    hh.pushes.clear()
+    r, body = start(confirmed, "MAIN-MIX-01")
+    prep = r["data"]["preparation"]
+    cyc1 = r["data"]["result"]["cycleId"]
+    check(r["success"] and prep["stage"] == "Mixing" and prep["mixerId"] == "MAIN-MIX-01"
+          and cyc1.startswith("CYC_") and prep["cycleId"] == cyc1,
+          "machine_start MAIN-MIX-01 -> Mixing with a server cycleId", r["operatorMessage"])
+    check([p["reason"] for p in hh.pushes] == ["machine_start"], "…and a machine_start hint is pushed",
+          [p["reason"] for p in hh.pushes])
+    hh.pushes.clear()
+    hh.send_raw(general, json.dumps(body))
+    replay = hh.await_reply(body["messageId"])
+    check(replay and replay["data"]["result"]["cycleId"] == cyc1 and replay["data"]["preparation"]["cycleId"] == cyc1
+          and not hh.pushes, "an exact machine_start replay returns the same receipt, no new cycle, no hint")
+    rejected(start(confirmed, "MAIN-MIX-01")[0], "cannot be started", "machine_start while Mixing -> rejected")
+    rejected(finish(confirmed, "MAIN-MIX-02", cyc1)[0], "own machine", "finish with the wrong machine code -> rejected")
+    rejected(finish(confirmed, "MAIN-MIX-01", "CYC_" + "0" * 32)[0], "not the active cycle",
+             "finish with the wrong cycle -> rejected")
+    rejected(finish(confirmed, "main-mix-01", cyc1)[0], "own machine", "the finish code is exact (case-sensitive)")
+    r, body = finish(confirmed, "MAIN-MIX-01", cyc1)
+    prep = r["data"]["preparation"]
+    check(r["success"] and prep["stage"] == "ReadyForNextMix" and prep["mixed"] == 1 and prep["produced"] == 0
+          and prep["cycleId"] is None, "machine_finish mix 1 of 2 -> ReadyForNextMix, mixed 1", r["operatorMessage"])
+    hh.send_raw(general, json.dumps(body))
+    replay = hh.await_reply(body["messageId"])
+    check(replay and replay["data"]["preparation"]["mixed"] == 1, "an exact machine_finish replay does not double-count")
+    rejected(start(confirmed, "MAIN-MIX-02")[0], "assigned mixer", "the next mix must use the saved mixer")
+    r, _ = start(confirmed, "MAIN-MIX-01")
+    cyc2 = r["data"]["result"]["cycleId"]
+    check(r["success"] and cyc2 != cyc1 and r["data"]["preparation"]["stage"] == "Mixing",
+          "ReadyForNextMix -> Mixing with a new cycleId")
+    r, _ = finish(confirmed, "MAIN-MIX-01", cyc2)
+    prep = r["data"]["preparation"]
+    check(r["success"] and prep["stage"] == "ReadyForProduction" and prep["mixed"] == 2,
+          "the last mix finish -> ReadyForProduction", prep["stage"])
+    rejected(start(confirmed, "MAIN-MIX-01")[0], "production machine", "a mixer at ReadyForProduction -> rejected")
+    rejected(start(confirmed, "JAN-02")[0], "not a permitted destination", "JAN-02 is not a Main destination")
+    r, _ = start(confirmed, "MAIN-EXT-07")
+    cyc3 = r["data"]["result"]["cycleId"]
+    prep = r["data"]["preparation"]
+    check(r["success"] and prep["stage"] == "Producing" and prep["productionId"] == "MAIN-EXT-07"
+          and prep["mixerId"] == "MAIN-MIX-01", "production start assigns productionId", r["operatorMessage"])
+    progress = r["data"]["job"]["mixProgress"]
+    check(progress["mixedMixes"] >= 2 and progress["activePreparations"] != [], "…mixProgress shows the active preparation")
+    r, _ = finish(confirmed, "MAIN-EXT-07", cyc3)
+    check(r["success"] and r["data"]["preparation"]["stage"] == "ReadyForProduction"
+          and r["data"]["preparation"]["produced"] == 1, "production finish 1 of 2 -> ReadyForProduction")
+    rejected(start(confirmed, "MAIN-EXT-08")[0], "assigned to production machine MAIN-EXT-07",
+             "later production cycles must use the same production machine")
+    r, _ = start(confirmed, "MAIN-EXT-07")
+    r, _ = finish(confirmed, "MAIN-EXT-07", r["data"]["result"]["cycleId"])
+    prep = r["data"]["preparation"]
+    check(r["success"] and prep["stage"] == "Completed" and prep["produced"] == 2 and prep["cycleId"] is None,
+          "the last production finish -> Completed", prep["stage"])
+    rejected(start(confirmed, "MAIN-MIX-01")[0], "Completed", "machine_start on a Completed preparation -> rejected")
+    r, _ = hh.request(general, {"action": "read", "targetId": confirmed})
+    progress = r["data"]["job"]["mixProgress"]
+    check(progress["producedMixes"] >= 2 and all(a["id"] != confirmed for a in progress["activePreparations"]),
+          "…a Completed preparation leaves activePreparations and counts as produced")
+
+    if not direct:
+        print("  (remaining machine checks inject preparations and need --direct)")
+        return
+
+    # -- Main 4 mixes then 4 productions ---------------------------------------------------------
+    a = injected("PREP_main4", 4)
+    for n in range(1, 5):
+        r, _ = start(a, "MAIN-MIX-02")
+        r, _ = finish(a, "MAIN-MIX-02", r["data"]["result"]["cycleId"])
+        check(r["success"] and r["data"]["preparation"]["mixed"] == n, "Main mix %d of 4 finished" % n)
+    prep = r["data"]["preparation"]
+    check(prep["stage"] == "ReadyForProduction" and prep["produced"] == 0,
+          "Main: 4 mixes -> ReadyForProduction, none produced")
+    for n in range(1, 5):
+        r, _ = start(a, "MAIN-EXT-02")
+        r, _ = finish(a, "MAIN-EXT-02", r["data"]["result"]["cycleId"])
+        check(r["success"] and r["data"]["preparation"]["produced"] == n, "Main production %d of 4 finished" % n)
+    check(r["data"]["preparation"]["stage"] == "Completed", "Main: 4 productions -> Completed")
+
+    # -- occupancy -------------------------------------------------------------------------------
+    b = injected("PREP_occ1", 1)
+    c = injected("PREP_occ2", 1)
+    r, _ = start(b, "MAIN-MIX-03")
+    cb = r["data"]["result"]["cycleId"]
+    rejected(start(c, "MAIN-MIX-03")[0], "occupied", "a mixer held by another active preparation -> occupied")
+    r, _ = finish(b, "MAIN-MIX-03", cb)
+    rejected(start(c, "MAIN-MIX-03")[0], "occupied", "…it stays occupied while the other awaits production")
+    r, _ = start(b, "MAIN-EXT-10")
+    cb = r["data"]["result"]["cycleId"]
+    r, _ = start(c, "MAIN-MIX-04")
+    r, _ = finish(c, "MAIN-MIX-04", r["data"]["result"]["cycleId"])
+    rejected(start(c, "MAIN-EXT-10")[0], "occupied", "a production machine held by another preparation -> occupied")
+    r, _ = finish(b, "MAIN-EXT-10", cb)
+    check(r["data"]["preparation"]["stage"] == "Completed", "the first preparation completes")
+    r, _ = start(c, "MAIN-EXT-10")
+    check(r["success"], "…once Completed, its production machine is free again", r["operatorMessage"])
+
+    # -- Mixer 6 -> JAN only ---------------------------------------------------------------------
+    m6 = injected("PREP_mix6", 1)
+    r, _ = start(m6, "MAIN-MIX-06")
+    r, _ = finish(m6, "MAIN-MIX-06", r["data"]["result"]["cycleId"])
+    check(r["data"]["preparation"]["stage"] == "ReadyForProduction", "Mixer 6 mix -> ReadyForProduction")
+    rejected(start(m6, "MAIN-EXT-01")[0], "not a permitted destination", "Mixer 6 cannot feed a Main extruder")
+    r, _ = start(m6, "JAN-03")
+    check(r["success"] and r["data"]["preparation"]["productionId"] == "JAN-03", "Mixer 6 -> JAN-03 starts")
+    r, _ = finish(m6, "JAN-03", r["data"]["result"]["cycleId"])
+    check(r["data"]["preparation"]["stage"] == "Completed", "Mixer 6 route completes")
+
+    # -- FixedPair: each mix finish increments mixed and produced --------------------------------
+    f = injected("PREP_pair", 2)
+    rejected(start(f, "DOL-01")[0], "production machine", "a FixedPair production code at ReadyForMixer -> rejected")
+    r, _ = start(f, "DOL-MIX-01")
+    r, _ = finish(f, "DOL-MIX-01", r["data"]["result"]["cycleId"])
+    prep = r["data"]["preparation"]
+    check(prep["mixed"] == 1 and prep["produced"] == 1 and prep["stage"] == "ReadyForNextMix",
+          "FixedPair finish 1 of 2 -> mixed 1, produced 1, ReadyForNextMix")
+    r, _ = start(f, "DOL-MIX-01")
+    r, _ = finish(f, "DOL-MIX-01", r["data"]["result"]["cycleId"])
+    prep = r["data"]["preparation"]
+    check(prep["mixed"] == 2 and prep["produced"] == 2 and prep["stage"] == "Completed" and prep["cycleId"] is None,
+          "FixedPair finish 2 of 2 -> Completed")
+    check(all(x["id"] != f for x in r["data"]["job"]["mixProgress"]["activePreparations"]),
+          "…and leaves activePreparations")
+    g = injected("PREP_mack", 1)
+    r, _ = start(g, "MAC-MIX-01")
+    r, _ = finish(g, "MAC-MIX-01", r["data"]["result"]["cycleId"])
+    check(r["data"]["preparation"]["stage"] == "Completed", "a Mackie pair completes after its one mix")
+
+    # -- drop_reply then recover -----------------------------------------------------------------
+    d = injected("PREP_drop", 1)
+    hh.control({"cmd": "drop_reply", "match": general, "count": 1})
+    raw = json.dumps(hh.envelope({"action": "machine_start", "targetId": d, "code": "BUB-MIX-01"}))
+    mid = json.loads(raw)["messageId"]
+    hh.send_raw(general, raw)
+    check(hh.await_reply(mid, timeout=1) is None, "drop_reply: the machine_start reply is lost")
+    saved = hh.sim.world.rev2_preparations[d]
+    check(saved["stage"] == "Mixing" and saved["cycleId"], "…yet the cycle started")
+    r, _ = hh.request(general, {"action": "recover", "originalMessageId": mid,
+                                "originalRequestFingerprint": fingerprint(raw)})
+    check(r and r["success"] and r["data"]["recovery"]["outcome"] == "committed"
+          and r["data"]["recovery"]["result"]["cycleId"] == saved["cycleId"],
+          "recover finds the machine_start committed, with its cycleId")
+    hh.send_raw(general, raw)
+    again = hh.await_reply(mid)
+    check(again and again["data"]["result"]["cycleId"] == saved["cycleId"],
+          "a later delivery of the same machine_start replays the saved result")
+    check(not [e for e in hh.sim.world.rev2_exceptions if e["batchId"] in (a, b, c, d, f, g, m6)],
+          "machine rejections record no exceptions")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--direct", action="store_true")
@@ -726,8 +922,10 @@ def main():
     r, _ = hh.request("rev2_general_requested", {"action": "read"}, session=False)
     check(r and r["error"] == "operator_session_invalid", "read without a session -> operator_session_invalid")
 
-    r, _ = hh.request("rev2_general_requested", {"action": "machine_start", "targetId": "PREP_demo0001"})
-    check(r and r["error"] == "action_not_allowed", "machine_start is outside the slice -> action_not_allowed")
+    r, _ = hh.request("rev2_general_requested", {"action": "machine_start", "targetId": "PREP_demo0001",
+                                                 "code": "MAIN-MIX-01"})
+    check(r and r["error"] == "rev2_rejected" and "Collecting" in r["operatorMessage"],
+          "machine_start on a Collecting preparation -> rev2_rejected", r and r["operatorMessage"])
     r, _ = hh.request("rev2_general_requested", {"action": "teleport"})
     check(r and r["error"] == "action_not_allowed", "an unknown action -> action_not_allowed")
 
@@ -769,8 +967,9 @@ def main():
         del hh.sim.world.rev2_preparations["PREP_cancelled"]
 
     receipts(hh)
-    collection(hh)
+    confirmed = collection(hh)
     identify_and_add(hh)
+    machines(hh, confirmed)
 
     print("push")
     hh.invalidate()
