@@ -477,6 +477,170 @@ def collection(hh):
           "read PREP_demo0001 has materials", r and r["data"]["preparation"])
 
 
+PAL_013_PIGMENT = "300833B2DDD901400000000D"   # PAL-013, 1500000400 BLUE PIGMENT, 20 kg bags, not on the BOM
+PIGMENT = "1500000400"
+
+
+def identify_and_add(hh):
+    """The proposed `identify` action and `adjust_ingredient` kind Add."""
+    print("identify and add")
+    general = "rev2_general_requested"
+    direct = isinstance(hh, DirectHandheld)
+    choices = [{"code": ADDITIVE, "include": False}]
+    r, _ = hh.request(general, {"action": "read", "targetId": JOB})
+    revision = r["data"]["exceptionListRevision"]
+    r, _ = hh.request(general, {"action": "prepare", "targetId": JOB, "mixCount": 1,
+                               "exceptionListRevision": revision, "ingredientChoices": choices})
+    check(r and r["success"], "prepare 1 mix for the identify/add checks", r and r["operatorMessage"])
+    prep_id = r["data"]["result"]["targetId"]
+
+    def identify(code, target=prep_id):
+        reply, _ = hh.request(general, {"action": "identify", "targetId": target, "code": code})
+        return reply
+
+    receipts_before = len(hh.sim.world.rev2_receipts) if direct else None
+    exceptions_before = len(exact(r)["collectionExceptions"])
+    r = identify(PAL_001)
+    check(r and r["success"] and r["error"] == "", "identify a known pallet succeeds", r and r["operatorMessage"])
+    source = exact(r)["source"]
+    check(source == {"code": PAL_001, "materialCode": "1600000301", "name": "HD WHITE", "unit": "kg",
+                     "bagSize": Decimal(25), "available": source["available"], "usable": True, "reason": ""},
+          "…source carries code, materialCode, name, unit, bagSize, available, usable, reason", source)
+    check(exact(r)["preparation"]["id"] == prep_id and r["data"]["result"]["targetId"] == prep_id,
+          "…and the normal snapshot for targetId")
+    check(re.search(r'"bagSize":\s*25(\.0)?[,}]', r["_raw"]) is not None, "…with bagSize a JSON number")
+    check(identify("  " + PAL_001.lower() + " ")["data"]["source"]["materialCode"] == "1600000301",
+          "identify trims and ignores case")
+    check(identify(PAL_013_PIGMENT)["data"]["source"]["bagSize"] == 20, "a pigment pallet has its own bagSize (20)")
+    check(identify("PAL-002")["data"]["source"]["bagSize"] is None, "an unconfigured pallet has bagSize null")
+
+    r = identify("NO-SUCH-CODE")
+    check(r and not r["success"] and r["error"] == "unknown_source" and r["data"]["source"] is None
+          and r["data"]["result"]["errorCode"] == "unknown_source",
+          "identify an unknown code -> unknown_source with source null", r and r["error"])
+    r = identify(PAL_003_BLOCKED)
+    s = r["data"]["source"]
+    check(r["success"] and s["usable"] is False and "blocked" in s["reason"].lower()
+          and s["materialCode"] == "1600000070",
+          "identify a blocked pallet -> usable false with a reason", s)
+    r = identify("300833B2DDD9014000000004")
+    check(r["success"] and r["data"]["source"]["usable"] is False and r["data"]["source"]["reason"],
+          "identify a pallet at Station 1 -> usable false with a reason", r["data"]["source"])
+    r = identify(PAL_001, target="PREP_nope")
+    check(r and not r["success"] and r["data"]["source"] is None, "identify against an unknown preparation is rejected")
+
+    if direct:
+        check(len(hh.sim.world.rev2_receipts) == receipts_before, "identify saves no receipt")
+    r, _ = hh.request(general, {"action": "read", "targetId": prep_id})
+    check(len(r["data"]["collectionExceptions"]) == exceptions_before
+          and r["data"]["preparation"]["collectionRevision"] == 0,
+          "identify recorded no exception and did not move the revision")
+
+    def add(revision, code=PAL_013_PIGMENT, quantity=30, reason="Customer asked for blue", kind="Add"):
+        fields = {"action": "adjust_ingredient", "targetId": prep_id, "collectionRevision": revision,
+                  "reason": reason, "adjustment": {"kind": kind, "sourceCode": code,
+                                                   "targetQuantity": quantity}}
+        return hh.request(general, fields)
+
+    r, _ = add(0, kind="Omit")
+    check(r and r["error"] == "rev2_rejected" and "Add" in r["operatorMessage"],
+          "adjust_ingredient with a kind other than Add -> definite rejection", r and r["operatorMessage"])
+    r, _ = add(0, reason="   ")
+    check(r and r["error"] == "rev2_rejected", "Add with a blank reason -> rejected")
+    r, _ = add(0, reason="x" * 1001)
+    check(r and r["error"] == "rev2_rejected", "Add with a 1001-character reason -> rejected")
+    r, _ = add(0, quantity=0)
+    check(r and r["error"] == "rev2_rejected", "Add with a zero targetQuantity -> rejected")
+    r, _ = add(0, code="NO-SUCH-CODE")
+    check(r and r["error"] == "rev2_rejected", "Add from an unknown source -> rejected")
+    r, _ = add(0, code=PAL_003_BLOCKED)
+    check(r and r["error"] == "rev2_rejected", "Add from a blocked pallet -> rejected")
+    r, _ = add(0, code=PAL_001)
+    check(r and r["error"] == "rev2_rejected" and "already" in r["operatorMessage"],
+          "Add of a material already a row -> rejected", r and r["operatorMessage"])
+    r, _ = add(0, code=PAL_007_ADDITIVE)
+    check(r and r["error"] == "rev2_rejected" and "already" in r["operatorMessage"],
+          "Add of an excluded row's material -> rejected too", r and r["operatorMessage"])
+    check(r["data"]["preparation"]["collectionRevision"] == 0
+          and len(r["data"]["preparation"]["materials"]) == 7,
+          "…rejections leave the rows and revision unchanged")
+
+    r, _ = add(5)
+    check(r and r["error"] == "collection_revision_conflict" and r["nextAction"] == "read_and_review_decision",
+          "Add with a stale revision -> collection_revision_conflict", r and r["error"])
+    rejected = [e for e in r["data"]["commandExceptions"] if e["kind"] == "Rejected collection action"]
+    check(len(rejected) == 1 and "adjust_ingredient" in rejected[0]["details"]
+          and r["data"]["preparation"]["collectionRevision"] == 0,
+          "…records a rejected exception and returns the current snapshot", r["data"]["commandExceptions"])
+
+    hh.pushes.clear()
+    r, body = add(0, reason="  Customer asked for blue  ")
+    check(r and r["success"], "Add of a new material at the current revision succeeds", r and r["operatorMessage"])
+    data = exact(r)
+    added = row(data, PIGMENT)
+    check(added["perMix"] == 0 and added["originalRequired"] == 0 and added["required"] == 30
+          and added["collected"] == 0 and added["remaining"] == 30 and not added["excluded"],
+          "…an effective row: perMix 0, originalRequired 0, required = targetQuantity, collected 0", added)
+    check(data["preparation"]["collectionRevision"] == 1, "…collectionRevision increments")
+    ev = [e for e in data["commandExceptions"] if e["kind"] == "Ingredient added"]
+    check(len(ev) == 1 and ev[0]["reason"] == "Customer asked for blue" and ev[0]["messageId"] == body["messageId"]
+          and ev[0]["operatorId"] == "OP-001" and PIGMENT in ev[0]["details"],
+          "…an Ingredient added exception is recorded with the trimmed reason", data["commandExceptions"])
+    check([p["reason"] for p in hh.pushes] == ["adjust_ingredient"], "…an adjust_ingredient hint is pushed",
+          [p["reason"] for p in hh.pushes])
+    if direct:
+        check(hh.sim.world.pallets[PAL_013_PIGMENT]["remainingQuantity"] == 100, "…and no stock is deducted")
+
+    hh.send_raw(general, json.dumps(body))
+    replay = hh.await_reply(body["messageId"])
+    check(replay and replay["success"] and replay["data"]["result"] == r["data"]["result"]
+          and len(replay["data"]["preparation"]["materials"]) == 8
+          and replay["data"]["preparation"]["collectionRevision"] == 1,
+          "an identical Add replay returns the saved result and adds nothing twice")
+    r, _ = add(1)
+    check(r and r["error"] == "rev2_rejected" and "already" in r["operatorMessage"],
+          "a second Add of the same material -> rejected")
+
+    def capture(code, quantity=None):
+        fields = {"action": "capture", "targetId": prep_id, "code": code}
+        if quantity is not None:
+            fields["quantity"] = quantity
+        reply, _ = hh.request(general, fields)
+        return reply
+
+    r = capture(PAL_013_PIGMENT)
+    check(r and r["success"] and row(exact(r), PIGMENT)["collected"] == 20,
+          "capture of the added source with no quantity records one bag (20 kg)", r and r["operatorMessage"])
+    check(r["data"]["preparation"]["collectionRevision"] == 2, "…and increments collectionRevision again")
+    r, _ = add(1, code=PAL_013_PIGMENT)
+    check(r and r["error"] == "collection_revision_conflict", "a decision on the pre-capture revision is now stale")
+
+    data = exact(r)
+    for _ in range(200):
+        todo = [m for m in data["preparation"]["materials"]
+                if not m["excluded"] and m["remaining"] > 0 and m["code"] != PIGMENT]
+        if not todo:
+            break
+        m = todo[0]
+        r = capture(PALLET_FOR[m["code"]], None if m["remaining"] >= 25 else float(m["remaining"]))
+        check(r and r["success"], f"capture {m['code']} toward completion", r and r["operatorMessage"])
+        data = exact(r)
+    check(data["preparation"]["stage"] == "Collecting" and row(data, PIGMENT)["remaining"] == 10,
+          "every original row collected but the added row has 10 kg left: still Collecting",
+          data["preparation"]["stage"])
+    r, _ = hh.request(general, {"action": "confirm", "targetId": prep_id})
+    check(r and r["error"] == "rev2_rejected", "confirm is refused while the added row is outstanding")
+    r = capture(PAL_013_PIGMENT, 10)
+    check(r and r["success"] and r["data"]["preparation"]["stage"] == "AwaitingConfirmation",
+          "capturing the last 10 kg of the added row -> AwaitingConfirmation", r and r["operatorMessage"])
+    r, _ = hh.request(general, {"action": "confirm", "targetId": prep_id})
+    check(r and r["success"] and r["data"]["preparation"]["stage"] == "ReadyForMixer",
+          "confirm succeeds once the added row is collected too", r and r["operatorMessage"])
+    revision = r["data"]["preparation"]["collectionRevision"]
+    r, _ = add(revision, code=PAL_013_PIGMENT)
+    check(r and r["error"] == "rev2_rejected", "Add after confirmation -> rejected")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--direct", action="store_true")
@@ -606,6 +770,7 @@ def main():
 
     receipts(hh)
     collection(hh)
+    identify_and_add(hh)
 
     print("push")
     hh.invalidate()
