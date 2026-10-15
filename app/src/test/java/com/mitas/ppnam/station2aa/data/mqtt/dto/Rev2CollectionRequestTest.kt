@@ -128,4 +128,22 @@ class Rev2CollectionRequestTest {
         assertEquals("PREP_1", obj["targetId"].asString)
         assertEquals("TAG-1", obj["code"].asString)
     }
+
+    @Test
+    fun `machine_start matches the generated request`() {
+        val (actual, expected) = built(
+            Rev2MachineStartRequest("PREP_440fbd8f9cd3411e9be943a33f1a3ceb", "MAIN-MIX-01"), "general_machine_start",
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `machine_finish matches the generated request`() {
+        val (actual, expected) = built(
+            Rev2MachineFinishRequest("PREP_440fbd8f9cd3411e9be943a33f1a3ceb", "MAIN-MIX-01",
+                "CYC_068ddebe6f714407b88d0b77697fb691"),
+            "general_machine_finish",
+        )
+        assertEquals(expected, actual)
+    }
 }

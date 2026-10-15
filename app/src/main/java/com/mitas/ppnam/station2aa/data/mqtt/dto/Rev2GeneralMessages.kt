@@ -280,6 +280,21 @@ data class Rev2ConfirmRequest(
     val action: String = "confirm",
 )
 
+/** Contract §4 `machine_start`: [code] is the scanned machine code, exactly as scanned. */
+data class Rev2MachineStartRequest(
+    val targetId: String,
+    val code: String,
+    val action: String = "machine_start",
+)
+
+/** Contract §4 `machine_finish`: [cycleId] is the PREP's current `cycleId` from the latest snapshot. */
+data class Rev2MachineFinishRequest(
+    val targetId: String,
+    val code: String,
+    val cycleId: String,
+    val action: String = "machine_finish",
+)
+
 /**
  * Proposed `identify`: read-only, no receipt. A plain request like `read` — never outboxed, safe to
  * resend. [targetId] is the PREP, [code] the scanned pallet/label code.
