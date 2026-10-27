@@ -263,6 +263,14 @@ class GeneralCollectionUseCaseTest {
     }
 
     @Test
+    fun `pallet_not_found, the contract's code since 2026-10-21, is Unknown`() = runTest {
+        stubRequest(MqttOutcome.Rejected(null, ErrorCode("pallet_not_found"), "Pallet not found."))
+        val result = useCase.identify("P", "T") as IdentifyResult.Unknown
+        assertEquals("Pallet not found.", result.message)
+        assertNull(result.snapshot)
+    }
+
+    @Test
     fun `unknown_source as the envelope error is Unknown`() = runTest {
         stubRequest(MqttOutcome.Rejected(null, ErrorCode("unknown_source"), null))
         val result = useCase.identify("P", "T") as IdentifyResult.Unknown

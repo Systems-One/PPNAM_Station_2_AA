@@ -33,6 +33,7 @@ class SessionGuard @Inject constructor(
     private val sessionHolder: OperatorSessionHolder,
     private val settingsRepository: SettingsRepository,
     private val scanEventBus: ScanEventBus,
+    private val persistence: SessionPersistence,
 ) {
     private val mainHandler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -58,7 +59,11 @@ class SessionGuard @Inject constructor(
 
     /** Any operator interaction or scanner read. Safe from any thread. */
     fun touch() {
-        mainHandler.post { monitor.touch() }
+        mainHandler.post {
+            monitor.touch()
+            // Wall-clock, so a restart can tell whether the session would have timed out.
+            if (sessionHolder.session.value != null) persistence.recordActivity(AutoLogout.timeoutMs(minutes))
+        }
     }
 
     /** A deadline that passed while the app was backgrounded is caught on the next resume. */
@@ -77,6 +82,7 @@ class SessionGuard @Inject constructor(
                 AutoLogout.DEFAULT_MINUTES
             }
             monitor.start(AutoLogout.timeoutMs(minutes))
+            persistence.recordActivity(AutoLogout.timeoutMs(minutes))
         }
     }
 

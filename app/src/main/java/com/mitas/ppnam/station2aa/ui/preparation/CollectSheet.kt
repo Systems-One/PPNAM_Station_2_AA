@@ -58,11 +58,22 @@ internal class CollectActions(
     val onCancel: () -> Unit,
     val onPickMaterial: (String) -> Unit,
     val onRetry: (PendingCommand) -> Unit,
+    /**
+     * Not-in-mix only: pick the uncaptured row the pallet replaces (contract §6 `Substitute`), or
+     * null to add it as a new row. Null hides the choice (the General PREP flow only adds).
+     */
+    val onPickSubstitute: ((String?) -> Unit)? = null,
 )
 
-/** The Collect screen for one scanned pallet; which form it shows follows [PreparationUiState.step]. */
+/**
+ * The Collect screen for one scanned pallet; which form it shows follows [PreparationUiState.step].
+ * [scope] names what is being collected in operator text: "mix" for a PREP, "job" for Rajoo.
+ */
 @Composable
-internal fun CollectSheet(state: PreparationUiState, sessionId: String?, actions: CollectActions, modifier: Modifier = Modifier) {
+internal fun CollectSheet(
+    state: PreparationUiState, sessionId: String?, actions: CollectActions, modifier: Modifier = Modifier,
+    scope: String = "mix",
+) {
     Column(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -90,10 +101,10 @@ internal fun CollectSheet(state: PreparationUiState, sessionId: String?, actions
                 }
                 Text("Don't scan again until Station 2 answers.", color = TextMuted, style = MaterialTheme.typography.bodySmall)
             }
-            is CollectStep.NotInMix -> NotInMixForm(state, step, actions)
+            is CollectStep.NotInMix -> NotInMixForm(state, step, actions, scope)
             is CollectStep.Excluded -> {
                 StatusBanner(
-                    "✕", "Excluded from this mix — can't collect", DangerRed, BannerRedBg,
+                    "✕", "Excluded from this $scope — can't collect", DangerRed, BannerRedBg,
                     details = listOf("${step.materialName} · ${step.source.materialCode}" to false),
                 )
                 CancelButton("Cancel", actions.onCancel)
@@ -221,15 +232,17 @@ private fun AmountField(label: String, value: String, onChange: (String) -> Unit
 }
 
 @Composable
-private fun NotInMixForm(state: PreparationUiState, step: CollectStep.NotInMix, actions: CollectActions) {
+private fun NotInMixForm(state: PreparationUiState, step: CollectStep.NotInMix, actions: CollectActions, scope: String) {
     val source = step.source
     val unit = source.unit.ifBlank { "kg" }
     StatusBanner(
-        "!", "Not in this mix", WarningOrange, BannerAmberBg,
+        "!", "Not in this $scope", WarningOrange, BannerAmberBg,
         details = listOf("${source.name} · ${source.materialCode}" to false, "Pallet ${source.code}" to true),
     )
     source.bagSize?.let { KeyValue("Bag size", "${it.plainText()} $unit") }
-    AmountField("Adding ($unit)", step.amountText, actions.onAmount)
+    val replaced = step.substituteFor?.let { code -> state.snapshot?.preparation?.materials.orEmpty().firstOrNull { it.code == code } }
+    actions.onPickSubstitute?.let { pick -> SubstituteChoice(state, step, pick) }
+    AmountField(if (step.capAtStock) "Adding ($unit)" else "Total for the whole $scope ($unit)", step.amountText, actions.onAmount)
     (step.check as? AmountCheck.Invalid)?.takeIf { step.amountText.isNotBlank() }?.let {
         Text(it.problem.message, color = WarningOrange, style = MaterialTheme.typography.bodySmall)
     }
@@ -238,18 +251,53 @@ private fun NotInMixForm(state: PreparationUiState, step: CollectStep.NotInMix, 
         minLines = 2, modifier = Modifier.fillMaxWidth(),
     )
     Text(
-        "Adds ${source.name} to this mix, then you record it. Logged as an exception for manager review.",
+        if (replaced != null) "Replaces ${replaced.name} (${replaced.code}) with ${source.name} on this $scope, then you record it. Logged as an exception for manager review."
+        else "Adds ${source.name} to this $scope, then you record it. Logged as an exception for manager review.",
         color = TextMuted, style = MaterialTheme.typography.bodySmall,
     )
     val valid = step.check as? AmountCheck.Valid
+    val label = when {
+        replaced != null -> valid?.let { "Use ${it.amount.plainText()} $unit instead of ${replaced.name}" } ?: "Use instead of ${replaced.name}"
+        else -> valid?.let { "Add ${it.amount.plainText()} $unit to $scope" } ?: "Add to $scope"
+    }
     Button(
         onClick = actions.onAddToMix,
         enabled = step.canAdd && state.canScan,
         colors = ButtonDefaults.buttonColors(containerColor = WarningOrange, contentColor = Color(0xFF07101A)),
         modifier = Modifier.fillMaxWidth().height(56.dp),
-    ) { Text(valid?.let { "Add ${it.amount.plainText()} $unit to mix" } ?: "Add to mix", fontWeight = FontWeight.Bold, fontSize = 17.sp) }
+    ) { Text(label, fontWeight = FontWeight.Bold, fontSize = 17.sp) }
     CancelButton("Cancel — don't add", actions.onCancel)
 }
+
+/** Add the pallet as a new row, or use it instead of one uncaptured included row. */
+@Composable
+private fun SubstituteChoice(state: PreparationUiState, step: CollectStep.NotInMix, onPick: (String?) -> Unit) {
+    val rows = state.snapshot?.preparation?.materials.orEmpty().substitutableFor(step.source)
+    if (rows.isEmpty()) return
+    Text("Add it, or use it instead of an ingredient not collected yet", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+    ChoiceLine("Add as an extra ingredient", step.substituteFor == null) { onPick(null) }
+    rows.forEach { row -> ChoiceLine("Instead of ${row.name} · ${row.code}", step.substituteFor == row.code) { onPick(row.code) } }
+}
+
+@Composable
+private fun ChoiceLine(text: String, selected: Boolean, onClick: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(if (selected) GraphiteSurfaceVariant else GraphiteSurface, RoundedCornerShape(8.dp))
+            .border(1.dp, if (selected) WarningOrange else GraphiteBorder, RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(if (selected) "●  " else "○  ", color = if (selected) WarningOrange else TextMuted)
+        Text(text, color = TextPrimary)
+    }
+}
+
+/** Included rows with nothing captured yet, other than the pallet's own material (contract §6). */
+internal fun List<PrepMaterial>.substitutableFor(source: SourceInfo): List<PrepMaterial> =
+    filter { !it.excluded && it.collected.signum() == 0 && !it.code.equals(source.materialCode, ignoreCase = true) }
 
 /** Station 2 couldn't identify the pallet: the operator taps the ingredient, then types the amount. */
 @Composable

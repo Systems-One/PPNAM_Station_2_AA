@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.PrecisionManufacturing
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -51,6 +52,8 @@ fun HomeScreen(
     onOpenPrep: (prepId: String) -> Unit = {},
     /** A NotExecuted prepare notice opens its job's Prepare screen with a fresh read. */
     onOpenPrepare: (jobCard: String) -> Unit = {},
+    onOpenRajoo: () -> Unit = {},
+    onOpenRajooJob: (jobCard: String) -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val session by viewModel.session.collectAsState()
@@ -125,6 +128,7 @@ fun HomeScreen(
                     when (target) {
                         is NoticeTarget.Prep -> onOpenPrep(target.id)
                         is NoticeTarget.Job -> onOpenPrepare(target.jobCard)
+                        is NoticeTarget.Rajoo -> onOpenRajooJob(target.jobCard)
                     }
                 },
             )
@@ -133,6 +137,12 @@ fun HomeScreen(
                 subtitle = "Look up a job card",
                 icon = Icons.Filled.Assignment,
                 onClick = onOpenJobCards,
+            )
+            HomeTile(
+                title = "Rajoo",
+                subtitle = "Collect a full job card in sessions on a Rajoo machine",
+                icon = Icons.Filled.PrecisionManufacturing,
+                onClick = onOpenRajoo,
             )
         }
     }

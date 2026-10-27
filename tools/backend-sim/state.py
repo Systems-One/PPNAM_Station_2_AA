@@ -78,6 +78,15 @@ def build_machines():
     return out
 
 
+def build_rajoo_machines():
+    """The Rajoo machine (contract section 5/8): returned only in Rajoo snapshots.
+
+    The plant has one Rajoo, so one code: its scan confirms the operator is at Rajoo, starts and
+    ends every session and closes the job card (process flow page 4; contract 21 October).
+    """
+    return [_machine("RAJ-EXT-01", "Rajoo", "Rajoo", "Rajoo", False)]
+
+
 class World:
     # The five fixed v4.0 mixing areas (contract §6). Server-authoritative.
     MIXING_AREAS = ("DolciBulkMixing", "MainMixingRoom", "JandiBulkMixing",
@@ -155,8 +164,12 @@ class World:
         # business receipts for prepare/capture/confirm and recovery seals (contract §9).
         self.rev2_receipts = {}
         self.rev2_machines = build_machines()  # General machine DTOs (contract section 8)
+        self.rajoo_machines = build_rajoo_machines()  # Rajoo machine DTOs (Rajoo snapshots only)
+        self.rajoo_readers = set()    # devices that made an authenticated Rajoo request
+        self.rajoo_sessions = {}      # RAJ_ id -> {id, jobId, machineId, startedAtUtc, ...}
         self.rev2_exceptions = []     # operator collection-exception records (contract §6)
         self.auth_replies = {}        # (device, suffix, messageId) -> {"body", "data", "expires"}
+        self.badge_receipts = {}      # (device, messageId) -> {"body", "sessionId" or None}
         # 4.1 cross-area mixer plans. Keyed by collectionId; saved in Station 2 (WPF), never by
         # the handheld — the simulator seeds/creates them the same way.
         self.mix_plans = {}         # collectionId -> plan dict
@@ -271,7 +284,9 @@ class World:
             self.log.transition(f"session {old['sessionId']} on {device_id} -> Closed (replaced by new login)")
         now = utc_now()
         session = {
-            "sessionId": f"SES-{device_id}-{now.strftime('%Y%m%d%H%M%S')}",
+            # Random, as the server's: a second-resolution id repeated when a login replaced a
+            # session within the same second, reviving the closed one.
+            "sessionId": secrets.token_hex(16),
             "deviceId": device_id,
             "operatorId": operator["operatorId"],
             "state": "Active",

@@ -18,8 +18,9 @@ quantity at required 0 and records an "Ingredient omitted" exception. A rejected
 against a loaded collection records a "Rejected collection action" exception. Every successful or
 exception-recording mutation pushes active_job_cards_invalidated with the action's reason.
 
-`identify` is a proposed, read-only extension (no receipt, no exception, no stock change): the
-snapshot for targetId plus `source`, the scanned pallet's material, bag size, stock and usability.
+`identify` (contract 4.1) is read-only (no receipt, no exception, no stock change) and answers a
+compact `data:{result, preparation, source}`: the selected PREP (or null) and the scanned pallet's
+material, bag size, stock and usability. An unresolved code is `pallet_not_found`, source null.
 `adjust_ingredient` implements only `Add`; the other kinds are a definite rejection.
 
 Quantities on preparation rows and pallets are Decimal, so a captured fraction stays exact; the
@@ -72,7 +73,7 @@ def handle(world, log, req, action, request_type, raw, operator_id):
     active_job_cards_invalidated reason to push, or None (reads, replays, plain rejections).
     """
     world.general_readers.add(req["deviceId"])
-    recovery, hint, source = None, None, None
+    recovery, hint = None, None
     if action == "lookup":
         result = lookup(world, log, str(req.get("jobCard") or ""))
     elif action == "recover":
@@ -81,6 +82,10 @@ def handle(world, log, req, action, request_type, raw, operator_id):
         result, hint = mutate(world, log, req, action, request_type, raw, operator_id)
     elif action == "identify":
         result, source = identify(world, log, req)
+        prep = world.rev2_preparations.get(result.get("targetId") or "")
+        # Contract 4.1: deliberately compact - no lists, machines, catalog or exceptions.
+        return result, {"result": result, "preparation": preparation_dto(prep) if prep else None,
+                        "source": source}, None
     else:
         result = {"success": True, "message": "Current progress.",
                   "targetId": req.get("targetId") or None, "cycleId": None}
@@ -89,8 +94,6 @@ def handle(world, log, req, action, request_type, raw, operator_id):
                     req["deviceId"], command_id)
     snap["result"] = result
     snap["recovery"] = recovery
-    if action == "identify":
-        snap["source"] = source
     return result, snap, hint
 
 
@@ -113,8 +116,23 @@ def _remaining(row):
 
 # ---- receipts (Rev2MixingService.Mutate / Recovery) ----------------------------------------------
 
-def mutate(world, log, req, action, request_type, raw, operator_id):
-    """Return (result, hint_reason). A replay or conflict executes nothing and pushes nothing."""
+def _general_scope(world, req):
+    """(job, batch) a General capture/decision/confirm addresses, for its rejection record."""
+    target = req.get("targetId") or ""
+    batch = world.rev2_preparations.get(target)
+    job = world.rev2_jobs.get(batch["jobId"] if batch else target)
+    if job is not None and job["mode"] != "General":
+        job = None
+    return job, batch
+
+
+def mutate(world, log, req, action, request_type, raw, operator_id, executors=None,
+           scope=_general_scope, recorded=("capture", "adjust_ingredient", "confirm")):
+    """Return (result, hint_reason). A replay or conflict executes nothing and pushes nothing.
+
+    Shared by both families: Rajoo passes its own executors and scope (JC, no batch).
+    """
+    executors = executors or EXECUTORS
     key = (req["deviceId"], request_type, req["messageId"])
     body_hash = hashlib.sha256(raw).hexdigest().upper()
     prior = world.rev2_receipts.get(key)
@@ -130,12 +148,10 @@ def mutate(world, log, req, action, request_type, raw, operator_id):
         return _fail("This message ID was already used with a different body.",
                      "message_id_conflict"), None
     exception_count = len(world.rev2_exceptions)
-    result = EXECUTORS[action](world, log, req, operator_id)
-    if not result["success"] and action in ("capture", "adjust_ingredient", "confirm"):
+    result = executors[action](world, log, req, operator_id)
+    if not result["success"] and action in recorded:
         # Mutate: a rejected capture/confirm against a loaded collection is an operator event.
-        target = req.get("targetId") or ""
-        batch = world.rev2_preparations.get(target)
-        job = world.rev2_jobs.get(batch["jobId"] if batch else target)
+        job, batch = scope(world, req)
         if job is not None:
             quantity = req.get("quantity")
             source = req.get("code") or ""
@@ -313,6 +329,40 @@ def find_pallet(world, code):
     return None
 
 
+def take_bag(world, log, target, materials, req):
+    """Shared capture rules (General PREP rows or Rajoo full-job rows).
+
+    Return (error_message, pallet, material, quantity); on success the pallet stock is deducted
+    and the material's collected total increased, error_message None.
+    """
+    pallet = find_pallet(world, req.get("code") if isinstance(req.get("code"), str) else "")
+    if pallet is None or pallet["blocked"] or pallet["palletState"] not in ("Holding", "Mixing"):
+        log.fail("capture %s: pallet %r is unknown, blocked or not in Holding/Mixing"
+                 % (target, req.get("code")))
+        return ("Pallet must be an available local Station 1 pallet in Holding or Mixing.",
+                None, None, None)
+    material = next((m for m in materials
+                     if m["code"].lower() == pallet["productCode"].lower() and not m["excluded"]),
+                    None)
+    if material is None or _remaining(material) <= 0:
+        log.fail("capture %s: %s is not outstanding" % (target, pallet["productCode"]))
+        return "This material is not outstanding on the collection BOM.", pallet, None, None
+    if pallet["unit"] != material["unit"]:
+        return "Pallet and recipe units do not match.", pallet, material, None
+    bag = _dec(pallet.get("bagSize") or world.config["defaultFullBagWeightKg"])
+    quantity = req.get("quantity")
+    q = bag if quantity in (None, 0) else _dec(quantity)
+    stock = _dec(pallet["remainingQuantity"])
+    if q <= 0 or q > bag or q > stock or q > _remaining(material):
+        log.fail("capture %s: %s of %s outside bag %s, stock %s, remaining %s"
+                 % (target, q, material["code"], bag, stock, _remaining(material)))
+        return ("Capture one bag or its actual fraction, within both pallet stock and the "
+                "outstanding material target.", pallet, material, None)
+    pallet["remainingQuantity"] = stock - q
+    material["collected"] = _dec(material["collected"]) + q
+    return None, pallet, material, q
+
+
 def capture(world, log, req, operator_id):
     target = req.get("targetId") or ""
     batch = world.rev2_preparations.get(target)
@@ -321,30 +371,9 @@ def capture(world, log, req, operator_id):
         return _fail("Select an active preparation or Rajoo JC.")
     if batch is None or batch["stage"] != "Collecting":
         return _fail("This preparation is not collecting ingredients.")
-    pallet = find_pallet(world, req.get("code") if isinstance(req.get("code"), str) else "")
-    if pallet is None or pallet["blocked"] or pallet["palletState"] not in ("Holding", "Mixing"):
-        log.fail("capture %s: pallet %r is unknown, blocked or not in Holding/Mixing"
-                 % (target, req.get("code")))
-        return _fail("Pallet must be an available local Station 1 pallet in Holding or Mixing.")
-    material = next((m for m in batch["materials"]
-                     if m["code"].lower() == pallet["productCode"].lower() and not m["excluded"]),
-                    None)
-    if material is None or _remaining(material) <= 0:
-        log.fail("capture %s: %s is not outstanding" % (target, pallet["productCode"]))
-        return _fail("This material is not outstanding on the collection BOM.")
-    if pallet["unit"] != material["unit"]:
-        return _fail("Pallet and recipe units do not match.")
-    bag = _dec(pallet.get("bagSize") or world.config["defaultFullBagWeightKg"])
-    quantity = req.get("quantity")
-    q = bag if quantity in (None, 0) else _dec(quantity)
-    stock = _dec(pallet["remainingQuantity"])
-    if q <= 0 or q > bag or q > stock or q > _remaining(material):
-        log.fail("capture %s: %s of %s outside bag %s, stock %s, remaining %s"
-                 % (target, q, material["code"], bag, stock, _remaining(material)))
-        return _fail("Capture one bag or its actual fraction, within both pallet stock and the "
-                     "outstanding material target.")
-    pallet["remainingQuantity"] = stock - q
-    material["collected"] = _dec(material["collected"]) + q
+    error, pallet, material, q = take_bag(world, log, target, batch["materials"], req)
+    if error:
+        return _fail(error)
     batch["collectionRevision"] = batch.get("collectionRevision", 0) + 1
     if all(_remaining(m) == 0 for m in batch["materials"]):
         batch["stage"] = "AwaitingConfirmation"
@@ -366,28 +395,70 @@ def pallet_usability(pallet):
     return True, ""
 
 
-def identify(world, log, req):
-    """Return (result, source). Read-only: no receipt, no exception, no stock change."""
+def _general_target(world, target):
+    job = world.rev2_jobs.get(target)
+    return target in world.rev2_preparations or (job is not None and job["mode"] == "General")
+
+
+def identify(world, log, req, target_ok=_general_target,
+             bad_target="Select a General job card or preparation."):
+    """Return (result, source). Read-only: no receipt, no exception, no stock change.
+
+    The target is optional (a General JC or PREP, or for Rajoo a Rajoo JC); a supplied one must
+    exist in the mode. A blank code or a bad target rejects without inspection.
+    """
     target = req.get("targetId") or ""
-    if target not in world.rev2_preparations:
-        log.fail("identify: no preparation %r" % target)
-        return _fail("Select an active preparation."), None
-    code = req.get("code") if isinstance(req.get("code"), str) else ""
+    if target and not target_ok(world, target):
+        log.fail("identify: no job or preparation %r in this mode" % target)
+        return _fail(bad_target), None
+    code = (req.get("code") if isinstance(req.get("code"), str) else "").strip()
+    if not code:
+        log.fail("identify: blank code")
+        return _fail("Scan a pallet tag or label."), None
     pallet = find_pallet(world, code)
     if pallet is None:
-        log.fail("identify %s: unknown code %r" % (target, code))
-        result = _fail("The scanned code is not a known pallet.", "unknown_source")
-        result["targetId"] = target
+        log.fail("identify %s: unknown code %r" % (target or "(standalone)", code))
+        result = _fail("No current local pallet matches this code.", "pallet_not_found")
+        result["targetId"] = target or None
         return result, None
     usable, reason = pallet_usability(pallet)
     bag = pallet.get("bagSize")
     source = {"code": code, "materialCode": pallet["productCode"], "name": pallet["productName"],
               "unit": pallet["unit"], "bagSize": None if bag is None else _dec(bag),
               "available": _dec(pallet["remainingQuantity"]), "usable": usable, "reason": reason}
-    log.step("identify %s: %r -> %s %s, usable=%s" % (target, code, pallet["palletId"],
-                                                      pallet["productCode"], usable))
-    return {"success": True, "message": "Source identified.", "targetId": target,
+    log.step("identify %s: %r -> %s %s, usable=%s" % (target or "(standalone)", code,
+                                                      pallet["palletId"], pallet["productCode"], usable))
+    return {"success": True, "message": "Source identified.", "targetId": target or None,
             "cycleId": None}, source
+
+
+def add_row(world, adjustment, materials):
+    """Shared Add validation. Return (error_message, new_row, source_pallet); not yet appended."""
+    if not isinstance(adjustment, dict):
+        return "Supply one adjustment object.", None, None
+    kind = adjustment.get("kind")
+    if kind != "Add":
+        return ("The simulator implements only adjustment kind Add; '%s' is not supported."
+                % kind), None, None
+    source = adjustment.get("sourceCode")
+    pallet = find_pallet(world, source if isinstance(source, str) else "")
+    if pallet is None:
+        return "The source is not a known local pallet.", None, None
+    usable, why = pallet_usability(pallet)
+    if not usable:
+        return "The source is not available. %s" % why, None, None
+    if pallet["unit"] != "kg":
+        return "Only kg materials can be added.", None, None
+    quantity = adjustment.get("targetQuantity")
+    if (isinstance(quantity, bool) or not isinstance(quantity, (int, float, Decimal))
+            or not 0 < _dec(quantity) <= 999999999):
+        return "Enter a positive target quantity.", None, None
+    if any(m["code"].lower() == pallet["productCode"].lower() for m in materials):
+        return "This material is already in the collection; use Quantity for its row.", None, None
+    row = {"code": pallet["productCode"], "name": pallet["productName"].strip(),
+           "unit": pallet["unit"], "perMix": Decimal(0), "required": _dec(quantity),
+           "collected": Decimal(0), "excluded": False, "originalRequired": Decimal(0)}
+    return None, row, pallet
 
 
 def adjust_ingredient(world, log, req, operator_id):
@@ -411,32 +482,10 @@ def adjust_ingredient(world, log, req, operator_id):
     reason = reason.strip() if isinstance(reason, str) else ""
     if not 1 <= len(reason) <= 1000:
         return _fail("Enter a reason of 1 to 1000 characters.")
-    adjustment = req.get("adjustment")
-    if not isinstance(adjustment, dict):
-        return _fail("Supply one adjustment object.")
-    kind = adjustment.get("kind")
-    if kind != "Add":
-        return _fail("The simulator implements only adjustment kind Add; '%s' is not supported."
-                     % kind)
-    source = adjustment.get("sourceCode")
-    pallet = find_pallet(world, source if isinstance(source, str) else "")
-    if pallet is None:
-        return _fail("The source is not a known local pallet.")
-    usable, why = pallet_usability(pallet)
-    if not usable:
-        return _fail("The source is not available. %s" % why)
-    if pallet["unit"] != "kg":
-        return _fail("Only kg materials can be added.")
-    quantity = adjustment.get("targetQuantity")
-    if (isinstance(quantity, bool) or not isinstance(quantity, (int, float, Decimal))
-            or not 0 < _dec(quantity) <= 999999999):
-        return _fail("Enter a positive target quantity.")
-    if any(m["code"].lower() == pallet["productCode"].lower() for m in batch["materials"]):
-        return _fail("This material is already in the collection; use Quantity for its row.")
+    error, row, pallet = add_row(world, req.get("adjustment"), batch["materials"])
+    if error:
+        return _fail(error)
     before = json.dumps([material_dto(m) for m in batch["materials"]], default=str)
-    row = {"code": pallet["productCode"], "name": pallet["productName"], "unit": pallet["unit"],
-           "perMix": Decimal(0), "required": _dec(quantity), "collected": Decimal(0),
-           "excluded": False, "originalRequired": Decimal(0)}
     batch["materials"].append(row)
     batch["collectionRevision"] = batch.get("collectionRevision", 0) + 1
     batch["stage"] = "Collecting"
@@ -600,13 +649,12 @@ def _round_half_away(value):
     return int(value + 0.5) if value >= 0 else -int(-value + 0.5)
 
 
-def lookup(world, log, job_card):
-    if job_card in world.rev2_jobs:
-        log.step("lookup %s: already held, earlier progress preserved" % job_card)
-        return {"success": True, "message": "JC loaded.", "targetId": job_card, "cycleId": None}
+def eligible_order(world, log, job_card):
+    """The SAP order for an eligible JC (section 4: Standard, Planned/Released, FAC, positive
+    outstanding output), else None."""
     if not DIGITS.match(job_card):
         log.fail("lookup '%s': not a digit-only Production Order number" % job_card)
-        return _fail(LOOKUP_REJECTION)
+        return None
     order = world.sap_orders.get(job_card)
     if (not order
             or order.get("ProductionOrderType") != "bopotStandard"
@@ -614,6 +662,26 @@ def lookup(world, log, job_card):
             or order.get("Warehouse") != "FAC"
             or (order.get("PlannedQuantity") or 0) <= (order.get("CompletedQuantity") or 0)):
         log.fail("lookup %s: not an open Standard FAC order with outstanding output" % job_card)
+        return None
+    return order
+
+
+def other_mode_rejection(job, mode):
+    """A JC saved in the other process mode rejects (section 4)."""
+    return _fail("JC %s is saved for %s. Open it from the %s workflow."
+                 % (job["id"], job["mode"], job["mode"]))
+
+
+def lookup(world, log, job_card):
+    held = world.rev2_jobs.get(job_card)
+    if held is not None and held["mode"] != "General":
+        log.fail("lookup %s: saved in %s mode" % (job_card, held["mode"]))
+        return other_mode_rejection(held, "General")
+    if held is not None:
+        log.step("lookup %s: already held, earlier progress preserved" % job_card)
+        return {"success": True, "message": "JC loaded.", "targetId": job_card, "cycleId": None}
+    order = eligible_order(world, log, job_card)
+    if order is None:
         return _fail(LOOKUP_REJECTION)
 
     outstanding = order["PlannedQuantity"] - (order.get("CompletedQuantity") or 0)
@@ -660,7 +728,8 @@ def lookup(world, log, job_card):
 
 
 CAPABILITIES = {"operatorIngredientDecisions": True, "receiptRecovery": True,
-                "managerReviewDesktopOnly": True, "jobMixProgress": True}
+                "managerReviewDesktopOnly": True, "jobMixProgress": True,
+                "androidBadgeLogin": True}
 
 
 def _collected_all(p):
@@ -700,9 +769,11 @@ def mix_progress(job, preparations):
 
 
 def material_dto(m):
-    """Contract section 8 material: the stored row plus originalRequired and remaining."""
-    return dict(m, originalRequired=m.get("originalRequired", m["required"]),
-                remaining=_remaining(m))
+    """Contract section 8 material: the stored row plus originalRequired, remaining and isModified
+    (excluded, or the effective target differs from a known original; added rows have 0)."""
+    original = m.get("originalRequired", m["required"])
+    modified = bool(m["excluded"]) or (original is not None and _dec(m["required"]) != _dec(original))
+    return dict(m, originalRequired=original, remaining=_remaining(m), isModified=modified)
 
 
 def preparation_dto(p):
@@ -713,6 +784,8 @@ def snapshot(world, target_id, device_id=None, command_id=None):
     preparation = world.rev2_preparations.get(target_id) if target_id else None
     job_id = preparation["jobId"] if preparation else target_id
     job = world.rev2_jobs.get(job_id) if job_id else None
+    if job is not None and job["mode"] != "General":
+        job = None   # a Rajoo JC is not part of the General snapshot
     if job is None:
         preparation = None
     preparations = list(world.rev2_preparations.values())
@@ -728,7 +801,8 @@ def snapshot(world, target_id, device_id=None, command_id=None):
         "capabilities": CAPABILITIES,
         "jobs": [{"id": j["id"], "product": j["product"], "closed": j["closed"],
                   "requiredMixes": j["requiredMixes"],
-                  "mixProgress": mix_progress(j, preparations)} for j in world.rev2_jobs.values()],
+                  "mixProgress": mix_progress(j, preparations)} for j in world.rev2_jobs.values()
+                 if j["mode"] == "General"],
         "job": None if job is None else dict(
             job,
             materials=[material_dto(m) for m in job["materials"]],
@@ -738,7 +812,10 @@ def snapshot(world, target_id, device_id=None, command_id=None):
             collectionRevision=0,
             mixProgress=mix_progress(job, preparations)),
         "preparation": preparation_dto(preparation) if preparation else None,
-        "preparations": [preparation_dto(p) for p in preparations],
+        # Contract 8 (21 Oct): active work only, plus the exact selected PREP when it is history.
+        "preparations": [preparation_dto(p) for p in preparations
+                         if p["stage"] not in ("Completed", "Cancelled")
+                         or (preparation is not None and p["id"] == preparation["id"])],
         "machines": [dict(m, destinations=list(m["destinations"])) for m in world.rev2_machines],
         "exceptionListRevision": catalog["revision"],
         "ingredientExceptions": catalog["products"],

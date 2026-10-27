@@ -9,8 +9,8 @@ class MqttTopicsTest {
     @Test
     fun `request topic nests under the station namespace`() {
         assertEquals(
-            "PPNAM/station_2/handheld_1/req/login_requested",
-            MqttTopics.request("handheld_1", "login_requested")
+            "PPNAM/station_2/handheld_1/req/badge_login_requested",
+            MqttTopics.request("handheld_1", "badge_login_requested")
         )
     }
 
@@ -40,7 +40,7 @@ class MqttTopicsTest {
     @Test
     fun `deviceId containing a slash is rejected`() {
         assertThrows(IllegalArgumentException::class.java) {
-            MqttTopics.request("hand/held", "login_requested")
+            MqttTopics.request("hand/held", "badge_login_requested")
         }
     }
 
@@ -61,7 +61,7 @@ class MqttTopicsTest {
     @Test
     fun `blank deviceId is rejected`() {
         assertThrows(IllegalArgumentException::class.java) {
-            MqttTopics.request("", "login_requested")
+            MqttTopics.request("", "badge_login_requested")
         }
     }
 

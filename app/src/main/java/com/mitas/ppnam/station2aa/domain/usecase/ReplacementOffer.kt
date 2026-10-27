@@ -53,6 +53,8 @@ private const val ACTION_MACHINE_FINISH = "machine_finish"
 sealed interface NoticeTarget {
     data class Prep(val id: String) : NoticeTarget
     data class Job(val jobCard: String) : NoticeTarget
+    /** A Rajoo-family command: its job card's Rajoo screen. */
+    data class Rajoo(val jobCard: String) : NoticeTarget
 }
 
 /**
@@ -62,6 +64,7 @@ sealed interface NoticeTarget {
 fun RecoveryResult.openTarget(): NoticeTarget? {
     if (this !is RecoveryResult.Resolved || outcome != RecoveryOutcome.NotExecuted) return null
     val target = command.targetId?.takeIf { it.isNotBlank() } ?: return null
+    if (command.requestType == RajooUseCase.REQUEST) return NoticeTarget.Rajoo(target)
     return when (command.action) {
         ACTION_CAPTURE, ACTION_CONFIRM, ACTION_ADJUST_INGREDIENT, ACTION_MACHINE_START, ACTION_MACHINE_FINISH -> NoticeTarget.Prep(target)
         ACTION_PREPARE -> NoticeTarget.Job(target)

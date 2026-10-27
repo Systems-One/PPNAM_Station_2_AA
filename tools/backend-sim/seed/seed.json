@@ -260,6 +260,58 @@
       "localLocation": "Holding",
       "palletState": "Holding",
       "blocked": false
+    },
+    {
+      "palletRfidTag": "300833B2DDD9014000000014",
+      "palletId": "PAL-020",
+      "productCode": "1600000301",
+      "productName": "HD WHITE",
+      "batchNumber": "BATCH-R20",
+      "remainingQuantity": 500.0,
+      "bagSize": 25.0,
+      "unit": "kg",
+      "localLocation": "Holding",
+      "palletState": "Holding",
+      "blocked": false
+    },
+    {
+      "palletRfidTag": "300833B2DDD9014000000015",
+      "palletId": "PAL-021",
+      "productCode": "1600000070",
+      "productName": "FILLER (GRANIC538/GBU 23/ME1545)",
+      "batchNumber": "BATCH-R21",
+      "remainingQuantity": 500.0,
+      "bagSize": 25.0,
+      "unit": "kg",
+      "localLocation": "Holding",
+      "palletState": "Holding",
+      "blocked": false
+    },
+    {
+      "palletRfidTag": "300833B2DDD9014000000016",
+      "palletId": "PAL-022",
+      "productCode": "1500000331",
+      "productName": "MASTERBATCH ME 005-014A DESICCANT",
+      "batchNumber": "BATCH-R22",
+      "remainingQuantity": 200.0,
+      "bagSize": 10.0,
+      "unit": "kg",
+      "localLocation": "Holding",
+      "palletState": "Holding",
+      "blocked": false
+    },
+    {
+      "palletRfidTag": "300833B2DDD9014000000017",
+      "palletId": "PAL-023",
+      "productCode": "1500000326",
+      "productName": "MASTERBATCH WHITE MH 1316 HD / 5001",
+      "batchNumber": "BATCH-R23",
+      "remainingQuantity": 200.0,
+      "bagSize": 25.0,
+      "unit": "kg",
+      "localLocation": "Holding",
+      "palletState": "Holding",
+      "blocked": false
     }
   ]
 }

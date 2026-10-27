@@ -145,6 +145,43 @@ class Rev2TransportTest {
         reply(idOf(0)); call.await()
     }
 
+    private suspend fun tap(tag: String) = repo.requestRetainingUnanswered(
+        "badge_login_requested", "badge_login_result", mapOf("badgeTag" to tag), TestBody::class.java
+    )
+
+    @Test
+    fun `a card tap never carries a session even when one is active`() = runTest {
+        sessionHolder.set(session("sess-A"))
+        val call = async { tap("E200") }
+        while (published.isEmpty()) yield()
+        assertEquals("PPNAM/station_2/$device/req/badge_login_requested", published[0].first)
+        assertEquals(setOf("schemaVersion", "deviceId", "messageId", "timestampUtc", "badgeTag"), sent(0).keySet())
+        reply(idOf(0)); call.await()
+    }
+
+    @Test
+    fun `an unanswered card tap is resent with identical bytes and id`() = runTest {
+        assertEquals(MqttOutcome.NoResponse(FailureKind.Timeout), tap("E200"))
+        val call = async { tap("E200") }
+        while (published.size < 2) yield()
+        assertTrue(published[0].second.contentEquals(published[1].second))
+        reply(idOf(1)); call.await()
+    }
+
+    @Test
+    fun `after a reply, or for another card, a tap gets a new id`() = runTest {
+        assertEquals(MqttOutcome.NoResponse(FailureKind.Timeout), tap("E200"))
+        val other = async { tap("E201") }
+        while (published.size < 2) yield()
+        assertNotEquals(idOf(0), idOf(1))
+        reply(idOf(1)); other.await()
+
+        val again = async { tap("E201") }
+        while (published.size < 3) yield()
+        assertNotEquals(idOf(1), idOf(2))
+        reply(idOf(2)); again.await()
+    }
+
     @Test
     fun `operator_list_requested never carries a session even when one is active`() = runTest {
         sessionHolder.set(session("sess-A"))

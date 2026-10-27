@@ -52,16 +52,17 @@ data class ScramProofResponse(
 )
 
 /**
- * `login_requested` (October 3 badge login amendment): the scanned card, nothing else. Station 2
- * resolves it against its own badges first and then the cards Account Management issued (the
- * fleet mirror), so a card issued at the desk signs in here the way it does at Station 1.
- * A `username` alongside it is refused with `login_method_invalid`.
+ * `badge_login_requested` (contract §3.1, revision 2026-10-16): the complete card EPC, nothing else
+ * — no session, action, holder, role or password. Preserve leading zeroes; never the printed code.
  */
 data class BadgeLoginPayload(
     val badgeTag: String,
 )
 
-/** `login_result` `data`: the holder's session, in the same shape as the SCRAM proof result's. */
+/**
+ * `badge_login_result` `data`: the holder's session, in the same shape as the SCRAM proof result's.
+ * The accompanying `capabilities.androidBadgeLogin` is not read.
+ */
 data class LoginResultResponse(
     val session: Rev2Session? = null,
 )

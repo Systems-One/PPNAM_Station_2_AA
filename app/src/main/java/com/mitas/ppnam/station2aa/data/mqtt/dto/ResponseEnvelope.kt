@@ -16,7 +16,7 @@ import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
  */
 data class ResponseEnvelope(
     val schemaVersion: String = "",
-    /** Station 2's contract revision, e.g. `2026-10-01`. Pushes carry it too. */
+    /** Station 2's contract revision, e.g. `2026-10-21`. Pushes carry it too. */
     val contractRevision: String = "",
     val deviceId: String = "",
     val inResponseToMessageId: String = "",

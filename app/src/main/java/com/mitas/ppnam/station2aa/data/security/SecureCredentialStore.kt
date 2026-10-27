@@ -109,6 +109,48 @@ class SecureCredentialStore @Inject constructor(
         }
     }
 
+    /**
+     * Encrypts [value] into the named [slot] under the same key and backup-excluded file as the
+     * broker password. Returns false if the platform refused — never fall back to plaintext.
+     */
+    fun storeSecret(slot: String, value: String): Boolean = try {
+        val cipher = Cipher.getInstance(TRANSFORMATION).apply {
+            init(Cipher.ENCRYPT_MODE, getOrCreateKey())
+        }
+        val ciphertext = cipher.doFinal(value.toByteArray(Charsets.UTF_8))
+        prefs.edit()
+            .putString(slotCiphertext(slot), encode(ciphertext))
+            .putString(slotIv(slot), encode(cipher.iv))
+            .apply()
+        true
+    } catch (e: Exception) {
+        Log.e(TAG, "Could not store the $slot secret securely", e)
+        false
+    }
+
+    /** The decrypted [slot] value, or null when absent or no longer readable. */
+    fun retrieveSecret(slot: String): String? {
+        val ciphertext = prefs.getString(slotCiphertext(slot), null) ?: return null
+        val iv = prefs.getString(slotIv(slot), null) ?: return null
+        return try {
+            val key = existingKey() ?: return null
+            val cipher = Cipher.getInstance(TRANSFORMATION).apply {
+                init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(GCM_TAG_BITS, decode(iv)))
+            }
+            String(cipher.doFinal(decode(ciphertext)), Charsets.UTF_8)
+        } catch (e: Exception) {
+            Log.w(TAG, "Stored $slot secret could not be decrypted", e)
+            null
+        }
+    }
+
+    fun clearSecret(slot: String) {
+        prefs.edit().remove(slotCiphertext(slot)).remove(slotIv(slot)).apply()
+    }
+
+    private fun slotCiphertext(slot: String) = "secret_${slot}_ct"
+    private fun slotIv(slot: String) = "secret_${slot}_iv"
+
     /** Deletes the credential and its key. For decommissioning a handheld. */
     fun clear() {
         prefs.edit().remove(KEY_CIPHERTEXT).remove(KEY_IV).remove(KEY_HARDWARE_BACKED).apply()

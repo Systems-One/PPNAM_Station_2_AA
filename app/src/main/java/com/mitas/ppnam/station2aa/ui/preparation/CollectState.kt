@@ -31,9 +31,20 @@ sealed interface CollectStep {
         val check: AmountCheck,
     ) : CollectStep
 
-    /** The pallet's material is not a row of this PREP: add it, with a required [reason]. */
-    data class NotInMix(val source: SourceInfo, val amountText: String, val reason: String) : CollectStep {
-        val check: AmountCheck get() = validateAmount(amountText, null, source.available, source.unit.ifBlank { "kg" })
+    /**
+     * The pallet's material is not a row of this PREP: add it, with a required [reason]. Rajoo may
+     * instead pick [substituteFor], the uncaptured row it replaces. [capAtStock] limits the amount
+     * to the pallet's stock; a Rajoo full-job total may span several pallets, so it doesn't.
+     */
+    data class NotInMix(
+        val source: SourceInfo,
+        val amountText: String,
+        val reason: String,
+        val substituteFor: String? = null,
+        val capAtStock: Boolean = true,
+    ) : CollectStep {
+        val check: AmountCheck
+            get() = validateAmount(amountText, null, source.available.takeIf { capAtStock }, source.unit.ifBlank { "kg" })
         val canAdd: Boolean
             get() = check is AmountCheck.Valid && reason.trim().length in 1..GeneralCollectionUseCase.ADJUST_REASON_MAX
     }
@@ -131,10 +142,22 @@ data class PreparationUiState(
      * only after a fresh read; accepting it sends a NEW command, guarded like a tap.
      */
     val offer: ReplacementOffer? = null,
+    /** A tapped row's Less/More/Omit decision being filled in (contract §6). */
+    val decision: IngredientDecision? = null,
 ) {
     val stage: PrepStage? get() = snapshot?.preparation?.stage
     val canScan: Boolean get() = stage == PrepStage.Collecting && !inFlight && blocking.isEmpty()
     val canScanMachine: Boolean get() = stage?.isMachineStage == true && !inFlight && blocking.isEmpty()
+
+    /**
+     * Rows can be changed only while the PREP is unconfirmed and unassigned, collecting or awaiting
+     * confirmation (contract §6), and the screen is otherwise idle.
+     */
+    val canDecide: Boolean
+        get() = snapshot?.preparation?.let { p ->
+            (p.stage == PrepStage.Collecting || p.stage == PrepStage.AwaitingConfirmation) &&
+                p.confirmedAtUtc == null && p.mixerId == null && p.productionId == null
+        } == true && !inFlight && blocking.isEmpty() && step == CollectStep.Idle
 
     /** Every non-excluded row is collected (and there is at least one). */
     val allCollected: Boolean

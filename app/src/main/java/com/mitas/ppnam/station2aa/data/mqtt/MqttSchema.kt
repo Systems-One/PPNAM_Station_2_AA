@@ -14,7 +14,7 @@ object MqttSchema {
     const val VERSION = "rev2.1"
 
     /** The contract revision this build implements. Station 2 echoes its own in every reply. */
-    const val CONTRACT_REVISION = "2026-10-01"
+    const val CONTRACT_REVISION = "2026-10-21"
 
     /**
      * Contract §4.1: "Every contract timestamp is UTC RFC 3339 with exactly six fractional digits

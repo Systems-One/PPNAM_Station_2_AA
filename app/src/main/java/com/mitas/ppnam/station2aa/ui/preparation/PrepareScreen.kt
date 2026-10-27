@@ -70,9 +70,11 @@ fun PrepareScreen(
         AlertDialog(
             onDismissRequest = { confirming = false },
             title = { Text("Prepare ${form.mixCount} ${if (form.mixCount == 1) "mix" else "mixes"}?", color = TextPrimary) },
+            // Just the number: ingredients are changed or omitted later, while collecting. Only a
+            // catalog choice the operator answered Exclude (contract §7) is repeated here.
             text = {
                 Text(
-                    if (excluded.isEmpty()) "Job ${form.jobCard}. Nothing excluded."
+                    if (excluded.isEmpty()) "Job ${form.jobCard}"
                     else "Job ${form.jobCard}. Excluded: ${excluded.joinToString(", ")}.",
                     color = TextMuted,
                 )
@@ -159,10 +161,7 @@ fun PrepareScreen(
                 }
             }
             item { MixCountField(form, viewModel::onMixCount) }
-            item { HorizontalDivider() }
-            if (form.prompts.isEmpty()) {
-                item { Text("No ingredient choices for this job.", color = TextMuted) }
-            }
+            if (form.prompts.isNotEmpty()) item { HorizontalDivider() }
             items(form.prompts, key = { "choice-${it.code}" }) { prompt ->
                 val answer = form.answers[prompt.code]
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {

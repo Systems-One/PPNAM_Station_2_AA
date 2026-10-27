@@ -13,6 +13,11 @@ object NavRoutes {
     const val PREPARE = "jobs/prepare/{jobCard}"
     const val PREP = "jobs/prep/{prepId}"
 
+    /** Rajoo (contract §5): its own job list and one job card's session screen. */
+    const val RAJOO = "rajoo"
+    const val RAJOO_JOB = "rajoo/job/{jobCard}"
+    fun rajooJob(jobCard: String) = "rajoo/job/$jobCard"
+
     fun jobDetail(jobCard: String) = "jobs/detail/$jobCard"
     fun prepare(jobCard: String) = "jobs/prepare/$jobCard"
     fun prep(prepId: String) = "jobs/prep/$prepId"
