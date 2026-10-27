@@ -16,6 +16,7 @@ import com.mitas.ppnam.station2aa.domain.model.MachineScan
 import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
 import com.mitas.ppnam.station2aa.domain.model.savedMixer
 import com.mitas.ppnam.station2aa.domain.model.savedProduction
+import com.mitas.ppnam.station2aa.domain.model.matchMachine
 import com.mitas.ppnam.station2aa.domain.model.scanMachine
 import com.mitas.ppnam.station2aa.domain.model.PrepStage
 import com.mitas.ppnam.station2aa.domain.model.AmountCheck
@@ -191,6 +192,11 @@ class PreparationViewModel @Inject constructor(
         val state = _uiState.value
         if (state.stage?.isMachineStage == true) {
             machineScan(trimmed, state)
+            return
+        }
+        // A machine code before the mixer stage is the wrong step, not an unknown pallet.
+        state.snapshot?.matchMachine(trimmed)?.let { machine ->
+            show(OutcomeMessage.Info("That's the ${machine.name} code — collect every ingredient and tap Mix complete first"))
             return
         }
         if (!state.canScan) {
@@ -393,6 +399,62 @@ class PreparationViewModel @Inject constructor(
         }
     }
 
+    // ---- Less / More / Omit on a row (contract §6) ----
+
+    /** Opens the decision for the tapped row; only while the PREP still takes decisions. */
+    fun openDecision(materialCode: String) {
+        val state = _uiState.value
+        if (!state.canDecide) return show(OutcomeMessage.Info(whyNoDecision(state)))
+        val rows = state.snapshot?.preparation?.materials.orEmpty()
+        val row = rows.firstOrNull { it.code == materialCode } ?: return
+        val decision = IngredientDecision.on(row, rows)
+            ?: return show(OutcomeMessage.Info("${row.name} is excluded — it can't be changed"))
+        _uiState.update { it.copy(decision = decision) }
+    }
+
+    fun onDecisionKind(kind: IngredientDecisionKind) = updateDecision { it.copy(kind = kind) }
+    fun onDecisionTotal(text: String) = updateDecision { it.copy(totalText = text) }
+    fun onDecisionReason(text: String) = updateDecision { it.copy(reason = text) }
+    fun cancelDecision() = _uiState.update { it.copy(decision = null) }
+
+    /** Sends the decision against the CURRENT row and PREP revision; nothing is captured. */
+    fun sendDecision() {
+        val state = _uiState.value
+        val draft = state.decision ?: return
+        if (state.inFlight || state.blocking.isNotEmpty()) return show(OutcomeMessage.Info(whyNoDecision(state)))
+        val prep = state.snapshot?.preparation ?: return
+        // Re-check against the row as it stands now, not as it was when the dialog opened.
+        val decision = prep.materials.firstOrNull { it.code == draft.material.code }
+            ?.let { row -> IngredientDecision.on(row, prep.materials) }
+            ?.copy(kind = draft.kind, totalText = draft.totalText, reason = draft.reason)
+            ?: run { cancelDecision(); return show(OutcomeMessage.Info("${draft.material.name} changed — check the preparation and try again")) }
+        if (!decision.canSend) {
+            _uiState.update { it.copy(decision = decision) }
+            return show(OutcomeMessage.Info(decision.problems.first()))
+        }
+        _uiState.update { it.copy(decision = null) }
+        val code = decision.material.code
+        val reason = decision.reason.trim()
+        mutate {
+            when (decision.kind) {
+                IngredientDecisionKind.Quantity ->
+                    useCase.changeQuantity(prepId, prep.collectionRevision, code, decision.newTotal!!, reason)
+                IngredientDecisionKind.Omit -> useCase.omit(prepId, prep.collectionRevision, code, reason)
+            }
+        }
+    }
+
+    private fun updateDecision(f: (IngredientDecision) -> IngredientDecision) =
+        _uiState.update { s -> s.decision?.let { s.copy(decision = f(it)) } ?: s }
+
+    private fun whyNoDecision(state: PreparationUiState): String = when {
+        state.inFlight -> "Wait — Station 2 is still answering"
+        state.blocking.isNotEmpty() -> "Resolve the unanswered command first"
+        state.stage == null -> "This preparation hasn't loaded yet"
+        state.step != CollectStep.Idle -> "Finish or cancel the current pallet first"
+        else -> "Ingredients can't be changed now (${state.snapshot?.preparation?.stageRaw})"
+    }
+
     private fun identify(code: String) {
         identifyJob?.cancel()
         val seq = ++issued
@@ -409,14 +471,14 @@ class PreparationViewModel @Inject constructor(
             if ((_uiState.value.step as? CollectStep.Identifying)?.code != code) return@launch
             when (result) {
                 is IdentifyResult.Identified -> {
-                    applyIfNewer(seq, result.snapshot)
+                    applyPreparationIfNewer(seq, result.snapshot)
                     val snapshot = _uiState.value.snapshot
                     _uiState.update {
                         it.copy(step = if (snapshot == null) CollectStep.Unknown(IDENTIFY_NO_PREP) else stepFor(result.source, snapshot))
                     }
                 }
                 is IdentifyResult.Unknown -> {
-                    applyIfNewer(seq, result.snapshot)
+                    applyPreparationIfNewer(seq, result.snapshot)
                     _uiState.update { it.copy(step = CollectStep.Unknown(result.message)) }
                 }
                 is IdentifyResult.Unsupported ->
@@ -432,6 +494,15 @@ class PreparationViewModel @Inject constructor(
     private fun applyIfNewer(seq: Long, snapshot: PrepSnapshot?) {
         val fresh = takeIfNewer(seq, snapshot) ?: return
         _uiState.update { it.copy(snapshot = fresh) }
+    }
+
+    /**
+     * For `identify`'s compact reply (contract §4.1): only its `preparation` is fresh. The job's
+     * mix progress, machines, preparations and exception lists stay as the last full snapshot had them.
+     */
+    private fun applyPreparationIfNewer(seq: Long, snapshot: PrepSnapshot?) {
+        val fresh = takeIfNewer(seq, snapshot) ?: return
+        _uiState.update { it.copy(snapshot = it.snapshot?.copy(preparation = fresh.preparation) ?: fresh) }
     }
 
     /** What the identified pallet means for this PREP. */

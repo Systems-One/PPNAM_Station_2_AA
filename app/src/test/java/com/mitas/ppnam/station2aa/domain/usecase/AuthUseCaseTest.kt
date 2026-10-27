@@ -21,6 +21,7 @@ import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -32,7 +33,7 @@ class AuthUseCaseTest {
     private lateinit var sessionHolder: OperatorSessionHolder
     private lateinit var useCase: AuthUseCase
 
-    /** What a successful `login_result` returns under `data`: a session for the card's holder. */
+    /** What a successful `badge_login_result` returns under `data`: a session for the card's holder. */
     private val badgeLogin = LoginResultResponse(
         session = Rev2Session(
             sessionId = "badge-session",
@@ -72,18 +73,19 @@ class AuthUseCaseTest {
     }
 
     private suspend fun stubBadge(outcome: MqttOutcome<LoginResultResponse>) {
-        whenever(mqttRepository.request(any(), any(), any(), eq(LoginResultResponse::class.java))).thenReturn(outcome)
+        whenever(mqttRepository.requestRetainingUnanswered(any(), any(), any(), eq(LoginResultResponse::class.java)))
+            .thenReturn(outcome)
     }
 
     @Test
-    fun `a badge login sends the tag on login_requested and stores the holder's session`() = runTest {
+    fun `a badge login sends the tag on badge_login_requested and stores the holder's session`() = runTest {
         stubBadge(MqttOutcome.Accepted(badgeLogin))
 
         val session = useCase.loginWithBadge("E2000017221101441890ABCD").getOrThrow()
 
-        verify(mqttRepository).request(
-            eq("login_requested"),
-            eq("login_result"),
+        verify(mqttRepository).requestRetainingUnanswered(
+            eq("badge_login_requested"),
+            eq("badge_login_result"),
             eq(BadgeLoginPayload("E2000017221101441890ABCD")),
             eq(LoginResultResponse::class.java),
         )
@@ -94,6 +96,31 @@ class AuthUseCaseTest {
         assertEquals(SessionState.Active, session.sessionState)
         assertEquals(Instant.parse("2026-10-03T18:00:00.000000Z"), session.sessionExpiresAtUtc)
         assertEquals("badge-session", sessionHolder.session.value?.operatorSessionId)
+    }
+
+    @Test
+    fun `a retried tap whose earlier session is no longer usable signs in afresh once`() = runTest {
+        whenever(mqttRepository.requestRetainingUnanswered(any(), any(), any(), eq(LoginResultResponse::class.java)))
+            .thenReturn(MqttOutcome.Rejected(null, ErrorCode.OPERATOR_SESSION_INVALID, "Session expired."))
+            .thenReturn(MqttOutcome.Accepted(badgeLogin))
+
+        val session = useCase.loginWithBadge("E2000017221101441890ABCD").getOrThrow()
+
+        assertEquals("badge-session", session.operatorSessionId)
+        verify(mqttRepository, times(2)).requestRetainingUnanswered(
+            eq("badge_login_requested"), eq("badge_login_result"),
+            eq(BadgeLoginPayload("E2000017221101441890ABCD")), eq(LoginResultResponse::class.java),
+        )
+    }
+
+    @Test
+    fun `a message id conflict on a card tap asks for a fresh tap`() = runTest {
+        stubBadge(MqttOutcome.Rejected(null, ErrorCode.MESSAGE_ID_CONFLICT, "Message ID body mismatch."))
+
+        val result = useCase.loginWithBadge("E2000017221101441890ABCD")
+
+        assertEquals("Card sign-in was interrupted. Tap the card again.", result.exceptionOrNull()?.message)
+        assertNull(sessionHolder.session.value)
     }
 
     @Test

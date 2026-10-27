@@ -31,6 +31,10 @@ import com.mitas.ppnam.station2aa.ui.preparation.PreparationScreen
 import com.mitas.ppnam.station2aa.ui.preparation.PreparationViewModel
 import com.mitas.ppnam.station2aa.ui.preparation.PrepareScreen
 import com.mitas.ppnam.station2aa.ui.preparation.PrepareViewModel
+import com.mitas.ppnam.station2aa.ui.rajoo.RajooJobScreen
+import com.mitas.ppnam.station2aa.ui.rajoo.RajooJobViewModel
+import com.mitas.ppnam.station2aa.ui.rajoo.RajooLookupScreen
+import com.mitas.ppnam.station2aa.ui.rajoo.RajooLookupViewModel
 import com.mitas.ppnam.station2aa.ui.session.SessionWatcher
 import com.mitas.ppnam.station2aa.ui.settings.SettingsScreen
 import com.mitas.ppnam.station2aa.ui.theme.rememberReducedMotion
@@ -96,6 +100,8 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                 // Both routes live inside the jobs graph; navigating into it from Home is allowed.
                 onOpenPrep = { navController.navigate(NavRoutes.prep(it)) },
                 onOpenPrepare = { navController.navigate(NavRoutes.prepare(it)) },
+                onOpenRajoo = { navController.navigate(NavRoutes.RAJOO) },
+                onOpenRajooJob = { navController.navigate(NavRoutes.rajooJob(it)) },
                 onSettings = { navController.navigate(NavRoutes.SETTINGS) },
                 // Navigation on logout is SessionWatcher's job alone (it reacts to
                 // the session going null, which authUseCase.logout() causes before this event fires).
@@ -108,6 +114,22 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
         }
         composable(NavRoutes.SETTINGS) {
             SettingsScreen(onBack = { navController.popBackStack() })
+        }
+        composable(NavRoutes.RAJOO) {
+            RajooLookupScreen(
+                onOpenJob = { navController.navigate(NavRoutes.rajooJob(it)) },
+                onBack = { navController.popBackStack() },
+                viewModel = hiltViewModel<RajooLookupViewModel>(),
+            )
+        }
+        composable(NavRoutes.RAJOO_JOB) { backStackEntry ->
+            val jobCard = backStackEntry.arguments?.getString("jobCard") ?: return@composable
+            // Its own RajooJobViewModel (scoped to this entry); it reads jobCard from SavedStateHandle.
+            RajooJobScreen(
+                jobCard = jobCard,
+                onBack = { navController.popBackStack() },
+                viewModel = hiltViewModel<RajooJobViewModel>(),
+            )
         }
         navigation(startDestination = NavRoutes.JOB_LOOKUP, route = NavRoutes.JOBS) {
             composable(NavRoutes.JOB_LOOKUP) { backStackEntry ->

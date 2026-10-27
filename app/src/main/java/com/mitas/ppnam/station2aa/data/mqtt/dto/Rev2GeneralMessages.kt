@@ -3,7 +3,7 @@ package com.mitas.ppnam.station2aa.data.mqtt.dto
 import java.math.BigDecimal
 
 /**
- * rev2.1 workflow DTOs, contract revision 2026-10-01 (§8). General (`rev2_general_*`) and Rajoo
+ * rev2.1 workflow DTOs, contract revision 2026-10-21 (§8). General (`rev2_general_*`) and Rajoo
  * (`rev2_rajoo_*`) replies share one snapshot shape; [Rev2Snapshot.mode] says which.
  *
  * Every constructor parameter keeps a default: see [ResponseEnvelope] for why that is load-bearing.
@@ -91,6 +91,8 @@ data class Rev2Capabilities(
     val receiptRecovery: Boolean = false,
     val managerReviewDesktopOnly: Boolean = false,
     val jobMixProgress: Boolean = false,
+    /** §3.1 (2026-10-16): Station 2 accepts `badge_login_requested`. */
+    val androidBadgeLogin: Boolean = false,
 )
 
 data class Rev2JobSummary(
@@ -176,6 +178,8 @@ data class Rev2Material(
     /** Original scope target; 0 for an operator-added row; null when a legacy baseline is unknown. */
     val originalRequired: BigDecimal? = null,
     val remaining: BigDecimal = BigDecimal.ZERO,
+    /** §8 (16 Oct 2026): excluded, or the effective target differs from a known original. */
+    val isModified: Boolean = false,
 )
 
 data class Rev2Preparation(
@@ -296,8 +300,9 @@ data class Rev2MachineFinishRequest(
 )
 
 /**
- * Proposed `identify`: read-only, no receipt. A plain request like `read` — never outboxed, safe to
- * resend. [targetId] is the PREP, [code] the scanned pallet/label code.
+ * Contract §4.1 `identify`: read-only, no receipt. A plain request like `read` — never outboxed, safe
+ * to resend. [targetId] is the PREP (optional on the wire; this app always names one), [code] the
+ * scanned pallet/label code.
  */
 data class Rev2IdentifyRequest(
     val targetId: String,
@@ -318,13 +323,21 @@ data class Rev2AdjustIngredientRequest(
 )
 
 /**
- * Contract §6 `adjustment`. Only `Add` is built here: [materialCode] stays `""`, as in Station 2's
- * own generated request. [targetQuantity] is the PREP's total target for the new row and must
- * already be [com.mitas.ppnam.station2aa.domain.model.WireDecimal]-normalised.
+ * Contract §6 `adjustment`. Unused fields stay `""` as in Station 2's own generated requests:
+ * `Add` has no [materialCode]; `Quantity` and `Omit` have no [sourceCode]; `Omit` has no
+ * [targetQuantity] (null is omitted from the wire). [targetQuantity] is the scope's new TOTAL
+ * target and must already be [com.mitas.ppnam.station2aa.domain.model.WireDecimal]-normalised.
  */
 data class Rev2Adjustment(
-    val kind: String = "Add",
+    val kind: String = KIND_ADD,
     val materialCode: String = "",
-    val sourceCode: String,
-    val targetQuantity: BigDecimal,
-)
+    val sourceCode: String = "",
+    val targetQuantity: BigDecimal? = null,
+) {
+    companion object {
+        const val KIND_ADD = "Add"
+        const val KIND_SUBSTITUTE = "Substitute"
+        const val KIND_QUANTITY = "Quantity"
+        const val KIND_OMIT = "Omit"
+    }
+}

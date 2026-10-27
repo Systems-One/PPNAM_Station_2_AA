@@ -38,7 +38,7 @@ from paho.mqtt.properties import Properties
 
 import envelope
 from envelope import Rejection
-from handlers import operator_list, rev2_general, scram
+from handlers import badge_login, operator_list, rev2_general, rev2_rajoo, scram
 from simlog import SimLogger
 from state import World, iso, utc_now
 
@@ -166,15 +166,17 @@ class Simulator:
                     f"inResponseTo={response.get('inResponseToMessageId')!r}")
         return topic
 
-    def publish_invalidations(self, reason="preparation_created"):
-        """The server's WorkspaceChanged push, to every device that has read General."""
-        for device_id in sorted(self.world.general_readers):
+    def publish_invalidations(self, reason="preparation_created", mode="General"):
+        """The server's WorkspaceChanged push, to every device that has made an authenticated
+        request in that mode (General and Rajoo keep separate reader registrations)."""
+        readers = self.world.general_readers if mode == "General" else self.world.rajoo_readers
+        for device_id in sorted(readers):
             self.publish_response(device_id, "active_job_cards_invalidated", {
                 "schemaVersion": envelope.SCHEMA_VERSION,
                 "deviceId": device_id,
                 "messageId": f"rev2-preparations-{os.urandom(16).hex()}",
                 "timestampUtc": iso(utc_now()),
-                "mode": "General",
+                "mode": mode,
                 "reason": reason,
                 "nextAction": "read",
             })
@@ -207,8 +209,9 @@ class Simulator:
                           f"on {STATUS_TOPIC}")
             return
         if kind == "invalidate":
-            self.publish_invalidations()
-            self.log.ok("sim-control: INVALIDATE — active_job_cards_invalidated pushed")
+            mode = "Rajoo" if cmd.get("mode") == "Rajoo" else "General"
+            self.publish_invalidations(mode=mode)
+            self.log.ok(f"sim-control: INVALIDATE — {mode} active_job_cards_invalidated pushed")
             return
         if kind in ("withhold", "malformed", "uncorrelated", "reject", "login_mangle",
                     "drop_reply"):
@@ -293,6 +296,10 @@ class Simulator:
 
     def _dispatch(self, device_id, request_type, payload, req, received_at):
         message_id = req["messageId"]
+        if request_type == "badge_login_requested":
+            data = badge_login.badge_login(self.world, self.log, req, payload)
+            return envelope.reply(device_id, message_id, received_at, True,
+                                  "Operator signed in by card.", data=data)
         # Pre-login requests (SCRAM and the operator directory) share the authentication replay
         # cache: identical body replays, a changed body is message_id_conflict.
         if request_type.startswith("scram_") or request_type == "operator_list_requested":
@@ -316,18 +323,18 @@ class Simulator:
                                             "expires": received_at + timedelta(seconds=60)}
             return envelope.reply(device_id, message_id, received_at, True, text, data=data)
 
-        if request_type == "rev2_rajoo_requested":
-            raise Rejection("action_not_allowed", "The simulator does not implement the Rajoo family.")
-        action = rev2_general.check_action(req)
+        rajoo = request_type == "rev2_rajoo_requested"
+        family = rev2_rajoo if rajoo else rev2_general
+        action = family.check_action(req)
         session, err = self.world.get_session(device_id, req.get("sessionId") or "")
         if not session:
             self.log.fail(f"session: {err}")
             raise Rejection("operator_session_invalid", "Sign in on this device before continuing.")
-        result, snap, hint = rev2_general.handle(self.world, self.log, req, action, request_type,
-                                                 payload, session["operatorId"])
+        result, snap, hint = family.handle(self.world, self.log, req, action, request_type,
+                                           payload, session["operatorId"])
         if hint:
             # After the durable change and before the reply, as the server's WorkspaceChanged.
-            self.publish_invalidations(hint)
+            self.publish_invalidations(hint, "Rajoo" if rajoo else "General")
         error = result.get("errorCode") or ("" if result["success"] else "rev2_rejected")
         next_action = ("review_recovered_outcome" if action == "recover" and result["success"]
                        else None)

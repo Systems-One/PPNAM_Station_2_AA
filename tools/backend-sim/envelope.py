@@ -19,10 +19,13 @@ from decimal import Decimal
 from state import iso, utc_now
 
 SCHEMA_VERSION = "rev2.1"
-CONTRACT_REVISION = "2026-10-01"
+CONTRACT_REVISION = "2026-10-21"
+# The station's five contract suffixes, plus the simulator-only operator directory (not in the
+# 2026-10-21 contract; the app degrades to a typed username without it).
 REQUEST_SUFFIXES = (
     "scram_start_requested",
     "scram_proof_requested",
+    "badge_login_requested",
     "rev2_general_requested",
     "rev2_rajoo_requested",
     "operator_list_requested",
@@ -30,6 +33,7 @@ REQUEST_SUFFIXES = (
 _RESPONSE_SUFFIX = {
     "scram_start_requested": "scram_challenge",
     "scram_proof_requested": "scram_proof_result",
+    "badge_login_requested": "badge_login_result",
     "rev2_rajoo_requested": "rev2_rajoo_result",
     "operator_list_requested": "operator_list",
 }

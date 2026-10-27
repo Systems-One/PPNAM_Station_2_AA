@@ -67,6 +67,8 @@ class LoginViewModel @Inject constructor(
         // "Signed out after N minutes of inactivity." — shown once in the error slot, the way S1
         // does; a manual logout or a server-side session end carries no reason and shows nothing.
         sessionHolder.consumeSignedOutReason()?.let { _uiState.value = LoginUiState.Error(it) }
+        // A session restored after an app restart goes straight to Home.
+        if (sessionHolder.session.value != null) _navigationEvent.trySend("home")
         viewModelScope.launch { mqttRepository.connect() }
         viewModelScope.launch {
             scanEventBus.events.collect { event ->

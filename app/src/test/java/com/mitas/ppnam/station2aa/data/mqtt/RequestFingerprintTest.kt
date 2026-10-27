@@ -2,6 +2,7 @@ package com.mitas.ppnam.station2aa.data.mqtt
 
 import com.google.gson.JsonParser
 import com.mitas.ppnam.station2aa.contract.ContractFixtures
+import com.mitas.ppnam.station2aa.contract.ContractFixtures1021
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -23,6 +24,17 @@ class RequestFingerprintTest {
             val expected = JsonParser.parseString(ContractFixtures.text("${name}_response.json"))
                 .asJsonObject["requestFingerprint"].asString
             assertEquals(name, expected, RequestFingerprint.of(ContractFixtures.bytes("${name}_request.json")))
+        }
+    }
+
+    @Test
+    fun `the 2026-10-21 examples' fingerprints match their exact request bytes`() {
+        val pairs = ContractFixtures1021.pairs()
+        assertEquals(20, pairs.size)
+        for (name in pairs) {
+            val expected = JsonParser.parseString(ContractFixtures1021.text("${name}_response.json"))
+                .asJsonObject["requestFingerprint"].asString
+            assertEquals(name, expected, RequestFingerprint.of(ContractFixtures1021.bytes("${name}_request.json")))
         }
     }
 }

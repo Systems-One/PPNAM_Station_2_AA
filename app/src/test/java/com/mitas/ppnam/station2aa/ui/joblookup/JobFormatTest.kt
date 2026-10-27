@@ -36,12 +36,13 @@ class JobFormatTest {
     fun `negative zero is zero`() = assertEquals("0", formatQuantity(-0.0))
 
     @Test
-    fun `a material line shows per-mix, required, collected and remaining with the unit`() =
-        assertEquals("69.631 kg per mix · 100 of 557.049 kg · 457.049 kg to go", material().quantityLine())
+    fun `a material line shows per-mix and the job total, never the frozen basis's collected`() =
+        // General job materials are the frozen job basis: Station 2 always sends collected 0 there.
+        assertEquals("69.631 kg per mix · 557.049 kg for the job", material().quantityLine())
 
     @Test
     fun `a blank unit leaves no dangling spaces`() =
-        assertEquals("69.631 per mix · 100 of 557.049 · 457.049 to go", material(unit = "").quantityLine())
+        assertEquals("69.631 per mix · 557.049 for the job", material(unit = "").quantityLine())
 
     @Test
     fun `an excluded material says so instead of showing a requirement`() =

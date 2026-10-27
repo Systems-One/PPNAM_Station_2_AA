@@ -30,11 +30,15 @@ sealed interface ReadResult {
     data class Failed(val message: String, val snapshot: PrepSnapshot?, val retryable: Boolean) : ReadResult
 }
 
-/** Proposed `identify` (simplified collect spec). Read-only: nothing here was recorded. */
+/** Contract §4.1 `identify`. Read-only: nothing here was recorded. */
 sealed interface IdentifyResult {
-    /** Station 2 knows the pallet; [snapshot] is the PREP's fresh state. */
+    /**
+     * Station 2 knows the pallet. The reply is compact (`result`, `preparation`, `source` only), so
+     * [snapshot] holds just the PREP's fresh state: its jobs, machines and exception lists are empty
+     * and must not replace a full snapshot.
+     */
     data class Identified(val source: SourceInfo, val snapshot: PrepSnapshot) : IdentifyResult
-    /** `unknown_source`: Station 2 doesn't know this code. */
+    /** `pallet_not_found` (or the simulator's older `unknown_source`): Station 2 can't resolve this code. */
     data class Unknown(val message: String, val snapshot: PrepSnapshot?) : IdentifyResult
     /** Station 2 can't identify (action unsupported, or no reply in time): let the operator pick the ingredient. */
     data class Unsupported(val message: String, val timedOut: Boolean = false) : IdentifyResult
@@ -69,7 +73,7 @@ class GeneralCollectionUseCase @Inject constructor(
         }
 
     /**
-     * Asks Station 2 what is on the pallet [code] for PREP [prepId]. A plain request like [read]:
+     * Contract §4.1: asks Station 2 what is on the pallet [code] for PREP [prepId]. A plain request like [read]:
      * never outboxed, safe to resend. An unsupported action, a success without `source`, or no reply
      * within the read timeout all become [IdentifyResult.Unsupported], so the UI falls back to
      * picking the ingredient.
@@ -84,7 +88,7 @@ class GeneralCollectionUseCase @Inject constructor(
                 val codes = setOfNotNull(o.error?.raw, o.body?.result?.errorCode)
                 val message = o.operatorMessage ?: o.body?.result?.message?.takeIf { it.isNotBlank() }
                 when {
-                    UNKNOWN_SOURCE in codes ->
+                    codes.any { it in NOT_FOUND } ->
                         IdentifyResult.Unknown(message ?: "Station 2 doesn't know this pallet code.", o.body?.toPrepSnapshot())
                     codes.any { it in UNSUPPORTED_ACTION } -> IdentifyResult.Unsupported(IDENTIFY_FALLBACK)
                     else -> IdentifyResult.Failed(message ?: rejectedText(o.error), retryable = false)
@@ -130,12 +134,37 @@ class GeneralCollectionUseCase @Inject constructor(
      */
     suspend fun addIngredient(prepId: String, collectionRevision: Int, sourceCode: String, quantity: BigDecimal,
                               reason: String): CollectionResult {
+        require(sourceCode.isNotBlank()) { "blank source code" }
+        return adjust(prepId, collectionRevision, reason,
+            Rev2Adjustment(sourceCode = sourceCode.trim(), targetQuantity = total(quantity)))
+    }
+
+    /** Kind `Quantity`: Less or More ingredient — [quantity] is the row's new total for the PREP. */
+    suspend fun changeQuantity(prepId: String, collectionRevision: Int, materialCode: String, quantity: BigDecimal,
+                               reason: String): CollectionResult {
+        require(materialCode.isNotBlank()) { "blank material code" }
+        return adjust(prepId, collectionRevision, reason,
+            Rev2Adjustment(Rev2Adjustment.KIND_QUANTITY, materialCode = materialCode.trim(), targetQuantity = total(quantity)))
+    }
+
+    /** Kind `Omit`: the uncaptured row's target becomes zero and it is excluded. */
+    suspend fun omit(prepId: String, collectionRevision: Int, materialCode: String, reason: String): CollectionResult {
+        require(materialCode.isNotBlank()) { "blank material code" }
+        return adjust(prepId, collectionRevision, reason,
+            Rev2Adjustment(Rev2Adjustment.KIND_OMIT, materialCode = materialCode.trim()))
+    }
+
+    private suspend fun adjust(prepId: String, collectionRevision: Int, reason: String,
+                               adjustment: Rev2Adjustment): CollectionResult {
         val trimmedReason = reason.trim()
         require(trimmedReason.length in 1..ADJUST_REASON_MAX) { "reason must be 1..$ADJUST_REASON_MAX characters" }
-        require(sourceCode.isNotBlank()) { "blank source code" }
+        return send(Rev2AdjustIngredientRequest(prepId.trim(), collectionRevision, trimmedReason, adjustment))
+    }
+
+    private fun total(quantity: BigDecimal): BigDecimal {
         require(quantity.signum() > 0) { "quantity must be positive" }
-        return send(Rev2AdjustIngredientRequest(prepId.trim(), collectionRevision, trimmedReason,
-            Rev2Adjustment(sourceCode = sourceCode.trim(), targetQuantity = WireDecimal.of(quantity))))
+        require(quantity <= RajooUseCase.MAX_TARGET) { "quantity must be at most 999999999" }
+        return WireDecimal.of(quantity)
     }
 
     suspend fun retry(command: PendingCommand): CollectionResult =
@@ -149,7 +178,8 @@ class GeneralCollectionUseCase @Inject constructor(
         const val RESPONSE = "rev2_general_result"
         const val ADJUST_REASON_MAX = 1000
         const val IDENTIFY_FALLBACK = "Station 2 couldn't identify this pallet — pick the ingredient"
-        private const val UNKNOWN_SOURCE = "unknown_source"
+        /** §10 `pallet_not_found`; `unknown_source` was the pre-2026-10-21 proposal's code. */
+        private val NOT_FOUND = setOf("pallet_not_found", "unknown_source")
         /** Station 2 and the simulator answer `action_not_allowed` for an action they don't run. */
         private val UNSUPPORTED_ACTION =
             setOf("action_not_allowed", "unsupported_action", "invalid_action", "unknown_action")

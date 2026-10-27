@@ -3,6 +3,9 @@ package com.mitas.ppnam.station2aa.data.mqtt.dto
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.mitas.ppnam.station2aa.contract.ContractFixtures
+import com.mitas.ppnam.station2aa.contract.ContractFixtures1021
+import com.mitas.ppnam.station2aa.domain.usecase.toDomain
+import com.mitas.ppnam.station2aa.domain.usecase.toPrepSnapshot
 import com.mitas.ppnam.station2aa.data.mqtt.WireJson
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -131,5 +134,42 @@ class Rev2SnapshotFixtureTest {
         for (m in s.preparation!!.materials) {
             assertEquals(m.code, 0, m.remaining.compareTo((m.required - m.collected).max(BigDecimal.ZERO)))
         }
+    }
+
+    private fun latest(name: String): JsonObject =
+        JsonParser.parseString(ContractFixtures1021.text("${name}_response.json")).asJsonObject["data"].asJsonObject
+
+    @Test
+    fun `2026-10-21 substitute keys are declared and isModified marks every changed row`() {
+        val data = latest("general_substitute")
+        assertKeysDeclared("capabilities", data["capabilities"].asJsonObject, Rev2Capabilities::class.java)
+        data["preparation"].asJsonObject["materials"].asJsonArray
+            .forEach { assertKeysDeclared("preparation.materials", it.asJsonObject, Rev2Material::class.java) }
+
+        val s = WireJson.gson.fromJson(data, Rev2Snapshot::class.java)
+        assertTrue(s.capabilities!!.androidBadgeLogin)
+        val modified = s.preparation!!.materials.associate { it.code to it.isModified }
+        assertEquals(mapOf("RESIN" to false, "OPTIONAL" to true, "ADDITIVE" to true, "ALT" to true), modified)
+        val mapped = s.toPrepSnapshot().preparation!!.materials.associate { it.code to it.isModified }
+        assertEquals(modified, mapped)
+    }
+
+    @Test
+    fun `identify's compact reply carries only result, preparation and source`() {
+        val data = latest("general_identify")
+        assertEquals(setOf("result", "preparation", "source"), data.keySet())
+        assertKeysDeclared("source", data["source"].asJsonObject, Rev2Source::class.java)
+
+        val s = WireJson.gson.fromJson(data, Rev2Snapshot::class.java)
+        val source = s.source!!.toDomain()
+        assertEquals("TAG-RESIN", source.code)
+        assertEquals("RESIN", source.materialCode)
+        assertEquals(0, BigDecimal("10").compareTo(source.bagSize))
+        assertTrue(source.usable)
+        assertEquals("Source identified.", s.result!!.message)
+        // Nothing but the PREP is fresh: these are absent, not empty, on the wire.
+        assertTrue(s.jobs.isEmpty() && s.machines.isEmpty() && s.collectionExceptions.isEmpty())
+        assertNull(s.job)
+        assertFalse(s.preparation!!.materials.first { it.code == "RESIN" }.isModified)
     }
 }

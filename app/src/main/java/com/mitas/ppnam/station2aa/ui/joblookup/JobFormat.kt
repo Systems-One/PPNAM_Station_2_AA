@@ -20,12 +20,14 @@ internal fun formatQuantity(value: Double): String {
 private fun withUnit(value: Double, unit: String): String =
     if (unit.isBlank()) formatQuantity(value) else "${formatQuantity(value)} $unit"
 
+/**
+ * A General job material is the frozen job basis (contract §8): Station 2 always sends `collected`
+ * 0 there and tracks collection on each preparation, so only the plan is shown.
+ */
 internal fun JobMaterial.quantityLine(): String {
     val perMixText = "${withUnit(perMix, unit)} per mix"
     if (excluded) return "$perMixText · excluded from this job"
-    val ofText = if (unit.isBlank()) "${formatQuantity(collected)} of ${formatQuantity(required)}"
-    else "${formatQuantity(collected)} of ${formatQuantity(required)} $unit"
-    return "$perMixText · $ofText · ${withUnit(remaining, unit)} to go"
+    return "$perMixText · ${withUnit(required, unit)} for the job"
 }
 
 internal fun JobPreparation.summaryLine(): String =

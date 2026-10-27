@@ -66,6 +66,13 @@ fun PreparationScreen(
     LaunchedEffect(state.canConfirm) { if (!state.canConfirm) confirming = false }
 
     state.offer?.let { offer -> ReplacementDialog(offer, state, viewModel::acceptOffer, viewModel::declineOffer) }
+    state.decision?.let { decision ->
+        IngredientDecisionDialog(
+            decision, DecisionScope.Preparation, state.inFlight || state.blocking.isNotEmpty(),
+            DecisionActions(viewModel::onDecisionKind, viewModel::onDecisionTotal, viewModel::onDecisionReason,
+                viewModel::sendDecision, viewModel::cancelDecision),
+        )
+    }
 
     if (confirming && state.canConfirm) {
         AlertDialog(
@@ -127,6 +134,7 @@ fun PreparationScreen(
                 onRefresh = viewModel::refresh,
                 onUseCode = viewModel::onScan,
                 onMixComplete = { confirming = true },
+                onDecide = viewModel::openDecision,
                 modifier = body,
             )
             machineStage -> MixerStage(

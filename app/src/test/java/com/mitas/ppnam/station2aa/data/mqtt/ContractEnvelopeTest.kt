@@ -28,9 +28,9 @@ class ContractEnvelopeTest {
     }
 
     @Test
-    fun `the contract revision is 2026-10-01 on wire schema rev2_1`() {
+    fun `the contract revision is 2026-10-21 on wire schema rev2_1`() {
         assertEquals("rev2.1", MqttSchema.VERSION)
-        assertEquals("2026-10-01", MqttSchema.CONTRACT_REVISION)
+        assertEquals("2026-10-21", MqttSchema.CONTRACT_REVISION)
     }
 
     @Test

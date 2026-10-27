@@ -39,6 +39,8 @@ class MqttRepositoryImpl @Inject constructor(
         private const val TAG = "MqttRepositoryImpl"
         /** The pre-login operator directory request (see `OperatorDirectoryUseCase`). */
         private const val OPERATOR_LIST_REQUESTED = "operator_list_requested"
+        /** Contract §3.1 Android card login (see `AuthUseCase.loginWithBadge`). */
+        private const val BADGE_LOGIN_REQUESTED = "badge_login_requested"
         // Raw text, not JSON — the device base node (PPNAM/station_2/{deviceId}) is
         // presence-only, so payloads are plain "online"/"offline" bytes.
         private val STATUS_ONLINE = "online".toByteArray()
@@ -102,6 +104,10 @@ class MqttRepositoryImpl @Inject constructor(
     private class PendingRequest(val waiter: CompletableDeferred<String>, val sessionId: String)
 
     private val pending = ConcurrentHashMap<String, PendingRequest>()
+
+    /** An unanswered [requestRetainingUnanswered] request, kept so a resend is byte-identical. */
+    private class UnansweredRequest(val payloadJson: String, val messageId: String, val bytes: ByteArray)
+    private val unanswered = ConcurrentHashMap<String, UnansweredRequest>()
 
     // Duplicate suppression for server PUSHES only. rev2.1 direct replies carry no messageId of
     // their own — a duplicate direct reply is handled by the pending map instead (the first one
@@ -464,8 +470,8 @@ class MqttRepositoryImpl @Inject constructor(
         }
 
         val messageId = UUID.randomUUID().toString()
-        // SCRAM and the operator directory run before a session exists and must never carry a
-        // stale one.
+        // SCRAM, card login and the operator directory run before a session exists and must never
+        // carry a stale one.
         val sessionId = if (isPreLogin(requestType)) "" else sessionHolder.currentSessionIdOrEmpty()
         val json = RequestEnvelope.build(
             gson = gson,
@@ -480,6 +486,41 @@ class MqttRepositoryImpl @Inject constructor(
         val action = (gson.toJsonTree(payload) as? com.google.gson.JsonObject)
             ?.get("action")?.takeIf { it.isJsonPrimitive }?.asString
         return exchange(topic, json.toByteArray(Charsets.UTF_8), messageId, sessionId, requestType, responseType, action, responseClass)
+    }
+
+    override suspend fun <T : Any> requestRetainingUnanswered(
+        requestType: String,
+        responseType: String,
+        payload: Any,
+        responseClass: Class<T>,
+    ): MqttOutcome<T> {
+        if (_connectionState.value != MqttConnectionState.CONNECTED) {
+            return MqttOutcome.NoResponse(FailureKind.NotConnected)
+        }
+        val payloadJson = gson.toJson(payload)
+        val request = unanswered[requestType]?.takeIf { it.payloadJson == payloadJson } ?: run {
+            val messageId = UUID.randomUUID().toString()
+            val sessionId = if (isPreLogin(requestType)) "" else sessionHolder.currentSessionIdOrEmpty()
+            val json = RequestEnvelope.build(
+                gson = gson,
+                payload = payload,
+                messageId = messageId,
+                deviceId = deviceId,
+                sessionId = sessionId,
+                timestampUtc = MqttSchema.formatTimestamp(nowFn()),
+            )
+            UnansweredRequest(payloadJson, messageId, json.toByteArray(Charsets.UTF_8))
+        }
+        // A different payload replaces the old one: it gets its own id, so nothing conflicts.
+        unanswered[requestType] = request
+        val outcome = exchange(
+            MqttTopics.request(deviceId, requestType), request.bytes, request.messageId, "",
+            requestType, responseType, null, responseClass,
+        )
+        // Any reply, even an unreadable one, settles that id; only silence keeps the bytes.
+        val silent = outcome is MqttOutcome.NoResponse && outcome.kind != FailureKind.MalformedResponse
+        if (!silent) unanswered.remove(requestType, request)
+        return outcome
     }
 
     /**
@@ -657,9 +698,10 @@ class MqttRepositoryImpl @Inject constructor(
         }
     }
 
-    /** Request types sent signed-out by design: SCRAM login and the pre-login operator directory. */
+    /** Request types sent signed-out by design: SCRAM, card login and the pre-login operator directory. */
     private fun isPreLogin(requestType: String): Boolean =
-        requestType.startsWith("scram_") || requestType == OPERATOR_LIST_REQUESTED
+        requestType.startsWith("scram_") || requestType == BADGE_LOGIN_REQUESTED ||
+            requestType == OPERATOR_LIST_REQUESTED
 
     private fun outcomeResult(outcome: MqttOutcome<*>): String = when (outcome) {
         is MqttOutcome.Accepted -> "success"

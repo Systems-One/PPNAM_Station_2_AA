@@ -78,5 +78,6 @@ internal fun RecoveryResult.noticeText(currentDeviceId: String? = null): String 
 internal fun RecoveryResult.openActionLabel(): String? = when (val target = openTarget()) {
     is NoticeTarget.Prep -> "Open ${shortPrepId(target.id)}"
     is NoticeTarget.Job -> "Open job ${target.jobCard}"
+    is NoticeTarget.Rajoo -> "Open Rajoo job ${target.jobCard}"
     null -> null
 }

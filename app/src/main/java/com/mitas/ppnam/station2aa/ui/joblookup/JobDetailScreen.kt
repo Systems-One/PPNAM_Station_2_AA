@@ -125,12 +125,15 @@ fun JobDetailScreen(
                         )
                     }
                 }
-                if (detail.preparations.isNotEmpty()) {
+                // Since contract 2026-10-21 `preparations` lists only active work (already shown
+                // above) plus a completed PREP read by its own id; finished history is not listed.
+                val others = detail.preparations.filter { p -> active.none { it.id == p.id } }
+                if (others.isNotEmpty()) {
                     item {
                         HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                        Text("Preparations", style = MaterialTheme.typography.labelMedium, color = TextMuted)
+                        Text("Other preparations", style = MaterialTheme.typography.labelMedium, color = TextMuted)
                     }
-                    items(detail.preparations, key = { it.id }) { prep ->
+                    items(others, key = { it.id }) { prep ->
                         ListItem(
                             modifier = Modifier.clickable { onOpenPrep(prep.id) },
                             headlineContent = { Text(prep.id, color = TextPrimary) },

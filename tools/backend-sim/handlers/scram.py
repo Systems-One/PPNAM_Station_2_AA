@@ -130,19 +130,24 @@ def scram_proof(world, log, req):
     # The server's ScramProofResult, serialized camelCase. No allowedTabs/allowedActions exist.
     return {
         "serverSignature": server_signature,
-        "session": {
-            "sessionId": session["sessionId"],
-            "operatorId": operator["operatorId"],
-            "displayName": operator["displayName"],
-            "role": operator["role"],
-            "sourceDevice": req["deviceId"],
-            "loggedInAtUtc": session["createdAtUtc"],
-            "loggedOutAtUtc": None,
-            "expiresAtUtc": session["expiresAtUtc"],
-            "sessionState": "Active",
-            "isActive": True,
-        },
+        "session": session_dto(session, operator),
         "approver": None,
         "authorizationToken": None,
         "authorizationExpiresAtUtc": None,
+    }
+
+
+def session_dto(session, operator):
+    """The ten-field StationOperatorSession shared by SCRAM and card login (contract 3, 3.1)."""
+    return {
+        "sessionId": session["sessionId"],
+        "operatorId": operator["operatorId"],
+        "displayName": operator["displayName"],
+        "role": operator["role"],
+        "sourceDevice": session["deviceId"],
+        "loggedInAtUtc": session["createdAtUtc"],
+        "loggedOutAtUtc": None,
+        "expiresAtUtc": session["expiresAtUtc"],
+        "sessionState": "Active",
+        "isActive": True,
     }

@@ -189,6 +189,22 @@ class PreparationViewModelTest {
     }
 
     @Test
+    fun `identify's compact reply refreshes only the PREP, keeping the job, machines and exceptions`() = runTest {
+        val vm = open()
+        val compact = afterOne.copy(
+            lookup = com.mitas.ppnam.station2aa.domain.model.JobLookupSnapshot(emptyList(), null),
+            machines = emptyList(), preparations = emptyList(),
+            collectionExceptions = emptyList(), commandExceptions = emptyList(),
+        )
+        scanIdentified(vm, snapshot = compact)
+        val shown = vm.uiState.value.snapshot!!
+        assertEquals(afterOne.preparation, shown.preparation)
+        assertEquals(opened.lookup, shown.lookup)
+        assertEquals(opened.machines, shown.machines)
+        assertEquals(opened.collectionExceptions, shown.collectionExceptions)
+    }
+
+    @Test
     fun `a scan identifies the pallet and never sends`() = runTest {
         open()
         whenever(useCase.identify(prepId, "TAG-RESIN")).thenReturn(IdentifyResult.Identified(source(), opened))
@@ -605,6 +621,63 @@ class PreparationViewModelTest {
         verify(useCase, never()).addIngredient(any(), any(), any(), any(), any())
     }
 
+    // ---- Less / More / Omit on a row (contract §6) ----
+
+    @Test
+    fun `a row's preparation total can be changed with a reason, but not below what is collected`() = runTest {
+        val vm = open(afterOne)   // RESIN 10 of 40
+        assertTrue(vm.uiState.value.canDecide)
+        vm.openDecision("RESIN")
+        vm.onDecisionTotal("40")
+        vm.onDecisionReason("less resin")
+        vm.sendDecision()
+        vm.onDecisionTotal("5")
+        vm.sendDecision()
+        verify(useCase, never()).changeQuantity(any(), any(), any(), any(), any())
+        assertTrue(vm.uiState.value.decision!!.problems.first().contains("already collected"))
+
+        vm.onDecisionTotal("30")
+        assertEquals(0, BigDecimal("-10").compareTo(vm.uiState.value.decision!!.difference))
+        assertEquals(0, BigDecimal("20").compareTo(vm.uiState.value.decision!!.remainingAfter))
+        whenever(useCase.changeQuantity(any(), any(), any(), any(), any())).thenReturn(CollectionResult.Done(afterOne))
+        vm.sendDecision()
+        verify(useCase).changeQuantity(prepId, afterOne.preparation!!.collectionRevision, "RESIN", BigDecimal("30"), "less resin")
+        assertNull(vm.uiState.value.decision)
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+    }
+
+    @Test
+    fun `only an uncaptured row can be omitted, and one ingredient must stay`() = runTest {
+        val vm = open(withMaterial(afterOne, caco3()))
+        vm.openDecision("RESIN")
+        assertFalse(vm.uiState.value.decision!!.canOmit)
+        vm.onDecisionKind(IngredientDecisionKind.Omit)
+        vm.onDecisionReason("r")
+        vm.sendDecision()
+        verify(useCase, never()).omit(any(), any(), any(), any())
+        vm.cancelDecision()
+
+        vm.openDecision("CACO3")
+        vm.onDecisionKind(IngredientDecisionKind.Omit)
+        vm.onDecisionReason("not needed")
+        whenever(useCase.omit(any(), any(), any(), any())).thenReturn(CollectionResult.Done(afterOne))
+        vm.sendDecision()
+        verify(useCase).omit(prepId, afterOne.preparation!!.collectionRevision, "CACO3", "not needed")
+    }
+
+    @Test
+    fun `decisions are refused after confirmation and while a command is unresolved`() = runTest {
+        val done = open(confirmed)
+        assertFalse(done.uiState.value.canDecide)
+        done.openDecision("RESIN")
+        assertNull(done.uiState.value.decision)
+
+        val vm = open(afterOne)
+        outbox.value = listOf(pending())
+        vm.openDecision("RESIN")
+        assertNull(vm.uiState.value.decision)
+    }
+
     // ---- Mix complete ----
 
     @Test
@@ -824,6 +897,16 @@ class PreparationViewModelTest {
         open()
         hints.tryEmit(ServerHint("Rajoo", "preparation_created"))
         verify(useCase, times(1)).read(prepId)
+    }
+
+    @Test
+    fun `a mixer code while collecting says it is the wrong stage and never identifies`() = runTest {
+        val vm = open()
+        vm.onScan("DOL-MIX-01")
+        verify(useCase, never()).identify(any(), any())
+        assertEquals(CollectStep.Idle, vm.step())
+        val text = (vm.uiState.value.message as OutcomeMessage.Info).text
+        assertTrue(text, text.contains("DOLCI mixer 1") && text.contains("Mix complete"))
     }
 
     @Test

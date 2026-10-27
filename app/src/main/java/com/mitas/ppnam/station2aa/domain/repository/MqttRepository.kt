@@ -55,6 +55,19 @@ interface MqttRepository {
     ): MqttOutcome<T>
 
     /**
+     * Like [request], for a pre-login request whose lost reply must be retried with the IDENTICAL
+     * bytes and message id (contract §3.1 card login). While no reply has arrived, sending the same
+     * [payload] again republishes the saved bytes; any reply, or a different payload, starts fresh.
+     * Kept in memory only: a restarted app sends a new id, which Station 2 treats as a new tap.
+     */
+    suspend fun <T : Any> requestRetainingUnanswered(
+        requestType: String,
+        responseType: String,
+        payload: Any,
+        responseClass: Class<T>,
+    ): MqttOutcome<T>
+
+    /**
      * Publishes a MUTATION. The exact bytes are saved to the outbox before publishing and removed
      * only on a definite outcome, so an unanswered capture survives reconnects and restarts.
      * Reads keep using [request]: a lost read is resolved by reading again.

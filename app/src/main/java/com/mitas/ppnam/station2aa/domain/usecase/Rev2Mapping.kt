@@ -1,6 +1,8 @@
 package com.mitas.ppnam.station2aa.domain.usecase
 
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2CollectionException
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Job
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Material
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MixProgress
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Source
@@ -21,6 +23,7 @@ import com.mitas.ppnam.station2aa.domain.model.PrepMaterial
 import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
 import com.mitas.ppnam.station2aa.domain.model.PrepStage
 import com.mitas.ppnam.station2aa.domain.model.Preparation
+import com.mitas.ppnam.station2aa.domain.model.RajooJob
 import java.time.Instant
 
 internal fun Rev2Snapshot.toJobLookupSnapshot(): JobLookupSnapshot = JobLookupSnapshot(
@@ -62,16 +65,53 @@ internal fun Rev2MixProgress.toDomain(): MixProgress = MixProgress(
     },
 )
 
-internal fun Rev2Snapshot.toPrepSnapshot(): PrepSnapshot = PrepSnapshot(
+internal fun Rev2Snapshot.toPrepSnapshot(): PrepSnapshot {
+    val rajoo = job?.takeIf { mode.equals("Rajoo", ignoreCase = true) || it.mode.equals("Rajoo", ignoreCase = true) }
+        ?.toRajooJob()
+    val base = toGeneralPrepSnapshot()
+    return if (rajoo == null) base else base.copy(rajoo = rajoo, preparation = rajoo.asPreparation())
+}
+
+private fun Rev2Material.toDomain() = PrepMaterial(code, name, unit, perMix, required, collected, excluded,
+    originalRequired, isModified)
+
+private fun Rev2Job.toRajooJob() = RajooJob(
+    id = id, product = product, unit = unit, overallQuantity = overallQuantity,
+    machineId = rajooMachineId?.takeIf { it.isNotBlank() },
+    activeSessionId = activeSessionId?.takeIf { it.isNotBlank() },
+    closed = closed, collectionRevision = collectionRevision,
+    choicesFrozen = ingredientChoices != null,
+    materials = materials.map { it.toDomain() },
+)
+
+/**
+ * The Rajoo job as the collect screen's "preparation": id is the JC, and the stage is Collecting
+ * only while a session is active (so scanning a pallet is possible exactly then).
+ */
+internal fun RajooJob.asPreparation() = Preparation(
+    id = id, jobId = id, mixCount = 0, mixed = 0, produced = 0,
+    stage = when {
+        closed -> PrepStage.Completed
+        hasActiveSession -> PrepStage.Collecting
+        else -> PrepStage.Unknown
+    },
+    stageRaw = when {
+        closed -> "Closed"
+        hasActiveSession -> "Session active"
+        else -> "No active session"
+    },
+    collectionRevision = collectionRevision, startedAtUtc = null, startedBy = null, confirmedAtUtc = null,
+    materials = materials, cycleId = activeSessionId,
+)
+
+private fun Rev2Snapshot.toGeneralPrepSnapshot(): PrepSnapshot = PrepSnapshot(
     lookup = toJobLookupSnapshot(),
     preparation = preparation?.let { p ->
         Preparation(
             id = p.id, jobId = p.jobId, mixCount = p.mixCount, mixed = p.mixed, produced = p.produced,
             stage = PrepStage.fromWire(p.stage), stageRaw = p.stage, collectionRevision = p.collectionRevision,
             startedAtUtc = p.startedAtUtc, startedBy = p.startedBy, confirmedAtUtc = p.confirmedAtUtc,
-            materials = p.materials.map {
-                PrepMaterial(it.code, it.name, it.unit, it.perMix, it.required, it.collected, it.excluded, it.originalRequired)
-            },
+            materials = p.materials.map { it.toDomain() },
             mixerId = p.mixerId, productionId = p.productionId, cycleId = p.cycleId,
         )
     },

@@ -483,7 +483,7 @@ PIGMENT = "1500000400"
 
 
 def identify_and_add(hh):
-    """The proposed `identify` action and `adjust_ingredient` kind Add."""
+    """Contract 4.1 `identify` and `adjust_ingredient` kind Add."""
     print("identify and add")
     general = "rev2_general_requested"
     direct = isinstance(hh, DirectHandheld)
@@ -496,7 +496,10 @@ def identify_and_add(hh):
     prep_id = r["data"]["result"]["targetId"]
 
     def identify(code, target=prep_id):
-        reply, _ = hh.request(general, {"action": "identify", "targetId": target, "code": code})
+        fields = {"action": "identify", "code": code}
+        if target is not None:
+            fields["targetId"] = target
+        reply, _ = hh.request(general, fields)
         return reply
 
     receipts_before = len(hh.sim.world.rev2_receipts) if direct else None
@@ -508,7 +511,18 @@ def identify_and_add(hh):
                      "bagSize": Decimal(25), "available": source["available"], "usable": True, "reason": ""},
           "…source carries code, materialCode, name, unit, bagSize, available, usable, reason", source)
     check(exact(r)["preparation"]["id"] == prep_id and r["data"]["result"]["targetId"] == prep_id,
-          "…and the normal snapshot for targetId")
+          "…and the selected preparation, as read returns it")
+    check(set(r["data"]) == {"result", "preparation", "source"},
+          "…in a compact data of exactly result, preparation and source", sorted(r["data"]))
+    other = identify(PAL_001, target=None)
+    check(other and other["success"] and other["data"]["preparation"] is None
+          and other["data"]["source"]["materialCode"] == "1600000301",
+          "identify without a target is a standalone lookup with preparation null")
+    other = identify(PAL_001, target=JOB)
+    check(other and other["success"] and other["data"]["preparation"] is None,
+          "identify against a General JC has preparation null")
+    other = identify("   ")
+    check(other and not other["success"] and other["data"]["source"] is None, "identify a blank code is rejected")
     check(re.search(r'"bagSize":\s*25(\.0)?[,}]', r["_raw"]) is not None, "…with bagSize a JSON number")
     check(identify("  " + PAL_001.lower() + " ")["data"]["source"]["materialCode"] == "1600000301",
           "identify trims and ignores case")
@@ -516,9 +530,9 @@ def identify_and_add(hh):
     check(identify("PAL-002")["data"]["source"]["bagSize"] is None, "an unconfigured pallet has bagSize null")
 
     r = identify("NO-SUCH-CODE")
-    check(r and not r["success"] and r["error"] == "unknown_source" and r["data"]["source"] is None
-          and r["data"]["result"]["errorCode"] == "unknown_source",
-          "identify an unknown code -> unknown_source with source null", r and r["error"])
+    check(r and not r["success"] and r["error"] == "pallet_not_found" and r["data"]["source"] is None
+          and r["data"]["result"]["errorCode"] == "pallet_not_found",
+          "identify an unknown code -> pallet_not_found with source null", r and r["error"])
     r = identify(PAL_003_BLOCKED)
     s = r["data"]["source"]
     check(r["success"] and s["usable"] is False and "blocked" in s["reason"].lower()
@@ -582,6 +596,11 @@ def identify_and_add(hh):
     check(added["perMix"] == 0 and added["originalRequired"] == 0 and added["required"] == 30
           and added["collected"] == 0 and added["remaining"] == 30 and not added["excluded"],
           "…an effective row: perMix 0, originalRequired 0, required = targetQuantity, collected 0", added)
+    check(added["isModified"] is True and row(data, ADDITIVE)["isModified"] is True
+          and not any(m["isModified"] for m in data["preparation"]["materials"]
+                      if m["code"] not in (PIGMENT, ADDITIVE)),
+          "…isModified marks the added and the excluded rows only",
+          [(m["code"], m["isModified"]) for m in data["preparation"]["materials"]])
     check(data["preparation"]["collectionRevision"] == 1, "…collectionRevision increments")
     ev = [e for e in data["commandExceptions"] if e["kind"] == "Ingredient added"]
     check(len(ev) == 1 and ev[0]["reason"] == "Customer asked for blue" and ev[0]["messageId"] == body["messageId"]
@@ -837,6 +856,308 @@ def machines(hh, confirmed):
           "machine rejections record no exceptions")
 
 
+RAJOO_JOB = "510019070"
+RAJOO_PALLET = {                               # dedicated Rajoo seed pallets
+    "1600000301": "300833B2DDD9014000000014",   # PAL-020 HD WHITE, 25 kg bags, target 100
+    "1600000070": "300833B2DDD9014000000015",   # PAL-021 FILLER, 25 kg bags, target 50
+    "1500000331": "300833B2DDD9014000000016",   # PAL-022 DESICCANT (catalog code), 10 kg, target 20
+}
+PAL_023_ADD = "300833B2DDD9014000000017"       # PAL-023 1500000326 MASTERBATCH WHITE, not on the BOM
+RAJ_RE = re.compile(r"^RAJ_[0-9a-f]{32}$")
+
+
+def rajoo(hh):
+    """The separate Rajoo family (contract section 5): lookup, choices, sessions, capture, Add,
+    finish, close, plus wrong-machine / stale-session / wrong-mode / replay negatives."""
+    print("rajoo")
+    fam = "rev2_rajoo_requested"
+    general = "rev2_general_requested"
+    direct = isinstance(hh, DirectHandheld)
+
+    def req(fields, **kw):
+        return hh.request(fam, fields, **kw)
+
+    def rejected(r, text, label):
+        check(r and not r["success"] and r["error"] == "rev2_rejected" and text in r["operatorMessage"]
+              and r["_topic"].endswith("/res/rev2_rajoo_result"), label, r and r["operatorMessage"])
+
+    def mat(data, code):
+        return next(m for m in data["job"]["materials"] if m["code"] == code)
+
+    r, _ = req({"action": "prepare", "targetId": RAJOO_JOB, "mixCount": 1})
+    check(r and r["error"] == "action_not_allowed", "a General-only action on Rajoo -> action_not_allowed")
+    r, _ = req({"action": "read"})
+    check_reply_shape(r, "rajoo read")
+    check(r["success"] and r["_topic"].endswith("/res/rev2_rajoo_result") and r["data"]["mode"] == "Rajoo",
+          "Rajoo read answers on rev2_rajoo_result with mode Rajoo")
+    data = r["data"]
+    check(r["data"]["result"]["targetId"] == "" and data["job"] is None and data["jobs"] == [],
+          "…an unselected list with no General jobs in it", data["jobs"])
+    check([m["id"] for m in data["machines"]] == ["RAJ-EXT-01"]
+          and all(m["kind"] == "Rajoo" and m["isProduction"] is False and m["pairId"] is None
+                  and m["destinations"] == [] and m["enabled"] for m in data["machines"]),
+          "…the one Rajoo machine only: RAJ-EXT-01, enabled", data["machines"])
+    g, _ = hh.request(general, {"action": "read"})
+    check(not any(m["kind"] == "Rajoo" for m in g["data"]["machines"]), "General snapshots carry no Rajoo machine")
+    check(data["capabilities"] == g["data"]["capabilities"] and data["capabilities"]["androidBadgeLogin"],
+          "…and both modes share one capabilities object")
+
+    r, _ = req({"action": "lookup", "jobCard": RAJOO_JOB, "code": "DOL-MIX-01"})
+    rejected(r, "Rajoo machine", "Rajoo lookup with a General machine code -> rev2_rejected")
+    if direct:
+        rajoo = next(m for m in hh.sim.world.rajoo_machines if m["id"] == "RAJ-EXT-01")
+        rajoo["enabled"] = False
+        r, _ = req({"action": "lookup", "jobCard": RAJOO_JOB, "code": "RAJ-EXT-01"})
+        rejected(r, "disabled", "Rajoo lookup while the Rajoo machine is disabled -> rev2_rejected")
+        rajoo["enabled"] = True
+    r, _ = req({"action": "lookup", "jobCard": RAJOO_JOB})
+    rejected(r, "Rajoo machine", "Rajoo lookup without a machine code -> rev2_rejected")
+    r, _ = req({"action": "lookup", "jobCard": JOB, "code": "RAJ-EXT-01"})
+    rejected(r, "General", "Rajoo lookup of a JC saved for General -> rev2_rejected")
+
+    hh.pushes.clear()
+    r, _ = req({"action": "lookup", "jobCard": RAJOO_JOB, "code": "raj-ext-01"})
+    check(r and r["success"] and r["operatorMessage"] ==
+          "Rajoo full-job BOM loaded. Scan the same machine to start a session.",
+          "Rajoo lookup on RAJ-EXT-01 succeeds", r and r["operatorMessage"])
+    data = exact(r)
+    job = data["job"]
+    check(set(r["data"]) == set(g["data"]), "…with the same top-level snapshot keys as General",
+          sorted(set(r["data"]) ^ set(g["data"])))
+    check(job["mode"] == "Rajoo" and job["requiredMixes"] == 0 and job["mixProgress"] is None
+          and job["allocatedMixes"] == 0 and job["rajooMachineId"] == "RAJ-EXT-01"
+          and job["activeSessionId"] is None and job["collectionRevision"] == 0
+          and job["ingredientChoices"] is None and job["exceptionListRevision"] is None,
+          "…job mode Rajoo, requiredMixes 0, mixProgress null, machine saved, no session", job)
+    check({m["code"]: m["required"] for m in job["materials"]}
+          == {"1600000301": 100, "1600000070": 50, "1500000331": 20}
+          and all(m["perMix"] == 0 and m["originalRequired"] == m["required"] and not m["isModified"]
+                  for m in job["materials"]),
+          "…full Production Order targets with perMix 0 (backflush lines skipped)", job["materials"])
+    check(data["jobs"] == [{"id": RAJOO_JOB, "product": job["product"], "closed": False,
+                            "requiredMixes": 0, "mixProgress": None}], "…listed in the Rajoo jobs", data["jobs"])
+    check(data["preparation"] is None and data["preparations"] == [], "…no preparation(s)")
+    check([c["code"] for c in data["requiredIngredientChoices"]] == [ADDITIVE],
+          "…requiredIngredientChoices names the catalog code before the first session")
+    check(hh.pushes == [], "lookup pushes no hint (as General)")
+    g, _ = hh.request(general, {"action": "lookup", "jobCard": RAJOO_JOB})
+    check(g and g["error"] == "rev2_rejected" and "Rajoo" in g["operatorMessage"],
+          "General lookup of a JC saved for Rajoo -> rev2_rejected", g and g["operatorMessage"])
+    g, _ = hh.request(general, {"action": "read", "targetId": RAJOO_JOB})
+    check(g["data"]["job"] is None and RAJOO_JOB not in [j["id"] for j in g["data"]["jobs"]],
+          "General read neither lists nor selects the Rajoo JC")
+
+    def capture(code, cycle, quantity=None, **kw):
+        fields = {"action": "capture", "targetId": RAJOO_JOB, "code": code, "cycleId": cycle}
+        if quantity is not None:
+            fields["quantity"] = quantity
+        return req(fields, **kw)
+
+    hh.pushes.clear()
+    r, _ = capture(RAJOO_PALLET["1600000301"], "RAJ_" + "0" * 32)
+    rejected(r, "session", "capture before any session -> rev2_rejected")
+    ex = r["data"]["commandExceptions"]
+    check(len(ex) == 1 and ex[0]["kind"] == "Rejected collection action" and ex[0]["jobId"] == RAJOO_JOB
+          and ex[0]["batchId"] is None, "…recorded against the JC with batchId null", ex)
+    check([(p["mode"], p["reason"]) for p in hh.pushes] == [("Rajoo", "collection_exception_recorded")],
+          "…with a Rajoo collection_exception_recorded hint", hh.pushes)
+
+    def start(code="RAJ-EXT-01", choices=None, revision=1, reason=None):
+        fields = {"action": "rajoo_start", "targetId": RAJOO_JOB, "code": code}
+        if choices is not None:
+            fields.update(ingredientChoices=choices, exceptionListRevision=revision)
+        if reason is not None:
+            fields["reason"] = reason
+        return req(fields)
+
+    r, _ = start("DOL-MIX-01", [{"code": ADDITIVE, "include": False}])
+    rejected(r, "Rajoo machine", "rajoo_start with a code that is not the Rajoo machine -> rev2_rejected")
+    r, _ = start()
+    rejected(r, ADDITIVE, "first rajoo_start without choices -> rev2_rejected naming the code")
+    r, _ = start(choices=[{"code": ADDITIVE, "include": False}], revision=2)
+    rejected(r, "changed", "first rajoo_start with a stale catalog revision -> rev2_rejected")
+
+    hh.pushes.clear()
+    r, body = start(choices=[{"code": ADDITIVE, "include": False}], reason="No desiccant on this run")
+    check(r and r["success"] and r["operatorMessage"] ==
+          "Rajoo session started. Scan the source pallet for every bag.", "rajoo_start succeeds",
+          r and r["operatorMessage"])
+    session = r["data"]["result"]["cycleId"]
+    data = exact(r)
+    check(RAJ_RE.match(session or "") and data["job"]["activeSessionId"] == session,
+          "…server session RAJ_<32 hex> is the job's activeSessionId", session)
+    add = mat(data, ADDITIVE)
+    check(add["excluded"] and add["required"] == 0 and add["originalRequired"] == 20 and add["isModified"],
+          "…the excluded code keeps originalRequired 20 at required 0", add)
+    check(data["job"]["ingredientChoices"] == [{"code": ADDITIVE, "include": False}]
+          and data["job"]["exceptionListRevision"] == 1 and data["requiredIngredientChoices"] == [],
+          "…choices frozen on the job; no more required choices")
+    om = data["commandExceptions"]
+    check(len(om) == 1 and om[0]["kind"] == "Ingredient omitted" and om[0]["sessionId"] == session
+          and om[0]["batchId"] is None and om[0]["reason"] == "No desiccant on this run",
+          "…an Ingredient omitted exception carries the RAJ session", om)
+    check([(p["mode"], p["reason"]) for p in hh.pushes] == [("Rajoo", "rajoo_start")],
+          "…and a Rajoo rajoo_start hint is pushed", hh.pushes)
+    hh.send_raw(fam, json.dumps(body))
+    replay = hh.await_reply(body["messageId"])
+    check(replay and replay["data"]["result"] == r["data"]["result"]
+          and len([e for e in replay["data"]["collectionExceptions"] if e["kind"] == "Ingredient omitted"]) == 1,
+          "an identical rajoo_start replay returns the same session and records nothing twice")
+    r, _ = start()
+    rejected(r, "already active", "rajoo_start while a session is active -> rev2_rejected")
+
+    if direct:
+        # One active session per machine: another Rajoo JC saved on RAJ-EXT-01 cannot start.
+        w = hh.sim.world
+        w.rev2_jobs["999"] = dict(w.rev2_jobs[RAJOO_JOB], id="999", activeSessionId=None,
+                                  ingredientChoices=[], materials=[])
+        r, _ = req({"action": "rajoo_start", "targetId": "999", "code": "RAJ-EXT-01"})
+        rejected(r, "already has an active session", "a second JC cannot start on a machine in use")
+        del w.rev2_jobs["999"]
+
+    r, _ = req({"action": "identify", "targetId": RAJOO_JOB, "code": RAJOO_PALLET["1600000301"]})
+    check(r and r["success"] and set(r["data"]) == {"result", "preparation", "source"}
+          and r["data"]["preparation"] is None and r["data"]["source"]["materialCode"] == "1600000301"
+          and r["data"]["source"]["bagSize"] == 25, "Rajoo identify is compact with preparation null",
+          r and r["data"])
+    r, _ = req({"action": "identify", "targetId": JOB, "code": RAJOO_PALLET["1600000301"]})
+    rejected(r, "Rajoo job card", "Rajoo identify against a General JC -> rev2_rejected")
+
+    hh.pushes.clear()
+    r, _ = capture(RAJOO_PALLET["1600000301"], "RAJ_" + "f" * 32)
+    rejected(r, "not the active Rajoo session", "capture with a stale cycleId -> rev2_rejected")
+    ex = r["data"]["commandExceptions"]
+    check(len(ex) == 1 and ex[0]["sessionId"] == session, "…recorded under the active session", ex)
+    stock = hh.sim.world.pallets[RAJOO_PALLET["1600000301"]]["remainingQuantity"] if direct else None
+    r, body = capture(RAJOO_PALLET["1600000301"], session)
+    check(r and r["success"] and mat(exact(r), "1600000301")["collected"] == 25
+          and "total 25 / 100 kg" in r["operatorMessage"] and r["data"]["result"]["cycleId"] == session,
+          "capture one 25 kg bag against the full-job target", r and r["operatorMessage"])
+    check(exact(r)["job"]["collectionRevision"] == 1, "…job collectionRevision increments")
+    hh.send_raw(fam, json.dumps(body))
+    replay = hh.await_reply(body["messageId"])
+    check(replay and replay["data"]["result"] == r["data"]["result"]
+          and mat(exact(replay), "1600000301")["collected"] == 25, "an identical capture replay collects once")
+    if direct:
+        check(hh.sim.world.pallets[RAJOO_PALLET["1600000301"]]["remainingQuantity"] == stock - 25,
+              "…and deducts the pallet once")
+    hh.send_raw(fam, json.dumps(dict(body, quantity=5)))
+    r = hh.await_reply(body["messageId"])
+    check(r and r["error"] == "message_id_conflict", "same id, changed body -> message_id_conflict")
+    r, _ = req({"action": "recover", "originalMessageId": body["messageId"],
+                "originalRequestFingerprint": fingerprint(json.dumps(body))})
+    check(r and r["success"] and r["data"]["recovery"]["outcome"] == "committed"
+          and r["data"]["mode"] == "Rajoo" and r["data"]["job"]["id"] == RAJOO_JOB,
+          "Rajoo recover finds the capture committed", r and r["data"]["recovery"])
+    r, _ = hh.request(general, {"action": "recover", "originalMessageId": body["messageId"],
+                                "originalRequestFingerprint": fingerprint(json.dumps(body))})
+    check(r and r["data"]["recovery"]["outcome"] == "not_executed",
+          "…receipts are per family: the same id in General has no receipt")
+    r, _ = capture(RAJOO_PALLET[ADDITIVE], session)
+    rejected(r, "not outstanding", "capture of the excluded code -> rev2_rejected")
+
+    def adjust(revision, cycle=None, code=PAL_023_ADD, quantity=25):
+        return req({"action": "adjust_ingredient", "targetId": RAJOO_JOB, "cycleId": cycle or session,
+                    "collectionRevision": revision, "reason": "Extra white for opacity",
+                    "adjustment": {"kind": "Add", "sourceCode": code, "targetQuantity": quantity}})
+
+    revision = exact(r)["job"]["collectionRevision"]
+    r, _ = adjust(revision - 1)
+    check(r and r["error"] == "collection_revision_conflict", "Rajoo Add with a stale revision -> collection_revision_conflict")
+    r, _ = adjust(revision, cycle="RAJ_" + "a" * 32)
+    rejected(r, "not the active Rajoo session", "Rajoo Add with a stale session -> rev2_rejected")
+    hh.pushes.clear()
+    r, _ = adjust(revision)
+    check(r and r["success"] and "Added 1500000326" in r["operatorMessage"], "Rajoo Add of a new material succeeds",
+          r and r["operatorMessage"])
+    data = exact(r)
+    added = mat(data, "1500000326")
+    check(added["required"] == 25 and added["originalRequired"] == 0 and added["perMix"] == 0
+          and added["isModified"] and data["job"]["collectionRevision"] == revision + 1,
+          "…a full-job row with originalRequired 0; revision increments", added)
+    ev = data["commandExceptions"]
+    check(len(ev) == 1 and ev[0]["kind"] == "Ingredient added" and ev[0]["sessionId"] == session
+          and '"Code":"1500000326"' in ev[0]["afterJson"] and '"Code":"1500000326"' not in ev[0]["beforeJson"],
+          "…an Ingredient added exception with session and before/after evidence", ev)
+    check([(p["mode"], p["reason"]) for p in hh.pushes] == [("Rajoo", "adjust_ingredient")],
+          "…and a Rajoo adjust_ingredient hint")
+
+    r, _ = req({"action": "rajoo_close", "targetId": RAJOO_JOB, "code": "RAJ-EXT-01"})
+    rejected(r, "Finish the active", "rajoo_close while a session is active -> rev2_rejected")
+    r, _ = req({"action": "rajoo_finish", "targetId": RAJOO_JOB, "code": "DOL-MIX-01", "cycleId": session})
+    rejected(r, "Rajoo machine", "rajoo_finish with a code that is not the Rajoo machine -> rev2_rejected")
+    r, _ = req({"action": "rajoo_finish", "targetId": RAJOO_JOB, "code": "RAJ-EXT-01",
+                "cycleId": "RAJ_" + "b" * 32})
+    rejected(r, "not the active Rajoo session", "rajoo_finish with a stale cycleId -> rev2_rejected")
+    hh.pushes.clear()
+    r, _ = req({"action": "rajoo_finish", "targetId": RAJOO_JOB, "code": "RAJ-EXT-01", "cycleId": session})
+    check(r and r["success"] and r["data"]["job"]["activeSessionId"] is None
+          and r["data"]["result"]["cycleId"] == session
+          and mat(exact(r), "1600000301")["collected"] == 25,
+          "rajoo_finish ends the session and keeps the captured quantity", r and r["operatorMessage"])
+    check([(p["mode"], p["reason"]) for p in hh.pushes] == [("Rajoo", "rajoo_finish")], "…with a rajoo_finish hint")
+    r, _ = capture(RAJOO_PALLET["1600000301"], session)
+    rejected(r, "session", "a finished session id cannot capture")
+    r, _ = req({"action": "rajoo_close", "targetId": RAJOO_JOB, "code": "RAJ-EXT-01"})
+    rejected(r, "Outstanding", "rajoo_close with outstanding targets -> rev2_rejected")
+
+    r, _ = start(choices=[{"code": ADDITIVE, "include": True}])
+    rejected(r, "already saved", "a later session cannot resend initial choices")
+    r, _ = start()
+    second = r and r["data"]["result"]["cycleId"]
+    check(r and r["success"] and RAJ_RE.match(second or "") and second != session
+          and r["data"]["requiredIngredientChoices"] == [],
+          "a second session starts without choices, with a new RAJ id", r and r["operatorMessage"])
+
+    data = exact(r)
+    hh.pushes.clear()
+    scans = 0
+    for _ in range(50):
+        todo = [m for m in data["job"]["materials"] if not m["excluded"] and m["remaining"] > 0]
+        if not todo:
+            break
+        m = todo[0]
+        code = PAL_023_ADD if m["code"] == "1500000326" else RAJOO_PALLET[m["code"]]
+        r, _ = capture(code, second)
+        check(r and r["success"], f"capture {m['code']} toward completion", r and r["operatorMessage"])
+        data = exact(r)
+        scans += 1
+    check(all(m["remaining"] == 0 for m in data["job"]["materials"]) and scans == 6,
+          "every included full-job target collected in 6 more scans", scans)
+    check({p["reason"] for p in hh.pushes} == {"capture"}, "…each capture pushed a Rajoo capture hint")
+    r, _ = req({"action": "rajoo_finish", "targetId": RAJOO_JOB, "code": "RAJ-EXT-01", "cycleId": second})
+    check(r and r["success"], "finish the second session")
+    r, _ = req({"action": "rajoo_close", "targetId": RAJOO_JOB, "code": "DOL-MIX-01"})
+    rejected(r, "Rajoo machine", "rajoo_close with a code that is not the Rajoo machine -> rev2_rejected")
+    hh.pushes.clear()
+    r, body = req({"action": "rajoo_close", "targetId": RAJOO_JOB, "code": "RAJ-EXT-01"})
+    check(r and r["success"] and r["operatorMessage"] == "Rajoo JC capture closed locally."
+          and r["data"]["job"]["closed"] is True and r["data"]["jobs"][0]["closed"] is True,
+          "rajoo_close -> closed true", r and r["operatorMessage"])
+    check([(p["mode"], p["reason"]) for p in hh.pushes] == [("Rajoo", "rajoo_close")], "…with a rajoo_close hint")
+    hh.send_raw(fam, json.dumps(body))
+    replay = hh.await_reply(body["messageId"])
+    check(replay and replay["success"] and replay["data"]["result"] == r["data"]["result"],
+          "an identical rajoo_close replay returns the saved success")
+    r, _ = req({"action": "rajoo_close", "targetId": RAJOO_JOB, "code": "RAJ-EXT-01"})
+    rejected(r, "already closed", "a new rajoo_close intent on a closed JC -> rev2_rejected")
+    r, _ = start()
+    rejected(r, "closed", "rajoo_start on a closed JC -> rev2_rejected")
+
+    r, _ = req({"action": "read", "targetId": RAJOO_JOB})
+    kinds = [e["kind"] for e in r["data"]["collectionExceptions"]]
+    check(r["data"]["commandExceptions"] == [] and kinds.count("Ingredient omitted") == 1
+          and kinds.count("Ingredient added") == 1 and all(e["jobId"] == RAJOO_JOB and e["batchId"] is None
+                                                            for e in r["data"]["collectionExceptions"]),
+          "Rajoo read lists the JC's exception records", kinds)
+
+    hh.pushes.clear()
+    hh.control({"cmd": "invalidate", "mode": "Rajoo"})
+    push = hh.await_push()
+    check(push and push["mode"] == "Rajoo" and push["nextAction"] == "read",
+          "a Rajoo invalidation reaches a device that made a Rajoo request")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--direct", action="store_true")
@@ -893,6 +1214,29 @@ def main():
     replay = hh.await_reply(body["messageId"])
     check(replay and replay["data"] == r["data"], "an identical directory request replays the stored reply")
 
+    print("card login")
+    tap, tap_body = hh.request("badge_login_requested", {"badgeTag": " badge001 "}, session=False)
+    check_reply_shape(tap, "card login")
+    check(tap["success"] and tap["_topic"].endswith("/res/badge_login_result"),
+          "a card tap answers on badge_login_result", tap and tap["error"])
+    check(tap["data"]["session"]["operatorId"] == "OP-001" and len(tap["data"]["session"]) == 10
+          and tap["data"]["capabilities"] == {"androidBadgeLogin": True},
+          "…with the holder's ten-field session and the androidBadgeLogin capability", tap["data"])
+    hh.send_raw("badge_login_requested", json.dumps(tap_body))
+    retry = hh.await_reply(tap_body["messageId"])
+    check(retry and retry["data"]["session"]["sessionId"] == tap["data"]["session"]["sessionId"],
+          "an exact retry returns the same session, not a new one")
+    hh.send_raw("badge_login_requested", json.dumps(dict(tap_body, badgeTag="BADGE012")))
+    r = hh.await_reply(tap_body["messageId"])
+    check(r and r["error"] == "message_id_conflict" and r["data"] is None,
+          "a changed tag under the same id -> message_id_conflict")
+    r, _ = hh.request("badge_login_requested", {"badgeTag": "NO-SUCH-CARD"}, session=False)
+    check(r and r["error"] == "badge_rejected" and r["nextAction"] == "correct_request",
+          "an unknown card -> badge_rejected")
+    r, _ = hh.request("badge_login_requested", {"badgeTag": "BADGE001", "username": "operator1"},
+                      session=False)
+    check(r and r["error"] == "invalid_envelope", "a card tap with a username -> invalid_envelope")
+
     print("auth")
     r = hh.scram_login("operator1", "pass", purpose="manager_action")
     check(r and r["error"] == "purpose_not_enabled", "a manager_action purpose -> purpose_not_enabled")
@@ -906,6 +1250,10 @@ def main():
     check(session["sessionId"] and session["isActive"], "data.session carries an active sessionId")
     check("allowedTabs" not in json.dumps(r), "login returns no allowedTabs")
     hh.session = session["sessionId"]
+    hh.send_raw("badge_login_requested", json.dumps(tap_body))
+    r = hh.await_reply(tap_body["messageId"])
+    check(r and r["error"] == "operator_session_invalid",
+          "retrying a card tap whose session was since replaced -> operator_session_invalid")
 
     start = {"username": "operator1", "clientNonce": "fixed-nonce", "purpose": "login"}
     first, body = hh.request("scram_start_requested", start, session=False)
@@ -966,6 +1314,18 @@ def main():
         check(r["data"]["job"]["mixProgress"]["allocatedMixes"] == 2, "…as mixProgress.allocatedMixes does")
         del hh.sim.world.rev2_preparations["PREP_cancelled"]
 
+        # Contract 8 (21 Oct): completed history is listed only when read by its own PREP id.
+        hh.sim.world.rev2_preparations["PREP_done"] = dict(
+            hh.sim.world.rev2_preparations["PREP_demo0001"], id="PREP_done", mixCount=1, stage="Completed")
+        r, _ = hh.request("rev2_general_requested", {"action": "read", "targetId": "510019068"})
+        ids = [p["id"] for p in r["data"]["preparations"]]
+        check("PREP_done" not in ids and "PREP_demo0001" in ids,
+              "preparations lists active work but not completed history", ids)
+        r, _ = hh.request("rev2_general_requested", {"action": "read", "targetId": "PREP_done"})
+        check("PREP_done" in [p["id"] for p in r["data"]["preparations"]],
+              "…a completed PREP read by its id is listed")
+        del hh.sim.world.rev2_preparations["PREP_done"]
+
     receipts(hh)
     confirmed = collection(hh)
     identify_and_add(hh)
@@ -979,6 +1339,8 @@ def main():
           and push["nextAction"] == "read", "the push carries mode, reason and nextAction")
     check(push["messageId"] and "inResponseToMessageId" not in push,
           "the push has its own messageId and no correlation id")
+
+    rajoo(hh)
 
     hh.close()
     print(f"\nall {CHECKS['passed']} checks passed")

@@ -29,20 +29,22 @@ class AuthUseCase @Inject constructor(
     }
 
     /**
-     * A badge (RFID card) login: one `login_requested` carrying the scanned tag. Station 2 resolves
-     * the card against its own badges and then the cards Account Management issued, so a card
-     * from the desk signs in here the way it does at Station 1. Nothing secret goes on the wire.
+     * Contract §3.1 Android card login: one `badge_login_requested` carrying the complete card EPC.
+     * Station 2 resolves the card from its own tables or the fleet mirror. Nothing secret goes on the wire.
+     *
+     * An unanswered tap keeps its bytes and message id, so tapping the same card again is the exact
+     * retry the contract asks for and returns the session the first tap created. If that session has
+     * since become unusable Station 2 answers `operator_session_invalid`, and this tap signs in afresh
+     * under a new id.
      */
     suspend fun loginWithBadge(badgeTag: String): Result<OperatorSession> {
         val tag = badgeTag.trim()
         if (tag.isEmpty()) return Result.failure(Exception(BADGE_REJECTED_MESSAGE))
 
-        val outcome = mqttRepository.request(
-            requestType = "login_requested",
-            responseType = "login_result",
-            payload = BadgeLoginPayload(badgeTag = tag),
-            responseClass = LoginResultResponse::class.java,
-        )
+        var outcome = badgeLogin(tag)
+        if ((outcome as? MqttOutcome.Rejected)?.error == ErrorCode.OPERATOR_SESSION_INVALID) {
+            outcome = badgeLogin(tag)   // the reply settled the old id; this is a new one
+        }
         val result = when (outcome) {
             is MqttOutcome.Accepted -> outcome.body
             is MqttOutcome.Rejected -> return Result.failure(Exception(outcome.badgeFailureMessage()))
@@ -50,6 +52,14 @@ class AuthUseCase @Inject constructor(
         }
         return acceptSession(result.session)
     }
+
+    private suspend fun badgeLogin(tag: String): MqttOutcome<LoginResultResponse> =
+        mqttRepository.requestRetainingUnanswered(
+            requestType = BADGE_LOGIN_REQUESTED,
+            responseType = BADGE_LOGIN_RESULT,
+            payload = BadgeLoginPayload(badgeTag = tag),
+            responseClass = LoginResultResponse::class.java,
+        )
 
     private fun acceptSession(wire: Rev2Session?): Result<OperatorSession> {
         if (wire == null) {
@@ -92,6 +102,8 @@ class AuthUseCase @Inject constructor(
     }
 
     companion object {
+        const val BADGE_LOGIN_REQUESTED = "badge_login_requested"
+        const val BADGE_LOGIN_RESULT = "badge_login_result"
         /** Unknown here and at the desk, revoked, or the holder is inactive: Station 2 does not say which. */
         const val BADGE_REJECTED_MESSAGE = "This badge is not registered or is no longer active."
     }
@@ -99,8 +111,10 @@ class AuthUseCase @Inject constructor(
 
 private fun <T> MqttOutcome.Rejected<T>.badgeFailureMessage(): String = when (error) {
     ErrorCode.BADGE_REJECTED -> AuthUseCase.BADGE_REJECTED_MESSAGE
-    ErrorCode.BADGE_REQUIRED, ErrorCode.LOGIN_METHOD_INVALID, ErrorCode.CLIENT_UPGRADE_REQUIRED ->
+    ErrorCode.INVALID_ENVELOPE, ErrorCode.CLIENT_UPGRADE_REQUIRED ->
         "Station 2 does not accept this kind of sign-in. Update the app."
+    // A retry whose bytes differ from the original tap: a build defect, but a fresh tap gets a new id.
+    ErrorCode.MESSAGE_ID_CONFLICT -> "Card sign-in was interrupted. Tap the card again."
     else -> operatorMessage?.takeIf { it.isNotBlank() } ?: "Badge sign-in failed"
 }
 

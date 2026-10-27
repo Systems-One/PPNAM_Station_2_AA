@@ -93,7 +93,10 @@ private fun MaterialRow(material: PrepMaterial) {
     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = GraphiteSurface)) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(material.name, color = if (muted) TextMuted else TextPrimary, style = MaterialTheme.typography.bodyLarge)
-            Text(material.code, color = TextMuted, style = MaterialTheme.typography.labelMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(material.code, color = TextMuted, style = MaterialTheme.typography.labelMedium)
+                if (material.isModified) ModifiedLabel(Modifier.padding(start = 6.dp))
+            }
             Text(
                 material.progressLine(),
                 color = if (muted) TextMuted else TextPrimary, style = MaterialTheme.typography.bodyMedium,

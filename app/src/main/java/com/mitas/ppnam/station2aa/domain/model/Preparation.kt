@@ -22,6 +22,8 @@ data class PrepMaterial(
     val collected: BigDecimal,
     val excluded: Boolean,
     val originalRequired: BigDecimal?,
+    /** Station 2's `isModified`: show the amber Modified label; never derived on the device. */
+    val isModified: Boolean = false,
 ) {
     /** The server's own formula (Rev2MixingModels.cs:20). */
     val remaining: BigDecimal get() = (required - collected).max(BigDecimal.ZERO)
@@ -83,7 +85,37 @@ data class PrepSnapshot(
     val machines: List<Machine> = emptyList(),
     /** `data.preparations`: every preparation Station 2 listed (used to see which machines are busy). */
     val preparations: List<PrepSummary> = emptyList(),
+    /**
+     * Rajoo mode only (contract §5): the selected job's session state. Its cumulative full-job rows
+     * are also presented as [preparation] (id = the JC), so the collect screen works unchanged.
+     */
+    val rajoo: RajooJob? = null,
 )
+
+/**
+ * A Rajoo job card as Station 2 holds it (contract §5). Targets are the full Production Order
+ * quantities; work happens in physical sessions on one machine, [activeSessionId] being the
+ * `RAJ_…` id every capture, decision and finish must name.
+ */
+data class RajooJob(
+    val id: String,
+    val product: String,
+    val unit: String,
+    val overallQuantity: Double,
+    /** The machine saved at lookup; start, finish and close all send this same code. */
+    val machineId: String?,
+    val activeSessionId: String?,
+    val closed: Boolean,
+    val collectionRevision: Int,
+    /** The first session froze the Include/Exclude choices; later sessions send none. */
+    val choicesFrozen: Boolean,
+    val materials: List<PrepMaterial>,
+) {
+    val hasActiveSession: Boolean get() = !activeSessionId.isNullOrBlank()
+    val allCollected: Boolean
+        get() = materials.filterNot { it.excluded }.let { rows -> rows.isNotEmpty() && rows.all { it.isComplete } }
+    val canClose: Boolean get() = !closed && !hasActiveSession && allCollected
+}
 
 /** What an outboxed `capture` asked for, read back from its exact saved JSON (for a replacement). */
 data class CaptureIntent(val code: String, val quantity: BigDecimal?) {
