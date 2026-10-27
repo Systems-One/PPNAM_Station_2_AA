@@ -39,4 +39,8 @@ class SessionPersistenceTest {
         assertFalse(SessionPersistence.canRestore(session(), -1, fifteenMin, now))
         assertFalse(SessionPersistence.canRestore(session(), now + 60_000, fifteenMin, now))
     }
+
+    @Test
+    fun `an unknown timeout refuses instead of counting as auto sign-out off`() =
+        assertFalse(SessionPersistence.canRestore(session(), now - 1, -1, now))
 }

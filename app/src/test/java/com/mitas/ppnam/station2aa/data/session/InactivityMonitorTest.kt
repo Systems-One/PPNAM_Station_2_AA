@@ -41,6 +41,19 @@ class InactivityMonitorTest {
     }
 
     @Test
+    fun `idle time carried over shortens the first deadline`() {
+        monitor.start(60_000, alreadyIdleMs = 50_000)
+        assertEquals(now + 10_000, scheduled!!.first)
+    }
+
+    @Test
+    fun `idle time already past the timeout expires at once`() {
+        monitor.start(60_000, alreadyIdleMs = 60_000)
+        assertEquals(1, expired)
+        assertFalse(monitor.isRunning)
+    }
+
+    @Test
     fun `touch defers the deadline`() {
         monitor.start(60_000)
         now += 40_000
