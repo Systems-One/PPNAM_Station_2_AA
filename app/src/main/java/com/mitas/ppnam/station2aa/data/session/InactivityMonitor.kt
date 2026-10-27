@@ -21,12 +21,13 @@ class InactivityMonitor(
 
     val isRunning: Boolean get() = timeoutMs > 0
 
-    fun start(timeoutMs: Long) {
+    /** [alreadyIdleMs]: idle time carried over (a restored session), so its deadline is not reset. */
+    fun start(timeoutMs: Long, alreadyIdleMs: Long = 0L) {
         stop()
         if (timeoutMs <= 0) return
         this.timeoutMs = timeoutMs
-        lastActivity = now()
-        scheduleCheck(timeoutMs)
+        lastActivity = now() - alreadyIdleMs.coerceAtLeast(0L)
+        checkNow()
     }
 
     fun touch() {

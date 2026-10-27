@@ -62,7 +62,7 @@ class SessionGuard @Inject constructor(
         mainHandler.post {
             monitor.touch()
             // Wall-clock, so a restart can tell whether the session would have timed out.
-            if (sessionHolder.session.value != null) persistence.recordActivity(AutoLogout.timeoutMs(minutes))
+            if (sessionHolder.session.value != null) persistence.recordActivity()
         }
     }
 
@@ -74,15 +74,17 @@ class SessionGuard @Inject constructor(
     /** (Re)reads the configured timeout; called when a session starts and after Settings saves. */
     fun applyTimeout() {
         scope.launch {
-            if (sessionHolder.session.value == null) return@launch
+            val session = sessionHolder.session.value ?: return@launch
             minutes = try {
                 settingsRepository.current().autoLogoutMinutes
             } catch (e: IOException) {
                 Log.w(TAG, "Could not read settings; using the default ${AutoLogout.DEFAULT_MINUTES} min auto sign-out", e)
                 AutoLogout.DEFAULT_MINUTES
             }
-            monitor.start(AutoLogout.timeoutMs(minutes))
-            persistence.recordActivity(AutoLogout.timeoutMs(minutes))
+            val timeoutMs = AutoLogout.timeoutMs(minutes)
+            persistence.recordTimeout(timeoutMs)
+            // A restored session keeps the idle time it already had: a restart is not activity.
+            monitor.start(timeoutMs, persistence.idleMsFor(session.operatorSessionId))
         }
     }
 

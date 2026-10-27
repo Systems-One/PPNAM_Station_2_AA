@@ -1,16 +1,16 @@
 # Graph Report - PPNAM_Station_2_AA  (2026-10-27)
 
 ## Corpus Check
-- 3335 files · ~10,407,000 words
+- 3335 files · ~10,407,236 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3858 nodes · 6280 edges · 371 communities (166 shown, 205 thin omitted)
+- 3864 nodes · 6299 edges · 367 communities (171 shown, 196 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 441 edges (avg confidence: 0.78)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bcc7c08b`
+- Built from commit: `4bb154b2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -349,7 +349,6 @@
 - SessionGuard
 - _general_scope
 - Boolean
-- Flow
 - LoginViewModel.kt
 - List
 - NavHostController
@@ -371,9 +370,6 @@
 - String
 - Long
 - String
-- Long
-- Pair
-- Runnable
 - List
 - Boolean
 - Long
@@ -399,15 +395,15 @@
   app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectSheet.kt → app/src/main/java/com/mitas/ppnam/station2aa/domain/model/BagGuide.kt
 - `TakeCard()` --calls--> `splitCaptures()`  [INFERRED]
   app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectSheet.kt → app/src/main/java/com/mitas/ppnam/station2aa/domain/model/BagGuide.kt
-- `toJobLookupSnapshot()` --calls--> `JobSummary`  [INFERRED]
-  app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/Rev2Mapping.kt → app/src/main/java/com/mitas/ppnam/station2aa/domain/model/Job.kt
 - `toJobLookupSnapshot()` --calls--> `JobPreparation`  [INFERRED]
+  app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/Rev2Mapping.kt → app/src/main/java/com/mitas/ppnam/station2aa/domain/model/Job.kt
+- `toJobLookupSnapshot()` --calls--> `JobDetail`  [INFERRED]
   app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/Rev2Mapping.kt → app/src/main/java/com/mitas/ppnam/station2aa/domain/model/Job.kt
 
 ## Import Cycles
 - None detected.
 
-## Communities (371 total, 205 thin omitted)
+## Communities (367 total, 196 thin omitted)
 
 ### Community 0 - "Room DAO Tests"
 Cohesion: 0.05
@@ -418,8 +414,8 @@ Cohesion: 0.08
 Nodes (7): A snapshot revision for the active-collection queue (4.1 paging).          Der, Validate and CONSUME a manager authorization token.          Every bound prope, Model a WPF/Core-saved cross-area mixer plan for one collection (4.1 §7)., Authenticate manager credentials and check the APPROVER's allowedActions., None means bulk material (no bag size)., Sum of remaining quantity across usable Holding pallets of this product., World
 
 ### Community 2 - "Operator Session & App Entry"
-Cohesion: 0.22
-Nodes (15): AlreadySettled, Done, Failed, Identified, IdentifyResult, Loaded, NotSent, ReadResult (+7 more)
+Cohesion: 0.17
+Nodes (30): Disabled, Finish, finishScan(), Free, freeDestinations(), InUse, isFixedPair(), Boolean (+22 more)
 
 ### Community 3 - "Pre-Mix Hopper Domain Models"
 Cohesion: 0.14
@@ -490,8 +486,8 @@ Cohesion: 0.08
 Nodes (24): 1.1 Topics — `MqttTopics` rewritten, 1.2 Device identity — new `AppSettings.deviceId`, 1.3 Envelope — typed per-message classes, no generic wrapper, 1.4 `MqttRepository` — new typed send path, 1.5 Login is never offline-queued, 1. MQTT Layer, 2.1 New `OperatorSession`, 2.2 New `OperatorSessionHolder` (Hilt `@Singleton`, `data/session/`) (+16 more)
 
 ### Community 24 - "MqttRepository"
-Cohesion: 0.28
-Nodes (6): GeneralCollectionUseCase, Any, BigDecimal, Int, List, String
+Cohesion: 0.11
+Nodes (16): Rev2ActivePreparation, Rev2Capabilities, Rev2CatalogEntry, Rev2CollectionException, Rev2CommandResult, Rev2ConfirmRequest, Rev2IdentifyRequest, Rev2IngredientChoice (+8 more)
 
 ### Community 25 - "Settings ViewModel Tests"
 Cohesion: 0.07
@@ -562,8 +558,8 @@ Cohesion: 0.18
 Nodes (7): PpnamApplication, Application, BroadcastReceiver, DataWedgeReceiver, Configuration, HiltWorkerFactory, Intent
 
 ### Community 42 - "Sequencing"
-Cohesion: 0.05
-Nodes (48): CommandRecoveryUseCase, NeedsManager, OtherOperator, RecoveryResult, Resolved, StillUnresolved, Capture, Confirm (+40 more)
+Cohesion: 0.36
+Nodes (12): Capture, Confirm, from(), fromSealed(), Job, String, NoticeTarget, of() (+4 more)
 
 ### Community 43 - "Station 2 Backend Simulator"
 Cohesion: 0.14
@@ -586,8 +582,8 @@ Cohesion: 0.21
 Nodes (9): JsonElement, String, OutboundGuard, OversizedPayloadException, PlaintextCredentialException, DuplicatePropertyException, StrictJson, IllegalArgumentException (+1 more)
 
 ### Community 48 - "Repo Rules & Graphify Workflow"
-Cohesion: 0.07
-Nodes (3): JobLookupViewModelTest, MutableSharedFlow, MutableStateFlow
+Cohesion: 0.06
+Nodes (4): JobLookupViewModelTest, MutableSharedFlow, MutableStateFlow, String
 
 ### Community 49 - "App Gradle Build Config"
 Cohesion: 0.10
@@ -602,8 +598,8 @@ Cohesion: 0.22
 Nodes (6): ClearedCommandLog, ClearedCommandRecord, FileClearedCommandLog, List, FileClearedCommandLogTest, String
 
 ### Community 52 - "Root Gradle Build Config"
-Cohesion: 0.19
-Nodes (3): AppSettings, MqttClientFactoryTest, AppSettingsTest
+Cohesion: 0.15
+Nodes (5): AppSettings, Result, Unit, MqttClientFactoryTest, AppSettingsTest
 
 ### Community 53 - "Gradle Settings"
 Cohesion: 0.12
@@ -634,8 +630,8 @@ Cohesion: 0.06
 Nodes (44): RajooJob, classify(), Complete, Excluded, InMix, NotInMix, SourceFit, SourceInfo (+36 more)
 
 ### Community 120 - ".setServerPushHandler"
-Cohesion: 0.18
-Nodes (7): JobSummary, Boolean, SharedFlow, StateFlow, String, RajooLookupUiState, RajooLookupViewModel
+Cohesion: 0.20
+Nodes (6): Boolean, SharedFlow, StateFlow, String, RajooLookupUiState, RajooLookupViewModel
 
 ### Community 122 - "LoginViewModelTest"
 Cohesion: 0.13
@@ -646,7 +642,7 @@ Cohesion: 0.14
 Nodes (4): OperatorSession, OperatorSessionHolder, OperatorSessionHolderTest, setup()
 
 ### Community 124 - "SettingsRepository"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (8): CommandOutbox, Boolean, List, Pair, StateFlow, String, PendingCommand, File
 
 ### Community 125 - "MQTT Schema 3.0 — Collection & Ingredients Design"
@@ -729,6 +725,10 @@ Nodes (11): Architecture, Business rules of note, Decisions (user-confirmed), Er
 Cohesion: 0.23
 Nodes (5): Boolean, ByteArray, String, SecureCredentialStore, SecretKey
 
+### Community 154 - "SettingsViewModelTest"
+Cohesion: 0.15
+Nodes (4): InactivityMonitorTest, Long, Pair, Runnable
+
 ### Community 155 - "ScanEventBus"
 Cohesion: 0.06
 Nodes (21): authFailureMessage(), ScramExchange, BadgeLoginPayload, LoginResultResponse, Rev2Session, ScramChallengeResponse, ScramProofPayload, ScramProofResponse (+13 more)
@@ -741,9 +741,13 @@ Nodes (10): Android app — data layer, Android app — domain layer, Android ap
 Cohesion: 0.14
 Nodes (13): File Map, Global Constraints, Self-Review Checklist, Settings Screen Implementation Plan, Task 1: AppSettings data class + DataStore dependency, Task 2: SettingsRepository, Task 3: MqttClientFactory, Task 4: Interface + DAO + Topics changes (+5 more)
 
+### Community 158 - "sweep2.py"
+Cohesion: 0.32
+Nodes (11): canBeCleared(), Boolean, List, String, label(), noticeText(), openActionLabel(), otherOperatorText() (+3 more)
+
 ### Community 159 - "LoginViewModel"
-Cohesion: 0.10
-Nodes (16): Rev2Adjustment, Rev2RajooAdjustIngredientRequest, Rev2RajooCaptureRequest, Rev2RajooCloseRequest, Rev2RajooFinishRequest, Rev2RajooLookupRequest, Rev2RajooStartRequest, Any (+8 more)
+Cohesion: 0.05
+Nodes (44): Rev2Adjustment, Rev2RajooAdjustIngredientRequest, Rev2RajooCaptureRequest, Rev2RajooCloseRequest, Rev2RajooFinishRequest, Rev2RajooLookupRequest, Rev2RajooStartRequest, AlreadySettled (+36 more)
 
 ### Community 160 - "ConnectionStatusTest"
 Cohesion: 0.14
@@ -782,8 +786,8 @@ Cohesion: 0.22
 Nodes (8): Global Constraints, Scope note (found during investigation, not verbatim in the spec), Self-Review Notes, Task 1: `StatusCard` — add a `highlighted` parameter, Task 2: Restyle the Mixing Area Picker, Task 3: Restyle Mixing Board's list sections (collections, mixes, drum, cycles, runs), Task 4: Restyle `MachineCard` using `highlighted`, UI Overhaul Phase 4: Mixing Area Picker + Mixing Board — Implementation Plan
 
 ### Community 169 - "sniffer.py"
-Cohesion: 0.10
-Nodes (7): AmountCheck, Boolean, List, StateFlow, String, Unit, PreparationViewModel
+Cohesion: 0.05
+Nodes (31): PrepSnapshot, doneBanner(), AmountCheck, Boolean, List, Long, StateFlow, String (+23 more)
 
 ### Community 170 - "HomeViewModelTest"
 Cohesion: 0.48
@@ -802,24 +806,24 @@ Cohesion: 0.25
 Nodes (7): Global Constraints, Scope note (found during investigation, not in the original spec), Self-Review Notes, Task 1: HomeViewModel, Task 2: HomeScreen composable, Task 3: Wire Home into the navigation graph, UI Overhaul Phase 1: Home Screen Foundation — Implementation Plan
 
 ### Community 174 - "JobDetailScreen"
-Cohesion: 0.13
-Nodes (13): Activity, AppNavGraph(), findActivity(), NavHostController, AppScaffold(), LabelValueRow(), JobDetailScreen(), String (+5 more)
+Cohesion: 0.14
+Nodes (12): AppScaffold(), LoginScreen(), Modifier, String, MaterialRow(), NonCollectingStage(), String, machineCardTitle() (+4 more)
 
 ### Community 175 - ".authenticate"
 Cohesion: 0.18
 Nodes (6): OperatorEntryDto, OperatorDirectoryJson, OperatorDirectoryStore, PrefsOperatorDirectoryStore, fromWire(), OperatorDirectoryUseCase
 
 ### Community 176 - ".bomLine"
-Cohesion: 0.16
-Nodes (8): Boolean, Exception, Flow, List, StateFlow, String, PrepareUiState, PrepareViewModel
+Cohesion: 0.21
+Nodes (10): greetingForHour(), HomeScreen(), HomeTile(), Int, String, List, Modifier, String (+2 more)
 
 ### Community 177 - ".create"
 Cohesion: 0.15
 Nodes (6): Boolean, Int, JsonObject, String, Rev2TransportTest, TestBody
 
 ### Community 178 - "ScramExchangeWireShapeTest"
-Cohesion: 0.25
-Nodes (7): CollectionResult, Any, BigDecimal, Int, List, String, RajooUseCase
+Cohesion: 0.20
+Nodes (3): HomeViewModelTest, com, MutableStateFlow
 
 ### Community 179 - "MqttResponseDeduplicationTest"
 Cohesion: 0.29
@@ -827,7 +831,7 @@ Nodes (6): Global Constraints, Scope note (found during investigation, not verba
 
 ### Community 181 - "AuthUseCase"
 Cohesion: 0.11
-Nodes (5): Rev2Snapshot, ErrorCode, GeneralCollectionUseCaseTest, Any, String
+Nodes (5): Rev2MachineFinishRequest, Rev2MachineStartRequest, GeneralCollectionUseCaseTest, Any, String
 
 ### Community 182 - "Replay"
 Cohesion: 0.18
@@ -838,11 +842,15 @@ Cohesion: 0.25
 Nodes (5): NullPruningTypeAdapterFactory, WireJson, TypeAdapter, TypeAdapterFactory, TypeToken
 
 ### Community 187 - "OperatorDirectoryUseCaseTest"
-Cohesion: 0.07
-Nodes (37): Disabled, Finish, finishScan(), Free, freeDestinations(), InUse, isFixedPair(), Boolean (+29 more)
+Cohesion: 0.13
+Nodes (7): PrepSummary, PrepStage, Boolean, Int, List, String, MixerStageTest
+
+### Community 188 - ".clearIf"
+Cohesion: 0.33
+Nodes (4): InactivityMonitor, Boolean, Long, Runnable
 
 ### Community 189 - "SessionState.kt"
-Cohesion: 0.27
+Cohesion: 0.26
 Nodes (3): SessionState, Instant, SessionPersistenceTest
 
 ### Community 190 - ".build"
@@ -862,16 +870,16 @@ Cohesion: 0.38
 Nodes (3): HoverExitScrollCrashTest, MotionEvent, View
 
 ### Community 194 - "MqttClientFactoryTest"
-Cohesion: 0.15
-Nodes (5): ServerHint, MutableSharedFlow, MutableStateFlow, String, PrepareViewModelTest
+Cohesion: 0.08
+Nodes (15): ServerHint, MixCountField(), PrepareScreen(), Boolean, Exception, Flow, List, StateFlow (+7 more)
 
 ### Community 195 - "IngredientScanResultTest"
 Cohesion: 0.15
 Nodes (28): _active_session_error(), adjust_ingredient(), capture(), _enabled_machine(), _first_session(), handle(), lookup(), _machine_by_code() (+20 more)
 
 ### Community 196 - "sweep2.py"
-Cohesion: 0.08
-Nodes (25): PendingStatus, CollectionExceptionRecord, StatusCard(), StatusTone, rememberReducedMotion(), Boolean, String, PreparationFormatTest (+17 more)
+Cohesion: 0.13
+Nodes (8): CaptureIntent, CollectionExceptionRecord, fromPayload(), String, Boolean, String, PreparationFormatTest, rejectionRecord()
 
 ### Community 197 - "ContractFixtures"
 Cohesion: 0.31
@@ -882,8 +890,8 @@ Cohesion: 0.83
 Nodes (3): gradlew script, die(), warn()
 
 ### Community 199 - "analyze.py"
-Cohesion: 0.13
-Nodes (22): BigDecimal, Boolean, PrepMaterial, CollectHome(), IngredientRow(), Boolean, List, Modifier (+14 more)
+Cohesion: 0.22
+Nodes (14): BigDecimal, Boolean, PrepMaterial, CollectHome(), IngredientRow(), Boolean, List, Modifier (+6 more)
 
 ### Community 201 - "Global Constraints"
 Cohesion: 0.22
@@ -906,12 +914,12 @@ Cohesion: 0.21
 Nodes (6): Boolean, Flow, List, StateFlow, String, LoginViewModel
 
 ### Community 209 - "ErrorCode"
-Cohesion: 0.12
-Nodes (12): ChoicePrompt, from(), Int, List, String, PrepareForm, Boolean, Int (+4 more)
+Cohesion: 0.06
+Nodes (17): Rev2ChoiceAnswer, ChoicePrompt, from(), Int, List, String, PrepareForm, Boolean (+9 more)
 
 ### Community 213 - "ReplacementOffer"
-Cohesion: 0.28
-Nodes (7): PrepSnapshot, doneBanner(), Long, machineDoneBanner(), RecordedSoFar, SubmitPlan, open()
+Cohesion: 0.36
+Nodes (7): PendingStatus, CommandRecoveryUseCase, NeedsManager, OtherOperator, RecoveryResult, Resolved, StillUnresolved
 
 ### Community 214 - ".of"
 Cohesion: 0.40
@@ -926,8 +934,8 @@ Cohesion: 0.67
 Nodes (3): build(), main(), Publish a fault-injection control frame to the backend sim (PPNAM/_sim/control).
 
 ### Community 228 - "Color.kt"
-Cohesion: 0.16
-Nodes (27): AmountProblem, BagGuide, bags(), BigDecimal, Int, AmountField(), BagIcons(), CancelButton() (+19 more)
+Cohesion: 0.23
+Nodes (22): AmountField(), BagIcons(), CancelButton(), ChoiceLine(), CollectActions, CollectSheet(), FallbackForm(), IdentifiedForm() (+14 more)
 
 ### Community 231 - "CommandOutcome"
 Cohesion: 0.21
@@ -938,60 +946,72 @@ Cohesion: 0.20
 Nodes (4): Int, Long, String, MqttRequestTimeoutTest
 
 ### Community 233 - "RecoveryNoticeText.kt"
-Cohesion: 0.17
-Nodes (4): JobPreparation, JobFormatTest, Boolean, String
+Cohesion: 0.16
+Nodes (5): JobPreparation, formatQuantity(), JobFormatTest, Boolean, String
 
 ### Community 234 - "OperatorEntry"
-Cohesion: 0.14
-Nodes (23): Accepted, CollectStep, Confirm, Error, Excluded, Fallback, Identified, Identifying (+15 more)
+Cohesion: 0.13
+Nodes (24): Accepted, CollectStep, Confirm, Error, Excluded, Fallback, Identified, Identifying (+16 more)
 
 ### Community 235 - ".parse"
 Cohesion: 0.38
 Nodes (4): BigDecimal, String, QuantityInput, WireDecimal
 
 ### Community 236 - "MqttOutcome"
-Cohesion: 0.23
-Nodes (21): Preparation, CompletedBanner(), CountTile(), feedsText(), freeExtrudersLine(), KeyValue(), Int, Modifier (+13 more)
+Cohesion: 0.24
+Nodes (20): Preparation, CompletedBanner(), CountTile(), feedsText(), freeExtrudersLine(), KeyValue(), Int, Modifier (+12 more)
 
 ### Community 253 - "ScanEvent"
 Cohesion: 0.11
 Nodes (6): Int, List, MutableSharedFlow, MutableStateFlow, String, MixerViewModelTest
 
 ### Community 254 - "Rev2CollectionRequestTest"
-Cohesion: 0.07
-Nodes (27): Rev2ActivePreparation, Rev2AdjustIngredientRequest, Rev2Capabilities, Rev2CaptureRequest, Rev2CatalogEntry, Rev2ChoiceAnswer, Rev2CollectionException, Rev2CommandResult (+19 more)
+Cohesion: 0.17
+Nodes (7): Rev2CaptureRequest, Rev2PrepareRequest, Any, JsonObject, Pair, String, Rev2CollectionRequestTest
 
 ### Community 255 - "MqttRepository"
-Cohesion: 0.11
-Nodes (17): Accepted, FailureKind, MqttOutcome, NoResponse, Rejected, Any, Boolean, Class (+9 more)
+Cohesion: 0.18
+Nodes (10): Any, Boolean, Class, Long, SharedFlow, StateFlow, String, T (+2 more)
 
 ### Community 256 - "HomeViewModelTest"
 Cohesion: 0.26
 Nodes (3): OperatorListResponse, InMemoryStore, OperatorDirectoryUseCaseTest
 
 ### Community 272 - "Boolean"
-Cohesion: 0.24
-Nodes (7): canRestore(), Boolean, CoroutineScope, Long, of(), Saved, SessionPersistence
+Cohesion: 0.21
+Nodes (8): canRestore(), Boolean, CoroutineScope, Long, String, of(), Saved, SessionPersistence
 
 ### Community 273 - "ByteArray"
-Cohesion: 0.25
-Nodes (10): ActivePreparation, JobDetail, JobMaterial, MixProgress, asPreparation(), toDomain(), toGeneralPrepSnapshot(), toJobLookupSnapshot() (+2 more)
+Cohesion: 0.20
+Nodes (12): ActivePreparation, JobDetail, JobLookupSnapshot, JobMaterial, JobSummary, MixProgress, asPreparation(), toDomain() (+4 more)
 
 ### Community 274 - "String"
 Cohesion: 0.34
 Nodes (13): app_foreground(), dump(), ensure_app(), find(), goto_lookup(), lookup(), nodes(), Robust job-card sweep: locates UI elements via uiautomator instead of fixed taps (+5 more)
 
+### Community 275 - "Boolean"
+Cohesion: 0.20
+Nodes (6): HomeViewModel, Flow, List, StateFlow, String, Unit
+
+### Community 276 - "Long"
+Cohesion: 0.53
+Nodes (5): Accepted, FailureKind, MqttOutcome, NoResponse, Rejected
+
+### Community 277 - "Runnable"
+Cohesion: 0.40
+Nodes (3): LabelValueRow(), JobDetailScreen(), String
+
 ### Community 297 - "BagGuideTest"
-Cohesion: 0.23
-Nodes (4): List, splitCaptures(), BagGuideTest, String
+Cohesion: 0.16
+Nodes (9): AmountProblem, BagGuide, bags(), BigDecimal, Int, List, splitCaptures(), BagGuideTest (+1 more)
 
 ### Community 299 - "sweep2.py"
 Cohesion: 0.60
 Nodes (4): Barcode, RfidTag, ScanEvent, ScanEventBus
 
 ### Community 300 - "SourceInfo"
-Cohesion: 0.31
-Nodes (7): countsLine(), formatQuantity(), Double, String, quantityLine(), summaryLine(), withUnit()
+Cohesion: 0.48
+Nodes (6): countsLine(), Double, String, quantityLine(), summaryLine(), withUnit()
 
 ### Community 302 - "ErrorCode"
 Cohesion: 0.29
@@ -1010,12 +1030,12 @@ Cohesion: 0.39
 Nodes (7): Cleared, ClearResult, String, NotAwaitingReconciliation, NotFound, NotRecorded, NotSignedIn
 
 ### Community 308 - "ViewModel"
-Cohesion: 0.36
-Nodes (5): UpgradeGateViewModel, UpgradeRequiredGate(), SessionWatcher(), SessionWatcherViewModel, ViewModel
+Cohesion: 0.22
+Nodes (9): Activity, AppNavGraph(), findActivity(), NavHostController, UpgradeGateViewModel, UpgradeRequiredGate(), SessionWatcher(), SessionWatcherViewModel (+1 more)
 
-### Community 312 - "RajooJobViewModelTest"
-Cohesion: 0.13
-Nodes (4): List, MutableStateFlow, String, RajooJobViewModelTest
+### Community 310 - ".push"
+Cohesion: 0.50
+Nodes (3): StatusCard(), StatusTone, rememberReducedMotion()
 
 ### Community 313 - "ConnectionStatus"
 Cohesion: 0.87
@@ -1037,10 +1057,6 @@ Nodes (6): JobLookupUiState, JobLookupViewModel, Boolean, Flow, StateFlow, Strin
 Cohesion: 0.28
 Nodes (4): PinLockoutStore, PrefsPinLockoutStore, AppModule, Context
 
-### Community 340 - "Flow"
-Cohesion: 0.40
-Nodes (3): CaptureIntent, fromPayload(), String
-
 ### Community 341 - "LoginViewModel.kt"
 Cohesion: 0.60
 Nodes (5): Error, Idle, LoggedIn, LoggingIn, LoginUiState
@@ -1048,22 +1064,22 @@ Nodes (5): Error, Idle, LoggedIn, LoggingIn, LoginUiState
 ## Knowledge Gaps
 - **1008 isolated node(s):** `FailureKind`, `EmptyPayload`, `WireJson`, `ScramChallengeResponse`, `Rev2Source` (+1003 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **205 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **196 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `MqttRepository` connect `MqttRepository` to `HomeViewModelTest`, `MqttClientFactoryTest`, `MQTT Message Envelope & Repository Impl`, `UI Modernisation Design Docs`, `JobLookupUseCaseTest`, `RecoveryResult`, `Sequencing`, `AppModule`, `Repo Rules & Graphify Workflow`, `AuthUseCase`, `LoginViewModelTest`, `RajooJobViewModelTest`, `ScanEventBus`, `ScanEvent`, `sweep2.py`, `LoginViewModel`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `MqttRepository` connect `MqttRepository` to `HomeViewModelTest`, `MqttClientFactoryTest`, `MQTT Message Envelope & Repository Impl`, `UI Modernisation Design Docs`, `JobLookupUseCaseTest`, `sniffer.py`, `RecoveryResult`, `AppModule`, `Repo Rules & Graphify Workflow`, `ErrorCode`, `ScramExchangeWireShapeTest`, `Root Gradle Build Config`, `AuthUseCase`, `LoginViewModelTest`, `ScanEventBus`, `ScanEvent`, `LoginViewModel`?**
+  _High betweenness centrality (0.044) - this node is a cross-community bridge._
 - **Why does `MqttRepositoryImpl` connect `UI Modernisation Design Docs` to `SettingsRepository`, `MqttClientFactoryTest`, `DeviceIdentity`, `ConnectionStatus`, `JobLookupUseCaseTest`, `MqttRequestTimeoutTest`, `Double`, `Sequencing`, `SettingsViewModelTest`, `ContractEnvelopeTest`, `AppModule`, `.create`, `JobLookupSnapshot`, `ScanEventBus`, `Android App Architecture Design Docs`, `MqttRepository`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
-- **Why does `PreparationViewModel` connect `sniffer.py` to `Color.kt`, `sweep2.py`, `analyze.py`, `Sequencing`, `ViewModel`, `ReplacementOffer`, `ConnectionStatus`, `SettingsViewModelTest`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
+  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+- **Why does `PreparationViewModel` connect `sniffer.py` to `Color.kt`, `Sequencing`, `JobDetailScreen`, `ViewModel`, `ConnectionStatus`, `SettingsViewModelTest`?**
+  _High betweenness centrality (0.029) - this node is a cross-community bridge._
 - **Are the 28 inferred relationships involving `OperatorSessionHolder` (e.g. with `.setup()` and `.repo()`) actually correct?**
   _`OperatorSessionHolder` has 28 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 4 inferred relationships involving `PendingCommand` (e.g. with `.record()` and `.cmd()`) actually correct?**
   _`PendingCommand` has 4 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `FailureKind`, `EmptyPayload`, `WireJson` to the rest of the system?**
-  _1121 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1120 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Room DAO Tests` be split into smaller, more focused modules?**
   _Cohesion score 0.054563492063492064 - nodes in this community are weakly interconnected._
