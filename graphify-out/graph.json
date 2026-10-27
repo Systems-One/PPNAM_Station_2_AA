@@ -790,7 +790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome",
-      "community": 255,
+      "community": 276,
       "norm_label": "mqttoutcome.kt"
     },
     {
@@ -800,7 +800,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome_mqttoutcome",
-      "community": 255,
+      "community": 276,
       "norm_label": "mqttoutcome"
     },
     {
@@ -810,7 +810,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome_accepted",
-      "community": 255,
+      "community": 276,
       "norm_label": "accepted"
     },
     {
@@ -830,7 +830,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome_rejected",
-      "community": 255,
+      "community": 276,
       "norm_label": "rejected"
     },
     {
@@ -840,7 +840,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome_noresponse",
-      "community": 255,
+      "community": 276,
       "norm_label": "noresponse"
     },
     {
@@ -860,7 +860,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome_failurekind",
-      "community": 255,
+      "community": 276,
       "norm_label": "failurekind"
     },
     {
@@ -1480,7 +1480,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttvocabulary",
-      "community": 181,
+      "community": 224,
       "norm_label": "mqttvocabulary.kt"
     },
     {
@@ -1490,7 +1490,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttvocabulary_errorcode",
-      "community": 181,
+      "community": 224,
       "norm_label": "errorcode"
     },
     {
@@ -2110,7 +2110,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2generalmessages.kt"
     },
     {
@@ -2130,7 +2130,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2recoverrequest",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2recoverrequest"
     },
     {
@@ -2140,7 +2140,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2snapshot",
-      "community": 181,
+      "community": 303,
       "norm_label": "rev2snapshot"
     },
     {
@@ -2150,7 +2150,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2source",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2source"
     },
     {
@@ -2160,7 +2160,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2commandresult",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2commandresult"
     },
     {
@@ -2170,7 +2170,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2recovery",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2recovery"
     },
     {
@@ -2180,7 +2180,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2capabilities",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2capabilities"
     },
     {
@@ -2200,7 +2200,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2mixprogress",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2mixprogress"
     },
     {
@@ -2210,7 +2210,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2activepreparation",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2activepreparation"
     },
     {
@@ -2220,7 +2220,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2job",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2job"
     },
     {
@@ -2230,7 +2230,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2material",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2material"
     },
     {
@@ -2240,7 +2240,7 @@
       "source_location": "L185",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2preparation",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2preparation"
     },
     {
@@ -2250,7 +2250,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2machine",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2machine"
     },
     {
@@ -2260,7 +2260,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2ingredientchoice",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2ingredientchoice"
     },
     {
@@ -2270,7 +2270,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2catalogentry",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2catalogentry"
     },
     {
@@ -2280,7 +2280,7 @@
       "source_location": "L235",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2collectionexception",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2collectionexception"
     },
     {
@@ -2300,7 +2300,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2choiceanswer",
-      "community": 254,
+      "community": 209,
       "norm_label": "rev2choiceanswer"
     },
     {
@@ -2320,7 +2320,7 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2confirmrequest",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2confirmrequest"
     },
     {
@@ -2330,7 +2330,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2machinestartrequest",
-      "community": 254,
+      "community": 181,
       "norm_label": "rev2machinestartrequest"
     },
     {
@@ -2340,7 +2340,7 @@
       "source_location": "L295",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2machinefinishrequest",
-      "community": 254,
+      "community": 181,
       "norm_label": "rev2machinefinishrequest"
     },
     {
@@ -2350,7 +2350,7 @@
       "source_location": "L307",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2identifyrequest",
-      "community": 254,
+      "community": 24,
       "norm_label": "rev2identifyrequest"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L317",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2adjustingredientrequest",
-      "community": 254,
+      "community": 312,
       "norm_label": "rev2adjustingredientrequest"
     },
     {
@@ -2910,7 +2910,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_outbox_pendingcommand",
-      "community": 42,
+      "community": 213,
       "norm_label": "pendingcommand.kt"
     },
     {
@@ -2920,7 +2920,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_outbox_pendingcommand_pendingstatus",
-      "community": 196,
+      "community": 213,
       "norm_label": "pendingstatus"
     },
     {
@@ -3359,8 +3359,8 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "id": "c_dev_clients_ppnam_station_2_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_runnable",
-      "community": 277,
+      "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_runnable",
+      "community": 188,
       "norm_label": "runnable"
     },
     {
@@ -3369,15 +3369,15 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "id": "c_dev_clients_ppnam_station_2_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_boolean",
-      "community": 275,
+      "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_boolean",
+      "community": 188,
       "norm_label": "boolean"
     },
     {
       "label": ".start()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L24",
+      "source_location": "L25",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_start",
       "community": 188,
@@ -3389,15 +3389,15 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "id": "c_dev_clients_ppnam_station_2_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_long",
-      "community": 276,
+      "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_long",
+      "community": 188,
       "norm_label": "long"
     },
     {
       "label": ".touch()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L32",
+      "source_location": "L33",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_touch",
       "community": 188,
@@ -3407,7 +3407,7 @@
       "label": ".checkNow()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L37",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_checknow",
       "community": 188,
@@ -3417,7 +3417,7 @@
       "label": ".stop()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L48",
+      "source_location": "L49",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_stop",
       "community": 188,
@@ -3427,7 +3427,7 @@
       "label": ".scheduleCheck()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L54",
+      "source_location": "L55",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_schedulecheck",
       "community": 188,
@@ -3607,7 +3607,7 @@
       "label": ".expire()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionGuard.kt",
-      "source_location": "L90",
+      "source_location": "L92",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionguard_sessionguard_expire",
       "community": 336,
@@ -3634,10 +3634,20 @@
       "norm_label": "sessionpersistence"
     },
     {
+      "label": "String",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_kt_string",
+      "community": 272,
+      "norm_label": "string"
+    },
+    {
       "label": ".restoreInto()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L32",
+      "source_location": "L35",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_restoreinto",
       "community": 272,
@@ -3654,10 +3664,20 @@
       "norm_label": "long"
     },
     {
+      "label": ".idleMsFor()",
+      "file_type": "code",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L53",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_idlemsfor",
+      "community": 272,
+      "norm_label": ".idlemsfor()"
+    },
+    {
       "label": ".install()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L46",
+      "source_location": "L60",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_install",
       "community": 272,
@@ -3677,17 +3697,27 @@
       "label": ".recordActivity()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L55",
+      "source_location": "L69",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_recordactivity",
       "community": 272,
       "norm_label": ".recordactivity()"
     },
     {
+      "label": ".recordTimeout()",
+      "file_type": "code",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L76",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_recordtimeout",
+      "community": 272,
+      "norm_label": ".recordtimeout()"
+    },
+    {
       "label": ".save()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L62",
+      "source_location": "L80",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_save",
       "community": 272,
@@ -3697,7 +3727,7 @@
       "label": ".forget()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L68",
+      "source_location": "L92",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_forget",
       "community": 272,
@@ -3707,7 +3737,7 @@
       "label": "Saved",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L75",
+      "source_location": "L100",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_saved",
       "community": 272,
@@ -3717,7 +3747,7 @@
       "label": ".toSession()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L83",
+      "source_location": "L108",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_saved_tosession",
       "community": 272,
@@ -3727,7 +3757,7 @@
       "label": "of()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L96",
+      "source_location": "L121",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_of",
       "community": 272,
@@ -3737,7 +3767,7 @@
       "label": "canRestore()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L116",
+      "source_location": "L141",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_canrestore",
       "community": 272,
@@ -4250,7 +4280,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_bagguide",
-      "community": 228,
+      "community": 297,
       "norm_label": "bagguide.kt"
     },
     {
@@ -4260,7 +4290,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_bagguide_bagguide",
-      "community": 228,
+      "community": 297,
       "norm_label": "bagguide"
     },
     {
@@ -4270,7 +4300,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_bagguide_kt_bigdecimal",
-      "community": 228,
+      "community": 297,
       "norm_label": "bigdecimal"
     },
     {
@@ -4280,7 +4310,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_bagguide_bags",
-      "community": 228,
+      "community": 297,
       "norm_label": "bags()"
     },
     {
@@ -4290,7 +4320,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_bagguide_kt_int",
-      "community": 228,
+      "community": 297,
       "norm_label": "int"
     },
     {
@@ -4320,7 +4350,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_bagguide_amountproblem",
-      "community": 228,
+      "community": 297,
       "norm_label": "amountproblem"
     },
     {
@@ -4340,7 +4370,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_job_jobsummary",
-      "community": 120,
+      "community": 273,
       "norm_label": "jobsummary"
     },
     {
@@ -4390,7 +4420,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_job_joblookupsnapshot",
-      "community": 310,
+      "community": 273,
       "norm_label": "joblookupsnapshot"
     },
     {
@@ -4420,7 +4450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage",
-      "community": 187,
+      "community": 2,
       "norm_label": "mixerstage.kt"
     },
     {
@@ -4430,7 +4460,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_machinekind",
-      "community": 187,
+      "community": 2,
       "norm_label": "machinekind"
     },
     {
@@ -4440,7 +4470,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_machine",
-      "community": 187,
+      "community": 2,
       "norm_label": "machine"
     },
     {
@@ -4460,7 +4490,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_machineuse",
-      "community": 187,
+      "community": 2,
       "norm_label": "machineuse"
     },
     {
@@ -4470,7 +4500,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_free",
-      "community": 187,
+      "community": 2,
       "norm_label": "free"
     },
     {
@@ -4480,7 +4510,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_inuse",
-      "community": 187,
+      "community": 2,
       "norm_label": "inuse"
     },
     {
@@ -4490,7 +4520,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_disabled",
-      "community": 187,
+      "community": 2,
       "norm_label": "disabled"
     },
     {
@@ -4500,7 +4530,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_machinescan",
-      "community": 187,
+      "community": 2,
       "norm_label": "machinescan"
     },
     {
@@ -4510,7 +4540,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_startmix",
-      "community": 187,
+      "community": 2,
       "norm_label": "startmix"
     },
     {
@@ -4520,7 +4550,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_startproduction",
-      "community": 187,
+      "community": 2,
       "norm_label": "startproduction"
     },
     {
@@ -4530,7 +4560,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_finish",
-      "community": 187,
+      "community": 2,
       "norm_label": "finish"
     },
     {
@@ -4540,7 +4570,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_notamachine",
-      "community": 187,
+      "community": 2,
       "norm_label": "notamachine"
     },
     {
@@ -4550,7 +4580,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_notactive",
-      "community": 187,
+      "community": 2,
       "norm_label": "notactive"
     },
     {
@@ -4560,7 +4590,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_notnow",
-      "community": 187,
+      "community": 2,
       "norm_label": "notnow"
     },
     {
@@ -4570,7 +4600,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_stripstate",
-      "community": 187,
+      "community": 2,
       "norm_label": "stripstate"
     },
     {
@@ -4580,7 +4610,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_stripstep",
-      "community": 187,
+      "community": 2,
       "norm_label": "stripstep"
     },
     {
@@ -4590,7 +4620,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_stagestrip",
-      "community": 187,
+      "community": 2,
       "norm_label": "stagestrip"
     },
     {
@@ -4600,7 +4630,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_matches",
-      "community": 187,
+      "community": 2,
       "norm_label": "matches()"
     },
     {
@@ -4610,7 +4640,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_kt_string",
-      "community": 187,
+      "community": 2,
       "norm_label": "string"
     },
     {
@@ -4620,7 +4650,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_kt_boolean",
-      "community": 187,
+      "community": 2,
       "norm_label": "boolean"
     },
     {
@@ -4630,7 +4660,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_resolve",
-      "community": 187,
+      "community": 2,
       "norm_label": "resolve()"
     },
     {
@@ -4640,7 +4670,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_matchmachine",
-      "community": 187,
+      "community": 2,
       "norm_label": "matchmachine()"
     },
     {
@@ -4650,7 +4680,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_mixers",
-      "community": 187,
+      "community": 2,
       "norm_label": "mixers()"
     },
     {
@@ -4660,7 +4690,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_kt_list",
-      "community": 187,
+      "community": 2,
       "norm_label": "list"
     },
     {
@@ -4670,7 +4700,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_savedmixer",
-      "community": 187,
+      "community": 2,
       "norm_label": "savedmixer()"
     },
     {
@@ -4680,7 +4710,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_savedproduction",
-      "community": 187,
+      "community": 2,
       "norm_label": "savedproduction()"
     },
     {
@@ -4690,7 +4720,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_isfixedpair",
-      "community": 187,
+      "community": 2,
       "norm_label": "isfixedpair()"
     },
     {
@@ -4700,7 +4730,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_freedestinations",
-      "community": 187,
+      "community": 2,
       "norm_label": "freedestinations()"
     },
     {
@@ -4710,7 +4740,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_scanmachine",
-      "community": 187,
+      "community": 2,
       "norm_label": "scanmachine()"
     },
     {
@@ -4720,7 +4750,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_finishscan",
-      "community": 187,
+      "community": 2,
       "norm_label": "finishscan()"
     },
     {
@@ -4730,7 +4760,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_mixerstage_kt_int",
-      "community": 187,
+      "community": 2,
       "norm_label": "int"
     },
     {
@@ -4790,7 +4820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_preparation",
-      "community": 340,
+      "community": 196,
       "norm_label": "preparation.kt"
     },
     {
@@ -4880,7 +4910,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_preparation_prepsnapshot",
-      "community": 213,
+      "community": 169,
       "norm_label": "prepsnapshot"
     },
     {
@@ -4900,7 +4930,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_preparation_captureintent",
-      "community": 340,
+      "community": 196,
       "norm_label": "captureintent"
     },
     {
@@ -4910,7 +4940,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_preparation_frompayload",
-      "community": 340,
+      "community": 196,
       "norm_label": "frompayload()"
     },
     {
@@ -4920,7 +4950,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_preparation_kt_string",
-      "community": 340,
+      "community": 196,
       "norm_label": "string"
     },
     {
@@ -5300,7 +5330,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_repository_mqttrepository_mqttrepository_reconnectwith",
-      "community": 255,
+      "community": 52,
       "norm_label": ".reconnectwith()"
     },
     {
@@ -5310,7 +5340,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_repository_mqttrepository_kt_result",
-      "community": 255,
+      "community": 52,
       "norm_label": "result"
     },
     {
@@ -5320,7 +5350,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_repository_mqttrepository_kt_unit",
-      "community": 255,
+      "community": 52,
       "norm_label": "unit"
     },
     {
@@ -5480,7 +5510,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_commandrecoveryusecase",
-      "community": 42,
+      "community": 213,
       "norm_label": "commandrecoveryusecase.kt"
     },
     {
@@ -5500,7 +5530,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_commandrecoveryusecase_recoveryresult",
-      "community": 42,
+      "community": 213,
       "norm_label": "recoveryresult"
     },
     {
@@ -5510,7 +5540,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_commandrecoveryusecase_resolved",
-      "community": 42,
+      "community": 213,
       "norm_label": "resolved"
     },
     {
@@ -5520,7 +5550,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_commandrecoveryusecase_stillunresolved",
-      "community": 42,
+      "community": 213,
       "norm_label": "stillunresolved"
     },
     {
@@ -5530,7 +5560,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_commandrecoveryusecase_needsmanager",
-      "community": 42,
+      "community": 213,
       "norm_label": "needsmanager"
     },
     {
@@ -5540,7 +5570,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_commandrecoveryusecase_otheroperator",
-      "community": 42,
+      "community": 213,
       "norm_label": "otheroperator"
     },
     {
@@ -5550,7 +5580,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_commandrecoveryusecase_commandrecoveryusecase",
-      "community": 42,
+      "community": 213,
       "norm_label": "commandrecoveryusecase"
     },
     {
@@ -5570,7 +5600,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_commandrecoveryusecase_commandrecoveryusecase_recover",
-      "community": 42,
+      "community": 213,
       "norm_label": ".recover()"
     },
     {
@@ -5580,7 +5610,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase",
-      "community": 2,
+      "community": 159,
       "norm_label": "generalcollectionusecase.kt"
     },
     {
@@ -5590,7 +5620,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_readresult",
-      "community": 2,
+      "community": 159,
       "norm_label": "readresult"
     },
     {
@@ -5600,7 +5630,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_loaded",
-      "community": 2,
+      "community": 159,
       "norm_label": "loaded"
     },
     {
@@ -5610,7 +5640,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_failed",
-      "community": 2,
+      "community": 159,
       "norm_label": "failed"
     },
     {
@@ -5620,7 +5650,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_identifyresult",
-      "community": 2,
+      "community": 159,
       "norm_label": "identifyresult"
     },
     {
@@ -5630,7 +5660,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_identified",
-      "community": 2,
+      "community": 159,
       "norm_label": "identified"
     },
     {
@@ -5640,7 +5670,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_unknown",
-      "community": 2,
+      "community": 159,
       "norm_label": "unknown"
     },
     {
@@ -5650,7 +5680,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_unsupported",
-      "community": 2,
+      "community": 159,
       "norm_label": "unsupported"
     },
     {
@@ -5660,7 +5690,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_collectionresult",
-      "community": 178,
+      "community": 159,
       "norm_label": "collectionresult"
     },
     {
@@ -5670,7 +5700,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_done",
-      "community": 2,
+      "community": 159,
       "norm_label": "done"
     },
     {
@@ -5680,7 +5710,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_rejected",
-      "community": 2,
+      "community": 159,
       "norm_label": "rejected"
     },
     {
@@ -5690,7 +5720,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_unresolved",
-      "community": 2,
+      "community": 159,
       "norm_label": "unresolved"
     },
     {
@@ -5700,7 +5730,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_notsent",
-      "community": 2,
+      "community": 159,
       "norm_label": "notsent"
     },
     {
@@ -5710,7 +5740,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_alreadysettled",
-      "community": 2,
+      "community": 159,
       "norm_label": "alreadysettled"
     },
     {
@@ -5720,7 +5750,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase",
-      "community": 24,
+      "community": 159,
       "norm_label": "generalcollectionusecase"
     },
     {
@@ -5730,7 +5760,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_read",
-      "community": 2,
+      "community": 159,
       "norm_label": ".read()"
     },
     {
@@ -5740,7 +5770,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_kt_string",
-      "community": 24,
+      "community": 159,
       "norm_label": "string"
     },
     {
@@ -5750,7 +5780,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_identify",
-      "community": 2,
+      "community": 159,
       "norm_label": ".identify()"
     },
     {
@@ -5760,7 +5790,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_prepare",
-      "community": 24,
+      "community": 159,
       "norm_label": ".prepare()"
     },
     {
@@ -5770,7 +5800,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_kt_int",
-      "community": 24,
+      "community": 159,
       "norm_label": "int"
     },
     {
@@ -5780,7 +5810,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_kt_list",
-      "community": 24,
+      "community": 159,
       "norm_label": "list"
     },
     {
@@ -5790,7 +5820,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_capture",
-      "community": 24,
+      "community": 159,
       "norm_label": ".capture()"
     },
     {
@@ -5800,7 +5830,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_kt_bigdecimal",
-      "community": 24,
+      "community": 159,
       "norm_label": "bigdecimal"
     },
     {
@@ -5810,7 +5840,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_confirm",
-      "community": 24,
+      "community": 159,
       "norm_label": ".confirm()"
     },
     {
@@ -5820,7 +5850,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_machinestart",
-      "community": 24,
+      "community": 159,
       "norm_label": ".machinestart()"
     },
     {
@@ -5830,7 +5860,7 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_machinefinish",
-      "community": 24,
+      "community": 159,
       "norm_label": ".machinefinish()"
     },
     {
@@ -5840,7 +5870,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_addingredient",
-      "community": 24,
+      "community": 159,
       "norm_label": ".addingredient()"
     },
     {
@@ -5850,7 +5880,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_changequantity",
-      "community": 24,
+      "community": 159,
       "norm_label": ".changequantity()"
     },
     {
@@ -5860,7 +5890,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_omit",
-      "community": 24,
+      "community": 159,
       "norm_label": ".omit()"
     },
     {
@@ -5870,7 +5900,7 @@
       "source_location": "L157",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_adjust",
-      "community": 24,
+      "community": 159,
       "norm_label": ".adjust()"
     },
     {
@@ -5880,7 +5910,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_total",
-      "community": 24,
+      "community": 159,
       "norm_label": ".total()"
     },
     {
@@ -5890,7 +5920,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_retry",
-      "community": 2,
+      "community": 159,
       "norm_label": ".retry()"
     },
     {
@@ -5900,7 +5930,7 @@
       "source_location": "L173",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_send",
-      "community": 24,
+      "community": 159,
       "norm_label": ".send()"
     },
     {
@@ -5910,7 +5940,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_kt_any",
-      "community": 24,
+      "community": 159,
       "norm_label": "any"
     },
     {
@@ -5920,7 +5950,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_tocollectionresult",
-      "community": 2,
+      "community": 159,
       "norm_label": "tocollectionresult()"
     },
     {
@@ -5930,7 +5960,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_rejectedtext",
-      "community": 2,
+      "community": 159,
       "norm_label": "rejectedtext()"
     },
     {
@@ -5940,7 +5970,7 @@
       "source_location": "L210",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_unresolvedtext",
-      "community": 2,
+      "community": 159,
       "norm_label": "unresolvedtext()"
     },
     {
@@ -6180,7 +6210,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_pendingcommandcoordinator_pendingcommandcoordinator_dismiss",
-      "community": 42,
+      "community": 213,
       "norm_label": ".dismiss()"
     },
     {
@@ -6350,7 +6380,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase",
-      "community": 178,
+      "community": 159,
       "norm_label": "rajoousecase.kt"
     },
     {
@@ -6360,7 +6390,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase",
-      "community": 178,
+      "community": 159,
       "norm_label": "rajoousecase"
     },
     {
@@ -6370,7 +6400,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_read",
-      "community": 178,
+      "community": 159,
       "norm_label": ".read()"
     },
     {
@@ -6380,7 +6410,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_kt_string",
-      "community": 178,
+      "community": 159,
       "norm_label": "string"
     },
     {
@@ -6390,7 +6420,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_lookup",
-      "community": 178,
+      "community": 159,
       "norm_label": ".lookup()"
     },
     {
@@ -6400,7 +6430,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_identify",
-      "community": 178,
+      "community": 159,
       "norm_label": ".identify()"
     },
     {
@@ -6410,7 +6440,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_start",
-      "community": 178,
+      "community": 159,
       "norm_label": ".start()"
     },
     {
@@ -6420,7 +6450,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_kt_int",
-      "community": 178,
+      "community": 159,
       "norm_label": "int"
     },
     {
@@ -6430,7 +6460,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_kt_list",
-      "community": 178,
+      "community": 159,
       "norm_label": "list"
     },
     {
@@ -6440,7 +6470,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_capture",
-      "community": 178,
+      "community": 159,
       "norm_label": ".capture()"
     },
     {
@@ -6450,7 +6480,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_kt_bigdecimal",
-      "community": 178,
+      "community": 159,
       "norm_label": "bigdecimal"
     },
     {
@@ -6460,7 +6490,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_addingredient",
-      "community": 178,
+      "community": 159,
       "norm_label": ".addingredient()"
     },
     {
@@ -6470,7 +6500,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_substitute",
-      "community": 178,
+      "community": 159,
       "norm_label": ".substitute()"
     },
     {
@@ -6480,7 +6510,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_changequantity",
-      "community": 178,
+      "community": 159,
       "norm_label": ".changequantity()"
     },
     {
@@ -6490,7 +6520,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_omit",
-      "community": 178,
+      "community": 159,
       "norm_label": ".omit()"
     },
     {
@@ -6500,7 +6530,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_adjust",
-      "community": 178,
+      "community": 159,
       "norm_label": ".adjust()"
     },
     {
@@ -6510,7 +6540,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_total",
-      "community": 178,
+      "community": 159,
       "norm_label": ".total()"
     },
     {
@@ -6520,7 +6550,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_finish",
-      "community": 178,
+      "community": 159,
       "norm_label": ".finish()"
     },
     {
@@ -6530,7 +6560,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_close",
-      "community": 178,
+      "community": 159,
       "norm_label": ".close()"
     },
     {
@@ -6540,7 +6570,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_retry",
-      "community": 178,
+      "community": 159,
       "norm_label": ".retry()"
     },
     {
@@ -6550,7 +6580,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_readlike",
-      "community": 178,
+      "community": 159,
       "norm_label": ".readlike()"
     },
     {
@@ -6560,7 +6590,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_kt_any",
-      "community": 178,
+      "community": 159,
       "norm_label": "any"
     },
     {
@@ -6570,7 +6600,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_send",
-      "community": 178,
+      "community": 159,
       "norm_label": ".send()"
     },
     {
@@ -6780,7 +6810,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_navigation_appnavgraph",
-      "community": 174,
+      "community": 308,
       "norm_label": "appnavgraph.kt"
     },
     {
@@ -6790,7 +6820,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_navigation_appnavgraph_findactivity",
-      "community": 174,
+      "community": 308,
       "norm_label": "findactivity()"
     },
     {
@@ -6800,7 +6830,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "activity",
-      "community": 174,
+      "community": 308,
       "norm_label": "activity"
     },
     {
@@ -6810,7 +6840,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_navigation_appnavgraph_appnavgraph",
-      "community": 174,
+      "community": 308,
       "norm_label": "appnavgraph()"
     },
     {
@@ -6820,7 +6850,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_navigation_appnavgraph_kt_navhostcontroller",
-      "community": 174,
+      "community": 308,
       "norm_label": "navhostcontroller"
     },
     {
@@ -7100,7 +7130,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_components_labelvaluerow",
-      "community": 174,
+      "community": 277,
       "norm_label": "labelvaluerow.kt"
     },
     {
@@ -7110,7 +7140,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_components_labelvaluerow_labelvaluerow",
-      "community": 174,
+      "community": 277,
       "norm_label": "labelvaluerow()"
     },
     {
@@ -7130,7 +7160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_components_statuscard",
-      "community": 196,
+      "community": 310,
       "norm_label": "statuscard.kt"
     },
     {
@@ -7140,7 +7170,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_components_statuscard_statustone",
-      "community": 196,
+      "community": 310,
       "norm_label": "statustone"
     },
     {
@@ -7150,7 +7180,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_components_statuscard_statuscard",
-      "community": 196,
+      "community": 310,
       "norm_label": "statuscard()"
     },
     {
@@ -7260,7 +7290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homescreen",
-      "community": 42,
+      "community": 176,
       "norm_label": "homescreen.kt"
     },
     {
@@ -7270,7 +7300,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homescreen_homescreen",
-      "community": 42,
+      "community": 176,
       "norm_label": "homescreen()"
     },
     {
@@ -7280,7 +7310,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homescreen_greetingforhour",
-      "community": 42,
+      "community": 176,
       "norm_label": "greetingforhour()"
     },
     {
@@ -7290,7 +7320,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homescreen_kt_int",
-      "community": 42,
+      "community": 176,
       "norm_label": "int"
     },
     {
@@ -7300,7 +7330,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homescreen_kt_string",
-      "community": 42,
+      "community": 176,
       "norm_label": "string"
     },
     {
@@ -7310,7 +7340,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homescreen_hometile",
-      "community": 42,
+      "community": 176,
       "norm_label": "hometile()"
     },
     {
@@ -7320,7 +7350,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "imagevector",
-      "community": 42,
+      "community": 176,
       "norm_label": "imagevector"
     },
     {
@@ -7330,7 +7360,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel",
-      "community": 42,
+      "community": 275,
       "norm_label": "homeviewmodel.kt"
     },
     {
@@ -7340,7 +7370,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel_homeviewmodel",
-      "community": 42,
+      "community": 275,
       "norm_label": "homeviewmodel"
     },
     {
@@ -7350,7 +7380,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel_kt_string",
-      "community": 42,
+      "community": 275,
       "norm_label": "string"
     },
     {
@@ -7360,7 +7390,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel_kt_stateflow",
-      "community": 42,
+      "community": 275,
       "norm_label": "stateflow"
     },
     {
@@ -7370,7 +7400,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel_kt_list",
-      "community": 42,
+      "community": 275,
       "norm_label": "list"
     },
     {
@@ -7380,7 +7410,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel_homeviewmodel_recoverpending",
-      "community": 42,
+      "community": 275,
       "norm_label": ".recoverpending()"
     },
     {
@@ -7390,7 +7420,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel_homeviewmodel_dismissnotice",
-      "community": 42,
+      "community": 275,
       "norm_label": ".dismissnotice()"
     },
     {
@@ -7400,7 +7430,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel_homeviewmodel_clearreconciled",
-      "community": 42,
+      "community": 275,
       "norm_label": ".clearreconciled()"
     },
     {
@@ -7410,7 +7440,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel_kt_flow",
-      "community": 42,
+      "community": 275,
       "norm_label": "flow"
     },
     {
@@ -7420,7 +7450,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel_kt_unit",
-      "community": 42,
+      "community": 275,
       "norm_label": "unit"
     },
     {
@@ -7430,7 +7460,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodel_homeviewmodel_logout",
-      "community": 42,
+      "community": 275,
       "norm_label": ".logout()"
     },
     {
@@ -7440,7 +7470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext",
-      "community": 42,
+      "community": 158,
       "norm_label": "recoverynoticetext.kt"
     },
     {
@@ -7450,7 +7480,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_label",
-      "community": 42,
+      "community": 158,
       "norm_label": "label()"
     },
     {
@@ -7460,7 +7490,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_kt_string",
-      "community": 42,
+      "community": 158,
       "norm_label": "string"
     },
     {
@@ -7470,7 +7500,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_otheroperatortext",
-      "community": 42,
+      "community": 158,
       "norm_label": "otheroperatortext()"
     },
     {
@@ -7480,7 +7510,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_statusline",
-      "community": 42,
+      "community": 158,
       "norm_label": "statusline()"
     },
     {
@@ -7490,7 +7520,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_shouldoffercheckagain",
-      "community": 42,
+      "community": 158,
       "norm_label": "shouldoffercheckagain()"
     },
     {
@@ -7500,7 +7530,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_kt_list",
-      "community": 42,
+      "community": 158,
       "norm_label": "list"
     },
     {
@@ -7510,7 +7540,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_kt_boolean",
-      "community": 42,
+      "community": 158,
       "norm_label": "boolean"
     },
     {
@@ -7520,7 +7550,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_canbecleared",
-      "community": 42,
+      "community": 158,
       "norm_label": "canbecleared()"
     },
     {
@@ -7530,7 +7560,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_visibleto",
-      "community": 42,
+      "community": 158,
       "norm_label": "visibleto()"
     },
     {
@@ -7540,7 +7570,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_noticetext",
-      "community": 42,
+      "community": 158,
       "norm_label": "noticetext()"
     },
     {
@@ -7550,7 +7580,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetext_openactionlabel",
-      "community": 42,
+      "community": 158,
       "norm_label": "openactionlabel()"
     },
     {
@@ -7560,7 +7590,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_unresolvedcommandscard",
-      "community": 42,
+      "community": 176,
       "norm_label": "unresolvedcommandscard.kt"
     },
     {
@@ -7570,7 +7600,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_unresolvedcommandscard_unresolvedcommandscard",
-      "community": 42,
+      "community": 176,
       "norm_label": "unresolvedcommandscard()"
     },
     {
@@ -7580,7 +7610,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_unresolvedcommandscard_kt_list",
-      "community": 42,
+      "community": 176,
       "norm_label": "list"
     },
     {
@@ -7590,7 +7620,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_unresolvedcommandscard_kt_string",
-      "community": 42,
+      "community": 176,
       "norm_label": "string"
     },
     {
@@ -7600,7 +7630,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_home_unresolvedcommandscard_kt_modifier",
-      "community": 42,
+      "community": 176,
       "norm_label": "modifier"
     },
     {
@@ -7610,7 +7640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_joblookup_jobdetailscreen",
-      "community": 174,
+      "community": 277,
       "norm_label": "jobdetailscreen.kt"
     },
     {
@@ -7620,7 +7650,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_joblookup_jobdetailscreen_jobdetailscreen",
-      "community": 174,
+      "community": 277,
       "norm_label": "jobdetailscreen()"
     },
     {
@@ -7630,7 +7660,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_joblookup_jobdetailscreen_kt_string",
-      "community": 174,
+      "community": 277,
       "norm_label": "string"
     },
     {
@@ -7650,7 +7680,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_joblookup_jobformat_formatquantity",
-      "community": 300,
+      "community": 233,
       "norm_label": "formatquantity()"
     },
     {
@@ -9070,7 +9100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_noncollectingstage",
-      "community": 199,
+      "community": 174,
       "norm_label": "noncollectingstage.kt"
     },
     {
@@ -9080,7 +9110,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_noncollectingstage_noncollectingstage",
-      "community": 199,
+      "community": 174,
       "norm_label": "noncollectingstage()"
     },
     {
@@ -9090,7 +9120,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_noncollectingstage_kt_string",
-      "community": 199,
+      "community": 174,
       "norm_label": "string"
     },
     {
@@ -9100,7 +9130,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_noncollectingstage_kt_modifier",
-      "community": 199,
+      "community": 174,
       "norm_label": "modifier"
     },
     {
@@ -9110,7 +9140,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_noncollectingstage_materialrow",
-      "community": 199,
+      "community": 174,
       "norm_label": "materialrow()"
     },
     {
@@ -9240,7 +9270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationscreen",
-      "community": 199,
+      "community": 174,
       "norm_label": "preparationscreen.kt"
     },
     {
@@ -9250,7 +9280,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationscreen_preparationscreen",
-      "community": 199,
+      "community": 174,
       "norm_label": "preparationscreen()"
     },
     {
@@ -9260,7 +9290,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationscreen_kt_string",
-      "community": 199,
+      "community": 174,
       "norm_label": "string"
     },
     {
@@ -9270,7 +9300,7 @@
       "source_location": "L157",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationscreen_machinecardtitle",
-      "community": 199,
+      "community": 174,
       "norm_label": "machinecardtitle()"
     },
     {
@@ -9280,7 +9310,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel",
-      "community": 213,
+      "community": 169,
       "norm_label": "preparationviewmodel.kt"
     },
     {
@@ -9480,7 +9510,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_kt_long",
-      "community": 213,
+      "community": 169,
       "norm_label": "long"
     },
     {
@@ -9580,7 +9610,7 @@
       "source_location": "L494",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_preparationviewmodel_applyifnewer",
-      "community": 213,
+      "community": 169,
       "norm_label": ".applyifnewer()"
     },
     {
@@ -9590,7 +9620,7 @@
       "source_location": "L503",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_preparationviewmodel_applypreparationifnewer",
-      "community": 213,
+      "community": 169,
       "norm_label": ".applypreparationifnewer()"
     },
     {
@@ -9670,7 +9700,7 @@
       "source_location": "L542",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_submitplan",
-      "community": 213,
+      "community": 169,
       "norm_label": "submitplan"
     },
     {
@@ -9680,7 +9710,7 @@
       "source_location": "L544",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_preparationviewmodel_runcaptures",
-      "community": 213,
+      "community": 169,
       "norm_label": ".runcaptures()"
     },
     {
@@ -9690,7 +9720,7 @@
       "source_location": "L616",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_recordedsofar",
-      "community": 213,
+      "community": 169,
       "norm_label": "recordedsofar"
     },
     {
@@ -9830,7 +9860,7 @@
       "source_location": "L786",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_preparationviewmodel_handle",
-      "community": 213,
+      "community": 169,
       "norm_label": ".handle()"
     },
     {
@@ -9840,7 +9870,7 @@
       "source_location": "L809",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_preparationviewmodel_handlenotdone",
-      "community": 213,
+      "community": 169,
       "norm_label": ".handlenotdone()"
     },
     {
@@ -9850,7 +9880,7 @@
       "source_location": "L841",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_preparationviewmodel_prefix",
-      "community": 213,
+      "community": 169,
       "norm_label": ".prefix()"
     },
     {
@@ -9880,7 +9910,7 @@
       "source_location": "L870",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_preparationviewmodel_takeifnewer",
-      "community": 213,
+      "community": 169,
       "norm_label": ".takeifnewer()"
     },
     {
@@ -9920,7 +9950,7 @@
       "source_location": "L910",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_machinedonebanner",
-      "community": 213,
+      "community": 169,
       "norm_label": "machinedonebanner()"
     },
     {
@@ -9930,7 +9960,7 @@
       "source_location": "L926",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_donebanner",
-      "community": 213,
+      "community": 169,
       "norm_label": "donebanner()"
     },
     {
@@ -9940,7 +9970,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparescreen",
-      "community": 174,
+      "community": 194,
       "norm_label": "preparescreen.kt"
     },
     {
@@ -9950,7 +9980,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparescreen_preparescreen",
-      "community": 174,
+      "community": 194,
       "norm_label": "preparescreen()"
     },
     {
@@ -9960,7 +9990,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparescreen_mixcountfield",
-      "community": 174,
+      "community": 194,
       "norm_label": "mixcountfield()"
     },
     {
@@ -9970,7 +10000,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel",
-      "community": 176,
+      "community": 194,
       "norm_label": "prepareviewmodel.kt"
     },
     {
@@ -9980,7 +10010,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareuistate",
-      "community": 176,
+      "community": 194,
       "norm_label": "prepareuistate"
     },
     {
@@ -9990,7 +10020,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel",
-      "community": 176,
+      "community": 194,
       "norm_label": "prepareviewmodel"
     },
     {
@@ -10000,7 +10030,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_kt_string",
-      "community": 176,
+      "community": 194,
       "norm_label": "string"
     },
     {
@@ -10010,7 +10040,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_kt_stateflow",
-      "community": 176,
+      "community": 194,
       "norm_label": "stateflow"
     },
     {
@@ -10020,7 +10050,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_kt_flow",
-      "community": 176,
+      "community": 194,
       "norm_label": "flow"
     },
     {
@@ -10030,7 +10060,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_onmixcount",
-      "community": 176,
+      "community": 194,
       "norm_label": ".onmixcount()"
     },
     {
@@ -10040,7 +10070,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_onanswer",
-      "community": 176,
+      "community": 194,
       "norm_label": ".onanswer()"
     },
     {
@@ -10050,7 +10080,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_kt_boolean",
-      "community": 176,
+      "community": 194,
       "norm_label": "boolean"
     },
     {
@@ -10060,7 +10090,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_onreason",
-      "community": 176,
+      "community": 194,
       "norm_label": ".onreason()"
     },
     {
@@ -10070,7 +10100,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_updateform",
-      "community": 176,
+      "community": 194,
       "norm_label": ".updateform()"
     },
     {
@@ -10080,7 +10110,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_ownunresolved",
-      "community": 176,
+      "community": 194,
       "norm_label": ".ownunresolved()"
     },
     {
@@ -10090,7 +10120,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_kt_list",
-      "community": 176,
+      "community": 194,
       "norm_label": "list"
     },
     {
@@ -10100,7 +10130,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_refresh",
-      "community": 176,
+      "community": 194,
       "norm_label": ".refresh()"
     },
     {
@@ -10110,7 +10140,7 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_reload",
-      "community": 176,
+      "community": 194,
       "norm_label": ".reload()"
     },
     {
@@ -10120,7 +10150,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_read",
-      "community": 176,
+      "community": 194,
       "norm_label": ".read()"
     },
     {
@@ -10130,7 +10160,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_submit",
-      "community": 176,
+      "community": 194,
       "norm_label": ".submit()"
     },
     {
@@ -10140,7 +10170,7 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_retrypending",
-      "community": 176,
+      "community": 194,
       "norm_label": ".retrypending()"
     },
     {
@@ -10150,7 +10180,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_doretry",
-      "community": 176,
+      "community": 194,
       "norm_label": ".doretry()"
     },
     {
@@ -10160,7 +10190,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_sendfailed",
-      "community": 176,
+      "community": 194,
       "norm_label": ".sendfailed()"
     },
     {
@@ -10170,7 +10200,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_kt_exception",
-      "community": 176,
+      "community": 194,
       "norm_label": "exception"
     },
     {
@@ -10180,7 +10210,7 @@
       "source_location": "L218",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_handle",
-      "community": 176,
+      "community": 194,
       "norm_label": ".handle()"
     },
     {
@@ -10190,7 +10220,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_recovernow",
-      "community": 176,
+      "community": 194,
       "norm_label": ".recovernow()"
     },
     {
@@ -10200,7 +10230,7 @@
       "source_location": "L295",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodel_prepareviewmodel_applysnapshot",
-      "community": 176,
+      "community": 194,
       "norm_label": ".applysnapshot()"
     },
     {
@@ -10300,7 +10330,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_resultbanner_infoline",
-      "community": 236,
+      "community": 234,
       "norm_label": "infoline()"
     },
     {
@@ -10330,7 +10360,7 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_resultbanner_replacementdialog",
-      "community": 199,
+      "community": 174,
       "norm_label": "replacementdialog()"
     },
     {
@@ -11690,7 +11720,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_theme_motion",
-      "community": 196,
+      "community": 310,
       "norm_label": "motion.kt"
     },
     {
@@ -11700,7 +11730,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_theme_motion_rememberreducedmotion",
-      "community": 196,
+      "community": 310,
       "norm_label": "rememberreducedmotion()"
     },
     {
@@ -15110,7 +15140,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2collectionrequesttest_rev2collectionrequesttest_adjust_ingredient_writes_a_plain_decimal_target",
-      "community": 254,
+      "community": 312,
       "norm_label": ".`adjust_ingredient writes a plain decimal target`()"
     },
     {
@@ -15120,7 +15150,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2collectionrequesttest_rev2collectionrequesttest_identify_sends_the_prep_and_the_scanned_code",
-      "community": 254,
+      "community": 24,
       "norm_label": ".`identify sends the prep and the scanned code`()"
     },
     {
@@ -15869,8 +15899,8 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "id": "c_dev_clients_ppnam_station_2_ppnam_station_2_aa_app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_kt_pair",
-      "community": 369,
+      "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_kt_pair",
+      "community": 154,
       "norm_label": "pair"
     },
     {
@@ -15879,8 +15909,8 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "id": "c_dev_clients_ppnam_station_2_ppnam_station_2_aa_app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_kt_long",
-      "community": 368,
+      "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_kt_long",
+      "community": 154,
       "norm_label": "long"
     },
     {
@@ -15889,8 +15919,8 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "id": "c_dev_clients_ppnam_station_2_ppnam_station_2_aa_app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_kt_runnable",
-      "community": 370,
+      "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_kt_runnable",
+      "community": 154,
       "norm_label": "runnable"
     },
     {
@@ -15914,10 +15944,30 @@
       "norm_label": ".`expires once the timeout elapses without activity`()"
     },
     {
-      "label": ".`touch defers the deadline`()",
+      "label": ".`idle time carried over shortens the first deadline`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
       "source_location": "L43",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_idle_time_carried_over_shortens_the_first_deadline",
+      "community": 154,
+      "norm_label": ".`idle time carried over shortens the first deadline`()"
+    },
+    {
+      "label": ".`idle time already past the timeout expires at once`()",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_idle_time_already_past_the_timeout_expires_at_once",
+      "community": 154,
+      "norm_label": ".`idle time already past the timeout expires at once`()"
+    },
+    {
+      "label": ".`touch defers the deadline`()",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
+      "source_location": "L56",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_touch_defers_the_deadline",
       "community": 154,
@@ -15927,7 +15977,7 @@
       "label": ".`stop cancels the pending deadline and never fires`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L57",
+      "source_location": "L70",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_stop_cancels_the_pending_deadline_and_never_fires",
       "community": 154,
@@ -15937,7 +15987,7 @@
       "label": ".`checkNow after a long gap fires immediately`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L66",
+      "source_location": "L79",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_checknow_after_a_long_gap_fires_immediately",
       "community": 154,
@@ -15947,7 +15997,7 @@
       "label": ".`checkNow before the deadline does nothing`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L75",
+      "source_location": "L88",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_checknow_before_the_deadline_does_nothing",
       "community": 154,
@@ -15957,7 +16007,7 @@
       "label": ".`zero or negative timeout disables the monitor`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L84",
+      "source_location": "L97",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_zero_or_negative_timeout_disables_the_monitor",
       "community": 154,
@@ -15967,7 +16017,7 @@
       "label": ".`touch and checkNow are no-ops when stopped`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L94",
+      "source_location": "L107",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_touch_and_checknow_are_no_ops_when_stopped",
       "community": 154,
@@ -15977,7 +16027,7 @@
       "label": ".`restart replaces the previous timeout`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L102",
+      "source_location": "L115",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_restart_replaces_the_previous_timeout",
       "community": 154,
@@ -16202,6 +16252,16 @@
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_sessionpersistencetest_sessionpersistencetest_no_recorded_activity_or_a_clock_that_ran_backwards_refuses",
       "community": 189,
       "norm_label": ".`no recorded activity or a clock that ran backwards refuses`()"
+    },
+    {
+      "label": ".`an unknown timeout refuses instead of counting as auto sign-out off`()",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/SessionPersistenceTest.kt",
+      "source_location": "L43",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_sessionpersistencetest_sessionpersistencetest_an_unknown_timeout_refuses_instead_of_counting_as_auto_sign_out_off",
+      "community": 189,
+      "norm_label": ".`an unknown timeout refuses instead of counting as auto sign-out off`()"
     },
     {
       "label": "OperatorDirectoryJsonTest.kt",
@@ -17540,7 +17600,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecasetest_generalcollectionusecasetest_setup",
-      "community": 24,
+      "community": 159,
       "norm_label": ".setup()"
     },
     {
@@ -17580,7 +17640,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecasetest_generalcollectionusecasetest_capture_sends_one_command_with_the_code_and_an_omitted_quantity",
-      "community": 181,
+      "community": 254,
       "norm_label": ".`capture sends one command with the code and an omitted quantity`()"
     },
     {
@@ -17850,7 +17910,7 @@
       "source_location": "L315",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecasetest_generalcollectionusecasetest_addingredient_sends_one_outboxed_adjust_ingredient_add",
-      "community": 181,
+      "community": 312,
       "norm_label": ".`addingredient sends one outboxed adjust_ingredient add`()"
     },
     {
@@ -19040,7 +19100,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_a_sealed_command_becomes_an_offer_without_a_notice",
-      "community": 340,
+      "community": 196,
       "norm_label": ".`a sealed command becomes an offer without a notice`()"
     },
     {
@@ -19380,7 +19440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest",
-      "community": 42,
+      "community": 178,
       "norm_label": "homeviewmodeltest.kt"
     },
     {
@@ -19390,7 +19450,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_homeviewmodeltest",
-      "community": 42,
+      "community": 178,
       "norm_label": "homeviewmodeltest"
     },
     {
@@ -19400,7 +19460,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_kt_mutablestateflow",
-      "community": 42,
+      "community": 178,
       "norm_label": "mutablestateflow"
     },
     {
@@ -19410,7 +19470,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_kt_com",
-      "community": 42,
+      "community": 178,
       "norm_label": "com"
     },
     {
@@ -19420,7 +19480,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_homeviewmodeltest_setup",
-      "community": 42,
+      "community": 178,
       "norm_label": ".setup()"
     },
     {
@@ -19430,7 +19490,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_homeviewmodeltest_teardown",
-      "community": 42,
+      "community": 178,
       "norm_label": ".teardown()"
     },
     {
@@ -19440,7 +19500,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_homeviewmodeltest_the_card_knows_which_scanner_this_is_to_tell_other_scanners_commands_apart",
-      "community": 42,
+      "community": 178,
       "norm_label": ".`the card knows which scanner this is, to tell other scanners' commands apart`()"
     },
     {
@@ -19450,7 +19510,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_homeviewmodeltest_clearing_goes_to_the_coordinator_and_a_clear_that_could_not_be_recorded_is_reported",
-      "community": 42,
+      "community": 178,
       "norm_label": ".`clearing goes to the coordinator, and a clear that could not be recorded is reported`()"
     },
     {
@@ -19460,7 +19520,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_homeviewmodeltest_another_operator_notice_is_not_exposed",
-      "community": 42,
+      "community": 178,
       "norm_label": ".`another operator notice is not exposed`()"
     },
     {
@@ -19470,7 +19530,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_homeviewmodeltest_recovery_runs_again_each_time_the_broker_reconnects",
-      "community": 42,
+      "community": 178,
       "norm_label": ".`recovery runs again each time the broker reconnects`()"
     },
     {
@@ -19480,7 +19540,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_homeviewmodeltest_session_reflects_the_current_operator_session",
-      "community": 42,
+      "community": 178,
       "norm_label": ".`session reflects the current operator session`()"
     },
     {
@@ -19490,7 +19550,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_homeviewmodeltest_homeviewmodeltest_logout_calls_authusecase_and_fires_logoutevent",
-      "community": 42,
+      "community": 178,
       "norm_label": ".`logout calls authusecase and fires logoutevent`()"
     },
     {
@@ -19550,7 +19610,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_home_recoverynoticetexttest_recoverynoticetexttest_check_again_is_offered_only_for_the_signed_in_operator_unresolved_commands_from_an_earlier_session",
-      "community": 303,
+      "community": 158,
       "norm_label": ".`check again is offered only for the signed-in operator unresolved commands from an earlier session`()"
     },
     {
@@ -19640,7 +19700,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_joblookup_jobformattest_jobformattest_a_whole_number_has_no_decimals",
-      "community": 300,
+      "community": 233,
       "norm_label": ".`a whole number has no decimals`()"
     },
     {
@@ -19650,7 +19710,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_joblookup_jobformattest_jobformattest_trailing_zeros_are_dropped",
-      "community": 300,
+      "community": 233,
       "norm_label": ".`trailing zeros are dropped`()"
     },
     {
@@ -19690,7 +19750,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_joblookup_jobformattest_jobformattest_zero_is_zero",
-      "community": 300,
+      "community": 233,
       "norm_label": ".`zero is zero`()"
     },
     {
@@ -19850,7 +19910,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_joblookup_joblookupviewmodeltest_kt_string",
-      "community": 310,
+      "community": 48,
       "norm_label": "string"
     },
     {
@@ -19900,7 +19960,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_joblookup_joblookupviewmodeltest_joblookupviewmodeltest_an_empty_job_list_is_shown_as_empty_not_as_an_error",
-      "community": 310,
+      "community": 273,
       "norm_label": ".`an empty job list is shown as empty, not as an error`()"
     },
     {
@@ -20070,7 +20130,7 @@
       "source_location": "L279",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_joblookup_joblookupviewmodeltest_joblookupviewmodeltest_detailof",
-      "community": 310,
+      "community": 48,
       "norm_label": ".detailof()"
     },
     {
@@ -20080,7 +20140,7 @@
       "source_location": "L281",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_joblookup_joblookupviewmodeltest_joblookupviewmodeltest_a_late_reply_for_a_job_left_behind_does_not_overwrite_the_job_now_viewed",
-      "community": 310,
+      "community": 48,
       "norm_label": ".`a late reply for a job left behind does not overwrite the job now viewed`()"
     },
     {
@@ -20090,7 +20150,7 @@
       "source_location": "L298",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_joblookup_joblookupviewmodeltest_joblookupviewmodeltest_a_late_successful_reply_for_a_job_left_behind_still_applies_its_job_list",
-      "community": 310,
+      "community": 273,
       "norm_label": ".`a late successful reply for a job left behind still applies its job list`()"
     },
     {
@@ -20580,7 +20640,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_mixerviewmodeltest_mixerviewmodeltest_open",
-      "community": 213,
+      "community": 169,
       "norm_label": ".open()"
     },
     {
@@ -20920,7 +20980,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_the_replacement_prompt_names_the_code_quantity_and_sast_time",
-      "community": 340,
+      "community": 196,
       "norm_label": ".`the replacement prompt names the code, quantity and sast time`()"
     },
     {
@@ -20930,7 +20990,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest",
-      "community": 196,
+      "community": 169,
       "norm_label": "preparationviewmodeltest.kt"
     },
     {
@@ -20940,7 +21000,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_snap",
-      "community": 196,
+      "community": 169,
       "norm_label": "snap()"
     },
     {
@@ -20950,7 +21010,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_kt_string",
-      "community": 196,
+      "community": 169,
       "norm_label": "string"
     },
     {
@@ -20960,7 +21020,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_pending",
-      "community": 196,
+      "community": 169,
       "norm_label": "pending()"
     },
     {
@@ -20980,7 +21040,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_teardown",
-      "community": 196,
+      "community": 169,
       "norm_label": "teardown()"
     },
     {
@@ -20990,7 +21050,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_open",
-      "community": 213,
+      "community": 169,
       "norm_label": "open()"
     },
     {
@@ -21000,7 +21060,7 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_scan",
-      "community": 196,
+      "community": 169,
       "norm_label": "scan()"
     },
     {
@@ -21010,7 +21070,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_source",
-      "community": 196,
+      "community": 169,
       "norm_label": "source()"
     },
     {
@@ -21020,7 +21080,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_kt_boolean",
-      "community": 196,
+      "community": 169,
       "norm_label": "boolean"
     },
     {
@@ -21030,7 +21090,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_scanidentified",
-      "community": 196,
+      "community": 169,
       "norm_label": "scanidentified()"
     },
     {
@@ -21040,7 +21100,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_step",
-      "community": 196,
+      "community": 169,
       "norm_label": "step()"
     },
     {
@@ -21060,7 +21120,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_withresincollected",
-      "community": 196,
+      "community": 169,
       "norm_label": "withresincollected()"
     },
     {
@@ -21080,7 +21140,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_opening_reads_the_exact_prep_id",
-      "community": 196,
+      "community": 169,
       "norm_label": "`opening reads the exact prep id`()"
     },
     {
@@ -21090,7 +21150,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_identify_s_compact_reply_refreshes_only_the_prep_keeping_the_job_machines_and_exceptions",
-      "community": 196,
+      "community": 169,
       "norm_label": "`identify's compact reply refreshes only the prep, keeping the job, machines and exceptions`()"
     },
     {
@@ -21100,7 +21160,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_a_scan_identifies_the_pallet_and_never_sends",
-      "community": 196,
+      "community": 169,
       "norm_label": "`a scan identifies the pallet and never sends`()"
     },
     {
@@ -21110,7 +21170,7 @@
       "source_location": "L217",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_an_identified_in_mix_pallet_shows_the_guide_and_prefills_the_smaller_of_remaining_and_stock",
-      "community": 196,
+      "community": 169,
       "norm_label": "`an identified in-mix pallet shows the guide and prefills the smaller of remaining and stock`()"
     },
     {
@@ -21120,7 +21180,7 @@
       "source_location": "L230",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_scans_are_ignored_while_the_screen_is_not_active",
-      "community": 196,
+      "community": 169,
       "norm_label": "`scans are ignored while the screen is not active`()"
     },
     {
@@ -21130,7 +21190,7 @@
       "source_location": "L239",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_submit_with_no_bag_size_sends_one_capture_of_the_exact_amount_and_shows_accepted",
-      "community": 196,
+      "community": 169,
       "norm_label": "`submit with no bag size sends one capture of the exact amount and shows accepted`()"
     },
     {
@@ -21140,7 +21200,7 @@
       "source_location": "L253",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_two_taps_on_submit_while_in_flight_send_one_capture",
-      "community": 196,
+      "community": 169,
       "norm_label": "`two taps on submit while in flight send one capture`()"
     },
     {
@@ -21450,7 +21510,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_prepareviewmodeltest_prepareviewmodeltest_a_read_that_throws_stops_loading_and_shows_the_message",
-      "community": 176,
+      "community": 194,
       "norm_label": ".`a read that throws stops loading and shows the message`()"
     },
     {
@@ -21490,7 +21550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest",
-      "community": 312,
+      "community": 209,
       "norm_label": "rajoojobviewmodeltest.kt"
     },
     {
@@ -21500,7 +21560,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest",
-      "community": 312,
+      "community": 209,
       "norm_label": "rajoojobviewmodeltest"
     },
     {
@@ -21510,7 +21570,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_kt_mutablestateflow",
-      "community": 312,
+      "community": 209,
       "norm_label": "mutablestateflow"
     },
     {
@@ -21520,7 +21580,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_kt_list",
-      "community": 312,
+      "community": 209,
       "norm_label": "list"
     },
     {
@@ -21530,7 +21590,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_snap",
-      "community": 312,
+      "community": 209,
       "norm_label": ".snap()"
     },
     {
@@ -21540,7 +21600,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_kt_string",
-      "community": 312,
+      "community": 209,
       "norm_label": "string"
     },
     {
@@ -21550,7 +21610,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_setup",
-      "community": 312,
+      "community": 209,
       "norm_label": ".setup()"
     },
     {
@@ -21560,7 +21620,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_teardown",
-      "community": 312,
+      "community": 209,
       "norm_label": ".teardown()"
     },
     {
@@ -21570,7 +21630,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_open",
-      "community": 312,
+      "community": 209,
       "norm_label": ".open()"
     },
     {
@@ -21580,7 +21640,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_source",
-      "community": 312,
+      "community": 209,
       "norm_label": ".source()"
     },
     {
@@ -21590,7 +21650,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_the_rajoo_machine_code_starts_the_first_session_answering_catalog_choices_as_include",
-      "community": 254,
+      "community": 209,
       "norm_label": ".`the rajoo machine code starts the first session, answering catalog choices as include`()"
     },
     {
@@ -21600,7 +21660,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_a_first_session_that_excludes_every_ingredient_is_refused_before_sending",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`a first session that excludes every ingredient is refused before sending`()"
     },
     {
@@ -21610,7 +21670,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_without_a_session_any_other_code_is_rejected_and_nothing_is_sent",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`without a session any other code is rejected and nothing is sent`()"
     },
     {
@@ -21620,7 +21680,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_a_later_session_sends_no_choices",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`a later session sends no choices`()"
     },
     {
@@ -21630,7 +21690,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_during_a_session_a_pallet_is_identified_prefilled_to_one_bag_and_captured_in_the_session",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`during a session a pallet is identified, prefilled to one bag, and captured in the session`()"
     },
     {
@@ -21640,7 +21700,7 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_scanning_the_rajoo_machine_code_during_a_session_ends_it_and_once_complete_closes_the_job",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`scanning the rajoo machine code during a session ends it, and once complete closes the job`()"
     },
     {
@@ -21650,7 +21710,7 @@
       "source_location": "L210",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_an_off_bom_pallet_can_be_added_to_the_full_job_with_a_reason_then_recorded",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`an off-bom pallet can be added to the full job with a reason, then recorded`()"
     },
     {
@@ -21660,7 +21720,7 @@
       "source_location": "L232",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_an_off_bom_pallet_can_be_used_instead_of_an_uncaptured_ingredient",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`an off-bom pallet can be used instead of an uncaptured ingredient`()"
     },
     {
@@ -21670,7 +21730,7 @@
       "source_location": "L247",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_a_row_s_full_job_total_can_be_lowered_with_a_reason_but_not_below_what_is_collected",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`a row's full-job total can be lowered with a reason, but not below what is collected`()"
     },
     {
@@ -21680,7 +21740,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_only_an_uncaptured_row_can_be_omitted",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`only an uncaptured row can be omitted`()"
     },
     {
@@ -21690,7 +21750,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_decisions_need_the_active_session",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`decisions need the active session`()"
     },
     {
@@ -21700,7 +21760,7 @@
       "source_location": "L295",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_an_unanswered_rajoo_command_for_this_job_blocks_scanning_and_finishing",
-      "community": 124,
+      "community": 209,
       "norm_label": ".`an unanswered rajoo command for this job blocks scanning and finishing`()"
     },
     {
@@ -21710,7 +21770,7 @@
       "source_location": "L310",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_a_general_command_with_the_same_target_id_does_not_block_the_rajoo_job",
-      "community": 124,
+      "community": 209,
       "norm_label": ".`a general command with the same target id does not block the rajoo job`()"
     },
     {
@@ -21720,7 +21780,7 @@
       "source_location": "L321",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_rajoo_identify_of_an_unknown_pallet_shows_not_recognised",
-      "community": 312,
+      "community": 209,
       "norm_label": ".`rajoo identify of an unknown pallet shows not recognised`()"
     },
     {
@@ -21730,7 +21790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoolookupviewmodeltest",
-      "community": 158,
+      "community": 169,
       "norm_label": "rajoolookupviewmodeltest.kt"
     },
     {
@@ -21740,7 +21800,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoolookupviewmodeltest_rajoolookupviewmodeltest",
-      "community": 158,
+      "community": 169,
       "norm_label": "rajoolookupviewmodeltest"
     },
     {
@@ -21750,7 +21810,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoolookupviewmodeltest_rajoolookupviewmodeltest_setup",
-      "community": 158,
+      "community": 169,
       "norm_label": ".setup()"
     },
     {
@@ -21760,7 +21820,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoolookupviewmodeltest_rajoolookupviewmodeltest_teardown",
-      "community": 158,
+      "community": 169,
       "norm_label": ".teardown()"
     },
     {
@@ -21770,7 +21830,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoolookupviewmodeltest_rajoolookupviewmodeltest_open",
-      "community": 158,
+      "community": 169,
       "norm_label": ".open()"
     },
     {
@@ -21780,7 +21840,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoolookupviewmodeltest_rajoolookupviewmodeltest_the_only_enabled_rajoo_machine_is_used_without_a_scan",
-      "community": 158,
+      "community": 169,
       "norm_label": ".`the only enabled rajoo machine is used without a scan`()"
     },
     {
@@ -21790,7 +21850,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoolookupviewmodeltest_rajoolookupviewmodeltest_with_several_enabled_rajoo_machines_the_operator_scans_which_one",
-      "community": 158,
+      "community": 169,
       "norm_label": ".`with several enabled rajoo machines the operator scans which one`()"
     },
     {
@@ -21800,7 +21860,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoolookupviewmodeltest_rajoolookupviewmodeltest_a_disabled_or_uncommissioned_machine_is_not_used_and_no_usable_machine_says_so",
-      "community": 158,
+      "community": 169,
       "norm_label": ".`a disabled or uncommissioned machine is not used, and no usable machine says so`()"
     },
     {
@@ -21810,7 +21870,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoolookupviewmodeltest_rajoolookupviewmodeltest_the_auto_selected_machine_follows_station_2_s_current_list",
-      "community": 158,
+      "community": 169,
       "norm_label": ".`the auto-selected machine follows station 2's current list`()"
     },
     {
@@ -46955,7 +47015,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L37",
+      "source_location": "L38",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_checknow",
@@ -46965,7 +47025,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L54",
+      "source_location": "L55",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_schedulecheck",
@@ -46975,7 +47035,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_start",
@@ -46985,7 +47045,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_stop",
@@ -46995,21 +47055,32 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_touch",
       "confidence_score": 1.0
     },
     {
-      "relation": "calls",
-      "context": "call",
+      "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L29",
+      "source_location": "L22",
       "weight": 1.0,
-      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_start",
-      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_schedulecheck",
+      "context": "field",
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_boolean",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "field",
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_runnable",
       "confidence_score": 1.0
     },
     {
@@ -47017,18 +47088,62 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L25",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_schedulecheck",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_runnable",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_start",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_checknow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
+      "source_location": "L26",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_start",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_stop",
       "confidence_score": 1.0
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_start",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_long",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
+      "source_location": "L55",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_schedulecheck",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_kt_long",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_checknow",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_schedulecheck",
@@ -47039,7 +47154,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitor.kt",
-      "source_location": "L41",
+      "source_location": "L42",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_checknow",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitor_inactivitymonitor_stop",
@@ -47124,7 +47239,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L116",
+      "source_location": "L141",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_canrestore",
@@ -47135,7 +47250,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L96",
+      "source_location": "L121",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_of",
@@ -47147,7 +47262,7 @@
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L83",
+      "source_location": "L108",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_saved_tosession",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_operatorsessionholder_operatorsession",
@@ -47157,7 +47272,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L62",
+      "source_location": "L80",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_save",
@@ -47625,7 +47740,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L46",
+      "source_location": "L60",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_install",
@@ -47636,7 +47751,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L32",
+      "source_location": "L35",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_restoreinto",
@@ -48161,7 +48276,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionGuard.kt",
-      "source_location": "L90",
+      "source_location": "L92",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionguard_sessionguard",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionguard_sessionguard_expire",
@@ -48213,7 +48328,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L116",
+      "source_location": "L141",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_canrestore",
@@ -48223,7 +48338,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L96",
+      "source_location": "L121",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_of",
@@ -48233,7 +48348,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L75",
+      "source_location": "L100",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_saved",
@@ -48250,10 +48365,21 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L32",
+      "weight": 1.0,
+      "context": "field",
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_kt_string",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L68",
+      "source_location": "L92",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_forget",
@@ -48263,7 +48389,17 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L46",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_idlemsfor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L60",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_install",
@@ -48273,7 +48409,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L55",
+      "source_location": "L69",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_recordactivity",
@@ -48283,7 +48419,17 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L32",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_recordtimeout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L35",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_restoreinto",
@@ -48293,10 +48439,43 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L62",
+      "source_location": "L80",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_save",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_idlemsfor",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_kt_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_restoreinto",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_canrestore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_restoreinto",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_kt_long",
       "confidence_score": 1.0
     },
     {
@@ -48307,28 +48486,6 @@
       "source_location": "L37",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_restoreinto",
-      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_canrestore",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L32",
-      "weight": 1.0,
-      "context": "parameter_type",
-      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_restoreinto",
-      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_kt_long",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L34",
-      "weight": 1.0,
-      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_restoreinto",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_saved_tosession",
       "confidence_score": 1.0
     },
@@ -48337,7 +48494,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L41",
+      "source_location": "L45",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_restoreinto",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_forget",
@@ -48347,7 +48504,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L116",
+      "source_location": "L141",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_canrestore",
@@ -48358,7 +48515,18 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L55",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_idlemsfor",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_kt_long",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L69",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_recordactivity",
@@ -48369,7 +48537,18 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L46",
+      "source_location": "L76",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_recordtimeout",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_kt_long",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L60",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_install",
@@ -48381,7 +48560,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L49",
+      "source_location": "L63",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_install",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_forget",
@@ -48392,7 +48571,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L49",
+      "source_location": "L63",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_install",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_save",
@@ -48403,7 +48582,18 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L63",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_save",
+      "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_recordactivity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
+      "source_location": "L87",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_sessionpersistence_save",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_of",
@@ -48414,7 +48604,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L96",
+      "source_location": "L121",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_of",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_saved",
@@ -48424,7 +48614,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L83",
+      "source_location": "L108",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_saved",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_saved_tosession",
@@ -48434,7 +48624,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt",
-      "source_location": "L116",
+      "source_location": "L141",
       "weight": 1.0,
       "context": "return_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_data_session_sessionpersistence_canrestore",
@@ -75595,7 +75785,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L66",
+      "source_location": "L79",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_checknow_after_a_long_gap_fires_immediately",
@@ -75605,7 +75795,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L75",
+      "source_location": "L88",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_checknow_before_the_deadline_does_nothing",
@@ -75635,30 +75825,10 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L102",
+      "source_location": "L49",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
-      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_restart_replaces_the_previous_timeout",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L57",
-      "weight": 1.0,
-      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
-      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_stop_cancels_the_pending_deadline_and_never_fires",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L94",
-      "weight": 1.0,
-      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
-      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_touch_and_checknow_are_no_ops_when_stopped",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_idle_time_already_past_the_timeout_expires_at_once",
       "confidence_score": 1.0
     },
     {
@@ -75668,6 +75838,46 @@
       "source_location": "L43",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_idle_time_carried_over_shortens_the_first_deadline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
+      "source_location": "L115",
+      "weight": 1.0,
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_restart_replaces_the_previous_timeout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_stop_cancels_the_pending_deadline_and_never_fires",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_touch_and_checknow_are_no_ops_when_stopped",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_touch_defers_the_deadline",
       "confidence_score": 1.0
     },
@@ -75675,10 +75885,43 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L84",
+      "source_location": "L97",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_zero_or_negative_timeout_disables_the_monitor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_kt_long",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "field",
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_kt_pair",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_kt_runnable",
       "confidence_score": 1.0
     },
     {
@@ -75697,7 +75940,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L107",
+      "source_location": "L120",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_restart_replaces_the_previous_timeout",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_firescheduled",
@@ -75708,7 +75951,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/InactivityMonitorTest.kt",
-      "source_location": "L49",
+      "source_location": "L62",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_touch_defers_the_deadline",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_inactivitymonitortest_inactivitymonitortest_firescheduled",
@@ -75878,6 +76121,16 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/SessionPersistenceTest.kt",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_sessionpersistencetest_sessionpersistencetest",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_sessionpersistencetest_sessionpersistencetest_an_unknown_timeout_refuses_instead_of_counting_as_auto_sign_out_off",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/SessionPersistenceTest.kt",
       "source_location": "L37",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_sessionpersistencetest_sessionpersistencetest",
@@ -75934,6 +76187,17 @@
       "source_location": "L23",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_sessionpersistencetest_sessionpersistencetest_a_session_idle_past_the_inactivity_timeout_does_not_come_back",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_sessionpersistencetest_sessionpersistencetest_session",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/data/session/SessionPersistenceTest.kt",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_sessionpersistencetest_sessionpersistencetest_an_unknown_timeout_refuses_instead_of_counting_as_auto_sign_out_off",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_data_session_sessionpersistencetest_sessionpersistencetest_session",
       "confidence_score": 1.0
     },
@@ -90902,7 +91166,7 @@
       "source_location": "L42",
       "weight": 1.0,
       "source": "tools_backend_sim_sim",
-      "target": "c_dev_ppnam_station_2_aa_tools_backend_sim_simlog_simlogger_emit",
+      "target": "c_dev_ppnam_station_2_aa_tools_backend_sim_simlog_simlogger_rx",
       "confidence_score": 1.0
     },
     {
@@ -92235,7 +92499,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_d_login_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_dump_xml",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_74",
       "confidence_score": 1.0
     },
     {
@@ -92246,7 +92510,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_d_nav_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_dump_xml",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_74",
       "confidence_score": 1.0
     },
     {
@@ -92257,7 +92521,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_drive_login_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_dump_xml",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_74",
       "confidence_score": 1.0
     },
     {
@@ -92268,7 +92532,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_drive_relogin_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_dump_xml",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_74",
       "confidence_score": 1.0
     },
     {
@@ -104619,5 +104883,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "bcc7c08b3c8132456bdaeee05c35b7d86d96462b"
+  "built_at_commit": "4bb154b2672e5041a56d82e8632f417aa4952295"
 }

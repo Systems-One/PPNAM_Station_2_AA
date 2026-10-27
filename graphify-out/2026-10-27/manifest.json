@@ -10,8 +10,8 @@
     "semantic_hash": "761e04b3672b2ba11b8a7a408d04a225"
   },
   "app/build.gradle.kts": {
-    "mtime": 1791183981.4089456,
-    "ast_hash": "6862ae6791b5a6a11dc686857687935b",
+    "mtime": 1793102091.961726,
+    "ast_hash": "1ea051506f485a795c61c4227e5e48c8",
     "semantic_hash": ""
   },
   "build.gradle.kts": {
@@ -15670,8 +15670,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/PpnamApplication.kt": {
-    "mtime": 1791015144.4486582,
-    "ast_hash": "207e449c51c4627e568d5aa160eba85c",
+    "mtime": 1793101984.6591146,
+    "ast_hash": "5797f9719b9b0a66d60abb25ca91531b",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/auth/ScramCrypto.kt": {
@@ -15750,8 +15750,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/security/SecureCredentialStore.kt": {
-    "mtime": 1791015144.4698226,
-    "ast_hash": "7880f7efe14dd1b8a5bc865ae3776adc",
+    "mtime": 1793101971.7324128,
+    "ast_hash": "db3d64d3c6e354b1a402a8ac54329aeb",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/session/OperatorSessionHolder.kt": {
@@ -15850,8 +15850,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/ui/login/LoginViewModel.kt": {
-    "mtime": 1791183981.4198637,
-    "ast_hash": "004eba99cbb524272e9146b7bf9a4273",
+    "mtime": 1793101984.661659,
+    "ast_hash": "0fabde94f24ed3849dc586e2b644ea57",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/ui/session/SessionWatcher.kt": {
@@ -16170,8 +16170,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionGuard.kt": {
-    "mtime": 1791015144.473336,
-    "ast_hash": "65b04cff20805824653aa3ca8025e7ee",
+    "mtime": 1793101984.6606503,
+    "ast_hash": "89b451ae2a26a101f011a5bbe16daba1",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/data/settings/OperatorDirectoryStore.kt": {
@@ -17237,6 +17237,16 @@
   "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/IngredientDecisionDialog.kt": {
     "mtime": 1793091704.8675063,
     "ast_hash": "cc8603651ec9deb1a57ed1f42c098788",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/mitas/ppnam/station2aa/data/session/SessionPersistence.kt": {
+    "mtime": 1793102035.8519485,
+    "ast_hash": "1d82e5495f38bc24778a3a93d83494a2",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/mitas/ppnam/station2aa/data/session/SessionPersistenceTest.kt": {
+    "mtime": 1793101996.7702801,
+    "ast_hash": "69bd254b54c65c71a3a2badbe0090def",
     "semantic_hash": ""
   }
 }
