@@ -1,0 +1,196 @@
+510023208	rev	refused	This JC already belongs to the other process mode.
+510023106	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 0 FINISHED 4; kg lines on screen 0
+510023102	success	loaded	REQUIRED 4 ACTIVE 2 AVAILABLE TO PREPARE 0 FINISHED 2; kg lines on screen 0
+510023085	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 0 FINISHED 2; kg lines on screen 0
+510023069	success	loaded	REQUIRED 9 ACTIVE 1 AVAILABLE TO PREPARE 6 FINISHED 2; kg lines on screen 0
+510023067	success	loaded	REQUIRED 13 ACTIVE 3 AVAILABLE TO PREPARE 10 FINISHED 0; kg lines on screen 0
+510023066	success	loaded	REQUIRED 35 ACTIVE 0 AVAILABLE TO PREPARE 35 FINISHED 0; kg lines on screen 0
+510023064	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510023063	success	loaded	REQUIRED 8 ACTIVE 0 AVAILABLE TO PREPARE 8 FINISHED 0; kg lines on screen 0
+510023059	success	loaded	REQUIRED 2 ACTIVE 1 AVAILABLE TO PREPARE 0 FINISHED 1; kg lines on screen 0
+510023054	success	loaded	REQUIRED 7 ACTIVE 0 AVAILABLE TO PREPARE 7 FINISHED 0; kg lines on screen 0
+510023052	success	loaded	REQUIRED 3 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 1; kg lines on screen 0
+510023050	rev	refused	This JC already belongs to the other process mode.
+510023048	success	loaded	REQUIRED 45 ACTIVE 0 AVAILABLE TO PREPARE 45 FINISHED 0; kg lines on screen 1
+510023047	rev	refused	This JC already belongs to the other process mode.
+510023042	success	loaded	REQUIRED 3 ACTIVE 0 AVAILABLE TO PREPARE 3 FINISHED 0; kg lines on screen 1
+510023040	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 0
+510023036	success	loaded	REQUIRED 3 ACTIVE 0 AVAILABLE TO PREPARE 3 FINISHED 0; kg lines on screen 0
+510023030	timeout	refused	Station 2 did not respond. Check the station and retry.|Retry
+510023023	success	loaded	REQUIRED 10 ACTIVE 0 AVAILABLE TO PREPARE 10 FINISHED 0; kg lines on screen 0
+510023008	success	loaded	REQUIRED 6 ACTIVE 0 AVAILABLE TO PREPARE 6 FINISHED 0; kg lines on screen 0
+510023007	success	loaded	REQUIRED 6 ACTIVE 0 AVAILABLE TO PREPARE 6 FINISHED 0; kg lines on screen 1
+510023003	success	loaded	REQUIRED 22 ACTIVE 0 AVAILABLE TO PREPARE 22 FINISHED 0; kg lines on screen 0
+510023001	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 1
+510022996	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 1
+510022995	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022994	success	loaded	REQUIRED 8 ACTIVE 0 AVAILABLE TO PREPARE 8 FINISHED 0; kg lines on screen 0
+510022975	success	loaded	REQUIRED 66 ACTIVE 0 AVAILABLE TO PREPARE 66 FINISHED 0; kg lines on screen 0
+510022974	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 0
+510022973	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022970	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022958	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022955	success	loaded	REQUIRED 10 ACTIVE 0 AVAILABLE TO PREPARE 10 FINISHED 0; kg lines on screen 0
+510022954	success	loaded	REQUIRED 37 ACTIVE 0 AVAILABLE TO PREPARE 37 FINISHED 0; kg lines on screen 0
+510022953	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 0
+510022952	success	loaded	REQUIRED 23 ACTIVE 0 AVAILABLE TO PREPARE 23 FINISHED 0; kg lines on screen 1
+510022951	success	loaded	REQUIRED 31 ACTIVE 0 AVAILABLE TO PREPARE 31 FINISHED 0; kg lines on screen 0
+510022950	success	loaded	REQUIRED 10 ACTIVE 0 AVAILABLE TO PREPARE 10 FINISHED 0; kg lines on screen 0
+510022943	success	loaded	REQUIRED 7 ACTIVE 0 AVAILABLE TO PREPARE 7 FINISHED 0; kg lines on screen 0
+510022942510022941	rev	refused	Only Standard Released jobs in header warehouse FAC with positive outstanding output can be loaded.
+510022919	success	loaded	REQUIRED 18 ACTIVE 0 AVAILABLE TO PREPARE 18 FINISHED 0; kg lines on screen 0
+510022899	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 1
+510022897	success	loaded	REQUIRED 3 ACTIVE 0 AVAILABLE TO PREPARE 3 FINISHED 0; kg lines on screen 0
+510022896	success	loaded	REQUIRED 6 ACTIVE 0 AVAILABLE TO PREPARE 6 FINISHED 0; kg lines on screen 0
+510022892	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 0
+510022890	success	loaded	REQUIRED 32 ACTIVE 0 AVAILABLE TO PREPARE 32 FINISHED 0; kg lines on screen 0
+510022885	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 1
+510022884	success	loaded	REQUIRED 7 ACTIVE 0 AVAILABLE TO PREPARE 7 FINISHED 0; kg lines on screen 1
+510022883	success	loaded	REQUIRED 9 ACTIVE 0 AVAILABLE TO PREPARE 9 FINISHED 0; kg lines on screen 0
+510022882	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022881	success	loaded	REQUIRED 3 ACTIVE 0 AVAILABLE TO PREPARE 3 FINISHED 0; kg lines on screen 0
+510022880	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 1
+510022879	rev	refused	The current BOM material required for outstanding output does not round to a positive supported whole-mix count.
+510022878	success	loaded	REQUIRED 27 ACTIVE 0 AVAILABLE TO PREPARE 27 FINISHED 0; kg lines on screen 1
+510022863	success	loaded	REQUIRED 48 ACTIVE 0 AVAILABLE TO PREPARE 48 FINISHED 0; kg lines on screen 0
+510022862	success	loaded	REQUIRED 48 ACTIVE 0 AVAILABLE TO PREPARE 48 FINISHED 0; kg lines on screen 0
+510022855	success	loaded	REQUIRED 18 ACTIVE 0 AVAILABLE TO PREPARE 18 FINISHED 0; kg lines on screen 0
+510022853	rev	refused	The current BOM material required for outstanding output does not round to a positive supported whole-mix count.
+510022852	success	loaded	REQUIRED 78 ACTIVE 0 AVAILABLE TO PREPARE 78 FINISHED 0; kg lines on screen 0
+510022851	success	loaded	REQUIRED 10 ACTIVE 0 AVAILABLE TO PREPARE 10 FINISHED 0; kg lines on screen 0
+510022849	rev	refused	One-mix ingredient 1503000015 uses '500'; a kilogram quantity is required for the picking list.
+510022847	success	loaded	REQUIRED 8 ACTIVE 0 AVAILABLE TO PREPARE 8 FINISHED 0; kg lines on screen 1
+510022846	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022845	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 0
+510022844	rev	refused	The current BOM material required for outstanding output does not round to a positive supported whole-mix count.
+510022843	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022842	success	loaded	REQUIRED 30 ACTIVE 0 AVAILABLE TO PREPARE 30 FINISHED 0; kg lines on screen 0
+510022841	rev	refused	One-mix ingredient 1502000025 uses 'Each'; a kilogram quantity is required for the picking list.
+510022840	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022833	success	loaded	REQUIRED 41 ACTIVE 0 AVAILABLE TO PREPARE 41 FINISHED 0; kg lines on screen 0
+510022832	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022831	success	loaded	REQUIRED 8 ACTIVE 0 AVAILABLE TO PREPARE 8 FINISHED 0; kg lines on screen 0
+510022830	success	loaded	REQUIRED 8 ACTIVE 0 AVAILABLE TO PREPARE 8 FINISHED 0; kg lines on screen 0
+510022829	rev	refused	The current BOM material required for outstanding output does not round to a positive supported whole-mix count.
+510022828	success	loaded	REQUIRED 11 ACTIVE 0 AVAILABLE TO PREPARE 11 FINISHED 0; kg lines on screen 0
+510022826	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 0
+510022824	success	loaded	REQUIRED 6 ACTIVE 0 AVAILABLE TO PREPARE 6 FINISHED 0; kg lines on screen 0
+510022823	success	loaded	REQUIRED 3 ACTIVE 0 AVAILABLE TO PREPARE 3 FINISHED 0; kg lines on screen 0
+510022822510022819	rev	refused	Only Standard Released jobs in header warehouse FAC with positive outstanding output can be loaded.
+510022818	success	loaded	REQUIRED 11 ACTIVE 0 AVAILABLE TO PREPARE 11 FINISHED 0; kg lines on screen 0
+510022810	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 1
+510022807	success	loaded	REQUIRED 13 ACTIVE 0 AVAILABLE TO PREPARE 13 FINISHED 0; kg lines on screen 1
+510022802	success	loaded	REQUIRED 21 ACTIVE 0 AVAILABLE TO PREPARE 21 FINISHED 0; kg lines on screen 0
+510022801	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 0
+510022796	rev	refused	The current BOM material required for outstanding output does not round to a positive supported whole-mix count.
+510022795	success	loaded	REQUIRED 25 ACTIVE 0 AVAILABLE TO PREPARE 25 FINISHED 0; kg lines on screen 1
+510022786	success	loaded	REQUIRED 38 ACTIVE 0 AVAILABLE TO PREPARE 38 FINISHED 0; kg lines on screen 1
+510022785	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 1
+510022782	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 1
+510022781	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 1
+510022780	success	loaded	REQUIRED 11 ACTIVE 0 AVAILABLE TO PREPARE 11 FINISHED 0; kg lines on screen 0
+510022771	success	loaded	REQUIRED 18 ACTIVE 0 AVAILABLE TO PREPARE 18 FINISHED 0; kg lines on screen 1
+510022770	success	loaded	REQUIRED 21 ACTIVE 0 AVAILABLE TO PREPARE 21 FINISHED 0; kg lines on screen 0
+510022769	success	loaded	REQUIRED 22 ACTIVE 0 AVAILABLE TO PREPARE 22 FINISHED 0; kg lines on screen 0
+510022762	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022761	success	loaded	REQUIRED 11 ACTIVE 0 AVAILABLE TO PREPARE 11 FINISHED 0; kg lines on screen 0
+510022760	success	loaded	REQUIRED 15 ACTIVE 0 AVAILABLE TO PREPARE 15 FINISHED 0; kg lines on screen 0
+510022759	success	loaded	REQUIRED 19 ACTIVE 0 AVAILABLE TO PREPARE 19 FINISHED 0; kg lines on screen 0
+510022758	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 0
+510022757	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 0
+510022756	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 0
+510022755	success	loaded	REQUIRED 6 ACTIVE 0 AVAILABLE TO PREPARE 6 FINISHED 0; kg lines on screen 0
+510022754	success	loaded	REQUIRED 19 ACTIVE 0 AVAILABLE TO PREPARE 19 FINISHED 0; kg lines on screen 0
+510022750	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022749	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 1
+510022746	success	loaded	REQUIRED 13 ACTIVE 0 AVAILABLE TO PREPARE 13 FINISHED 0; kg lines on screen 0
+510022745	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 0
+510022744	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 1
+510022735	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022730	success	loaded	REQUIRED 7 ACTIVE 0 AVAILABLE TO PREPARE 7 FINISHED 0; kg lines on screen 0
+510022709	success	loaded	REQUIRED 14 ACTIVE 0 AVAILABLE TO PREPARE 14 FINISHED 0; kg lines on screen 0
+510022708	timeout	refused	Station 2 did not respond. Check the station and retry.|Retry
+510022698	timeout	refused	Station 2 did not respond. Check the station and retry.|Retry
+510022695	success	loaded	REQUIRED 55 ACTIVE 0 AVAILABLE TO PREPARE 55 FINISHED 0; kg lines on screen 0
+510022694	success	loaded	REQUIRED 37 ACTIVE 0 AVAILABLE TO PREPARE 37 FINISHED 0; kg lines on screen 0
+510022691	success	loaded	REQUIRED 20 ACTIVE 0 AVAILABLE TO PREPARE 20 FINISHED 0; kg lines on screen 0
+510022688	rev	refused	One-mix ingredient 1503000016 uses '500'; a kilogram quantity is required for the picking list.
+510022687510022686	rev	refused	Only Standard Released jobs in header warehouse FAC with positive outstanding output can be loaded.
+510022685	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022682	success	loaded	REQUIRED 8 ACTIVE 0 AVAILABLE TO PREPARE 8 FINISHED 0; kg lines on screen 0
+510022680	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022677	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022676	success	loaded	REQUIRED 11 ACTIVE 0 AVAILABLE TO PREPARE 11 FINISHED 0; kg lines on screen 0
+510022675	success	loaded	REQUIRED 9 ACTIVE 0 AVAILABLE TO PREPARE 9 FINISHED 0; kg lines on screen 0
+510022671	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 0
+510022666	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 0
+510022665	success	loaded	REQUIRED 28 ACTIVE 0 AVAILABLE TO PREPARE 28 FINISHED 0; kg lines on screen 0
+510022653	rev	refused	Production Order 510022653 current-BOM material total (15.196 kg) divided by one mix (112.000 kg) does not round to a positive supported whole-mix count.
+510022651	success	loaded	REQUIRED 27 ACTIVE 0 AVAILABLE TO PREPARE 27 FINISHED 0; kg lines on screen 0
+510022650	success	loaded	REQUIRED 37 ACTIVE 0 AVAILABLE TO PREPARE 37 FINISHED 0; kg lines on screen 0
+510022649	success	loaded	REQUIRED 23 ACTIVE 0 AVAILABLE TO PREPARE 23 FINISHED 0; kg lines on screen 0
+510022648	success	loaded	REQUIRED 15 ACTIVE 0 AVAILABLE TO PREPARE 15 FINISHED 0; kg lines on screen 0
+510022647	success	loaded	REQUIRED 50 ACTIVE 0 AVAILABLE TO PREPARE 50 FINISHED 0; kg lines on screen 0
+510022646	success	loaded	REQUIRED 18 ACTIVE 0 AVAILABLE TO PREPARE 18 FINISHED 0; kg lines on screen 1
+510022644	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 0
+510022623	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022617	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022616	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022598	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022547	rev	refused	One-mix ingredient 1503000017 uses '1000'; a kilogram quantity is required for the picking list.
+510022530	success	loaded	REQUIRED 54 ACTIVE 0 AVAILABLE TO PREPARE 54 FINISHED 0; kg lines on screen 0
+510022527	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 1
+510022523	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022516	success	loaded	REQUIRED 16 ACTIVE 0 AVAILABLE TO PREPARE 16 FINISHED 0; kg lines on screen 1
+510022514	success	loaded	REQUIRED 6 ACTIVE 0 AVAILABLE TO PREPARE 6 FINISHED 0; kg lines on screen 0
+510022513	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 0
+510022502	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022500	success	loaded	REQUIRED 23 ACTIVE 0 AVAILABLE TO PREPARE 23 FINISHED 0; kg lines on screen 0
+510022482	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 0
+510022480	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022476	success	loaded	REQUIRED 30 ACTIVE 0 AVAILABLE TO PREPARE 30 FINISHED 0; kg lines on screen 1
+510022474	success	loaded	REQUIRED 6 ACTIVE 0 AVAILABLE TO PREPARE 6 FINISHED 0; kg lines on screen 0
+510022454	rev	refused	One-mix ingredient 1503000018 uses '500'; a kilogram quantity is required for the picking list.
+510022436	success	loaded	REQUIRED 12 ACTIVE 0 AVAILABLE TO PREPARE 12 FINISHED 0; kg lines on screen 0
+510022353	success	loaded	REQUIRED 3 ACTIVE 0 AVAILABLE TO PREPARE 3 FINISHED 0; kg lines on screen 0
+510022351	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022300510022292	rev	refused	Only Standard Released jobs in header warehouse FAC with positive outstanding output can be loaded.
+510022290	rev	refused	The current BOM material required for outstanding output does not round to a positive supported whole-mix count.
+510022210	success	loaded	REQUIRED 13 ACTIVE 0 AVAILABLE TO PREPARE 13 FINISHED 0; kg lines on screen 1
+510022208	success	loaded	REQUIRED 12 ACTIVE 0 AVAILABLE TO PREPARE 12 FINISHED 0; kg lines on screen 0
+510022207	success	loaded	REQUIRED 21 ACTIVE 0 AVAILABLE TO PREPARE 21 FINISHED 0; kg lines on screen 0
+510022195	rev	refused	The current BOM material required for outstanding output does not round to a positive supported whole-mix count.
+510022194	success	loaded	REQUIRED 1 ACTIVE 0 AVAILABLE TO PREPARE 1 FINISHED 0; kg lines on screen 0
+510022193	rev	refused	The current BOM material required for outstanding output does not round to a positive supported whole-mix count.
+510022189	success	loaded	REQUIRED 6 ACTIVE 0 AVAILABLE TO PREPARE 6 FINISHED 0; kg lines on screen 0
+510022162	success	loaded	REQUIRED 6 ACTIVE 0 AVAILABLE TO PREPARE 6 FINISHED 0; kg lines on screen 0
+510022149	rev	refused	The current BOM material required for outstanding output does not round to a positive supported whole-mix count.
+510022145	success	loaded	REQUIRED 66 ACTIVE 0 AVAILABLE TO PREPARE 37 FINISHED 29; kg lines on screen 0
+510022122	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022117	success	loaded	REQUIRED 3 ACTIVE 0 AVAILABLE TO PREPARE 3 FINISHED 0; kg lines on screen 0
+510022084	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 0
+510022039	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510022015	success	loaded	REQUIRED 9 ACTIVE 0 AVAILABLE TO PREPARE 9 FINISHED 0; kg lines on screen 0
+510022010	success	loaded	REQUIRED 9 ACTIVE 0 AVAILABLE TO PREPARE 9 FINISHED 0; kg lines on screen 0
+510022007	success	loaded	REQUIRED 8 ACTIVE 0 AVAILABLE TO PREPARE 8 FINISHED 0; kg lines on screen 0
+510021982	success	loaded	REQUIRED 5 ACTIVE 0 AVAILABLE TO PREPARE 5 FINISHED 0; kg lines on screen 0
+510021980	success	loaded	REQUIRED 3 ACTIVE 0 AVAILABLE TO PREPARE 3 FINISHED 0; kg lines on screen 0
+510021975	success	loaded	REQUIRED 45 ACTIVE 0 AVAILABLE TO PREPARE 45 FINISHED 0; kg lines on screen 0
+510021944	success	loaded	REQUIRED 12 ACTIVE 0 AVAILABLE TO PREPARE 12 FINISHED 0; kg lines on screen 0
+510021881	success	loaded	REQUIRED 3 ACTIVE 0 AVAILABLE TO PREPARE 3 FINISHED 0; kg lines on screen 0
+510021768	success	loaded	REQUIRED 17 ACTIVE 0 AVAILABLE TO PREPARE 17 FINISHED 0; kg lines on screen 0
+510021727	success	loaded	REQUIRED 4 ACTIVE 0 AVAILABLE TO PREPARE 4 FINISHED 0; kg lines on screen 1
+510021688	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 0
+510021670	success	loaded	REQUIRED 13 ACTIVE 0 AVAILABLE TO PREPARE 13 FINISHED 0; kg lines on screen 0
+510021024	success	loaded	REQUIRED 2 ACTIVE 0 AVAILABLE TO PREPARE 2 FINISHED 0; kg lines on screen 0
+510022942	success	loaded	; kg lines on screen 2
+510022941	success	loaded	; kg lines on screen 2
+510022822	success	loaded	; kg lines on screen 2
+510022819	success	loaded	; kg lines on screen 2
+510022687	success	loaded	; kg lines on screen 1
+510022686	success	loaded	; kg lines on screen 1
+510022300	success	loaded	; kg lines on screen 2
+510022292	success	loaded	; kg lines on screen 1
+510023030	success	loaded	; kg lines on screen 1
+510022708	success	loaded	; kg lines on screen 2
+510022698	success	loaded	; kg lines on screen 2

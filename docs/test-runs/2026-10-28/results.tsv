@@ -1,0 +1,147 @@
+ENV-04	Pass	v1.4.1 (7); DEVICE ID scanner_5c64df8d86a8 matches topic deviceId.
+AUTH-05	Pass	'Please fill in all fields'; no request on the wire.
+AUTH-09	Pass	EPC 505055…099999 → badge_rejected → 'This badge is not registered or is no longer active.'
+AUTH-10	Pass	dummytag_44 RFID on Login → badge_rejected; no session.
+AUTH-12	Fail	Live server returned no operator list; no dropdown arrow shown (directory empty). Typed username works. Check whether Station 2 publishes the operator directory.
+AUTH-13	Pass	Eye toggles password visibility.
+AUTH-04	Pass	Avi + wrong password → scram_proof_result authentication_failed → 'Incorrect username or password'.
+AUTH-01	Pass	Avi/SCRAM: start 615 ms, proof 196 ms; Home 'Good afternoon, Avi', 'Avi · Administrator'.
+MQ-14	Pass	SCRAM payloads carry clientNonce/clientProof only; no password key; '1234' not in any payload.
+MQ-15	Pass	Logcat shows clientNonce/challengeId/clientProof as ***.
+SET-01	Pass	Diagnostics: Broker Connected, Station 2 Online, v1.4.1 (7), device id; fields locked.
+SET-02	Pass	PIN 079545 unlocks; empty Unlock uses no attempt.
+SET-03	Pass	'Incorrect PIN. 1 attempt left before lockout.' → 'Too many attempts. Try again in 26s.'; still counting (12s) after force-stop + relaunch.
+SET-04	Pass	'Host required', 'Invalid port (1–65535)', 'Enter 0–1440', 'Enter 1000–60000 ms' shown on Test & Apply.
+SET-05	Pass	'Testing connection…' → 'Connected — settings saved'; PIN gate relocked ~2 s later, message kept.
+SET-06	Pass	Host mqtt.invalid-host.example → 'No answer from the broker within 15 s…'; pill stayed Connected.
+SET-07	Pass	Blank password → connected with stored broker password.
+SCN-01	Pass	(partial: Login) Barcode 510023052 on Login ignored, nothing sent; RFID on Login → badge login.
+LKP-04	Pass	Badge EPC on Job Lookup → 'That is a user badge, not a job card. Use the login screen to sign in.'; nothing sent.
+LKP-02	Pass	Field strips letters as typed; scanned 'ABC-123' → 'Scan or enter the production order number (digits only)', nothing sent; Look up disabled when blank.
+LKP-05	Pass	JC 999999999 → rev2_rejected 'Only Standard Released jobs in header warehouse FAC with positive outstanding output can be loaded.'
+LKP-01	Pass	Barcode 510023052 → lookup 1129 ms; Required 3 · Active 0; 50 / 50 / 0.5 kg per mix, 150 / 150 / 1.5 kg for the job. Note: an extra read follows the lookup immediately.
+LKP-03	Pass	Typed PREP_f0b9938acb554c2c96d4037e8522c361 → Prep opened with read only (no lookup). First attempt: two reads timed out at 10 s (Station 2 slow); retry fine.
+PRE-01	Pass	Prepare 1 mix → PREP_f0b9938acb554c2c96d4037e8522c361; targets 50/50/0.5 kg; payload mixCount 1, ingredientChoices []. Three reads follow the prepare.
+PRE-03	Pass	(on 510023052, available 3) 0 and 4 → 'N must be a whole number from 1 to 3'; − stops at 1; + stops at 3. Big-job bound not yet run.
+STK-01	Pass	dummytag_47 identify: 1600000039, bag 25 kg, still needed 50, On pallet 10000 kg (400 bags); cancel → still 10000 kg.
+STK-04	Pass	DOL-MIX-01 scanned on a collecting PREP → pallet_not_found → 'Pallet not recognised'.
+COL-15	Pass	Second scan while sheet open → 'Finish or cancel this pallet first'. Minor: banner stays on collect home after Back.
+COL-05	Pass	dummytag_23 (0.5 needed), Amount 1 → 'More than still needed — 0.5 kg', Submit blocked.
+COL-08	Pass	blank → 'Enter an amount'; abc → 'Enter a number, e.g. 12.5'; 0 → 'Enter more than 0'; 1.2345 → 'At most 3 decimals'; '0,25' → Submit 0.25 kg.
+COL-03	Pass	Submit 0.5 kg → capture quantity 0.5 (JSON number), success 4513 ms; 'MASTERBATCH ANTI BLOCK… is now fully collected'.
+COL-10	Pass	Rescan dummytag_23 after complete → 'Can't collect from this pallet' / '… is already fully collected'.
+COL-13	Pass	dummytag_69 (HD WHITE) on 510023052 PREP → 'Not in this mix' with Add (kg) + required reason; nothing captured.
+COL-16	Pass	Badge during collection → 'That is a user badge, not a pallet'. Machine code during collection not testable (live machine codes unknown).
+COL-01	Pass	dummytag_47 25 kg → one capture; reopened PREP shows 25 of 50 left; identify shows 9975 kg (399 bags).
+DEC-04	Pass	C4LL 50 → 45 kg with reason → adjust_ingredient success 650 ms; banner 'Under · 1600000039 … target 50 kg → 45 kg (-5 kg); captured 25 kg'; row 'Modified', 20 of 45 left.
+DEC-05	Fail	Same total (50), below collected (20), and blank reason all disable 'Change total' silently — none of the expected messages shown. 1000000000 → 'Enter a number, e.g. 12.5' instead of 'At most 999999999 kg'.
+COL-02	Pass	dummytag_52 'Submit 50 kg (2 bags)' → two captures of 25 with distinct messageIds (692 / 1046 ms); line complete.
+COL-18	Pass	Progress '1 of 3' → '2 of 3' → '3 of 3 ingredients collected'; ✓ rows; 'Modified' tag on C4LL.
+COL-19	Pass	'Mix complete — ready for mixer' → 'Mix complete?' → Confirm → confirm success 534 ms; 'Ingredients confirmed. Scan a permitted mixer…'.
+MIX-02	Pass	(part) Non-machine codes DOL-MIX-01, MIX-01 etc. → '✕ Not a machine — X'. Extruder-as-mixer not tested (codes unknown).
+SCN-01	Pass	Home ignores RFID + barcode (no wire); Login RFID → badge; Lookup badge → refusal; Prep barcodes → identify/machine.
+LKP-06	Pass	Jobs on Station 2: 510023052, 067, 069, 085, 102, 106 after lookups. Usability: list is a nested scroll box showing ~2 rows; easy to miss entries.
+PRE-07	Pass	510023069 Prepare: 'This job already has 1 active preparation(s). Open one to continue it — Prepare creates a new allocation.' with the PREP listed.
+PRE-04	Pass	510023069: 'Choose Include or Exclude for 1500000306', neither preselected; Exclude → confirm 'Job 510023069. Excluded: 1500000306.'; payload ingredientChoices [{code 1500000306, include:false}]; PREP_…7d666c shows PW60 'excluded · Modified'.
+COL-11	Pass	dummytag_20 on PW60-excluded PREP → '✕ Excluded from this mix — can't collect'.
+COL-21	Pass	'▸ Exceptions (1)' expands: 'Ingredient omitted · Excluded · 1500000306 … target 3 → 0 kg'. Minor: shows 'operator e33f…' instead of operator name.
+MIX-02	Pass	'Main extruder 1 is an extruder — scan a mixer'; at produce step 'Main mixer 1 is a mixer — scan an extruder'; non-machine codes → 'Not a machine — X'.
+MIX-01	Pass	Scan 'Main mixer 1' → card 'Start mix 1 on Main mixer 1', 'This mixer stays assigned for all 1 mixes.' → machine_start success 246 ms → 'Mixing 1 of 1'. Minor: second scan while card open is silently ignored (no 'Finish or cancel first').
+MIX-03	Pass	Scan 'Main mixer 2' while mixing → '✕ Only Main mixer 1 can finish this mix'.
+MIX-05	Pass	Finish mix 1 → machine_finish with cycleId CYC_8ab86dfa542f4a40b05b9f6abe8763db, success 308 ms → 'All 1 mix mixed'.
+MIX-06	Pass	'Free extruders: Main extruder 1 … (25)'; Main extruder 1 → 'Start production 1' → 'Producing 1 of 1'.
+MIX-07	Pass	Finish production 1 (cycleId CYC_ebfb85e370cf49028474ccbf7d65aa5e) → 'Preparation complete · 1 mix · Main mixer 1 → Main extruder 1 · 1 of 3 finished'. SAP Issue queue to be checked on Station 2 desktop (not visible from scanner).
+MIX-10	Fail	New finding: on the completed PREP, scanning 'Main mixer 1' shows 'That's the Main mixer 1 code — collect every ingredient and tap Mix complete first' (should be 'This preparation is complete'). Also 'Back to job' returned to Job Cards list instead of Job Detail.
+LKP-08	Pass	510023059 Job Detail lists only the 4 recipe lines; order-only LD 07523.AC and LD CLEAR are not offered.
+COL-12	Pass	dummytag_52 (LD 07523.AC, order-only) on PREP_…26c437 → 'Not in this mix' with Add (kg) + required reason; no capture.
+DEC-01	Pass	dummytag_57 LD CLEAR → Add 10 kg, reason → adjust_ingredient kind Add success 308 ms; sheet returns ready; Submit 10 kg → capture success; row 'added · Modified', fully collected.
+DEC-02	Pass	Second PREP_…6a38b6 of 510023059: dummytag_57 → 'Not in this mix' again (Add from the other PREP does not carry over).
+DEC-03	Pass	PREP_…26c437 (with added LD CLEAR) completed: Main mixer 2 → Main extruder 2, 'Preparation complete'. SAP issue status (may be Blocked for LD CLEAR) to be checked on Station 2 desktop.
+CAT-01	Pass	510023208 → rev2_rejected "One-mix ingredient 1502000025 uses 'Each'; a kilogram quantity is required for the picking list."
+CAT-02	Pass	510023106 → lookup success (saved job, 4 of 4 finished; recipe without PCR); Prepare disabled (Available 0).
+CAT-03	Pass	510022879 → 'The current BOM material required for outstanding output does not round to a positive supported whole-mix count.'
+CAT-04	Pass	510022849 → "One-mix ingredient 1503000015 uses '500'; a kilogram quantity is required for the picking list."
+CAT-05	Pass	510022015 loads: 8 kg recipe lines (2 / 0.5 / 20 / 60 / 10 kg …); no Each levy line offered.
+LKP-09	Pass	510022015: Each levy line (703,000 each) not shown as a kg target.
+LKP-10	Pass	510023106 Available to prepare 0 → 'Prepare mixes' disabled.
+PRE-03	Pass	510022852: 'Mixes to prepare (1 to 78)'; 79 → 'N must be a whole number from 1 to 78'; 78 → 'Prepare 78 mixes' (not submitted).
+PRE-06	Pass	1307-char reason → counter 1307/1000 and 'Reason is longer than 1000 characters'.
+RAJ-01	Pass	Rajoo machine auto-selected ('Machine: Rajoo'); 510023047 → rajoo lookup success; full-order targets 203.146 / 67.715 kg; 'No session running'. Four reads follow the lookup.
+RAJ-07	Pass	dummytag_47 with no session → '✕ Not the Rajoo machine code — dummytag_47 / Scan Rajoo to start a session'; nothing sent.
+RAJ-02	Pass	'Main mixer 1' on Rajoo job → '✕ Not the Rajoo machine code — Main mixer 1'.
+RAJ-14	Pass	Badge on Rajoo job → 'That is a user badge, not a pallet' (previous red banner remains above it).
+RAJ-03	Pass	Scan 'Rajoo' → 'Start a session on Rajoo?' → rajoo_start (ingredientChoices []) success → 'Session …23f620a1'.
+RAJ-04	Pass	dummytag_47 25 kg → capture targetId 510023047, cycleId RAJ_ee043168ab104a13aa67438c23f620a1; recorded.
+RAJ-06	Pass	dummytag_23 (not on order) → 'Not in this job' with 'Add as an extra ingredient' / 'Instead of LD 150 AC…'; no capture without decision.
+RAJ-12	Pass	Add as extra 1 kg + reason → adjust_ingredient kind Add success; Submit 1 kg → recorded; '1 of 3 ingredients fully collected'.
+STK-03	Pass	dummytag_23 shows 9999.5 kg on the Rajoo job after 0.5 kg was taken on General JC 510023052 — one shared balance.
+RAJ-08	Pass	Scan 'Rajoo' → 'End the session on Rajoo?' → rajoo_finish (cycleId RAJ_ee04…) success → 'Rajoo session saved. Cumulative JC material progress retained. Queued for SAP.'
+RAJ-09	Pass	Second session 'Session …961483de'; captures add to the same totals; all lines reach ✓.
+RAJ-05	Pass	Final C4LL capture prefilled and sent as exactly 3.146 kg; LD final 17.715 kg; both accepted.
+SET-08	Pass	Log out (confirm 'Log out? You'll need to log in again to continue.') → Login; no logout request published.
+NAV-02	Pass	Top-bar operator label → 'Log out?' with Cancel / Log out → Login.
+AUTH-01b	Pass	Jono/1234 → SCRAM success; 'Good afternoon, Jono', 'Jono · Worker'.
+RAJ-13	Pass	As Jono: 'Open Rajoo job cards — tap to resume' lists 510023047; tap → lookup + read; Session …961483de still running.
+RAJ-11	Pass	Complete-line rescan → '…already fully collected for this job'. Scan Rajoo → End session (Jono ended Avi's session, accepted) → scan Rajoo → 'Close job card 510023047?' → rajoo_close success → 'Job card closed / Session, bag and pallet-source history is retained'; later scans → 'This job card is closed'.
+RAJ-15	Pass	Untouched General-qualified 510023050 on Rajoo → full-order targets 110.129 / … / 1.101 kg (not per-mix). Note: JCs with General history are refused (see RAJ-18).
+RAJ-16	Pass	510023106 on Rajoo → rev2_rejected 'This JC already belongs to the other process mode.' (it has General history).
+RAJ-17	Pass	510023208 on Rajoo → loads 4 kg lines (3506.494 / 1168.831 / 701.299 / …); CORES 'Each' line not offered. Side effect: JC now listed under Open Rajoo job cards.
+RAJ-18	Pass	510023052 / 510023069 (General PREPs) on Rajoo → 'This JC already belongs to the other process mode.' Readable refusal, nothing created.
+RAJ-10	Blocked	Needs crafted MQTT capture with an ended cycleId; scanner-only run.
+RET-02	Pass	While capture unanswered: 'Station 2 hasn't answered — don't scan again / The last capture may or may not have been recorded. Retry sends the same message again.' + Retry; scan bar 'Scanning paused'; RFID scan of dummytag_69 blocked.
+RET-01	Pass	Capture 05e3ec0b… (dummytag_69 20 kg) published at 11:26:59.983383Z, Wi-Fi cut; on reconnect the Prep screen re-published the identical bytes (same messageId and timestampUtc) → success; recorded once (line capped at 20 kg). Minor: stale banner 'Station 2 has not confirmed this yet. Don't repeat it — retry.' stays visible next to 'Recorded 20 kg'.
+MQ-11	Pass	Wi-Fi off, Submit 0.5 kg → 'Not connected — nothing was sent'; outbox empty.
+SES-03	Pass	Force-stop with Jono signed in, relaunch → straight to Home ('Good afternoon, Jono'); logcat 'Restored the operator session after a restart'; no login request.
+MQ-02	Pass	Abrupt Wi-Fi loss → pill 'Reconnecting' (broker-side LWT not observable — scanner-only run).
+RET-06	Pass	Jono's unanswered capture; Avi signs in on the same scanner → Home '1 unanswered command — capture PREP_…: sent by operator 571a2c9606754ad2826270bd895eea6b. They must sign in on this scanner to resolve it, or a manager must reconcile it.'; no request sent for it. Minor: shows operator id, not name.
+RET-11	Pass	Unanswered capture 7cf0f71b… survives force-stop (outbox file kept); after relaunch Home shows '1 unanswered command … waiting for Station 2 — reopen the job to retry it'.
+RET-03	Pass	Jono signs back in → Home auto-recovery sends recover (new messageId 8190329a…, originalMessageId 7cf0f71b…, originalRequestFingerprint 2E1858BF…) → 'capture PREP_…: Station 2 had already done this. It was not repeated.' with OK.
+RET-09	Pass	(committed path) as RET-03; no second deduction (PCR line 20 kg recorded once).
+NAV-01	Pass	Back on Home → 'Close the app? You'll leave PPNAM Station 2 and return to the home screen.' Stay / Close.
+MQ-10	Pass	Lookup offline → 'Not connected to Station 2' with Retry.
+LKP-12	Pass	Offline lookup error shows Retry; Retry after reconnect loads 510023069.
+LKP-11	Pass	510023069 Job Detail 'Active preparations' → tap PREP_61164832… → Prep opens (2 mixes).
+MIX-09	Pass	2-mix PREP_…17cf59: mix 1 on Main mixer 3; scanning Main mixer 4 for mix 2 shows warning 'Saved mixer is Main mixer 3' but still offers Start; Station 2 refuses: 'Confirm ingredients first, then use the assigned mixer for every mix.' Minor: app could block client-side. PREP then completed (Main mixer 3 → Main extruder 3, 2 productions).
+COL-18b	Note	PREP_…17cf59 progress showed '4 of 5 ingredients collected' while PW60 is excluded and PCR (added yesterday) still open — counter counts excluded row in the total.
+SES-06	Pass	Auto sign-out set to 1 via Settings (Test & Apply 13:50:25) took effect without restart.
+SES-01	Pass	Idle on Home → signed out to Login.
+AUTH-14	Pass	Login shows 'Signed out after 1 minute of inactivity.' (singular).
+SCN-03	Fail	Auto sign-out 1 min; on Home, barcode scans every 40 s (13:51:17, 13:51:57, 13:52:37) with no touches → signed out by 13:52:57. Scans did not count as activity (at least on Home, where scans are otherwise ignored).
+LOAD-01	Pass	9 of 11 mixers mixing simultaneously (DOLCI mixer 1/2, Main mixer 1–5, Mackie, Bubblewrap); Station 2 list showed all 'in use'. DOLCI, Mackie, Bubblewrap are fixed pairs (no Produce step).
+LOAD-02	Fail	'Main mixer 6' and 'Crespi Mixer' are listed as free mixers but scanning their exact names → 'Not a machine — X'. Machine code ≠ display name for these two (all others: code = name). Need codes / data fix.
+LOAD-03	Pass	Max load: JC 510022145 had 27 active PREPs at once — 25 Producing (Main extruder 1–25, one each) + 2 Mixing (DOLCI mixer 1/2). All machine_start / machine_finish success; one 'Station 2 did not respond' during the last start (backend restart), succeeded on retry. All 27 finished → 29 of 66 finished.
+PRE-08	Pass	A prepare got no reply (backend restart); Job Detail showed 'A prepare for this job is waiting for Station 2 — Open' and blocked new prepares; Open re-sent the original → success → exactly one PREP (…e6a69e).
+UX-01	Note	Prepare screen lists every active PREP above the mix-count form; with 10+ active PREPs the form and Prepare button are far below the fold.
+CAT-09	Pass	All 189 JCs looked up (see Job Coverage): 158/160 qualified loaded (510023047/050 Rajoo-claimed, refused correctly), 9/9 no-whole-mix refused, 13/20 unavailable now load, 7 refused with readable reasons. 3 transient timeouts retried OK.
+PRE-10	Pass	PREP_f0b9…c361 reopened by typing its id → read only; C4LL 25 of 50 left (after one 25 kg bag).
+NAV-05	Pass	'Good afternoon, Avi/Jono' after 12:00; Job Cards and Rajoo tiles open the right screens.
+SES-02	Pass	Auto sign-out 0 from ~13:55 to ~18:15 with idle gaps >15 min (background runs) — never signed out.
+ENV-02	Pass	SAP posting enabled per guide; user approved running finish tests ('Run all tests').
+MQ-03	Fail	P1. Auto-reconnect stuck in 'Reconnecting' after Wi-Fi off/on, reproduced 3×: 13:17 (~9 min, recovered only after another Wi-Fi toggle), 13:29/13:31 after relaunch (>2 min), 18:24 (>8 min while Station 2 had answered seconds before the drop). Each time Settings → Test & Apply connected within ~9 s. App logs nothing on connect failure. (Backend restarts during the day cannot be fully excluded for the earlier occurrences.)
+PRE-02	Pass	510023052 Prepare 2 mixes → PREP_…25af04 targets 100 / 100 / 1 kg (per-mix 50 / 50 / 0.5 × 2).
+LKP-07	Pass	Job Detail shows '50 kg per mix · 150 kg for the job'; the 2-mix PREP shows its own 100 kg targets.
+COL-14	Pass	Scan-bar keyboard → 'Type the code' → dummytag_47 + Enter → identify success, same sheet as a scan (On pallet 9751.854 kg — matches all captures exactly).
+COL-04	Pass	Amount 37.5 → 'Submit 37.5 kg (2 bags)' → captures 25 then 12.5; 62.5 of 100 left.
+COL-17	Pass	'Submit 100 kg (4 bags)', Wi-Fi cut after ~1.5 s: bag 1 recorded, bag 2 unanswered → hold; bags 3–4 not sent. Reopening the PREP re-sent bag 2 with the same messageId → success; 50 of 100 left. Minor: no 'Recorded 1 of 4' summary shown, only the hold.
+STK-02	Pass	All 63 dummy tags identified on PREP_…25af04 — none 'not recognised'. On-PREP tags show exact balances (23: 9998.5, 47: 9714.354, 52: 9832.285 kg = start minus every capture). Off-PREP tags open the 'Not in this mix' Add form (no balance shown).
+DEC-06	Fail	Minor. 1-ingredient PREP_…7c26d3 (510023064): 'Omit' is disabled — cannot omit the last ingredient (correct), but no 'At least one ingredient must stay' message is shown. Same silent-block pattern as DEC-05. PREP left uncollected.
+NAV-04	Pass	Forced user_rotation=1 (landscape) → app stays portrait (1080×1920).
+SES-04	Pass	Auto sign-out 2 min: idle 90 s, force-stop, relaunch → session restored to Home; signed out at +114 s total ('Signed out after 2 minutes of inactivity.'). Restart did not reset idle time.
+AUTH-06	Pass	Two Log In taps 100 ms apart → exactly one scram_start_requested.
+DEC-08	N/A	Ingredient rows are not shown in mixer/production stages, so there is nothing to tap.
+MQ-05	Blocked	Broker-side retained presence not observable from the scanner (scanner-only run).
+MQ-06	Blocked	Partially observed (Connected / Reconnecting / Clock-skew not triggered); 'Station 2 offline' needs Station 2 stopped and debounce needs sub-second network control.
+MQ-09	Blocked	Needs Station 2 paused to force a timeout at a set value.
+MQ-13	Blocked	Needs publishing uncorrelated messages to the broker.
+MQ-16	Blocked	Plant LAN broker not reachable from this test location.
+SES-07	Blocked	Needs a server-generated operator_session_invalid for an old session.
+STK-05	Blocked	Cannot force an identify timeout/unsupported reply from the scanner.
+PRE-05	Blocked	No test job has more than one choosable (Include/Exclude) line, so 'exclude every material' cannot be reached.
+PRE-11	Blocked	Not executed — needs a reconnect while the Prepare form is filled; reconnect was unreliable (MQ-03).
+DEC-07	Blocked	Needs a second device / desktop edit to create a stale revision.
+MIX-08	Blocked	Needs a second device to advance the stage while a card is open.
+RET-04	Blocked	Needs Station 2 to report not_executed for an original command (all lost replies in this run had committed).
+RET-05	Blocked	Needs a recover answered 'rejected'.
+RET-12	Blocked	Needs a needs-manager command (receipt_owner_mismatch / recovery_unavailable).
+RET-13	Blocked	Needs an unresolved command from an earlier session that recovery cannot settle immediately.
+RET-14	Pass	During the COL-17 hold the PREP was re-read on reconnect; the hold stayed until the identical retry got a definite answer.

@@ -36,3 +36,6 @@ Thumbs.db
 
 # Local git worktrees
 .worktrees/
+
+# Python bytecode (docs/test-matrix tooling)
+__pycache__/
