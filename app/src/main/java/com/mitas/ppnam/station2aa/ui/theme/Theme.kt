@@ -40,6 +40,10 @@ private val AppColorScheme = darkColorScheme(
     surfaceContainer = GraphiteSurface,
     surfaceContainerHigh = GraphiteSurfaceVariant,
     surfaceContainerHighest = GraphiteSurfaceVariant,
+    // HorizontalDivider reads outlineVariant: left at the baseline #49454F, the Job Detail and
+    // Prepare dividers were a warm purple-grey found nowhere else in the app (skill critique
+    // 2026-11-06, P2). Settings already draws its dividers in GraphiteBorder.
+    outlineVariant = GraphiteBorder,
 )
 
 private val AppShapes = Shapes(

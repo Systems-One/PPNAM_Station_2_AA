@@ -483,7 +483,9 @@ class RajooJobViewModel @Inject constructor(
                 var recorded = 0
                 var last: PrepSnapshot? = null
                 for (quantity in parts) {
-                    if (recorded > 0 && _uiState.value.collect.blocking.isNotEmpty()) {
+                    // The outbox itself, not the screen's lagging copy: that copy can still hold the
+                    // previous bag's own settled command (skill critique 2026-11-06, P1).
+                    if (recorded > 0 && coordinator.pending.value.any(::blocksThisJob)) {
                         updateCollect { it.copy(step = CollectStep.Idle) }
                         return@launch show("Recorded $recorded of ${parts.size} — resolve the unanswered command first")
                     }

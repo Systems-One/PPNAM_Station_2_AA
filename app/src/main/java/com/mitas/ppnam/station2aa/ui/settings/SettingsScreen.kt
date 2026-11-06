@@ -49,6 +49,12 @@ fun SettingsScreen(
     val pinLockoutMessage = viewModel.pinLockoutMessage.value
     val pinLockedOut = viewModel.pinLockedOut.value
     val applyState = viewModel.applyState.value
+    val scrollState = rememberScrollState()
+    // The Test & Apply outcome is drawn below the button, which sits at the foot of the form: a
+    // failure line landed half under the navigation bar (skill critique 2026-11-06, P3).
+    LaunchedEffect(applyState) {
+        if (applyState !is ApplyState.Idle) scrollState.animateScrollTo(scrollState.maxValue)
+    }
     val draft = viewModel.draftSettings.value
     val session by viewModel.session.collectAsState()
     var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
@@ -88,7 +94,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

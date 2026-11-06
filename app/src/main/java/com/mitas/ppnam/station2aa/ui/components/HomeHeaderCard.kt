@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -143,10 +144,15 @@ fun ConnectionPill(status: ConnectionStatus, modifier: Modifier = Modifier) {
     }
     Row(
         modifier = modifier
+            // A floor on the width so the gear beside it stops jumping when the label flips
+            // between "Offline" and "Reconnecting" while the broker is unreachable: a tap aimed
+            // at the gear landed on the logo/field instead (skill critique 2026-11-06, P2).
+            .widthIn(min = PILL_MIN_WIDTH)
             .clip(RoundedCornerShape(50))
             .background(dotColor.copy(alpha = 0.12f))
             .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
     ) {
         Canvas(modifier = Modifier.size(6.dp)) {
             drawCircle(color = dotColor)
@@ -161,3 +167,6 @@ fun ConnectionPill(status: ConnectionStatus, modifier: Modifier = Modifier) {
         )
     }
 }
+
+/** Wide enough for "Reconnecting", the widest label the pill shows while the broker is unreachable. */
+private val PILL_MIN_WIDTH = 104.dp

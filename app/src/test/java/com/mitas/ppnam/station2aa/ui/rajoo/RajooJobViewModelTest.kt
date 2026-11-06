@@ -35,6 +35,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -44,6 +45,8 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doSuspendableAnswer
+import org.mockito.kotlin.times
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -183,6 +186,29 @@ class RajooJobViewModelTest {
         verify(useCase).capture("2", "TAG-RESIN", session, BigDecimal("10"))
         assertEquals(CollectStep.Idle, vm.uiState.value.collect.step)
         assertEquals("Recorded 10 kg Resin", (vm.uiState.value.collect.banner as ResultBanner.Accepted).text)
+    }
+
+    // Skill critique 2026-11-06 P1 (General collect showed it; Rajoo had the same check): a bag's
+    // own command, settled but still in the screen's lagging copy of `blocking`, stopped the
+    // multi-bag sequence after bag 1.
+    @Test
+    fun `a bag's own settled command does not stop the next Rajoo bag`() = runTest {
+        val vm = open(started)
+        whenever(useCase.identify("2", "TAG-RESIN")).thenReturn(IdentifyResult.Identified(source(), looked))
+        vm.onScan("TAG-RESIN")
+        vm.onAmountChange("25")
+        whenever(useCase.capture(any(), any(), any(), anyOrNull())).doSuspendableAnswer {
+            outbox.value = listOf(PendingCommand(
+                messageId = "own", requestType = RajooUseCase.REQUEST, responseType = RajooUseCase.RESPONSE,
+                action = "capture", targetId = "2", payload = "{}", operatorId = "OP-1", sessionId = session,
+                status = PendingStatus.Unresolved,
+            ))
+            yield()
+            outbox.value = emptyList()
+            CollectionResult.Done(captured)
+        }
+        vm.submit()
+        verify(useCase, times(3)).capture(any(), any(), any(), anyOrNull())
     }
 
     @Test
