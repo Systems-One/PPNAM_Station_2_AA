@@ -156,7 +156,7 @@ private fun JobHome(state: RajooUiState, sessionId: String?, viewModel: RajooJob
                     }
                 }
             }
-            if (collect.blocking.isNotEmpty()) {
+            if (collect.visibleHolds.isNotEmpty()) {
                 item { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) { HoldBanners(collect, sessionId, viewModel::retry) } }
             } else {
                 collect.banner?.let { b -> item { ResultBannerView(b, null) } }

@@ -27,6 +27,7 @@ import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
 import com.mitas.ppnam.station2aa.ui.theme.InfoBlue
+import com.mitas.ppnam.station2aa.ui.theme.InfoBlueTint
 import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
@@ -46,6 +47,13 @@ enum class StatusTone {
         Danger -> DangerRed
         Idle -> TextMuted
     }
+
+    /**
+     * The color for status TEXT on the graphite card. Running's InfoBlue stays the border, but as
+     * text it is only 3.9:1 on [GraphiteSurface] (visual critique 2026-11-06, P2), so text uses the
+     * lighter [InfoBlueTint], the way primary text uses BrandTint instead of BrandPrimary.
+     */
+    fun textColor(): Color = if (this == Running) InfoBlueTint else color()
 }
 
 /**
@@ -76,7 +84,7 @@ fun StatusCard(
     val reducedMotion = rememberReducedMotion()
     val targetAccent = tone.color()
     val accentColor by animateColorAsState(
-        targetValue = targetAccent,
+        targetValue = tone.textColor(),
         animationSpec = if (reducedMotion) snap() else spring(stiffness = Spring.StiffnessMediumLow),
         label = "status_accent",
     )

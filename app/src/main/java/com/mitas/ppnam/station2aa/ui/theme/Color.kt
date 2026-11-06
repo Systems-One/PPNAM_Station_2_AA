@@ -27,6 +27,9 @@ val DangerRed              = Color(0xFFE25C5C)
 
 // Secondary accents — matches WPF OrangeColor / CyanColor / PurpleColor
 val InfoBlue               = Color(0xFF2E77F5)
+// Lighter tint of InfoBlue for blue status TEXT on graphite: InfoBlue is 3.9:1 on GraphiteSurface,
+// this is 5.8:1 (visual critique 2026-11-06).
+val InfoBlueTint           = Color(0xFF5B9BFF)
 val IndigoAccent           = Color(0xFF8A63E8)
 val WarningOrange          = Color(0xFFF0A13A)
 val CyanAccent             = Color(0xFF25C7DA)

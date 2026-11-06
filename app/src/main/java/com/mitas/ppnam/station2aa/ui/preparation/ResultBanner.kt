@@ -150,7 +150,7 @@ internal fun HoldBanner(command: PendingCommand, retryable: Boolean, enabled: Bo
 
 @Composable
 internal fun HoldBanners(state: PreparationUiState, sessionId: String?, onRetry: (PendingCommand) -> Unit) {
-    state.blocking.forEach { command ->
+    state.visibleHolds.forEach { command ->
         val ownSession = command.status == PendingStatus.Unresolved && command.sessionId == sessionId
         HoldBanner(command, ownSession, !state.inFlight) { onRetry(command) }
     }

@@ -126,7 +126,7 @@ internal fun CollectHome(
                 }
             }
             // Result area: a hold (lost reply) takes it over; otherwise the last result.
-            if (state.blocking.isNotEmpty()) {
+            if (state.visibleHolds.isNotEmpty()) {
                 item { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) { HoldBanners(state, sessionId, onRetry) } }
             } else {
                 banner?.let { b ->

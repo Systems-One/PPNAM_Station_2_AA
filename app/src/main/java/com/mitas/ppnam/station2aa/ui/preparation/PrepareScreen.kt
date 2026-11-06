@@ -49,6 +49,8 @@ import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
+import com.mitas.ppnam.station2aa.ui.theme.BrandTint
+import com.mitas.ppnam.station2aa.ui.theme.brandButtonColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -138,7 +140,7 @@ fun PrepareScreen(
                                 "Station 2 has not confirmed this prepare. Don't prepare again — Retry.",
                                 color = WarningOrange,
                             )
-                            Button(onClick = viewModel::retryPending, enabled = !state.sending) { Text("Retry") }
+                            Button(onClick = viewModel::retryPending, enabled = !state.sending, colors = brandButtonColors()) { Text("Retry") }
                         }
                     }
                 }
@@ -147,7 +149,8 @@ fun PrepareScreen(
             if (state.activePreparations.isNotEmpty()) {
                 item {
                     Text(
-                        "This job already has ${state.activePreparations.size} active preparation(s). " +
+                        "This job already has ${state.activePreparations.size} active " +
+                            "${if (state.activePreparations.size == 1) "preparation" else "preparations"}. " +
                             "Open one to continue it — Prepare creates a new allocation.",
                         color = WarningOrange, style = MaterialTheme.typography.bodyMedium,
                     )
@@ -157,6 +160,8 @@ fun PrepareScreen(
                         modifier = Modifier.clickable { onOpenPrep(prep.id) },
                         headlineContent = { Text(prep.id, color = TextPrimary) },
                         supportingContent = { Text(prep.summaryLine(), color = TextMuted) },
+                        // The row opens the PREP but looked like static text (visual critique 2026-11-06, P2).
+                        trailingContent = { Text("Open ›", color = BrandTint, style = MaterialTheme.typography.labelLarge) },
                     )
                 }
             }
@@ -200,6 +205,7 @@ fun PrepareScreen(
                     val n = form.mixCount
                     Button(
                         onClick = { confirming = true },
+                        colors = brandButtonColors(),
                         enabled = form.problems.isEmpty() && !state.sending && state.blocking == null,
                         modifier = Modifier.fillMaxWidth(),
                     ) { Text(if (n != null) "Prepare $n ${if (n == 1) "mix" else "mixes"}" else "Prepare mixes") }

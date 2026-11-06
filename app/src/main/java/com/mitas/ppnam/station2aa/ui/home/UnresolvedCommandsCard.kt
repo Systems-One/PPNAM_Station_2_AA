@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -19,6 +21,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
+import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
+import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 import com.mitas.ppnam.station2aa.domain.usecase.NoticeTarget
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 import com.mitas.ppnam.station2aa.domain.usecase.openTarget
@@ -61,24 +65,37 @@ fun UnresolvedCommandsCard(
             dismissButton = { TextButton(onClick = { confirming = null }) { Text("Cancel") } },
         )
     }
-    Card(modifier = modifier.fillMaxWidth()) {
+    // Explicit graphite + amber: the default Card colour was Material's baseline #36343B grey, the
+    // only off-palette surface on Home, for the one card that needs the operator's attention
+    // (visual critique 2026-11-06, P2). Amber matches the in-job "hasn't answered" hold.
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = GraphiteSurface),
+        border = BorderStroke(1.dp, WarningOrange),
+    ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (pending.isNotEmpty()) {
                 Text(
                     "${pending.size} unanswered ${if (pending.size == 1) "command" else "commands"}",
                     style = MaterialTheme.typography.titleSmall,
+                    color = WarningOrange,
                 )
             }
             notices.forEach { notice ->
-                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Text(notice.noticeText(currentDeviceId), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                    val target = notice.openTarget()
-                    val openLabel = notice.openActionLabel()
-                    if (target != null && openLabel != null) {
-                        TextButton(onClick = { onOpen(target) }) { Text(openLabel) }
-                    }
-                    if (notice !is RecoveryResult.StillUnresolved) {
-                        TextButton(onClick = { onDismiss(notice) }) { Text("OK") }
+                // Text above, actions below: side by side, "Open Rajoo job 510019070" + "OK" took the
+                // width first and squeezed the notice into a 120 px column that broke mid-word
+                // ("captur / e", "happe / ned"; visual critique 2026-11-06, P1).
+                Column(Modifier.fillMaxWidth()) {
+                    Text(notice.noticeText(currentDeviceId), style = MaterialTheme.typography.bodySmall)
+                    Row(Modifier.align(androidx.compose.ui.Alignment.End)) {
+                        val target = notice.openTarget()
+                        val openLabel = notice.openActionLabel()
+                        if (target != null && openLabel != null) {
+                            TextButton(onClick = { onOpen(target) }) { Text(openLabel) }
+                        }
+                        if (notice !is RecoveryResult.StillUnresolved) {
+                            TextButton(onClick = { onDismiss(notice) }) { Text("OK") }
+                        }
                     }
                 }
             }

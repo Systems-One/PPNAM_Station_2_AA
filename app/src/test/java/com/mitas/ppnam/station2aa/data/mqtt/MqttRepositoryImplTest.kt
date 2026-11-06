@@ -4,6 +4,9 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
 import com.mitas.ppnam.station2aa.data.settings.SettingsRepository
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
@@ -44,6 +47,23 @@ class MqttRepositoryImplTest {
         repo.connect()
 
         verify(mockClientFactory, never()).build(any(), any(), any())
+    }
+
+    // Visual critique 2026-11-06 P1: after an app restart with a restored session the pill sat on
+    // "Reconnecting" forever. LoginViewModel calls connect() from viewModelScope and is cleared at
+    // once when the restored session jumps to Home, cancelling the connect half-way, with no retry.
+    @Test
+    fun `a connect whose caller is cancelled still runs to the broker`() = runTest {
+        val gate = CompletableDeferred<com.mitas.ppnam.station2aa.domain.model.AppSettings>()
+        whenever(mockSettingsRepository.current()).doSuspendableAnswer { gate.await() }
+        whenever(mockClientFactory.build(any(), any(), any())).thenThrow(IllegalStateException("stop here"))
+
+        val caller = launch(Dispatchers.Default) { repo.connect() }
+        verify(mockSettingsRepository, timeout(2_000)).current()
+        caller.cancel()                                   // the login screen's view model is cleared
+        gate.complete(com.mitas.ppnam.station2aa.domain.model.AppSettings())
+
+        verify(mockClientFactory, timeout(2_000)).build(any(), any(), any())
     }
 
     @Test

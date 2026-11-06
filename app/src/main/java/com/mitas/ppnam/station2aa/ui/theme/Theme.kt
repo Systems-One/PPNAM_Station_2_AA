@@ -26,7 +26,18 @@ private val AppColorScheme = darkColorScheme(
     onSurfaceVariant = TextMuted,
     error = DangerRed,
     onError = TextPrimary,
-    outline = GraphiteBorder
+    outline = GraphiteBorder,
+    // Roles the scheme used to leave at Material's baseline (purple-grey) values. They leaked into
+    // every component that reads them: the selected Include/Exclude segment was #4A4458 mauve, the
+    // Settings switch track and the Home "unanswered command" card a warm #36343B grey (visual
+    // critique 2026-11-06, P2). Map them onto the graphite + icon-green palette.
+    secondaryContainer = BrandPrimary,
+    onSecondaryContainer = OnBrandPrimary,
+    surfaceContainerLowest = GraphiteBackground,
+    surfaceContainerLow = GraphiteSurface,
+    surfaceContainer = GraphiteSurface,
+    surfaceContainerHigh = GraphiteSurfaceVariant,
+    surfaceContainerHighest = GraphiteSurfaceVariant,
 )
 
 private val AppShapes = Shapes(

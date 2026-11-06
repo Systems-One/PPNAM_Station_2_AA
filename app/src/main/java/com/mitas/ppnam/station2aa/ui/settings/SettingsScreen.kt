@@ -509,9 +509,14 @@ private fun SettingsToggleRow(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
+            // The off state had a #25384C thumb on a #36343B track, 1.0:1: "TLS off" was nearly
+            // invisible (visual critique 2026-11-06, P2). TextMuted thumb + border is 6.5:1.
             colors = SwitchDefaults.colors(
                 checkedThumbColor = OnBrandPrimary,
-                checkedTrackColor = BrandPrimary
+                checkedTrackColor = BrandPrimary,
+                uncheckedThumbColor = TextMuted,
+                uncheckedTrackColor = GraphiteSurfaceVariant,
+                uncheckedBorderColor = TextMuted,
             )
         )
     }

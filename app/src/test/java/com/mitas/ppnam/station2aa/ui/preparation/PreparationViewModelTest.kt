@@ -863,6 +863,33 @@ class PreparationViewModelTest {
         assertEquals(PrepStage.ReadyForMixer, vm.uiState.value.stage)
     }
 
+    // Visual critique 2026-11-06 P1: the outbox saves a command before it is published, so every
+    // capture showed "Station 2 hasn't answered — don't scan again" while it was still being sent.
+    @Test
+    fun `the hold is not shown while its command is still in flight`() {
+        val cmd = pending()
+        val sending = PreparationUiState(prepId, inFlight = true, blocking = listOf(cmd))
+        assertTrue(sending.visibleHolds.isEmpty())
+        assertFalse(sending.canScan)                      // still blocks: nothing new goes out meanwhile
+        val unanswered = sending.copy(inFlight = false)
+        assertEquals(listOf(cmd), unanswered.visibleHolds)
+    }
+
+    // Visual critique 2026-11-06 P2: after "Mix complete" the mixer stage still led with the last
+    // capture's "Recorded 30 kg Resin" banner, a collect-stage result on a screen that now asks for a mixer.
+    @Test
+    fun `confirming drops the last capture's banner once the stage moves on`() = runTest {
+        val vm = open(afterOne)
+        whenever(useCase.capture(prepId, "TAG-RESIN", BigDecimal("30"))).thenReturn(CollectionResult.Done(finalCapture))
+        scanIdentified(vm, snapshot = afterOne)
+        vm.submit()
+        assertTrue(vm.uiState.value.banner is ResultBanner.Accepted)
+        whenever(useCase.confirm(prepId)).thenReturn(CollectionResult.Done(confirmed))
+        vm.confirm()
+        assertEquals(PrepStage.ReadyForMixer, vm.uiState.value.stage)
+        assertNull(vm.uiState.value.banner)
+    }
+
     @Test
     fun `an older read arriving after confirm does not regress the stage`() = runTest {
         val vm = open(finalCapture)
