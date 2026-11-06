@@ -12,6 +12,9 @@ import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.feedback.ScanRepeatGate
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSound
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSounds
 import com.mitas.ppnam.station2aa.domain.model.MachineScan
 import com.mitas.ppnam.station2aa.domain.model.PrepSnapshot
 import com.mitas.ppnam.station2aa.domain.model.savedMixer
@@ -46,7 +49,10 @@ import com.mitas.ppnam.station2aa.ui.home.noticeText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -87,6 +93,15 @@ class PreparationViewModel @Inject constructor(
     val connectionStatus: StateFlow<ConnectionStatus> = mqttRepository.connectionStatusIn(viewModelScope)
 
     val session: StateFlow<OperatorSession?> = sessionHolder.session
+
+    private val _scanSounds = MutableSharedFlow<ScanSound>(extraBufferCapacity = 8)
+    /**
+     * Suite rule S1: one sound per scan outcome, decided by [ScanSounds] and played by the screen
+     * (`ScanSoundEffect`). Sounds emitted while the screen is not collecting are dropped.
+     */
+    val scanSounds: SharedFlow<ScanSound> = _scanSounds.asSharedFlow()
+    /** Suite rule S3: repeat reads of one trigger pull sound once. */
+    private val repeats = ScanRepeatGate()
 
     /** The last sequence number handed out, and the newest whose snapshot is on screen. */
     private var issued = 0L
@@ -185,47 +200,71 @@ class PreparationViewModel @Inject constructor(
     fun onScan(code: String) {
         val trimmed = code.trim()
         if (trimmed.isEmpty()) return
+        val state = _uiState.value
+        // S3: a repeat read of the pallet or machine in hand, or of a code that just failed, stays silent.
+        val quiet = repeats.isRepeat(trimmed, inHand(state))
         if (UserTagPolicy.isUserTag(trimmed)) {
             show(OutcomeMessage.Info(BADGE_MESSAGE))
+            sound(trimmed, ScanSound.FAIL, quiet)
             return
         }
-        val state = _uiState.value
         if (state.stage?.isMachineStage == true) {
-            machineScan(trimmed, state)
+            machineScan(trimmed, state, quiet)
             return
         }
         // A machine code before the mixer stage is the wrong step, not an unknown pallet.
         state.snapshot?.matchMachine(trimmed)?.let { machine ->
             show(OutcomeMessage.Info("That's the ${machine.name} code — collect every ingredient and tap Mix complete first"))
+            sound(trimmed, ScanSound.FAIL, quiet)
             return
         }
         if (!state.canScan) {
             show(OutcomeMessage.Info(whyNoScan(state)))
+            sound(trimmed, ScanSound.FAIL, quiet)
             return
         }
         // Rule: while the Collect screen holds a pallet, a new scan must not silently replace it.
         if (state.step.protectsPallet) {
             show(OutcomeMessage.Info(FINISH_FIRST_MESSAGE))
+            sound(trimmed, ScanSound.FAIL, quiet)
             return
         }
-        identify(trimmed)
+        identify(trimmed, quiet)
+    }
+
+    /** The code the screen is still working on: the machine card's, or the pallet being identified or collected. */
+    private fun inHand(state: PreparationUiState): String? =
+        (state.machine as? MachineStep.Confirm)?.code ?: state.step.palletCode()
+
+    /**
+     * Suite rule S1: emits [sound] for the scan of [code], unless it is a repeat read ([quiet]). A
+     * FAIL also quiets that code's repeat reads for the S3 window.
+     */
+    private fun sound(code: String, sound: ScanSound?, quiet: Boolean = false) {
+        if (sound == ScanSound.FAIL) repeats.failed(code)
+        if (sound != null && !quiet) _scanSounds.tryEmit(sound)
     }
 
     // ---- mixer / production stage ----
 
     /** A machine code in a mixer/production stage: classify it against the snapshot; never sends. */
-    private fun machineScan(code: String, state: PreparationUiState) {
+    private fun machineScan(code: String, state: PreparationUiState, quiet: Boolean) {
         if (!state.canScanMachine) {
             show(OutcomeMessage.Info(whyNoMachineScan(state)))
+            sound(code, ScanSound.FAIL, quiet)
             return
         }
         if (state.machine != MachineStep.Idle) {
             show(OutcomeMessage.Info(MACHINE_FINISH_FIRST_MESSAGE))
+            sound(code, ScanSound.FAIL, quiet)
             return
         }
         val snapshot = state.snapshot ?: return
         _uiState.update { it.copy(banner = null, message = null) }
-        when (val scan = snapshot.scanMachine(code)) {
+        val scan = snapshot.scanMachine(code)
+        // A wrong machine fails now; an accepted one sounds on Station 2's answer to the card's tap.
+        sound(code, ScanSounds.forMachineScan(scan), quiet)
+        when (scan) {
             is MachineScan.NotAMachine -> setBanner(ResultBanner.Error("Not a machine — ${scan.code}"))
             is MachineScan.NotActive -> setBanner(
                 ResultBanner.Error("Only ${scan.activeName} can finish this ${if (state.stage == PrepStage.Producing) "production" else "mix"}"),
@@ -269,7 +308,7 @@ class PreparationViewModel @Inject constructor(
             }
         }
         _uiState.update { it.copy(machine = MachineStep.Sending) }
-        mutate(rejectedTitle = "Not done") {
+        mutate(rejectedTitle = "Not done", scanCode = confirm.code) {
             val result = try {
                 send()
             } catch (e: Exception) {
@@ -341,31 +380,39 @@ class PreparationViewModel @Inject constructor(
         val materials = state.snapshot?.preparation?.materials.orEmpty()
         val plan: SubmitPlan = when (val step = state.step) {
             is CollectStep.Identified -> {
-                if (!state.canScan) return show(OutcomeMessage.Info(whyNoScan(state)))
+                // Suite rule S1: a capture refused here (busy, row gone, amount over) fails once.
+                if (!state.canScan) return refuseCapture(step.source.code, whyNoScan(state))
                 // Re-check against the freshest row: a read may have landed since the amount was typed.
                 val row = materials.firstOrNull { it.code == step.fit.material.code }
                 if (row == null || row.excluded) {
                     _uiState.update { it.copy(step = CollectStep.Idle) }
-                    return show(OutcomeMessage.Info("${step.fit.material.name} is no longer in this mix — scan again"))
+                    return refuseCapture(step.source.code, "${step.fit.material.name} is no longer in this mix — scan again")
                 }
                 val current = identified(step.source, step.fit.copy(material = row), step.amountText)
                 val valid = current.check as? AmountCheck.Valid
                 if (valid == null) {
                     _uiState.update { it.copy(step = current) }
+                    sound(step.source.code, ScanSound.FAIL)
                     return
                 }
                 SubmitPlan(step.source.code, step.source.name, splitCaptures(valid.amount, step.source.bagSize), null)
             }
             is CollectStep.Fallback -> {
-                if (!state.canScan) return show(OutcomeMessage.Info(whyNoScan(state)))
+                if (!state.canScan) return refuseCapture(step.code, whyNoScan(state))
                 val row = materials.firstOrNull { it.code == step.pickedMaterial } ?: return
-                val valid = fallbackCheck(step.amountText, row) as? AmountCheck.Valid ?: return
+                val valid = fallbackCheck(step.amountText, row) as? AmountCheck.Valid
+                    ?: return sound(step.code, ScanSound.FAIL)
                 SubmitPlan(step.code, row.name, splitCaptures(valid.amount, null), row.code)
             }
             else -> return
         }
         if (plan.parts.isEmpty()) return
         runCaptures(plan, state.step, state.snapshot)
+    }
+
+    private fun refuseCapture(code: String, why: String) {
+        show(OutcomeMessage.Info(why))
+        sound(code, ScanSound.FAIL)
     }
 
     /**
@@ -455,7 +502,7 @@ class PreparationViewModel @Inject constructor(
         else -> "Ingredients can't be changed now (${state.snapshot?.preparation?.stageRaw})"
     }
 
-    private fun identify(code: String) {
+    private fun identify(code: String, quiet: Boolean) {
         identifyJob?.cancel()
         val seq = ++issued
         _uiState.update { it.copy(step = CollectStep.Identifying(code), banner = null, message = null) }
@@ -467,7 +514,7 @@ class PreparationViewModel @Inject constructor(
             } catch (e: Exception) {
                 IdentifyResult.Failed("Could not identify this pallet: ${e.message}", retryable = false)
             }
-            // Cancelled, or another step took over while Station 2 was answering.
+            // Cancelled, or another step took over while Station 2 was answering: that answer is silent.
             if ((_uiState.value.step as? CollectStep.Identifying)?.code != code) return@launch
             when (result) {
                 is IdentifyResult.Identified -> {
@@ -476,16 +523,21 @@ class PreparationViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(step = if (snapshot == null) CollectStep.Unknown(IDENTIFY_NO_PREP) else stepFor(result.source, snapshot))
                     }
+                    sound(code, ScanSounds.forIdentify(result, snapshot?.classify(result.source)), quiet)
                 }
                 is IdentifyResult.Unknown -> {
                     applyPreparationIfNewer(seq, result.snapshot)
                     _uiState.update { it.copy(step = CollectStep.Unknown(result.message)) }
+                    sound(code, ScanSounds.forIdentify(result, null), quiet)
                 }
-                is IdentifyResult.Unsupported ->
+                is IdentifyResult.Unsupported -> {
                     _uiState.update { it.copy(step = CollectStep.Fallback(code, null, "", timedOut = result.timedOut)) }
+                    sound(code, ScanSounds.forIdentify(result, null), quiet)
+                }
                 is IdentifyResult.Failed -> {
                     _uiState.update { it.copy(step = CollectStep.Idle) }
                     show(OutcomeMessage.Info(result.message))
+                    sound(code, ScanSounds.forIdentify(result, null), quiet)
                 }
             }
         }
@@ -562,6 +614,7 @@ class PreparationViewModel @Inject constructor(
                     // hold the previous bag's own, already settled command, which stopped every
                     // multi-bag Submit after bag 1 (skill critique 2026-11-06, P1).
                     if (recorded > 0 && coordinator.pending.value.any(::blocksThisPrep)) {
+                        // Waiting on an unresolved command: the outcome isn't known, so no sound.
                         _uiState.update { it.copy(step = CollectStep.Idle) }
                         show(OutcomeMessage.Info(RecordedSoFar(recorded, total, recordedKg).prefix() + "resolve the unanswered command first"))
                         return@launch
@@ -588,6 +641,7 @@ class PreparationViewModel @Inject constructor(
                         _uiState.update { it.copy(step = CollectStep.Idle) }
                     }
                     handleNotDone(seq, result, retried = null, sofar = sofar)
+                    sound(plan.code, ScanSounds.forCommand(result))
                     return@launch
                 }
                 // A hint/reconnect read may have taken a higher sequence number while a capture was
@@ -602,6 +656,7 @@ class PreparationViewModel @Inject constructor(
                 val banner = lastDone?.let { doneBanner(before, it, plan.pickedCode) }
                 if (banner != null) _uiState.update { it.copy(banner = banner) }
                 else show(OutcomeMessage.Info(lastDone?.resultMessage ?: "Station 2 had already recorded this"))
+                sound(plan.code, ScanSound.SUCCESS)
                 if (needRead) read()
             } catch (e: CancellationException) {
                 throw e
@@ -740,7 +795,8 @@ class PreparationViewModel @Inject constructor(
      * reply to it becomes a replacement offer); [replacing] is the offer this send answers, closed
      * once the send settles unless nothing was sent. [endsStep] marks a send that consumes the
      * Collect step (add to mix): any answer but NotSent returns the screen to Idle. [onDone]
-     * replaces the default handling of a Done reply.
+     * replaces the default handling of a Done reply. [scanCode] is the scanned machine code a
+     * Start / Finish carries: its answer sounds (suite rule S1). Other mutations are taps and stay silent.
      */
     private fun mutate(
         retried: PendingCommand? = null,
@@ -749,6 +805,7 @@ class PreparationViewModel @Inject constructor(
         onFinally: () -> Unit = {},
         onDone: (suspend (Long, CollectionResult.Done) -> Unit)? = null,
         rejectedTitle: String? = null,
+        scanCode: String? = null,
         call: suspend () -> CollectionResult,
     ) {
         val seq = ++issued
@@ -758,6 +815,7 @@ class PreparationViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val result = call()
+                scanCode?.let { sound(it, ScanSounds.forCommand(result)) }
                 if (result is CollectionResult.Done && onDone != null) {
                     onDone(seq, result)
                 } else {

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.mitas.ppnam.station2aa.ui.feedback.ScanSoundEffect
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.preparation.ScanBox
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
@@ -74,6 +75,8 @@ fun RajooLookupScreen(
             viewModel.setScreenActive(false)
         }
     }
+    // Suite rule S2: plays the scan sounds this ViewModel decides (UI_Design/sounds/README.md).
+    ScanSoundEffect(viewModel.scanSounds)
 
     AppScaffold(
         title = "Rajoo",

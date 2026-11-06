@@ -11,6 +11,9 @@ import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.feedback.ScanRepeatGate
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSound
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSounds
 import com.mitas.ppnam.station2aa.domain.model.JobDetail
 import com.mitas.ppnam.station2aa.domain.model.JobSummary
 import com.mitas.ppnam.station2aa.domain.repository.MqttConnectionState
@@ -23,7 +26,10 @@ import com.mitas.ppnam.station2aa.ui.components.connectionStatusIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -66,6 +72,18 @@ class JobLookupViewModel @Inject constructor(
     val connectionStatus: StateFlow<ConnectionStatus> = mqttRepository.connectionStatusIn(viewModelScope)
 
     val session: StateFlow<OperatorSession?> = sessionHolder.session
+
+    private val _scanSounds = MutableSharedFlow<ScanSound>(extraBufferCapacity = 8)
+    /**
+     * Suite rule S1: a scanned or typed job card sounds on Station 2's answer to its lookup; a
+     * badge, or a different code while a lookup is in flight, fails here. Played by Job Lookup.
+     */
+    val scanSounds: SharedFlow<ScanSound> = _scanSounds.asSharedFlow()
+    /** Suite rule S3: repeat reads of one trigger pull sound once. */
+    private val repeats = ScanRepeatGate()
+
+    /** The input of the lookup in flight, so a repeat read of it stays silent (S3). */
+    private var lookupInFlightInput: String? = null
 
     private val _navigateToDetail = Channel<String>(Channel.BUFFERED)
     val navigateToDetail: Flow<String> = _navigateToDetail.receiveAsFlow()
@@ -127,6 +145,8 @@ class JobLookupViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(lookupError = JobLookupUseCase.USER_BADGE_MESSAGE, lookupRetryable = false)
                     }
+                    val badge = event.tagId.trim()
+                    sound(badge, ScanSound.FAIL, quiet = repeats.isRepeat(badge))
                     return@collect
                 }
                 lookup(
@@ -166,12 +186,25 @@ class JobLookupViewModel @Inject constructor(
         }
     }
 
-    fun lookup(input: String) {
-        if (_uiState.value.lookupInFlight) return
+    /** A scanned or typed job card: its answer sounds (suite rule S1). */
+    fun lookup(input: String) = lookup(input, sound = true)
+
+    private fun lookup(input: String, sound: Boolean) {
+        val code = input.trim()
+        if (_uiState.value.lookupInFlight) {
+            // S3: a repeat read of the job card in flight is the same scan; another code is refused.
+            if (sound && !repeats.isRepeat(code, lookupInFlightInput)) sound(code, ScanSound.FAIL)
+            return
+        }
         lastLookupInput = input
+        lookupInFlightInput = code
+        val quiet = !sound || repeats.isRepeat(code)
         viewModelScope.launch {
             _uiState.update { it.copy(lookupInFlight = true, lookupError = null, lookupRetryable = false) }
-            when (val result = useCase.lookup(input)) {
+            val result = useCase.lookup(input)
+            lookupInFlightInput = null
+            sound(code, ScanSounds.forJobLookup(result), quiet)
+            when (result) {
                 is JobLookupResult.Loaded -> {
                     val detail = result.snapshot.detail!!  // the use case guarantees it on Loaded
                     _uiState.update {
@@ -204,7 +237,13 @@ class JobLookupViewModel @Inject constructor(
 
     /** The Retry button next to a lookup error. A no-op until something has been looked up. */
     fun retryLookup() {
-        lastLookupInput?.let { lookup(it) }
+        lastLookupInput?.let { lookup(it, sound = false) } // a button tap, not a scan
+    }
+
+    /** Emits [sound] unless [quiet]; a FAIL also quiets [code]'s repeat reads for the S3 window. */
+    private fun sound(code: String, sound: ScanSound, quiet: Boolean = false) {
+        if (sound == ScanSound.FAIL) repeats.failed(code)
+        if (!quiet) _scanSounds.tryEmit(sound)
     }
 
     /**

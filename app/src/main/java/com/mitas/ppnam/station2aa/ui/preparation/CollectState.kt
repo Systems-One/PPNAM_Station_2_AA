@@ -77,6 +77,16 @@ sealed interface CollectStep {
     /** A pallet the operator is part-way through: a new scan is refused with "Finish or cancel". */
     val protectsPallet: Boolean
         get() = this is Identifying || this is Identified || this is NotInMix || this is Fallback || this is Submitting
+
+    /** The pallet code this step is working on, so its repeat reads stay silent (suite rule S3). */
+    fun palletCode(): String? = when (this) {
+        is Identifying -> code
+        is Identified -> source.code
+        is NotInMix -> source.code
+        is Fallback -> code
+        is Submitting -> code
+        else -> null
+    }
 }
 
 /** The outcome of the last submit, shown at the top of the list until the next scan. */

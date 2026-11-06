@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.mitas.ppnam.station2aa.ui.feedback.ScanSoundEffect
 import com.mitas.ppnam.station2aa.domain.model.ChoicePrompt
 import com.mitas.ppnam.station2aa.domain.model.RajooJob
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
@@ -96,6 +97,8 @@ fun RajooJobScreen(
             viewModel.setScreenActive(false)
         }
     }
+    // Suite rule S2: plays the scan sounds this ViewModel decides (UI_Design/sounds/README.md).
+    ScanSoundEffect(viewModel.scanSounds)
 
     val collect = state.collect
     val inSheet = collect.step != CollectStep.Idle

@@ -1,5 +1,9 @@
 package com.mitas.ppnam.station2aa.ui.rajoo
 
+import com.mitas.ppnam.station2aa.data.mqtt.outbox.UnresolvedReason
+import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSound
+import com.mitas.ppnam.station2aa.ui.heard
 import androidx.lifecycle.SavedStateHandle
 import com.google.gson.JsonParser
 import com.mitas.ppnam.station2aa.contract.ContractFixtures1021
@@ -350,5 +354,78 @@ class RajooJobViewModelTest {
         whenever(useCase.identify(eq("2"), any())).thenReturn(IdentifyResult.Unknown("No pallet.", null))
         vm.onScan("NOPE")
         assertEquals(CollectStep.Unknown("No pallet."), vm.uiState.value.collect.step)
+    }
+
+    // ---- scan sounds (suite rules S1 and S3) ----
+
+    @Test
+    fun `S1 the Rajoo machine card is silent and Start sounds on Station 2's answer`() = runTest {
+        val vm = open(looked)
+        val heard = heard(vm.scanSounds)
+        vm.onScan("RAJ-EXT-01")
+        vm.onScan("RAJ-EXT-01") // S3: the repeat read of the card's code
+        assertTrue(heard.isEmpty())
+        vm.onChoice("OPTIONAL", true)
+        whenever(useCase.start(any(), any(), anyOrNull(), anyOrNull())).thenReturn(CollectionResult.Done(started))
+        vm.confirm()
+        assertEquals(listOf(ScanSound.SUCCESS), heard)
+    }
+
+    @Test
+    fun `S1 a refused session finish fails once, a queued one is silent`() = runTest {
+        val vm = open(started)
+        val heard = heard(vm.scanSounds)
+        vm.onScan("RAJ-EXT-01")
+        whenever(useCase.finish(any(), any(), any()))
+            .thenReturn(CollectionResult.Rejected(ErrorCode("rev2_rejected"), "Not now", null))
+        vm.confirm()
+        assertEquals(listOf(ScanSound.FAIL), heard)
+
+        val vm2 = open(started)
+        val heard2 = heard(vm2.scanSounds)
+        vm2.onScan("RAJ-EXT-01")
+        val cmd = PendingCommand(messageId = "m-1", requestType = RajooUseCase.REQUEST, action = "finish", targetId = "2")
+        whenever(useCase.finish(any(), any(), any()))
+            .thenReturn(CollectionResult.Unresolved(cmd, UnresolvedReason.RetryIdentical, "no reply"))
+        vm2.confirm()
+        assertTrue(heard2.isEmpty())
+    }
+
+    @Test
+    fun `S1 a Rajoo pallet identified and recorded sounds success for each answer`() = runTest {
+        val vm = open(started)
+        val heard = heard(vm.scanSounds)
+        whenever(useCase.identify("2", "TAG-RESIN")).thenReturn(IdentifyResult.Identified(source(), looked))
+        vm.onScan("TAG-RESIN")
+        assertEquals(listOf(ScanSound.SUCCESS), heard)
+        whenever(useCase.capture(any(), any(), any(), anyOrNull())).thenReturn(CollectionResult.Done(captured))
+        vm.submit()
+        assertEquals(listOf(ScanSound.SUCCESS, ScanSound.SUCCESS), heard)
+    }
+
+    @Test
+    fun `S1 a refused Rajoo capture fails once`() = runTest {
+        val vm = open(started)
+        val heard = heard(vm.scanSounds)
+        whenever(useCase.identify("2", "TAG-RESIN")).thenReturn(IdentifyResult.Identified(source(), looked))
+        vm.onScan("TAG-RESIN")
+        whenever(useCase.capture(any(), any(), any(), anyOrNull()))
+            .thenReturn(CollectionResult.Rejected(ErrorCode("rev2_rejected"), "Over the job total", null))
+        vm.submit()
+        assertEquals(listOf(ScanSound.SUCCESS, ScanSound.FAIL), heard)
+    }
+
+    @Test
+    fun `S1 an unknown Rajoo pallet, or a non-machine code before a session, fails once`() = runTest {
+        val vm = open(started)
+        val heard = heard(vm.scanSounds)
+        whenever(useCase.identify(eq("2"), any())).thenReturn(IdentifyResult.Unknown("No pallet.", null))
+        vm.onScan("NOPE")
+        assertEquals(listOf(ScanSound.FAIL), heard)
+
+        val vm2 = open(looked)
+        val heard2 = heard(vm2.scanSounds)
+        vm2.onScan("TAG-RESIN")
+        assertEquals(listOf(ScanSound.FAIL), heard2)
     }
 }
