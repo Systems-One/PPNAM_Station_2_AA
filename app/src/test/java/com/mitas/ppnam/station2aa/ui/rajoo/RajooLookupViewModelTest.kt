@@ -1,5 +1,8 @@
 package com.mitas.ppnam.station2aa.ui.rajoo
 
+import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSound
+import com.mitas.ppnam.station2aa.ui.heard
 import com.google.gson.JsonParser
 import com.mitas.ppnam.station2aa.contract.ContractFixtures1021
 import com.mitas.ppnam.station2aa.data.mqtt.WireJson
@@ -122,5 +125,52 @@ class RajooLookupViewModelTest {
         vm.refresh()
         assertNull(vm.uiState.value.machine)
         assertFalse(vm.uiState.value.machineAutoSelected)
+    }
+
+    // ---- scan sounds (suite rules S1 and S3) ----
+
+    @Test
+    fun `S1 a wrong or disabled Rajoo machine fails once, a valid one waits for the lookup's answer`() = runTest {
+        val one = list.machines.single()
+        val two = one.copy(id = "RAJ-EXT-02", name = "Rajoo 2", code = "RAJ-EXT-02", enabled = false)
+        val vm = open(list.copy(machines = listOf(one, two)))
+        val heard = heard(vm.scanSounds)
+        vm.onMachineScan("NOPE")
+        assertEquals(listOf(ScanSound.FAIL), heard)
+        vm.onMachineScan("RAJ-EXT-02")
+        assertEquals(listOf(ScanSound.FAIL, ScanSound.FAIL), heard)
+        vm.onMachineScan("RAJ-EXT-01")
+        vm.onJobCard("2")
+        assertEquals(2, heard.size)
+        whenever(useCase.lookup("2", "RAJ-EXT-01")).thenReturn(ReadResult.Loaded(list))
+        vm.lookup()
+        assertEquals(listOf(ScanSound.FAIL, ScanSound.FAIL, ScanSound.SUCCESS), heard)
+    }
+
+    @Test
+    fun `S1 a refused job card lookup fails once, opening a listed job is silent`() = runTest {
+        val vm = open(list)
+        val heard = heard(vm.scanSounds)
+        vm.onJobCard("9")
+        whenever(useCase.lookup("9", "RAJ-EXT-01")).thenReturn(ReadResult.Failed("No such job", null, retryable = false))
+        vm.lookup()
+        assertEquals(listOf(ScanSound.FAIL), heard)
+        whenever(useCase.lookup("2", "RAJ-EXT-01")).thenReturn(ReadResult.Loaded(list))
+        vm.open(com.mitas.ppnam.station2aa.domain.model.JobSummary("2", "Job", 1, false))
+        assertEquals(listOf(ScanSound.FAIL), heard)
+    }
+
+    @Test
+    fun `S1 a badge scanned on Rajoo lookup is refused here and fails once`() = runTest {
+        val scans = MutableSharedFlow<ScanEvent>(extraBufferCapacity = 8)
+        whenever(scanBus.events).thenReturn(scans)
+        val vm = open(list)
+        vm.setScreenActive(true)
+        val heard = heard(vm.scanSounds)
+        scans.tryEmit(ScanEvent.RfidTag("505055AABBCCDDEEFF00112233445566", java.time.Instant.EPOCH))
+        assertEquals(listOf(ScanSound.FAIL), heard)
+        scans.tryEmit(ScanEvent.Barcode("2", "CODE128", java.time.Instant.EPOCH))
+        assertEquals("2", vm.uiState.value.jobCard)
+        assertEquals(listOf(ScanSound.FAIL), heard) // the job card is taken silently: Look up sounds
     }
 }

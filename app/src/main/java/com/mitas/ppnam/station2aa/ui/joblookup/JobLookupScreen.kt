@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.mitas.ppnam.station2aa.ui.feedback.ScanSoundEffect
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.components.StatusCard
 import com.mitas.ppnam.station2aa.ui.components.StatusTone
@@ -71,6 +72,8 @@ fun JobLookupScreen(
             viewModel.setLookupScreenActive(false)
         }
     }
+    // Suite rule S2: plays the scan sounds this ViewModel decides (UI_Design/sounds/README.md).
+    ScanSoundEffect(viewModel.scanSounds)
 
     LaunchedEffect(Unit) {
         viewModel.navigateToDetail.collect { jobCard -> onJobFound(jobCard) }

@@ -1,5 +1,7 @@
 package com.mitas.ppnam.station2aa.ui.preparation
 
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSound
+import com.mitas.ppnam.station2aa.ui.heard
 import androidx.lifecycle.SavedStateHandle
 import com.mitas.ppnam.station2aa.data.mqtt.ErrorCode
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.PendingCommand
@@ -298,5 +300,66 @@ class MixerViewModelTest {
         vm.confirmMachine()
         assertEquals(ResultBanner.Accepted("Production 2 finished"), vm.uiState.value.banner)
         verify(useCase, times(1)).machineFinish(any(), any(), any())
+    }
+
+    // ---- scan sounds (suite rules S1 and S3) ----
+
+    @Test
+    fun `S1 the machine card is silent and Start sounds on Station 2's answer`() = runTest {
+        val vm = open(ready)
+        val heard = heard(vm.scanSounds)
+        vm.onScan("MAIN-MIX-02")
+        assertTrue(heard.isEmpty())
+        whenever(useCase.machineStart(prepId, "MAIN-MIX-02")).thenReturn(
+            CollectionResult.Done(snap(PrepStage.Mixing, mixerId = "M_MAIN", cycleId = "CYC_A")))
+        vm.confirmMachine()
+        assertEquals(listOf(ScanSound.SUCCESS), heard)
+    }
+
+    @Test
+    fun `S1 a refused Start fails once, a queued or unsent one is silent`() = runTest {
+        val answers = listOf(
+            CollectionResult.Rejected(ErrorCode("rev2_rejected"), "Mixer 2 is used by PREP_91C2", null) to listOf(ScanSound.FAIL),
+            CollectionResult.NotSent("Not connected") to emptyList(),
+            CollectionResult.Unresolved(pending(), UnresolvedReason.RetryIdentical, "no reply") to emptyList(),
+        )
+        for ((answer, expected) in answers) {
+            val vm = open(ready)
+            val heard = heard(vm.scanSounds)
+            whenever(useCase.machineStart(prepId, "MAIN-MIX-02")).thenReturn(answer)
+            vm.onScan("MAIN-MIX-02")
+            vm.confirmMachine()
+            assertEquals(answer.toString(), expected, heard)
+        }
+    }
+
+    @Test
+    fun `S1 a wrong mixer or a code that is not a machine fails once each`() = runTest {
+        val vm = open(mixing)
+        val heard = heard(vm.scanSounds)
+        vm.onScan("MAIN-MIX-03")
+        assertEquals(listOf(ScanSound.FAIL), heard)
+        vm.onScan("NOT-A-MACHINE")
+        assertEquals(listOf(ScanSound.FAIL, ScanSound.FAIL), heard)
+    }
+
+    @Test
+    fun `S3 the card's machine read again is silent, another code while the card is open fails`() = runTest {
+        val vm = open(ready)
+        val heard = heard(vm.scanSounds)
+        vm.onScan("MAIN-MIX-02")
+        vm.onScan("MAIN-MIX-02")
+        assertTrue(heard.isEmpty())
+        vm.onScan("MAIN-MIX-03")
+        assertEquals(listOf(ScanSound.FAIL), heard)
+    }
+
+    @Test
+    fun `S3 a repeat of a wrong machine within the window is silent`() = runTest {
+        val vm = open(mixing)
+        val heard = heard(vm.scanSounds)
+        vm.onScan("MAIN-MIX-03")
+        vm.onScan("MAIN-MIX-03")
+        assertEquals(listOf(ScanSound.FAIL), heard)
     }
 }

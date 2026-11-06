@@ -1,5 +1,7 @@
 package com.mitas.ppnam.station2aa.ui.preparation
 
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSound
+import com.mitas.ppnam.station2aa.ui.heard
 import androidx.lifecycle.SavedStateHandle
 import com.google.gson.JsonParser
 import com.mitas.ppnam.station2aa.contract.ContractFixtures
@@ -1386,5 +1388,130 @@ class PreparationViewModelTest {
         vm.submit()
         val text = (vm.uiState.value.message as OutcomeMessage.Info).text
         assertTrue(text, text.startsWith("Recorded 1 of 2 (25 kg) — then: "))
+    }
+
+    // ---- scan sounds (suite rules S1 and S3) ----
+
+    @Test
+    fun `S1 a pallet identified on an outstanding row sounds success once`() = runTest {
+        val vm = open()
+        val heard = heard(vm.scanSounds)
+        scanIdentified(vm)
+        assertEquals(listOf(ScanSound.SUCCESS), heard)
+    }
+
+    @Test
+    fun `S1 a pallet not on the BOM, blocked, not found, timed out or offline fails once`() = runTest {
+        val answers = listOf(
+            IdentifyResult.Identified(source(code = "TAG-X", material = "OTHER", name = "Other"), opened),
+            IdentifyResult.Identified(source(code = "TAG-X", usable = false, reason = "QC hold"), opened),
+            IdentifyResult.Unknown("Station 2 doesn't know this pallet code.", null),
+            IdentifyResult.Unsupported(GeneralCollectionUseCase.IDENTIFY_FALLBACK, timedOut = true),
+            IdentifyResult.Failed("Not connected", retryable = true),
+        )
+        for (answer in answers) {
+            val vm = open()
+            val heard = heard(vm.scanSounds)
+            whenever(useCase.identify(prepId, "TAG-X")).thenReturn(answer)
+            vm.onScan("TAG-X")
+            assertEquals(answer.toString(), listOf(ScanSound.FAIL), heard)
+        }
+    }
+
+    @Test
+    fun `S1 a badge on the PREP screen is refused here and fails once`() = runTest {
+        val vm = open()
+        val heard = heard(vm.scanSounds)
+        vm.onScan("505055AABBCCDDEEFF00112233445566")
+        assertEquals(listOf(ScanSound.FAIL), heard)
+    }
+
+    @Test
+    fun `S3 the staged pallet read again is silent, a different pallet fails once`() = runTest {
+        val vm = open()
+        val heard = heard(vm.scanSounds)
+        scanIdentified(vm)
+        vm.onScan("TAG-RESIN")
+        assertEquals(listOf(ScanSound.SUCCESS), heard)
+        vm.onScan("TAG-OTHER")
+        assertEquals(listOf(ScanSound.SUCCESS, ScanSound.FAIL), heard)
+        assertEquals(OutcomeMessage.Info(PreparationViewModel.FINISH_FIRST_MESSAGE), vm.uiState.value.message)
+    }
+
+    @Test
+    fun `S3 a repeat read while identify is in flight is silent and the answer sounds once`() = runTest {
+        val vm = open()
+        val heard = heard(vm.scanSounds)
+        val answer = CompletableDeferred<IdentifyResult>()
+        whenever(useCase.identify(prepId, "TAG-RESIN")).doSuspendableAnswer { answer.await() }
+        vm.onScan("TAG-RESIN")
+        vm.onScan("TAG-RESIN")
+        assertTrue(heard.isEmpty())
+        answer.complete(IdentifyResult.Identified(source(), opened))
+        assertEquals(listOf(ScanSound.SUCCESS), heard)
+    }
+
+    @Test
+    fun `S3 a repeat of a refused pallet within the window is silent`() = runTest {
+        val vm = open()
+        val heard = heard(vm.scanSounds)
+        whenever(useCase.identify(prepId, "TAG-X")).thenReturn(IdentifyResult.Unknown("Unknown pallet", null))
+        vm.onScan("TAG-X")
+        vm.onScan("TAG-X")
+        assertEquals(listOf(ScanSound.FAIL), heard)
+    }
+
+    @Test
+    fun `S1 a recorded capture sounds success, a rejected one fails`() = runTest {
+        val vm = open()
+        val heard = heard(vm.scanSounds)
+        scanIdentified(vm)
+        whenever(useCase.capture(any(), any(), anyOrNull())).thenReturn(CollectionResult.Done(afterOne))
+        vm.submit()
+        assertEquals(listOf(ScanSound.SUCCESS, ScanSound.SUCCESS), heard)
+
+        val vm2 = open()
+        val heard2 = heard(vm2.scanSounds)
+        scanIdentified(vm2)
+        whenever(useCase.capture(any(), any(), anyOrNull()))
+            .thenReturn(CollectionResult.Rejected(ErrorCode("rev2_rejected"), "Pallet is on hold", null))
+        vm2.submit()
+        assertEquals(listOf(ScanSound.SUCCESS, ScanSound.FAIL), heard2)
+    }
+
+    @Test
+    fun `S1 an over-amount Submit is refused here and fails once`() = runTest {
+        val vm = open()
+        val heard = heard(vm.scanSounds)
+        scanIdentified(vm)
+        vm.onAmountChange("500")
+        vm.submit()
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+        assertEquals(listOf(ScanSound.SUCCESS, ScanSound.FAIL), heard)
+    }
+
+    @Test
+    fun `S1 a queued or unsent capture makes no sound`() = runTest {
+        for (answer in listOf(
+            CollectionResult.Unresolved(pending(), UnresolvedReason.RetryIdentical, "no reply"),
+            CollectionResult.NotSent("Not connected — nothing was sent"),
+        )) {
+            val vm = open()
+            val heard = heard(vm.scanSounds)
+            scanIdentified(vm)
+            whenever(useCase.capture(any(), any(), anyOrNull())).thenReturn(answer)
+            vm.submit()
+            assertEquals(answer.toString(), listOf(ScanSound.SUCCESS), heard)
+        }
+    }
+
+    @Test
+    fun `confirm collection, refresh and opening make no sound`() = runTest {
+        val vm = open(finalCapture)
+        val heard = heard(vm.scanSounds)
+        whenever(useCase.confirm(prepId)).thenReturn(CollectionResult.Done(confirmed))
+        vm.confirm()
+        vm.refresh()
+        assertTrue(heard.isEmpty())
     }
 }

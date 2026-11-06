@@ -7,6 +7,9 @@ import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.feedback.ScanRepeatGate
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSound
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSounds
 import com.mitas.ppnam.station2aa.domain.model.JobSummary
 import com.mitas.ppnam.station2aa.domain.model.Machine
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
@@ -71,6 +74,15 @@ class RajooLookupViewModel @Inject constructor(
     val connectionStatus: StateFlow<ConnectionStatus> = mqttRepository.connectionStatusIn(viewModelScope)
     val session: StateFlow<OperatorSession?> = sessionHolder.session
 
+    private val _scanSounds = MutableSharedFlow<ScanSound>(extraBufferCapacity = 8)
+    /**
+     * Suite rule S1: a wrong machine or a badge fails here; a taken machine or job card is silent
+     * until Look up's answer sounds. Played by the screen.
+     */
+    val scanSounds: SharedFlow<ScanSound> = _scanSounds.asSharedFlow()
+    /** Suite rule S3: repeat reads of one trigger pull sound once. */
+    private val repeats = ScanRepeatGate()
+
     @Volatile
     private var screenActive = false
 
@@ -88,7 +100,8 @@ class RajooLookupViewModel @Inject constructor(
                     is ScanEvent.Barcode -> event.value
                     is ScanEvent.RfidTag -> event.tagId
                 }.trim()
-                if (code.isEmpty() || UserTagPolicy.isUserTag(code)) return@collect
+                if (code.isEmpty()) return@collect
+                if (UserTagPolicy.isUserTag(code)) return@collect fail(code) // a badge is not a machine or job card
                 if (_uiState.value.machine == null) onMachineScan(code) else onJobCard(code)
             }
         }
@@ -102,6 +115,7 @@ class RajooLookupViewModel @Inject constructor(
         val trimmed = code.trim()
         if (trimmed.isEmpty()) return
         val machine = _uiState.value.machines.firstOrNull { it.code.equals(trimmed, true) || it.id.equals(trimmed, true) }
+        if (machine == null || !machine.enabled) fail(trimmed)
         _uiState.update {
             when {
                 machine == null -> it.copy(error = "$trimmed is not the Rajoo machine code — rescan")
@@ -146,17 +160,21 @@ class RajooLookupViewModel @Inject constructor(
     fun open(job: JobSummary) {
         if (job.closed) { _opened.tryEmit(job.jobCard); return }
         onJobCard(job.jobCard)
-        lookup()
+        lookup(sound = false) // a list tap, not a scan
     }
 
-    /** `lookup` the job card on the confirmed Rajoo machine; on success open the job. */
-    fun lookup() {
+    /** `lookup` the job card on the confirmed Rajoo machine; on success open the job. Its answer sounds (S1). */
+    fun lookup() = lookup(sound = true)
+
+    private fun lookup(sound: Boolean) {
         val state = _uiState.value
         val machine = state.machine ?: return
         if (!state.canLookup) return
         _uiState.update { it.copy(looking = true, error = null) }
         viewModelScope.launch {
-            when (val r = useCase.lookup(state.jobCard, machine.code.ifBlank { machine.id })) {
+            val r = useCase.lookup(state.jobCard, machine.code.ifBlank { machine.id })
+            if (sound) emit(state.jobCard, ScanSounds.forRajooLookup(r))
+            when (r) {
                 is ReadResult.Loaded -> {
                     _uiState.update { it.copy(looking = false) }
                     _opened.tryEmit(r.snapshot.rajoo?.id ?: state.jobCard)
@@ -165,6 +183,17 @@ class RajooLookupViewModel @Inject constructor(
                 is ReadResult.Failed -> _uiState.update { it.copy(looking = false, error = r.message) }
             }
         }
+    }
+
+    /** A scan of [code] refused here: fail once, unless it repeats one refused within the S3 window. */
+    private fun fail(code: String) {
+        val quiet = repeats.isRepeat(code)
+        emit(code, ScanSound.FAIL, quiet)
+    }
+
+    private fun emit(code: String, sound: ScanSound, quiet: Boolean = false) {
+        if (sound == ScanSound.FAIL) repeats.failed(code)
+        if (!quiet) _scanSounds.tryEmit(sound)
     }
 
     fun logout() {

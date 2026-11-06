@@ -1,5 +1,8 @@
 package com.mitas.ppnam.station2aa.ui.joblookup
 
+import org.junit.Assert.assertTrue
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSound
+import com.mitas.ppnam.station2aa.ui.heard
 import com.mitas.ppnam.station2aa.domain.repository.ServerHint
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.InMemoryCommandOutbox
 import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
@@ -398,5 +401,63 @@ class JobLookupViewModelTest {
     fun `retryLookup with nothing to retry does nothing`() = runTest {
         vm.retryLookup()
         verify(useCase, never()).lookup(any())
+    }
+
+    // ---- scan sounds (suite rules S1 and S3) ----
+
+    @Test
+    fun `S1 a scanned job card sounds on Station 2's answer`() = runTest {
+        val heard = heard(vm.scanSounds)
+        vm.setLookupScreenActive(true)
+        whenever(useCase.lookup("510019068")).thenReturn(JobLookupResult.Loaded(withDetail))
+        scans.tryEmit(ScanEvent.Barcode("510019068", "CODE128", java.time.Instant.EPOCH))
+        assertEquals(listOf(ScanSound.SUCCESS), heard)
+        whenever(useCase.lookup("510018531")).thenReturn(JobLookupResult.Failed("Only Released jobs can be loaded.", listOnly))
+        scans.tryEmit(ScanEvent.Barcode("510018531", "CODE128", java.time.Instant.EPOCH))
+        assertEquals(listOf(ScanSound.SUCCESS, ScanSound.FAIL), heard)
+    }
+
+    @Test
+    fun `S1 a typed job card sounds like a scan, a PREP id opens with success`() = runTest {
+        val heard = heard(vm.scanSounds)
+        whenever(useCase.lookup("PREP_abc")).thenReturn(JobLookupResult.OpenPreparation("PREP_abc"))
+        vm.lookup("PREP_abc")
+        whenever(useCase.lookup("12ab")).thenReturn(JobLookupResult.Failed(JobLookupUseCase.NOT_DIGITS_MESSAGE))
+        vm.lookup("12ab")
+        assertEquals(listOf(ScanSound.SUCCESS, ScanSound.FAIL), heard)
+    }
+
+    @Test
+    fun `S1 a badge on Job Lookup is refused here and fails once`() = runTest {
+        val heard = heard(vm.scanSounds)
+        vm.setLookupScreenActive(true)
+        scans.tryEmit(ScanEvent.RfidTag("505055AABBCCDDEEFF00112233445566", java.time.Instant.EPOCH))
+        assertEquals(listOf(ScanSound.FAIL), heard)
+    }
+
+    @Test
+    fun `S3 the same job card while its lookup is in flight is silent, a different one fails once`() = runTest {
+        val heard = heard(vm.scanSounds)
+        val answer = CompletableDeferred<JobLookupResult>()
+        whenever(useCase.lookup("510019068")).doSuspendableAnswer { answer.await() }
+        vm.lookup("510019068")
+        vm.lookup("510019068")
+        assertTrue(heard.isEmpty())
+        vm.lookup("510018531")
+        assertEquals(listOf(ScanSound.FAIL), heard)
+        answer.complete(JobLookupResult.Loaded(withDetail))
+        assertEquals(listOf(ScanSound.FAIL, ScanSound.SUCCESS), heard)
+        verify(useCase, never()).lookup("510018531")
+    }
+
+    @Test
+    fun `the Retry button and list reads make no sound`() = runTest {
+        val heard = heard(vm.scanSounds)
+        whenever(useCase.lookup("510018531")).thenReturn(JobLookupResult.Failed("Station 2 did not respond.", retryable = true))
+        vm.lookup("510018531")
+        vm.retryLookup()
+        whenever(useCase.read(null)).thenReturn(JobLookupResult.Loaded(listOnly))
+        vm.refreshList()
+        assertEquals(listOf(ScanSound.FAIL), heard)
     }
 }

@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.mitas.ppnam.station2aa.ui.feedback.ScanSoundEffect
 import com.mitas.ppnam.station2aa.domain.model.PrepStage
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
@@ -56,6 +57,8 @@ fun PreparationScreen(
             viewModel.setScreenActive(false)
         }
     }
+    // Suite rule S2: plays the scan sounds this ViewModel decides (UI_Design/sounds/README.md).
+    ScanSoundEffect(viewModel.scanSounds)
 
     val prep = state.snapshot?.preparation
     val collectFlow = state.stage == PrepStage.Collecting || state.stage == PrepStage.AwaitingConfirmation

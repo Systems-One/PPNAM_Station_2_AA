@@ -12,6 +12,9 @@ import com.mitas.ppnam.station2aa.data.rfid.ScanEvent
 import com.mitas.ppnam.station2aa.data.rfid.ScanEventBus
 import com.mitas.ppnam.station2aa.data.session.OperatorSession
 import com.mitas.ppnam.station2aa.data.session.OperatorSessionHolder
+import com.mitas.ppnam.station2aa.domain.feedback.ScanRepeatGate
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSound
+import com.mitas.ppnam.station2aa.domain.feedback.ScanSounds
 import com.mitas.ppnam.station2aa.domain.model.AmountCheck
 import com.mitas.ppnam.station2aa.domain.model.ChoicePrompt
 import com.mitas.ppnam.station2aa.domain.model.Machine
@@ -48,7 +51,10 @@ import com.mitas.ppnam.station2aa.ui.preparation.plainText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -159,6 +165,12 @@ class RajooJobViewModel @Inject constructor(
     val connectionStatus: StateFlow<ConnectionStatus> = mqttRepository.connectionStatusIn(viewModelScope)
     val session: StateFlow<OperatorSession?> = sessionHolder.session
 
+    private val _scanSounds = MutableSharedFlow<ScanSound>(extraBufferCapacity = 8)
+    /** Suite rule S1: one sound per scan outcome, decided by [ScanSounds] and played by the screen. */
+    val scanSounds: SharedFlow<ScanSound> = _scanSounds.asSharedFlow()
+    /** Suite rule S3: repeat reads of one trigger pull sound once. */
+    private val repeats = ScanRepeatGate()
+
     private var issued = 0L
     private var applied = 0L
     private var readsInFlight = 0
@@ -220,23 +232,44 @@ class RajooJobViewModel @Inject constructor(
     fun onScan(code: String) {
         val trimmed = code.trim()
         if (trimmed.isEmpty()) return
-        if (UserTagPolicy.isUserTag(trimmed)) return show(PreparationViewModel.BADGE_MESSAGE)
         val state = _uiState.value
-        val job = state.job ?: return show("This job card hasn't loaded yet")
+        // S3: a repeat read of the machine card's code or the pallet in hand, or of a code that just failed, is silent.
+        val quiet = (state.confirm != null && state.isMachineCode(trimmed)) ||
+            repeats.isRepeat(trimmed, state.collect.step.palletCode())
+        if (UserTagPolicy.isUserTag(trimmed)) return refuse(trimmed, quiet) { show(PreparationViewModel.BADGE_MESSAGE) }
+        val job = state.job ?: return refuse(trimmed, quiet) { show("This job card hasn't loaded yet") }
         when {
-            job.closed -> show("This job card is closed")
-            state.isMachineCode(trimmed) -> machineScan(state)
-            job.hasActiveSession -> palletScan(trimmed, state)
-            else -> setBanner(ResultBanner.Error("Not the Rajoo machine code — $trimmed",
-                "Scan ${state.machine?.name ?: "the Rajoo machine"} to start a session"))
+            job.closed -> refuse(trimmed, quiet) { show("This job card is closed") }
+            state.isMachineCode(trimmed) -> machineScan(trimmed, state, quiet)
+            job.hasActiveSession -> palletScan(trimmed, state, quiet)
+            else -> refuse(trimmed, quiet) {
+                setBanner(ResultBanner.Error("Not the Rajoo machine code — $trimmed",
+                    "Scan ${state.machine?.name ?: "the Rajoo machine"} to start a session"))
+            }
         }
+    }
+
+    /**
+     * Suite rule S1: emits [sound] for the scan of [code], unless it is a repeat read ([quiet]). A
+     * FAIL also quiets that code's repeat reads for the S3 window.
+     */
+    private fun sound(code: String, sound: ScanSound?, quiet: Boolean = false) {
+        if (sound == ScanSound.FAIL) repeats.failed(code)
+        if (sound != null && !quiet) _scanSounds.tryEmit(sound)
+    }
+
+    /** A scan of [code] refused here: [say] why, and fail once. */
+    private inline fun refuse(code: String, quiet: Boolean = false, say: () -> Unit) {
+        say()
+        sound(code, ScanSound.FAIL, quiet)
     }
 
     // ---- session ----
 
-    private fun machineScan(state: RajooUiState) {
-        if (state.busy) return show(whyBusy(state))
-        if (state.collect.step != CollectStep.Idle) return show(PreparationViewModel.FINISH_FIRST_MESSAGE)
+    /** The machine card opens silently; its Start / End / Close answer sounds (S1). */
+    private fun machineScan(code: String, state: RajooUiState, quiet: Boolean) {
+        if (state.busy) return refuse(code, quiet) { show(whyBusy(state)) }
+        if (state.collect.step != CollectStep.Idle) return refuse(code, quiet) { show(PreparationViewModel.FINISH_FIRST_MESSAGE) }
         val action = state.machineScanAction ?: return
         updateCollect { it.copy(banner = null, message = null) }
         // A first session starts with every catalog-matched code unanswered (contract §7: explicit).
@@ -273,21 +306,21 @@ class RajooJobViewModel @Inject constructor(
                 val first = !job.choicesFrozen
                 val answers = if (first) prompts.map { Rev2ChoiceAnswer(it.code, state.choices.getValue(it.code)!!) } else null
                 val revision = if (first) state.snapshot?.exceptionListRevision else null
-                mutate { useCase.start(jobCard, code, revision, answers) }
+                mutate(scanCode = code) { useCase.start(jobCard, code, revision, answers) }
             }
             RajooConfirm.Finish -> {
                 val sessionId = job.activeSessionId ?: return show("No session is running")
-                mutate { useCase.finish(jobCard, code, sessionId) }
+                mutate(scanCode = code) { useCase.finish(jobCard, code, sessionId) }
             }
-            RajooConfirm.Close -> mutate { useCase.close(jobCard, code) }
+            RajooConfirm.Close -> mutate(scanCode = code) { useCase.close(jobCard, code) }
         }
     }
 
     // ---- collecting ----
 
-    private fun palletScan(code: String, state: RajooUiState) {
-        if (!state.collect.canScan) return show(whyBusy(state))
-        if (state.collect.step.protectsPallet) return show(PreparationViewModel.FINISH_FIRST_MESSAGE)
+    private fun palletScan(code: String, state: RajooUiState, quiet: Boolean) {
+        if (!state.collect.canScan) return refuse(code, quiet) { show(whyBusy(state)) }
+        if (state.collect.step.protectsPallet) return refuse(code, quiet) { show(PreparationViewModel.FINISH_FIRST_MESSAGE) }
         identifyJob?.cancel()
         updateCollect { it.copy(step = CollectStep.Identifying(code), banner = null, message = null) }
         identifyJob = viewModelScope.launch {
@@ -298,9 +331,12 @@ class RajooJobViewModel @Inject constructor(
             } catch (e: Exception) {
                 IdentifyResult.Failed("Could not identify this pallet: ${e.message}", retryable = false)
             }
+            // Cancelled or superseded: that answer is silent.
             if ((_uiState.value.collect.step as? CollectStep.Identifying)?.code != code) return@launch
             // Rajoo's identify reply carries no job: the rows on screen stay the last full snapshot's.
             val snapshot = _uiState.value.snapshot
+            val fit = (result as? IdentifyResult.Identified)?.let { snapshot?.classify(it.source) }
+            sound(code, ScanSounds.forIdentify(result, fit), quiet)
             when (result) {
                 is IdentifyResult.Identified -> updateCollect {
                     it.copy(step = if (snapshot == null) CollectStep.Unknown("This job card hasn't loaded yet") else stepFor(result.source, snapshot))
@@ -460,15 +496,17 @@ class RajooJobViewModel @Inject constructor(
     fun submit() {
         val state = _uiState.value
         val step = state.collect.step as? CollectStep.Identified ?: return
-        if (!state.collect.canScan) return show(whyBusy(state))
-        val sessionId = state.job?.activeSessionId ?: return show("No session is active")
+        // Suite rule S1: a capture refused here (busy, no session, row gone, amount over) fails once.
+        val code = step.source.code
+        if (!state.collect.canScan) return refuse(code) { show(whyBusy(state)) }
+        val sessionId = state.job?.activeSessionId ?: return refuse(code) { show("No session is active") }
         val row = state.snapshot?.preparation?.materials.orEmpty().firstOrNull { it.code == step.fit.material.code }
         if (row == null || row.excluded) {
             updateCollect { it.copy(step = CollectStep.Idle) }
-            return show("${step.fit.material.name} is no longer on this job — scan again")
+            return refuse(code) { show("${step.fit.material.name} is no longer on this job — scan again") }
         }
         val current = identified(step.source, row, step.amountText)
-        val valid = current.check as? AmountCheck.Valid ?: return updateCollect { it.copy(step = current) }
+        val valid = current.check as? AmountCheck.Valid ?: return refuse(code) { updateCollect { it.copy(step = current) } }
         runCaptures(step, sessionId, splitCaptures(valid.amount, step.source.bagSize))
     }
 
@@ -486,6 +524,7 @@ class RajooJobViewModel @Inject constructor(
                     // The outbox itself, not the screen's lagging copy: that copy can still hold the
                     // previous bag's own settled command (skill critique 2026-11-06, P1).
                     if (recorded > 0 && coordinator.pending.value.any(::blocksThisJob)) {
+                        // Waiting on an unresolved command: the outcome isn't known, so no sound.
                         updateCollect { it.copy(step = CollectStep.Idle) }
                         return@launch show("Recorded $recorded of ${parts.size} — resolve the unanswered command first")
                     }
@@ -500,6 +539,7 @@ class RajooJobViewModel @Inject constructor(
                     }
                     updateCollect { it.copy(step = if (result is CollectionResult.NotSent && recorded == 0) step else CollectStep.Idle) }
                     handleNotDone(seq, result, prefix = if (recorded > 0) "Recorded $recorded of ${parts.size} — then: " else "")
+                    sound(step.source.code, ScanSounds.forCommand(result))
                     return@launch
                 }
                 if (last != null && _uiState.value.snapshot !== last && isThisJob(last.rajoo?.id)) {
@@ -509,6 +549,7 @@ class RajooJobViewModel @Inject constructor(
                 updateCollect { it.copy(step = CollectStep.Idle) }
                 val banner = last?.let { PreparationViewModel.doneBanner(before, it, null) }
                 if (banner != null) setBanner(banner) else show(last?.resultMessage ?: "Recorded")
+                sound(step.source.code, ScanSound.SUCCESS)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -569,10 +610,12 @@ class RajooJobViewModel @Inject constructor(
         }
     }
 
+    /** [scanCode]: the scanned machine code a Start / End / Close carries; its answer sounds (S1). */
     private fun mutate(
         endsStep: Boolean = false,
         onFinally: () -> Unit = {},
         onDone: (suspend (Long, CollectionResult.Done) -> Unit)? = null,
+        scanCode: String? = null,
         call: suspend () -> CollectionResult,
     ) {
         val seq = ++issued
@@ -581,6 +624,7 @@ class RajooJobViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val result = call()
+                scanCode?.let { sound(it, ScanSounds.forCommand(result)) }
                 if (result is CollectionResult.Done) {
                     if (onDone != null) onDone(seq, result) else {
                         applyIfNewer(seq, result.snapshot)
