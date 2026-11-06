@@ -1,9 +1,7 @@
 package com.mitas.ppnam.station2aa.ui.components
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -16,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -35,16 +32,13 @@ fun AppScaffold(
     operatorRole: String? = null,
     onLogout: (() -> Unit)? = null,
     loading: Boolean = false,
+    /**
+     * Home only (suite standard C2): replace the top bar with the [HomeHeaderCard] (logo, gear,
+     * pill, logout + "name · role"). [title] is not drawn; the logo takes its place.
+     */
+    homeHeader: Boolean = false,
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val (dotColor, statusLabel) = when (status) {
-        ConnectionStatus.Connected      -> SuccessGreen to "Connected"
-        ConnectionStatus.Reconnecting   -> WarningOrange to "Reconnecting"
-        ConnectionStatus.StationOffline -> WarningOrange to "Station 2 offline"
-        ConnectionStatus.ClockSkewed    -> WarningOrange to "Clock out of sync"
-        ConnectionStatus.Offline        -> DangerRed to "Offline"
-    }
-
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     if (showLogoutDialog) {
@@ -56,41 +50,36 @@ fun AppScaffold(
                 TextButton(onClick = {
                     showLogoutDialog = false
                     onLogout?.invoke()
-                }) { Text("Log out", color = DangerRed) }
+                }) { Text("Log out", color = DangerText) }
             },
             dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) { Text("Cancel") }
+                TextButton(colors = neutralTextButtonColors(), onClick = { showLogoutDialog = false }) { Text("Cancel") }
             },
             containerColor = GraphiteSurface
         )
     }
 
     val statusPill: @Composable () -> Unit = {
-        Box(
-            modifier = Modifier
-                .padding(end = 12.dp)
-                .clip(RoundedCornerShape(50))
-                .background(dotColor.copy(alpha = 0.12f))
-                .padding(horizontal = 10.dp, vertical = 5.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Canvas(modifier = Modifier.size(6.dp)) {
-                    drawCircle(color = dotColor)
-                }
-                Spacer(Modifier.width(5.dp))
-                Text(
-                    text = statusLabel,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = dotColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
+        ConnectionPill(status, Modifier.padding(end = 12.dp))
     }
 
     Scaffold(
         topBar = {
+            if (homeHeader) {
+                // Floats on the window background with Station 5's 16dp margin; the content's
+                // own 16dp padding sets it off from the card below.
+                HomeHeaderCard(
+                    status = status,
+                    operatorName = operatorName,
+                    operatorRole = operatorRole,
+                    onSettings = onSettings,
+                    onLogoutClick = { showLogoutDialog = true },
+                    modifier = Modifier
+                        .statusBarsPadding()
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                )
+                return@Scaffold
+            }
             // statusBarsPadding(), applied INSIDE background(), is what stops the top bar
             // drawing under the system status bar: MainActivity calls enableEdgeToEdge(), so
             // without this the title overlapped the clock. The surface colour still paints the

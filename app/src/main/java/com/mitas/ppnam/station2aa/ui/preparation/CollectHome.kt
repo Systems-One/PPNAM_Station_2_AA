@@ -69,6 +69,8 @@ import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 import com.mitas.ppnam.station2aa.ui.theme.brandButtonColors
 import kotlinx.coroutines.delay
+import com.mitas.ppnam.station2aa.ui.theme.appTextFieldColors
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 /** How long a just-completed ingredient row stays highlighted. */
 private const val HIGHLIGHT_MILLIS = 2000L
@@ -121,7 +123,7 @@ internal fun CollectHome(
                 item {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(error, color = DangerRed, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                        OutlinedButton(onClick = onRefresh, enabled = !state.loading) { Text("Retry") }
+                        OutlinedButton(shape = AppButtonShape, onClick = onRefresh, enabled = !state.loading) { Text("Retry") }
                     }
                 }
             }
@@ -163,6 +165,7 @@ internal fun CollectHome(
 
         if (state.canConfirm) {
             Button(
+                shape = AppButtonShape,
                 onClick = onMixComplete,
                 colors = brandButtonColors(),
                 modifier = Modifier.fillMaxWidth().height(64.dp),
@@ -312,6 +315,7 @@ internal fun ScanBox(title: String, subtitle: String?, enabled: Boolean, paused:
     ) {
         if (typing) {
             OutlinedTextField(
+                colors = appTextFieldColors(),
                 value = manualCode,
                 onValueChange = { manualCode = it.trim() },
                 placeholder = { Text("Type the code", color = TextMuted) },

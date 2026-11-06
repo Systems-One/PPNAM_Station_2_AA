@@ -21,6 +21,7 @@ import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.theme.brandButtonColors
 import com.mitas.ppnam.station2aa.ui.util.formatStationTimestamp
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 /** Read-only: no scanning, no actions, no mutations. */
 @Composable
@@ -96,11 +97,12 @@ fun JobDetailScreen(
                         // brandButtonColors(): the default filled colour is the scheme's light
                         // BrandTint, so this was the only mint CTA in the app (visual critique 2026-11-06, P2).
                         Button(
+                            shape = AppButtonShape,
                             onClick = { onPrepare(jobCard) },
                             colors = brandButtonColors(),
                             enabled = !detail.closed && (detail.mixProgress?.availableToPrepareMixes ?: 0) > 0 &&
                                 state.pendingPrepare == null,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().height(56.dp), // C7: primary actions are 56dp
                         ) { Text("Prepare mixes") }
                         HorizontalDivider(Modifier.padding(vertical = 8.dp))
                         Text("Materials", style = MaterialTheme.typography.labelMedium, color = TextMuted)
@@ -154,7 +156,7 @@ fun JobDetailScreen(
                 Text(state.detailError!!, color = DangerRed, style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(12.dp))
                 // openDetail re-reads the target (freshFromLookup is already consumed).
-                OutlinedButton(onClick = { viewModel.openDetail(jobCard) }) { Text("Retry") }
+                OutlinedButton(shape = AppButtonShape, onClick = { viewModel.openDetail(jobCard) }) { Text("Retry") }
             }
             else -> Box(Modifier.fillMaxSize().padding(padding), Alignment.Center) {
                 CircularProgressIndicator()

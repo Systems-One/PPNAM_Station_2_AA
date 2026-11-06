@@ -62,6 +62,7 @@ import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 import com.mitas.ppnam.station2aa.ui.theme.brandButtonColors
 import kotlinx.coroutines.delay
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 private val BannerBlueBg = Color(0xFF0F2A3A)
 private const val TICK_MILLIS = 15_000L
@@ -109,7 +110,7 @@ private fun StageHome(
                 item {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(error, color = DangerRed, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                        OutlinedButton(onClick = actions.onRefresh, enabled = !state.loading) { Text("Retry") }
+                        OutlinedButton(shape = AppButtonShape, onClick = actions.onRefresh, enabled = !state.loading) { Text("Retry") }
                     }
                 }
             }
@@ -162,7 +163,7 @@ private fun StageHome(
 
         if (prep != null && snapshot != null) {
             if (prep.stage == PrepStage.Completed) {
-                OutlinedButton(onClick = actions.onBack, modifier = Modifier.fillMaxWidth().height(52.dp)) { Text("Back to job") }
+                OutlinedButton(shape = AppButtonShape, onClick = actions.onBack, modifier = Modifier.fillMaxWidth().height(52.dp)) { Text("Back to job") }
             } else if (prep.stage.isMachineStage) {
                 val (title, subtitle) = scanText(snapshot, prep)
                 ScanBox(title, subtitle, state.canScanMachine, state.blocking.isNotEmpty(), actions.onUseCode)
@@ -381,11 +382,12 @@ private fun MachineConfirm(
         Box(Modifier.weight(1f))
         if (action != null) {
             Button(
+                shape = AppButtonShape,
                 onClick = actions.onConfirm, enabled = enabled, colors = brandButtonColors(),
                 modifier = Modifier.fillMaxWidth().height(60.dp),
             ) { Text(action, fontSize = 17.sp, fontWeight = FontWeight.Bold) }
         }
-        OutlinedButton(onClick = actions.onCancel, modifier = Modifier.fillMaxWidth().height(48.dp)) { Text("Cancel") }
+        OutlinedButton(shape = AppButtonShape, onClick = actions.onCancel, modifier = Modifier.fillMaxWidth().height(48.dp)) { Text("Cancel") }
     }
 }
 

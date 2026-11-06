@@ -32,6 +32,8 @@ import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
+import com.mitas.ppnam.station2aa.ui.theme.neutralTextButtonColors
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 /** The mockup's banner tints (collect-flow.html `.banner.g/.r/.a`). */
 internal val BannerGreenBg = Color(0xFF123524)
@@ -130,6 +132,7 @@ internal fun HoldBanner(command: PendingCommand, retryable: Boolean, enabled: Bo
                     color = TextMuted, style = MaterialTheme.typography.bodySmall,
                 )
                 Button(
+                    shape = AppButtonShape,
                     onClick = onRetry, enabled = enabled,
                     colors = ButtonDefaults.buttonColors(containerColor = WarningOrange, contentColor = Color(0xFF07101A)),
                     modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -194,7 +197,7 @@ internal fun ReplacementDialog(
         },
         confirmButton = { TextButton(onClick = onAccept, enabled = enabled) { Text(accept) } },
         // The offer stays visible while its own send is in flight; neither button acts until it settles.
-        dismissButton = { TextButton(onClick = onDecline, enabled = !state.inFlight) { Text(decline) } },
+        dismissButton = { TextButton(colors = neutralTextButtonColors(), onClick = onDecline, enabled = !state.inFlight) { Text(decline) } },
         containerColor = GraphiteSurface,
     )
 }

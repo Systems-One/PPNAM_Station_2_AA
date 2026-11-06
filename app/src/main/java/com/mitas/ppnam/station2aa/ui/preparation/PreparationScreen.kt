@@ -22,6 +22,7 @@ import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.ui.theme.neutralTextButtonColors
 
 /**
  * The PREP screen. While collecting it is the simplified collect flow: [CollectHome] (ingredient
@@ -85,7 +86,7 @@ fun PreparationScreen(
                 )
             },
             confirmButton = { TextButton(onClick = { confirming = false; viewModel.confirm() }) { Text("Confirm") } },
-            dismissButton = { TextButton(onClick = { confirming = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(colors = neutralTextButtonColors(), onClick = { confirming = false }) { Text("Cancel") } },
             containerColor = GraphiteSurface,
         )
     }

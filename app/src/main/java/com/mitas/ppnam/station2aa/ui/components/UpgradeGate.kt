@@ -10,7 +10,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import com.mitas.ppnam.station2aa.BuildConfig
 import com.mitas.ppnam.station2aa.domain.repository.MqttRepository
-import com.mitas.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.theme.DangerText
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
@@ -58,7 +58,7 @@ fun UpgradeRequiredGate(
                     // would show the stale gate (S2-R01).
                     viewModel.clearLatch()
                     onCloseApp()
-                }) { Text("Close app", color = DangerRed) }
+                }) { Text("Close app", color = DangerText) }
             },
             containerColor = GraphiteSurface,
         )

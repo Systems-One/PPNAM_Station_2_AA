@@ -26,6 +26,8 @@ import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 import com.mitas.ppnam.station2aa.domain.usecase.NoticeTarget
 import com.mitas.ppnam.station2aa.domain.usecase.RecoveryResult
 import com.mitas.ppnam.station2aa.domain.usecase.openTarget
+import com.mitas.ppnam.station2aa.ui.theme.neutralTextButtonColors
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 /**
  * Unanswered commands and what recovery found. Shown only when there is something to say: an
@@ -62,7 +64,7 @@ fun UnresolvedCommandsCard(
             confirmButton = {
                 TextButton(onClick = { onClear(command.messageId); confirming = null }) { Text("Clear") }
             },
-            dismissButton = { TextButton(onClick = { confirming = null }) { Text("Cancel") } },
+            dismissButton = { TextButton(colors = neutralTextButtonColors(), onClick = { confirming = null }) { Text("Cancel") } },
         )
     }
     // Explicit graphite + amber: the default Card colour was Material's baseline #36343B grey, the
@@ -113,7 +115,7 @@ fun UnresolvedCommandsCard(
             }
             clearError?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             if (shouldOfferCheckAgain(pending, currentOperatorId, currentSessionId)) {
-                OutlinedButton(onClick = onCheckAgain) { Text("Check again") }
+                OutlinedButton(shape = AppButtonShape, onClick = onCheckAgain) { Text("Check again") }
             }
         }
     }

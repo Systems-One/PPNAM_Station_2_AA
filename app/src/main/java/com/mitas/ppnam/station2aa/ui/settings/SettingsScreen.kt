@@ -70,10 +70,10 @@ fun SettingsScreen(
                 TextButton(onClick = {
                     showLogoutDialog = false
                     viewModel.logout()
-                }) { Text("Log out", color = DangerRed) }
+                }) { Text("Log out", color = DangerText) }
             },
             dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) { Text("Cancel") }
+                TextButton(colors = neutralTextButtonColors(), onClick = { showLogoutDialog = false }) { Text("Cancel") }
             },
             containerColor = GraphiteSurface
         )
@@ -178,14 +178,11 @@ fun SettingsScreen(
                                     // Text below the row it sat exactly under the IME edge and the
                                     // only feedback while typing was a red outline (audit S2-10).
                                     supportingText = message?.let { { Text(it, color = DangerRed) } },
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = BrandTint,
-                                        focusedLabelColor = BrandTint,
-                                        cursorColor = BrandTint
-                                    ),
+                                    colors = appTextFieldColors(),
                                     modifier = Modifier.weight(1f)
                                 )
                                 Button(
+                                    shape = AppButtonShape,
                                     onClick = submitPin,
                                     colors = brandButtonColors(),
                                     enabled = !pinLockedOut,
@@ -273,6 +270,7 @@ fun SettingsScreen(
                     }
 
                     Button(
+                        shape = AppButtonShape,
                         colors = brandButtonColors(),
                         onClick = {
                             focusManager.clearFocus()
@@ -358,6 +356,7 @@ fun SettingsScreen(
                             )
                         }
                         OutlinedButton(
+                            shape = AppButtonShape,
                             onClick = { showLogoutDialog = true },
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
                             border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.5f)),
@@ -485,11 +484,7 @@ private fun SettingsTextField(
         ),
         visualTransformation = visualTransformation,
         trailingIcon = trailingIcon,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = BrandTint,
-            focusedLabelColor = BrandTint,
-            cursorColor = BrandTint
-        ),
+        colors = appTextFieldColors(),
         modifier = Modifier.fillMaxWidth()
     )
 }

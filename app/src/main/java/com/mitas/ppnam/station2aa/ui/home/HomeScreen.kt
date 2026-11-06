@@ -35,12 +35,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mitas.ppnam.station2aa.domain.usecase.NoticeTarget
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
-import com.mitas.ppnam.station2aa.ui.theme.DangerRed
+import com.mitas.ppnam.station2aa.ui.theme.DangerText
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteBorder
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import java.time.LocalTime
+import com.mitas.ppnam.station2aa.ui.theme.neutralTextButtonColors
 
 @Composable
 fun HomeScreen(
@@ -84,10 +85,10 @@ fun HomeScreen(
                 TextButton(onClick = {
                     showExitDialog = false
                     onExitApp()
-                }) { Text("Close", color = DangerRed) }
+                }) { Text("Close", color = DangerText) }
             },
             dismissButton = {
-                TextButton(onClick = { showExitDialog = false }) { Text("Stay") }
+                TextButton(colors = neutralTextButtonColors(), onClick = { showExitDialog = false }) { Text("Stay") }
             },
             containerColor = GraphiteSurface
         )
@@ -100,6 +101,7 @@ fun HomeScreen(
         operatorRole = session?.role,
         onSettings = onSettings,
         onLogout = viewModel::logout,
+        homeHeader = true,
     ) { padding ->
         Column(
             modifier = Modifier

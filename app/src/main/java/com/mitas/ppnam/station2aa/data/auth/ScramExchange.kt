@@ -125,7 +125,7 @@ private fun <T> MqttOutcome.Rejected<T>.authFailureMessage(): String = when (err
         "Station 2 does not accept this kind of sign-in. Update the app."
     // The SCRAM service's own wording ("SCRAM proof rejected.") is protocol text, not something
     // an operator can act on (audit group f).
-    ErrorCode.AUTHENTICATION_FAILED -> "Incorrect username or password"
+    ErrorCode.AUTHENTICATION_FAILED -> "Incorrect username or password." // C5: full stop, as suite-wide
     // Seen as "username and clientNonce are required." when a blank username went on the wire,
     // and on a stale schema-4.1 build. The blank case is now caught client-side (Task 7).
     ErrorCode.INVALID_ENVELOPE ->

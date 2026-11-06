@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -51,6 +52,9 @@ import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 import com.mitas.ppnam.station2aa.ui.theme.BrandTint
 import com.mitas.ppnam.station2aa.ui.theme.brandButtonColors
+import com.mitas.ppnam.station2aa.ui.theme.appTextFieldColors
+import com.mitas.ppnam.station2aa.ui.theme.neutralTextButtonColors
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +88,7 @@ fun PrepareScreen(
             confirmButton = {
                 TextButton(onClick = { confirming = false; viewModel.submit() }) { Text("Prepare") }
             },
-            dismissButton = { TextButton(onClick = { confirming = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(colors = neutralTextButtonColors(), onClick = { confirming = false }) { Text("Cancel") } },
             containerColor = GraphiteSurface,
         )
     }
@@ -105,7 +109,7 @@ fun PrepareScreen(
                     CircularProgressIndicator()
                 } else {
                     Text(state.message ?: "Station 2 sent no job to prepare", color = DangerRed)
-                    OutlinedButton(onClick = viewModel::reload, modifier = Modifier.padding(top = 12.dp)) { Text("Retry") }
+                    OutlinedButton(shape = AppButtonShape, onClick = viewModel::reload, modifier = Modifier.padding(top = 12.dp)) { Text("Retry") }
                 }
             }
             return@AppScaffold
@@ -140,7 +144,7 @@ fun PrepareScreen(
                                 "Station 2 has not confirmed this prepare. Don't prepare again — Retry.",
                                 color = WarningOrange,
                             )
-                            Button(onClick = viewModel::retryPending, enabled = !state.sending, colors = brandButtonColors()) { Text("Retry") }
+                            Button(shape = AppButtonShape, onClick = viewModel::retryPending, enabled = !state.sending, colors = brandButtonColors()) { Text("Retry") }
                         }
                     }
                 }
@@ -190,6 +194,7 @@ fun PrepareScreen(
             }
             item {
                 OutlinedTextField(
+                    colors = appTextFieldColors(),
                     value = form.reason,
                     onValueChange = viewModel::onReason,
                     label = { Text("Reason (optional)") },
@@ -204,10 +209,11 @@ fun PrepareScreen(
                     }
                     val n = form.mixCount
                     Button(
+                        shape = AppButtonShape,
                         onClick = { confirming = true },
                         colors = brandButtonColors(),
                         enabled = form.problems.isEmpty() && !state.sending && state.blocking == null,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().height(56.dp), // C7: primary actions are 56dp
                     ) { Text(if (n != null) "Prepare $n ${if (n == 1) "mix" else "mixes"}" else "Prepare mixes") }
                 }
             }
@@ -222,10 +228,12 @@ private fun MixCountField(form: PrepareForm, onMixCount: (String) -> Unit) {
         Text("Mixes to prepare (1 to ${form.available})", color = TextMuted, style = MaterialTheme.typography.labelMedium)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(
+                shape = AppButtonShape,
                 onClick = { onMixCount(((current ?: 2) - 1).coerceAtLeast(1).toString()) },
                 enabled = form.available > 0 && (current ?: 2) > 1,
             ) { Text("−") }
             OutlinedTextField(
+                colors = appTextFieldColors(),
                 value = form.mixCountText,
                 onValueChange = { onMixCount(it.filter(Char::isDigit).take(9)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -233,6 +241,7 @@ private fun MixCountField(form: PrepareForm, onMixCount: (String) -> Unit) {
                 modifier = Modifier.width(96.dp),
             )
             OutlinedButton(
+                shape = AppButtonShape,
                 onClick = { onMixCount(((current ?: 0) + 1).coerceAtMost(form.available).toString()) },
                 enabled = form.available > 0 && (current ?: 0) < form.available,
             ) { Text("+") }
