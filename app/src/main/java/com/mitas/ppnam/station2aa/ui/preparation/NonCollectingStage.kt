@@ -28,6 +28,7 @@ import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 /**
  * Cancelled (or unrecognised) preparations: a read-only view. Mixer stages use [MixerStage].
@@ -71,7 +72,7 @@ internal fun NonCollectingStage(
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(error, color = DangerRed, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                    OutlinedButton(onClick = onRefresh, enabled = !state.loading) { Text("Retry") }
+                    OutlinedButton(shape = AppButtonShape, onClick = onRefresh, enabled = !state.loading) { Text("Retry") }
                 }
             }
         }

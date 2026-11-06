@@ -25,7 +25,7 @@ class ScramExchangeMessagesTest {
     @Test
     fun `a wrong password reads as incorrect username or password`() = runTest {
         val result = failingWith(ErrorCode.AUTHENTICATION_FAILED, "SCRAM proof rejected.")
-        assertEquals("Incorrect username or password", result.exceptionOrNull()?.message)
+        assertEquals("Incorrect username or password.", result.exceptionOrNull()?.message)
     }
 
     @Test

@@ -49,6 +49,8 @@ import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 import com.mitas.ppnam.station2aa.ui.theme.brandButtonColors
 import java.math.BigDecimal
+import com.mitas.ppnam.station2aa.ui.theme.appTextFieldColors
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 internal class CollectActions(
     val onAmount: (String) -> Unit,
@@ -127,7 +129,7 @@ internal fun CollectSheet(
 
 @Composable
 private fun CancelButton(label: String, onClick: () -> Unit, enabled: Boolean = true) {
-    OutlinedButton(onClick = onClick, enabled = enabled, modifier = Modifier.fillMaxWidth().height(48.dp)) { Text(label) }
+    OutlinedButton(shape = AppButtonShape, onClick = onClick, enabled = enabled, modifier = Modifier.fillMaxWidth().height(48.dp)) { Text(label) }
 }
 
 @Composable
@@ -172,6 +174,7 @@ private fun IdentifiedForm(state: PreparationUiState, step: CollectStep.Identifi
         "Submit ${it.amount.plainText()} $unit".trim() + if (bagCount > 1 && source.bagSize != null) " ($bagCount bags)" else ""
     } ?: "Submit"
     Button(
+        shape = AppButtonShape,
         onClick = actions.onSubmit,
         enabled = valid != null && state.canScan,
         colors = brandButtonColors(),
@@ -225,6 +228,7 @@ private const val MAX_BAG_ICONS = 8
 @Composable
 private fun AmountField(label: String, value: String, onChange: (String) -> Unit) {
     OutlinedTextField(
+        colors = appTextFieldColors(),
         value = value, onValueChange = onChange, label = { Text(label) }, singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = Modifier.fillMaxWidth(),
@@ -247,6 +251,7 @@ private fun NotInMixForm(state: PreparationUiState, step: CollectStep.NotInMix, 
         Text(it.problem.message, color = WarningOrange, style = MaterialTheme.typography.bodySmall)
     }
     OutlinedTextField(
+        colors = appTextFieldColors(),
         value = step.reason, onValueChange = actions.onReason, label = { Text("Reason (required)") },
         minLines = 2, modifier = Modifier.fillMaxWidth(),
     )
@@ -261,6 +266,7 @@ private fun NotInMixForm(state: PreparationUiState, step: CollectStep.NotInMix, 
         else -> valid?.let { "Add ${it.amount.plainText()} $unit to $scope" } ?: "Add to $scope"
     }
     Button(
+        shape = AppButtonShape,
         onClick = actions.onAddToMix,
         enabled = step.canAdd && state.canScan,
         colors = ButtonDefaults.buttonColors(containerColor = WarningOrange, contentColor = Color(0xFF07101A)),
@@ -332,6 +338,7 @@ private fun FallbackForm(state: PreparationUiState, step: CollectStep.Fallback, 
         }
         val valid = step.check as? AmountCheck.Valid
         Button(
+            shape = AppButtonShape,
             onClick = actions.onSubmit,
             enabled = valid != null && state.canScan,
             colors = brandButtonColors(),

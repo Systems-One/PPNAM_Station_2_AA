@@ -29,6 +29,8 @@ import com.mitas.ppnam.station2aa.ui.theme.brandButtonColors
 import com.mitas.ppnam.station2aa.ui.theme.DangerRed
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.ui.theme.appTextFieldColors
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -105,13 +107,12 @@ fun JobLookupScreen(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { submit() }),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = BrandTint, focusedLabelColor = BrandTint, cursorColor = BrandTint,
-                ),
+                colors = appTextFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(8.dp))
             Button(
+                shape = AppButtonShape,
                 onClick = submit,
                 colors = brandButtonColors(),
                 enabled = input.isNotBlank() && !state.lookupInFlight,
@@ -204,7 +205,7 @@ private fun ErrorWithRetry(
             modifier = Modifier.weight(1f),
         )
         Spacer(Modifier.width(12.dp))
-        if (showRetry) OutlinedButton(onClick = onRetry, enabled = enabled) { Text("Retry") }
+        if (showRetry) OutlinedButton(shape = AppButtonShape, onClick = onRetry, enabled = enabled) { Text("Retry") }
     }
 }
 

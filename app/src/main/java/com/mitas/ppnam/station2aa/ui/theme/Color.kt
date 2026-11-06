@@ -7,6 +7,9 @@ val GraphiteBackground     = Color(0xFF07101A)
 val GraphiteSurface        = Color(0xFF102233)
 val GraphiteSurfaceVariant = Color(0xFF14293D)
 val GraphiteBorder         = Color(0xFF25384C)
+// Resting outline of text fields (suite standard C1, Station 1 `field_stroke`): GraphiteBorder was
+// below 3:1 on the card, so an empty field read as plain text. #7A8FA5 is ~4.6:1 on GraphiteSurface.
+val FieldStroke            = Color(0xFF7A8FA5)
 
 // Text — matches WPF TextColor / SecondaryTextColor
 val TextPrimary            = Color(0xFFEDF4FB)
@@ -24,6 +27,9 @@ val OnBrandPrimary         = Color(0xFFFFFFFF)   // on-primary (white text on gr
 // Status colours — matches WPF GreenColor / RedColor
 val SuccessGreen           = Color(0xFF2BC36D)
 val DangerRed              = Color(0xFFE25C5C)
+// Red TEXT for a dialog's destructive action (suite standard C6, Station 5 `danger_text`): DangerRed
+// is ~4.3:1 on the dialog surface, this is ~5.3:1.
+val DangerText             = Color(0xFFEF7B7B)
 
 // Secondary accents — matches WPF OrangeColor / CyanColor / PurpleColor
 val InfoBlue               = Color(0xFF2E77F5)

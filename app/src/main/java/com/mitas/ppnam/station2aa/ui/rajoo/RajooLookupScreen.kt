@@ -41,6 +41,8 @@ import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.theme.brandButtonColors
+import com.mitas.ppnam.station2aa.ui.theme.appTextFieldColors
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 /**
  * Rajoo entry: look up (or resume) a job card on the Rajoo machine. The only enabled machine is
@@ -131,12 +133,14 @@ fun RajooLookupScreen(
                     Text("Rajoo collects the full Production Order BOM; one job card may take several sessions.",
                         color = TextMuted, style = MaterialTheme.typography.bodySmall)
                     OutlinedTextField(
+                        colors = appTextFieldColors(),
                         value = state.jobCard, onValueChange = viewModel::onJobCard, label = { Text("Job card") },
                         singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                     )
                     state.error?.let { Text(it, color = DangerRed, style = MaterialTheme.typography.bodyMedium) }
                     Button(
+                        shape = AppButtonShape,
                         onClick = viewModel::lookup, enabled = state.canLookup, colors = brandButtonColors(),
                         modifier = Modifier.fillMaxWidth().height(56.dp),
                     ) { Text(if (state.looking) "Loading…" else "Look up job card", fontWeight = FontWeight.Bold, fontSize = 17.sp) }

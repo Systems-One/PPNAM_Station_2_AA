@@ -4,6 +4,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
@@ -64,3 +66,29 @@ fun brandButtonColors(): ButtonColors = ButtonDefaults.buttonColors(
     containerColor = BrandPrimary,
     contentColor = OnBrandPrimary,
 )
+
+/**
+ * Suite standard C7: buttons use 14dp corners (Station 5 login `cornerRadius=14dp`) instead of
+ * Material 3's fully round pill, so filled and outlined actions match the other PPNAM handhelds.
+ */
+val AppButtonShape = RoundedCornerShape(14.dp)
+
+/**
+ * Suite standard C1: outlined text fields readable at rest. FieldStroke at rest, the brand tint when
+ * focused, FieldStroke at 38% when disabled (Station 1 `res/color/text_field_stroke.xml`).
+ */
+@Composable
+fun appTextFieldColors(): TextFieldColors = OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = BrandTint,
+    unfocusedBorderColor = FieldStroke,
+    disabledBorderColor = FieldStroke.copy(alpha = 0.38f),
+    focusedLabelColor = BrandTint,
+    cursorColor = BrandTint,
+)
+
+/**
+ * Suite standard C6: a dialog's neutral / Cancel action is white (TextPrimary); only a destructive
+ * action is coloured (DangerText). Was the scheme's green, so Cancel read as the go-ahead.
+ */
+@Composable
+fun neutralTextButtonColors(): ButtonColors = ButtonDefaults.textButtonColors(contentColor = TextPrimary)

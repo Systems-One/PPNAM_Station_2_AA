@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mitas.ppnam.station2aa.ui.components.AppScaffold
 import com.mitas.ppnam.station2aa.ui.theme.*
@@ -136,10 +137,10 @@ fun LoginScreen(
                 TextButton(onClick = {
                     showExitDialog = false
                     onExitApp()
-                }) { Text("Close", color = DangerRed) }
+                }) { Text("Close", color = DangerText) }
             },
             dismissButton = {
-                TextButton(onClick = { showExitDialog = false }) { Text("Stay") }
+                TextButton(colors = neutralTextButtonColors(), onClick = { showExitDialog = false }) { Text("Stay") }
             },
             containerColor = GraphiteSurface
         )
@@ -207,11 +208,7 @@ fun LoginScreen(
                             } else null,
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                             keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = BrandTint,
-                                focusedLabelColor = BrandTint,
-                                cursorColor = BrandTint
-                            ),
+                            colors = appTextFieldColors(),
                             modifier = Modifier
                                 .menuAnchor(MenuAnchorType.PrimaryEditable)
                                 .fillMaxWidth()
@@ -264,15 +261,12 @@ fun LoginScreen(
                             imeAction = ImeAction.Done
                         ),
                         keyboardActions = KeyboardActions(onDone = { submit() }),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BrandTint,
-                            focusedLabelColor = BrandTint,
-                            cursorColor = BrandTint
-                        ),
+                        colors = appTextFieldColors(),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Button(
+                        shape = AppButtonShape,
                         onClick = submit,
                         colors = brandButtonColors(),
                         enabled = uiState !is LoginUiState.LoggingIn,
@@ -296,13 +290,22 @@ fun LoginScreen(
                     }
 
                     // The same card that signs in at Station 1: scanning it here needs no typing.
-                    Text(
-                        text = "Or scan your badge",
-                        color = TextMuted,
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
+                    // Suite standard C5: lower-case "or scan your badge" between two divider
+                    // lines, as on Stations 1, 3 and 5 (Station 5 activity_login.xml).
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
-                    )
+                    ) {
+                        HorizontalDivider(Modifier.weight(1f), thickness = 1.dp, color = GraphiteBorder)
+                        Text(
+                            text = "or scan your badge",
+                            color = TextMuted,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                        HorizontalDivider(Modifier.weight(1f), thickness = 1.dp, color = GraphiteBorder)
+                    }
                 }
             }
         }

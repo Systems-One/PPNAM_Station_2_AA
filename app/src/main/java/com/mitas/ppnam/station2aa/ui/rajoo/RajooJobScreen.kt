@@ -63,6 +63,8 @@ import com.mitas.ppnam.station2aa.ui.theme.SuccessGreen
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
+import com.mitas.ppnam.station2aa.ui.theme.neutralTextButtonColors
+import com.mitas.ppnam.station2aa.ui.theme.AppButtonShape
 
 /**
  * One Rajoo job card: the cumulative full-job rows, the session on its machine, and the one next
@@ -152,7 +154,7 @@ private fun JobHome(state: RajooUiState, sessionId: String?, viewModel: RajooJob
                 item {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(error, color = DangerRed, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                        OutlinedButton(onClick = viewModel::refresh, enabled = !collect.loading) { Text("Retry") }
+                        OutlinedButton(shape = AppButtonShape, onClick = viewModel::refresh, enabled = !collect.loading) { Text("Retry") }
                     }
                 }
             }
@@ -289,7 +291,7 @@ private fun ConfirmDialog(confirm: RajooConfirm, state: RajooUiState, viewModel:
                 Text(action, color = if (problems.isEmpty()) BrandTint else TextMuted)
             }
         },
-        dismissButton = { TextButton(onClick = viewModel::cancelConfirm) { Text("Cancel") } },
+        dismissButton = { TextButton(colors = neutralTextButtonColors(), onClick = viewModel::cancelConfirm) { Text("Cancel") } },
         containerColor = GraphiteSurface,
     )
 }

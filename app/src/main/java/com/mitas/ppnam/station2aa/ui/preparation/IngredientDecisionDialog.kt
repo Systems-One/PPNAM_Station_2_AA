@@ -25,6 +25,8 @@ import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
+import com.mitas.ppnam.station2aa.ui.theme.appTextFieldColors
+import com.mitas.ppnam.station2aa.ui.theme.neutralTextButtonColors
 
 /** The wording that differs between a General preparation and a full Rajoo job. */
 enum class DecisionScope(val currentTotal: String, val newTotal: String, val noun: String, val hint: String) {
@@ -79,6 +81,7 @@ internal fun IngredientDecisionDialog(decision: IngredientDecision, scope: Decis
                 }
                 if (decision.kind == IngredientDecisionKind.Quantity) {
                     OutlinedTextField(
+                        colors = appTextFieldColors(),
                         value = decision.totalText, onValueChange = actions.onTotal,
                         label = { Text("${scope.newTotal} ($unit)") }, singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -94,6 +97,7 @@ internal fun IngredientDecisionDialog(decision: IngredientDecision, scope: Decis
                     Text("Sets the target to 0 and excludes ${m.name} from ${scope.noun}.", color = TextMuted)
                 }
                 OutlinedTextField(
+                    colors = appTextFieldColors(),
                     value = decision.reason, onValueChange = actions.onReason,
                     label = { Text("Reason (required)") }, minLines = 2, modifier = Modifier.fillMaxWidth(),
                 )
@@ -110,7 +114,7 @@ internal fun IngredientDecisionDialog(decision: IngredientDecision, scope: Decis
                     color = if (decision.canSend && !busy) BrandTint else TextMuted)
             }
         },
-        dismissButton = { TextButton(onClick = actions.onCancel) { Text("Cancel") } },
+        dismissButton = { TextButton(colors = neutralTextButtonColors(), onClick = actions.onCancel) { Text("Cancel") } },
         containerColor = GraphiteSurface,
     )
 }
