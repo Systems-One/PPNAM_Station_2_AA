@@ -558,7 +558,10 @@ class PreparationViewModel @Inject constructor(
                 var needRead = false
                 for (quantity in plan.parts) {
                     // Another command for this PREP became unresolved meanwhile: send nothing more.
-                    if (recorded > 0 && _uiState.value.blocking.isNotEmpty()) {
+                    // Asks the outbox itself, not the screen's copy in `blocking`: that copy can still
+                    // hold the previous bag's own, already settled command, which stopped every
+                    // multi-bag Submit after bag 1 (skill critique 2026-11-06, P1).
+                    if (recorded > 0 && coordinator.pending.value.any(::blocksThisPrep)) {
                         _uiState.update { it.copy(step = CollectStep.Idle) }
                         show(OutcomeMessage.Info(RecordedSoFar(recorded, total, recordedKg).prefix() + "resolve the unanswered command first"))
                         return@launch

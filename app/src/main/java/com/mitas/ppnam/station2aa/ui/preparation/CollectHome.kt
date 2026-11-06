@@ -194,6 +194,9 @@ private fun ProgressSummary(materials: List<PrepMaterial>) {
             progress = { fraction },
             modifier = Modifier.fillMaxWidth().height(6.dp),
             color = SuccessGreen, trackColor = GraphiteSurfaceVariant,
+            // Material 1.3's stop dot sat at the far end of an empty bar, a green "done" mark on
+            // "0 of 7 collected" (skill critique 2026-11-06, P3).
+            drawStopIndicator = {},
         )
         Text(
             "$done of ${included.size} ingredient${if (included.size == 1) "" else "s"} collected",

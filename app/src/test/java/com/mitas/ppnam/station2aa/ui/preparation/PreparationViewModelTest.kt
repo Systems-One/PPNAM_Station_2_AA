@@ -1309,6 +1309,25 @@ class PreparationViewModelTest {
         assertTrue(text, text.startsWith("Recorded 1 of 3 (15 kg)"))
     }
 
+    // Skill critique 2026-11-06 P1: every multi-bag Submit stopped after bag 1 with "Recorded 1 of 3
+    // — then: resolve the unanswered command first", though nothing was unresolved. Each bag's own
+    // command is outboxed while it is sent; the between-bags check read the screen's copy of
+    // `blocking`, which can still hold that settled command when the loop moves on.
+    @Test
+    fun `a bag's own settled command does not stop the next bag`() = runTest {
+        val vm = open()
+        whenever(useCase.capture(eq(prepId), eq("TAG-RESIN"), any())).doSuspendableAnswer {
+            val own = pending(id = "own-${outbox.value.size}")
+            outbox.value = listOf(own)   // contract §2: saved before it is published
+            yield()                      // the screen's copy now shows it in flight
+            outbox.value = emptyList()   // the reply settled it; the screen's copy lags behind
+            CollectionResult.Done(afterOne)
+        }
+        scanIdentified(vm, source(bag = "15"))
+        vm.submit()
+        verify(useCase, times(3)).capture(any(), any(), anyOrNull())
+    }
+
     // ---- fix(collect) 4: submit refuses a row that is gone or excluded ----
 
     @Test

@@ -395,6 +395,10 @@ class MqttRepositoryImpl @Inject constructor(
                         .await()
                 }
             } catch (e: Exception) {
+                // Skill critique 2026-11-06: Test & Apply may have replaced this client while its
+                // connect was in flight. Its failure then says nothing about the live connection,
+                // and writing DISCONNECTED left the pill on "Offline" while connected.
+                if (mqttClient !== client) return@withContext
                 _connectionState.value = MqttConnectionState.DISCONNECTED
                 scheduleReconnectRetry()
                 return@withContext
@@ -851,15 +855,20 @@ class MqttRepositoryImpl @Inject constructor(
     // fires on an ungraceful drop), so the "offline" status has to be published by hand
     // here. Best-effort: bounded blocking wait since disconnect() isn't suspend.
     private fun publishOfflineBestEffort(client: Mqtt5AsyncClient?) {
+        // Skill critique 2026-11-06 P1: HiveMQ's send() itself blocks (MqttPublishFlowables.add)
+        // on a client that has never connected, before the get() timeout below can apply. On a
+        // fresh install that is the default-broker client, so Test & Apply hung for ever. A client
+        // that is not connected cannot deliver "offline" anyway; its Last Will covers it.
+        if (client == null || client.state?.isConnected != true) return
         try {
-            client?.publishWith()
-                ?.topic(MqttTopics.devicePresence(deviceId))
-                ?.payload(STATUS_OFFLINE)
-                ?.qos(MqttQos.EXACTLY_ONCE)
-                ?.retain(true)
-                ?.send()
-                ?.get(2, TimeUnit.SECONDS)
-            if (client != null) logPresence("offline")
+            client.publishWith()
+                .topic(MqttTopics.devicePresence(deviceId))
+                .payload(STATUS_OFFLINE)
+                .qos(MqttQos.EXACTLY_ONCE)
+                .retain(true)
+                .send()
+                .get(2, TimeUnit.SECONDS)
+            logPresence("offline")
         } catch (_: Exception) { }
     }
 

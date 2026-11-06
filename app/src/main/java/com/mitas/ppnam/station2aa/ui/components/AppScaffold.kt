@@ -159,7 +159,9 @@ fun AppScaffold(
                     }
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.labelLarge,
+                        // titleLarge, as in the single-row bar: at labelLarge the screen title was
+                        // no bigger than the operator label above it (skill critique 2026-11-06, P2).
+                        style = MaterialTheme.typography.titleLarge,
                         color = TextPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

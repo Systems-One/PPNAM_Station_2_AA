@@ -149,6 +149,6 @@ class LoginViewModel @Inject constructor(
     }
 
     companion object {
-        const val FILL_ALL_FIELDS = "Please fill in all fields"
+        const val FILL_ALL_FIELDS = "Please fill in all fields."   // suite C5: login messages end with a full stop
     }
 }

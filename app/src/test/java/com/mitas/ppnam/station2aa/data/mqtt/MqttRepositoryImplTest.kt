@@ -150,4 +150,53 @@ class MqttRepositoryImplTest {
         // redundant connectWith() against an already-connected transport.
         assertTrue((transportField.get(repo) as java.util.concurrent.atomic.AtomicBoolean).get())
     }
+
+    // Skill critique 2026-11-06 P1: on a fresh install (default broker unreachable) Test & Apply
+    // spun on "Testing connection…" for ever. reconnectWith() publishes "offline" through the OLD
+    // client before retiring it; HiveMQ's send() blocks inside MqttPublishFlowables.add() when that
+    // client has never connected, so the 2 s get() timeout was never reached.
+    @Test
+    fun `the offline presence is not published through a client that is not connected`() {
+        val neverConnected: Mqtt5AsyncClient = mock {
+            on { state } doReturn com.hivemq.client.mqtt.MqttClientState.CONNECTING
+            on { publishWith() } doAnswer { throw AssertionError("send() would block for ever") }
+        }
+        val method = MqttRepositoryImpl::class.java.getDeclaredMethod(
+            "publishOfflineBestEffort", Mqtt5AsyncClient::class.java
+        )
+        method.isAccessible = true
+
+        method.invoke(repo, neverConnected)
+
+        verify(neverConnected, never()).publishWith()
+    }
+
+    // Same critique: after Test & Apply succeeded the pill still read "Offline". The start-up
+    // connect() of the superseded client failed later and wrote DISCONNECTED over the new
+    // client's CONNECTED.
+    @Test
+    fun `a superseded client's failed connect does not overwrite the live client's state`() = runTest {
+        val mqttClientField = MqttRepositoryImpl::class.java.getDeclaredField("mqttClient")
+        mqttClientField.isAccessible = true
+        val stateField = MqttRepositoryImpl::class.java.getDeclaredField("_connectionState")
+        stateField.isAccessible = true
+        val live: Mqtt5AsyncClient = mock()
+        val stale: Mqtt5AsyncClient = mock {
+            on { connectWith() } doAnswer {
+                // Test & Apply wins while this connect is still in flight.
+                mqttClientField.set(repo, live)
+                @Suppress("UNCHECKED_CAST")
+                (stateField.get(repo) as kotlinx.coroutines.flow.MutableStateFlow<MqttConnectionState>)
+                    .value = MqttConnectionState.CONNECTED
+                throw IllegalStateException("unreachable host")
+            }
+        }
+        whenever(mockSettingsRepository.current())
+            .thenReturn(com.mitas.ppnam.station2aa.domain.model.AppSettings())
+        whenever(mockClientFactory.build(any(), any(), any())).thenReturn(stale)
+
+        repo.connect()
+
+        assertEquals(MqttConnectionState.CONNECTED, repo.connectionState.value)
+    }
 }
