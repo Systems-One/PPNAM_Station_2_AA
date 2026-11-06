@@ -314,6 +314,7 @@
   "312": "DeviceIdentity",
   "313": "ConnectionStatus",
   "314": "ScanEvent",
+  "315": "LoginViewModel.kt",
   "317": "Boolean",
   "318": "Flow",
   "319": "Long",

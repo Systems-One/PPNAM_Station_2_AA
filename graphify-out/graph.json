@@ -790,7 +790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome",
-      "community": 297,
+      "community": 165,
       "norm_label": "mqttoutcome.kt"
     },
     {
@@ -800,7 +800,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome_mqttoutcome",
-      "community": 297,
+      "community": 165,
       "norm_label": "mqttoutcome"
     },
     {
@@ -810,7 +810,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome_accepted",
-      "community": 297,
+      "community": 165,
       "norm_label": "accepted"
     },
     {
@@ -830,7 +830,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome_rejected",
-      "community": 297,
+      "community": 165,
       "norm_label": "rejected"
     },
     {
@@ -840,7 +840,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome_noresponse",
-      "community": 297,
+      "community": 165,
       "norm_label": "noresponse"
     },
     {
@@ -860,7 +860,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttoutcome_failurekind",
-      "community": 297,
+      "community": 165,
       "norm_label": "failurekind"
     },
     {
@@ -1490,7 +1490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttvocabulary",
-      "community": 159,
+      "community": 181,
       "norm_label": "mqttvocabulary.kt"
     },
     {
@@ -1500,7 +1500,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_mqttvocabulary_errorcode",
-      "community": 159,
+      "community": 181,
       "norm_label": "errorcode"
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_responseenvelope",
-      "community": 159,
+      "community": 181,
       "norm_label": "responseenvelope.kt"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_responseenvelope_responseenvelope",
-      "community": 159,
+      "community": 181,
       "norm_label": "responseenvelope"
     },
     {
@@ -2110,7 +2110,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_responseenvelope_kt_string",
-      "community": 159,
+      "community": 181,
       "norm_label": "string"
     },
     {
@@ -2340,7 +2340,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2machinestartrequest",
-      "community": 181,
+      "community": 24,
       "norm_label": "rev2machinestartrequest"
     },
     {
@@ -2350,7 +2350,7 @@
       "source_location": "L295",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2machinefinishrequest",
-      "community": 181,
+      "community": 24,
       "norm_label": "rev2machinefinishrequest"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L307",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2identifyrequest",
-      "community": 24,
+      "community": 297,
       "norm_label": "rev2identifyrequest"
     },
     {
@@ -2380,7 +2380,7 @@
       "source_location": "L331",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2adjustment",
-      "community": 120,
+      "community": 216,
       "norm_label": "rev2adjustment"
     },
     {
@@ -2440,7 +2440,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2rajoomessages_rev2rajoofinishrequest",
-      "community": 254,
+      "community": 178,
       "norm_label": "rev2rajoofinishrequest"
     },
     {
@@ -2450,7 +2450,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2rajoomessages_rev2rajoocloserequest",
-      "community": 178,
+      "community": 254,
       "norm_label": "rev2rajoocloserequest"
     },
     {
@@ -4510,7 +4510,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_job_jobsummary",
-      "community": 332,
+      "community": 48,
       "norm_label": "jobsummary"
     },
     {
@@ -5760,7 +5760,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_readresult",
-      "community": 120,
+      "community": 297,
       "norm_label": "readresult"
     },
     {
@@ -5770,7 +5770,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_loaded",
-      "community": 120,
+      "community": 297,
       "norm_label": "loaded"
     },
     {
@@ -5780,7 +5780,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_failed",
-      "community": 120,
+      "community": 297,
       "norm_label": "failed"
     },
     {
@@ -5790,7 +5790,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_identifyresult",
-      "community": 120,
+      "community": 297,
       "norm_label": "identifyresult"
     },
     {
@@ -5800,7 +5800,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_identified",
-      "community": 120,
+      "community": 297,
       "norm_label": "identified"
     },
     {
@@ -5810,7 +5810,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_unknown",
-      "community": 120,
+      "community": 297,
       "norm_label": "unknown"
     },
     {
@@ -5820,7 +5820,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_unsupported",
-      "community": 120,
+      "community": 297,
       "norm_label": "unsupported"
     },
     {
@@ -5900,7 +5900,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_read",
-      "community": 120,
+      "community": 297,
       "norm_label": ".read()"
     },
     {
@@ -5920,7 +5920,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_identify",
-      "community": 120,
+      "community": 297,
       "norm_label": ".identify()"
     },
     {
@@ -6540,7 +6540,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_read",
-      "community": 216,
+      "community": 297,
       "norm_label": ".read()"
     },
     {
@@ -6560,7 +6560,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_lookup",
-      "community": 216,
+      "community": 297,
       "norm_label": ".lookup()"
     },
     {
@@ -6570,7 +6570,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_identify",
-      "community": 216,
+      "community": 297,
       "norm_label": ".identify()"
     },
     {
@@ -6720,7 +6720,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_readlike",
-      "community": 216,
+      "community": 297,
       "norm_label": ".readlike()"
     },
     {
@@ -6730,7 +6730,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_kt_any",
-      "community": 216,
+      "community": 297,
       "norm_label": "any"
     },
     {
@@ -12750,7 +12750,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_auth_scramexchangemessagestest",
-      "community": 159,
+      "community": 181,
       "norm_label": "scramexchangemessagestest.kt"
     },
     {
@@ -12760,7 +12760,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_auth_scramexchangemessagestest_scramexchangemessagestest",
-      "community": 159,
+      "community": 181,
       "norm_label": "scramexchangemessagestest"
     },
     {
@@ -12770,7 +12770,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_auth_scramexchangemessagestest_scramexchangemessagestest_failingwith",
-      "community": 159,
+      "community": 181,
       "norm_label": ".failingwith()"
     },
     {
@@ -12780,7 +12780,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_auth_scramexchangemessagestest_kt_string",
-      "community": 159,
+      "community": 181,
       "norm_label": "string"
     },
     {
@@ -12790,7 +12790,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_auth_scramexchangemessagestest_kt_result",
-      "community": 159,
+      "community": 181,
       "norm_label": "result"
     },
     {
@@ -12800,7 +12800,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_auth_scramexchangemessagestest_scramexchangemessagestest_a_wrong_password_reads_as_incorrect_username_or_password",
-      "community": 159,
+      "community": 181,
       "norm_label": ".`a wrong password reads as incorrect username or password`()"
     },
     {
@@ -12810,7 +12810,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_auth_scramexchangemessagestest_scramexchangemessagestest_a_malformed_envelope_does_not_echo_the_protocol_text",
-      "community": 159,
+      "community": 181,
       "norm_label": ".`a malformed envelope does not echo the protocol text`()"
     },
     {
@@ -12820,7 +12820,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_auth_scramexchangemessagestest_scramexchangemessagestest_an_unknown_code_still_shows_the_station_s_own_operator_message",
-      "community": 159,
+      "community": 181,
       "norm_label": ".`an unknown code still shows the station's own operator message`()"
     },
     {
@@ -14210,7 +14210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_mqttvocabularytest",
-      "community": 159,
+      "community": 181,
       "norm_label": "mqttvocabularytest.kt"
     },
     {
@@ -14220,7 +14220,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_mqttvocabularytest_mqttvocabularytest",
-      "community": 159,
+      "community": 181,
       "norm_label": "mqttvocabularytest"
     },
     {
@@ -14230,7 +14230,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_mqttvocabularytest_mqttvocabularytest_every_error_code_carries_its_exact_rev2_1_wire_value",
-      "community": 159,
+      "community": 181,
       "norm_label": ".`every error code carries its exact rev2_1 wire value`()"
     },
     {
@@ -14240,7 +14240,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_mqttvocabularytest_mqttvocabularytest_an_unknown_code_passes_through_intact",
-      "community": 159,
+      "community": 181,
       "norm_label": ".`an unknown code passes through intact`()"
     },
     {
@@ -14250,7 +14250,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_mqttvocabularytest_mqttvocabularytest_codes_compare_by_value",
-      "community": 159,
+      "community": 181,
       "norm_label": ".`codes compare by value`()"
     },
     {
@@ -15700,7 +15700,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2collectionrequesttest_rev2collectionrequesttest_identify_sends_the_prep_and_the_scanned_code",
-      "community": 24,
+      "community": 297,
       "norm_label": ".`identify sends the prep and the scanned code`()"
     },
     {
@@ -15710,7 +15710,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2collectionrequesttest_rev2collectionrequesttest_machine_start_matches_the_generated_request",
-      "community": 181,
+      "community": 24,
       "norm_label": ".`machine_start matches the generated request`()"
     },
     {
@@ -15720,7 +15720,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2collectionrequesttest_rev2collectionrequesttest_machine_finish_matches_the_generated_request",
-      "community": 181,
+      "community": 24,
       "norm_label": ".`machine_finish matches the generated request`()"
     },
     {
@@ -18280,7 +18280,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecasetest_generalcollectionusecasetest_capture_sends_one_command_with_the_code_and_an_omitted_quantity",
-      "community": 24,
+      "community": 181,
       "norm_label": ".`capture sends one command with the code and an omitted quantity`()"
     },
     {
@@ -18410,7 +18410,7 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecasetest_generalcollectionusecasetest_prepare_sends_the_explicit_answers_and_revision",
-      "community": 24,
+      "community": 181,
       "norm_label": ".`prepare sends the explicit answers and revision`()"
     },
     {
@@ -18550,7 +18550,7 @@
       "source_location": "L315",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecasetest_generalcollectionusecasetest_addingredient_sends_one_outboxed_adjust_ingredient_add",
-      "community": 24,
+      "community": 181,
       "norm_label": ".`addingredient sends one outboxed adjust_ingredient add`()"
     },
     {
@@ -21460,7 +21460,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_mixerviewmodeltest_mixerviewmodeltest_start_mix_rejected_shows_station_2_s_reason",
-      "community": 159,
+      "community": 181,
       "norm_label": ".`start mix rejected shows station 2's reason`()"
     },
     {
@@ -22650,7 +22650,7 @@
       "source_location": "L374",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_s1_a_refused_session_finish_fails_once_a_queued_one_is_silent",
-      "community": 159,
+      "community": 181,
       "norm_label": ".`s1 a refused session finish fails once, a queued one is silent`()"
     },
     {
@@ -22730,7 +22730,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoolookupviewmodeltest_rajoolookupviewmodeltest_open",
-      "community": 332,
+      "community": 299,
       "norm_label": ".open()"
     },
     {
@@ -23194,6 +23194,326 @@
       "norm_label": "build.gradle.kts"
     },
     {
+      "label": "build_sop.py",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop",
+      "community": 159,
+      "norm_label": "build_sop.py"
+    },
+    {
+      "label": "BuildError",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L55",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_builderror",
+      "community": 159,
+      "norm_label": "builderror"
+    },
+    {
+      "label": "Exception",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "exception",
+      "community": 8,
+      "norm_label": "exception"
+    },
+    {
+      "label": "inline()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L60",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_inline",
+      "community": 159,
+      "norm_label": "inline()"
+    },
+    {
+      "label": "attr()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L79",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_attr",
+      "community": 159,
+      "norm_label": "attr()"
+    },
+    {
+      "label": "Images",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L84",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_images",
+      "community": 159,
+      "norm_label": "images"
+    },
+    {
+      "label": ".__init__()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L85",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_images_init",
+      "community": 159,
+      "norm_label": ".__init__()"
+    },
+    {
+      "label": "Path",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "path",
+      "community": 159,
+      "norm_label": "path"
+    },
+    {
+      "label": ".screenshot()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L91",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_images_screenshot",
+      "community": 159,
+      "norm_label": ".screenshot()"
+    },
+    {
+      "label": ".png()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L107",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_images_png",
+      "community": 159,
+      "norm_label": ".png()"
+    },
+    {
+      "label": "figure()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L118",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_figure",
+      "community": 159,
+      "norm_label": "figure()"
+    },
+    {
+      "label": "Parser",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L132",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser",
+      "community": 159,
+      "norm_label": "parser"
+    },
+    {
+      "label": ".__init__()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L133",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser_init",
+      "community": 159,
+      "norm_label": ".__init__()"
+    },
+    {
+      "label": ".err()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L137",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser_err",
+      "community": 159,
+      "norm_label": ".err()"
+    },
+    {
+      "label": ".blocks()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L140",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser_blocks",
+      "community": 159,
+      "norm_label": ".blocks()"
+    },
+    {
+      "label": ".starts_block()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L231",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser_starts_block",
+      "community": 159,
+      "norm_label": ".starts_block()"
+    },
+    {
+      "label": ".listing()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L235",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser_listing",
+      "community": 159,
+      "norm_label": ".listing()"
+    },
+    {
+      "label": ".table()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L243",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser_table",
+      "community": 159,
+      "norm_label": ".table()"
+    },
+    {
+      "label": ".callout()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L260",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser_callout",
+      "community": 159,
+      "norm_label": ".callout()"
+    },
+    {
+      "label": ".fence_step()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L270",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser_fence_step",
+      "community": 159,
+      "norm_label": ".fence_step()"
+    },
+    {
+      "label": ".fence_shots()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L290",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser_fence_shots",
+      "community": 159,
+      "norm_label": ".fence_shots()"
+    },
+    {
+      "label": ".fence_pills()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L302",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parser_fence_pills",
+      "community": 159,
+      "norm_label": ".fence_pills()"
+    },
+    {
+      "label": "split_front_matter()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L317",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_split_front_matter",
+      "community": 159,
+      "norm_label": "split_front_matter()"
+    },
+    {
+      "label": "parse_sections()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L328",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_parse_sections",
+      "community": 159,
+      "norm_label": "parse_sections()"
+    },
+    {
+      "label": "check_order()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L347",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_check_order",
+      "community": 159,
+      "norm_label": "check_order()"
+    },
+    {
+      "label": "fonts_css()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L362",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_fonts_css",
+      "community": 159,
+      "norm_label": "fonts_css()"
+    },
+    {
+      "label": "build_html()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L376",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_build_html",
+      "community": 159,
+      "norm_label": "build_html()"
+    },
+    {
+      "label": "print_pdf()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L446",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_print_pdf",
+      "community": 159,
+      "norm_label": "print_pdf()"
+    },
+    {
+      "label": "section_pages()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L457",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_section_pages",
+      "community": 159,
+      "norm_label": "section_pages()"
+    },
+    {
+      "label": "preview()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L482",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_preview",
+      "community": 159,
+      "norm_label": "preview()"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L506",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_main",
+      "community": 159,
+      "norm_label": "main()"
+    },
+    {
+      "label": "Escape HTML, then apply `code`, **bold**, *em*, [link](url), {ok}/{fail}/{none}.",
+      "file_type": "rationale",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L61",
+      "_origin": "ast",
+      "id": "docs_sop_template_build_sop_rationale_61",
+      "community": 159,
+      "norm_label": "escape html, then apply `code`, **bold**, *em*, [link](url), {ok}/{fail}/{none}."
+    },
+    {
       "label": "analyze.py",
       "file_type": "code",
       "source_file": "docs/test-evidence-2026-07-23/analyze.py",
@@ -23520,7 +23840,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2",
-      "community": 243,
+      "community": 0,
       "norm_label": "sweep2.py"
     },
     {
@@ -23530,7 +23850,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_sh",
-      "community": 243,
+      "community": 0,
       "norm_label": "sh()"
     },
     {
@@ -23540,7 +23860,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_dump",
-      "community": 243,
+      "community": 0,
       "norm_label": "dump()"
     },
     {
@@ -23550,7 +23870,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_nodes",
-      "community": 243,
+      "community": 0,
       "norm_label": "nodes()"
     },
     {
@@ -23560,7 +23880,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_find",
-      "community": 243,
+      "community": 0,
       "norm_label": "find()"
     },
     {
@@ -23570,7 +23890,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_tap",
-      "community": 243,
+      "community": 0,
       "norm_label": "tap()"
     },
     {
@@ -23580,7 +23900,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_shot",
-      "community": 243,
+      "community": 0,
       "norm_label": "shot()"
     },
     {
@@ -23590,7 +23910,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_app_foreground",
-      "community": 243,
+      "community": 0,
       "norm_label": "app_foreground()"
     },
     {
@@ -23600,7 +23920,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_ensure_app",
-      "community": 243,
+      "community": 0,
       "norm_label": "ensure_app()"
     },
     {
@@ -23610,7 +23930,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_goto_lookup",
-      "community": 243,
+      "community": 0,
       "norm_label": "goto_lookup()"
     },
     {
@@ -23620,7 +23940,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_lookup",
-      "community": 243,
+      "community": 0,
       "norm_label": "lookup()"
     },
     {
@@ -23630,7 +23950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_rationale_1",
-      "community": 243,
+      "community": 0,
       "norm_label": "robust job-card sweep: locates ui elements via uiautomator instead of fixed taps"
     },
     {
@@ -23640,7 +23960,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_rationale_80",
-      "community": 243,
+      "community": 0,
       "norm_label": "relaunch the app (and log back in) if it is not in the foreground."
     },
     {
@@ -23650,7 +23970,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_rationale_94",
-      "community": 243,
+      "community": 0,
       "norm_label": "get back to the job lookup screen from wherever we are."
     },
     {
@@ -23808,16 +24128,6 @@
       "id": "tools_backend_sim_envelope_rejection",
       "community": 8,
       "norm_label": "rejection"
-    },
-    {
-      "label": "Exception",
-      "file_type": "code",
-      "source_file": "",
-      "source_location": "",
-      "_origin": "ast",
-      "id": "exception",
-      "community": 8,
-      "norm_label": "exception"
     },
     {
       "label": ".__init__()",
@@ -26636,7 +26946,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2",
-      "community": 0,
+      "community": 316,
       "norm_label": "sweep2.py"
     },
     {
@@ -26646,7 +26956,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_sh",
-      "community": 0,
+      "community": 316,
       "norm_label": "sh()"
     },
     {
@@ -26656,7 +26966,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_dump",
-      "community": 0,
+      "community": 316,
       "norm_label": "dump()"
     },
     {
@@ -26666,7 +26976,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_nodes",
-      "community": 0,
+      "community": 316,
       "norm_label": "nodes()"
     },
     {
@@ -26676,7 +26986,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_find",
-      "community": 0,
+      "community": 316,
       "norm_label": "find()"
     },
     {
@@ -26686,7 +26996,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_tap",
-      "community": 0,
+      "community": 316,
       "norm_label": "tap()"
     },
     {
@@ -26696,7 +27006,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_shot",
-      "community": 0,
+      "community": 316,
       "norm_label": "shot()"
     },
     {
@@ -26706,7 +27016,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_app_foreground",
-      "community": 0,
+      "community": 316,
       "norm_label": "app_foreground()"
     },
     {
@@ -26716,7 +27026,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_ensure_app",
-      "community": 0,
+      "community": 316,
       "norm_label": "ensure_app()"
     },
     {
@@ -26726,7 +27036,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_goto_lookup",
-      "community": 0,
+      "community": 316,
       "norm_label": "goto_lookup()"
     },
     {
@@ -26736,7 +27046,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_lookup",
-      "community": 0,
+      "community": 316,
       "norm_label": "lookup()"
     },
     {
@@ -26746,7 +27056,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_rationale_1",
-      "community": 0,
+      "community": 316,
       "norm_label": "robust job-card sweep: locates ui elements via uiautomator instead of fixed taps"
     },
     {
@@ -26756,7 +27066,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_rationale_80",
-      "community": 0,
+      "community": 316,
       "norm_label": "relaunch the app (and log back in) if it is not in the foreground."
     },
     {
@@ -26766,7 +27076,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_rationale_94",
-      "community": 0,
+      "community": 316,
       "norm_label": "get back to the job lookup screen from wherever we are."
     },
     {
@@ -29588,6 +29898,326 @@
       "id": "c_dev_ppnam_station_2_aa_docs_backend_2026_07_16_timestamp_acceptance_window_what_we_need_back",
       "community": 148,
       "norm_label": "what we need back"
+    },
+    {
+      "label": "README.md",
+      "file_type": "document",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_sop_template_readme",
+      "community": 325,
+      "norm_label": "readme.md"
+    },
+    {
+      "label": "PPNAM handheld SOP template (1.0)",
+      "file_type": "document",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_sop_template_readme_ppnam_handheld_sop_template_1_0",
+      "community": 325,
+      "norm_label": "ppnam handheld sop template (1.0)"
+    },
+    {
+      "label": "Files",
+      "file_type": "document",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "docs_sop_template_readme_files",
+      "community": 325,
+      "norm_label": "files"
+    },
+    {
+      "label": "How a repo uses it (the rule)",
+      "file_type": "document",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "docs_sop_template_readme_how_a_repo_uses_it_the_rule",
+      "community": 325,
+      "norm_label": "how a repo uses it (the rule)"
+    },
+    {
+      "label": "Per-app identity",
+      "file_type": "document",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L62",
+      "_origin": "ast",
+      "id": "docs_sop_template_readme_per_app_identity",
+      "community": 325,
+      "norm_label": "per-app identity"
+    },
+    {
+      "label": "content.md",
+      "file_type": "document",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L77",
+      "_origin": "ast",
+      "id": "docs_sop_template_readme_content_md",
+      "community": 325,
+      "norm_label": "content.md"
+    },
+    {
+      "label": "Sections: fixed order",
+      "file_type": "document",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L109",
+      "_origin": "ast",
+      "id": "docs_sop_template_readme_sections_fixed_order",
+      "community": 325,
+      "norm_label": "sections: fixed order"
+    },
+    {
+      "label": "Blocks",
+      "file_type": "document",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L134",
+      "_origin": "ast",
+      "id": "docs_sop_template_readme_blocks",
+      "community": 325,
+      "norm_label": "blocks"
+    },
+    {
+      "label": "Writing rules (keep the six consistent)",
+      "file_type": "document",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L182",
+      "_origin": "ast",
+      "id": "docs_sop_template_readme_writing_rules_keep_the_six_consistent",
+      "community": 325,
+      "norm_label": "writing rules (keep the six consistent)"
+    },
+    {
+      "label": "Checking the result",
+      "file_type": "document",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L197",
+      "_origin": "ast",
+      "id": "docs_sop_template_readme_checking_the_result",
+      "community": 325,
+      "norm_label": "checking the result"
+    },
+    {
+      "label": "content.md",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_sop_content",
+      "community": 243,
+      "norm_label": "content.md"
+    },
+    {
+      "label": "Purpose and scope {#purpose}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "docs_sop_content_purpose_and_scope_purpose",
+      "community": 243,
+      "norm_label": "purpose and scope {#purpose}"
+    },
+    {
+      "label": "What it does",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "docs_sop_content_what_it_does",
+      "community": 243,
+      "norm_label": "what it does"
+    },
+    {
+      "label": "What it does not do",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L41",
+      "_origin": "ast",
+      "id": "docs_sop_content_what_it_does_not_do",
+      "community": 243,
+      "norm_label": "what it does not do"
+    },
+    {
+      "label": "Before you start {#before}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L50",
+      "_origin": "ast",
+      "id": "docs_sop_content_before_you_start_before",
+      "community": 243,
+      "norm_label": "before you start {#before}"
+    },
+    {
+      "label": "The status pill and header {#status}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L67",
+      "_origin": "ast",
+      "id": "docs_sop_content_the_status_pill_and_header_status",
+      "community": 243,
+      "norm_label": "the status pill and header {#status}"
+    },
+    {
+      "label": "Signing in {#signin}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L96",
+      "_origin": "ast",
+      "id": "docs_sop_content_signing_in_signin",
+      "community": 243,
+      "norm_label": "signing in {#signin}"
+    },
+    {
+      "label": "Automatic sign-out",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L138",
+      "_origin": "ast",
+      "id": "docs_sop_content_automatic_sign_out",
+      "community": 243,
+      "norm_label": "automatic sign-out"
+    },
+    {
+      "label": "Job Cards and preparing mixes {#workflow-jobcards}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L144",
+      "_origin": "ast",
+      "id": "docs_sop_content_job_cards_and_preparing_mixes_workflow_jobcards",
+      "community": 243,
+      "norm_label": "job cards and preparing mixes {#workflow-jobcards}"
+    },
+    {
+      "label": "Collecting ingredients {#workflow-collect}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L200",
+      "_origin": "ast",
+      "id": "docs_sop_content_collecting_ingredients_workflow_collect",
+      "community": 243,
+      "norm_label": "collecting ingredients {#workflow-collect}"
+    },
+    {
+      "label": "When a pallet cannot be used",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L238",
+      "_origin": "ast",
+      "id": "docs_sop_content_when_a_pallet_cannot_be_used",
+      "community": 243,
+      "norm_label": "when a pallet cannot be used"
+    },
+    {
+      "label": "Adding an ingredient that is not in the mix",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L258",
+      "_origin": "ast",
+      "id": "docs_sop_content_adding_an_ingredient_that_is_not_in_the_mix",
+      "community": 243,
+      "norm_label": "adding an ingredient that is not in the mix"
+    },
+    {
+      "label": "Mixing and production {#workflow-mixer}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L301",
+      "_origin": "ast",
+      "id": "docs_sop_content_mixing_and_production_workflow_mixer",
+      "community": 243,
+      "norm_label": "mixing and production {#workflow-mixer}"
+    },
+    {
+      "label": "Rajoo sessions {#workflow-rajoo}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L360",
+      "_origin": "ast",
+      "id": "docs_sop_content_rajoo_sessions_workflow_rajoo",
+      "community": 243,
+      "norm_label": "rajoo sessions {#workflow-rajoo}"
+    },
+    {
+      "label": "When Station 2 does not answer {#workflow-unanswered}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L422",
+      "_origin": "ast",
+      "id": "docs_sop_content_when_station_2_does_not_answer_workflow_unanswered",
+      "community": 243,
+      "norm_label": "when station 2 does not answer {#workflow-unanswered}"
+    },
+    {
+      "label": "The unanswered command card on Home",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L443",
+      "_origin": "ast",
+      "id": "docs_sop_content_the_unanswered_command_card_on_home",
+      "community": 243,
+      "norm_label": "the unanswered command card on home"
+    },
+    {
+      "label": "Scan sounds and vibration {#sounds}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L459",
+      "_origin": "ast",
+      "id": "docs_sop_content_scan_sounds_and_vibration_sounds",
+      "community": 243,
+      "norm_label": "scan sounds and vibration {#sounds}"
+    },
+    {
+      "label": "The repeat-read rule",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L487",
+      "_origin": "ast",
+      "id": "docs_sop_content_the_repeat_read_rule",
+      "community": 243,
+      "norm_label": "the repeat-read rule"
+    },
+    {
+      "label": "Messages and what to do {#messages}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L491",
+      "_origin": "ast",
+      "id": "docs_sop_content_messages_and_what_to_do_messages",
+      "community": 243,
+      "norm_label": "messages and what to do {#messages}"
+    },
+    {
+      "label": "Settings {#settings}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L605",
+      "_origin": "ast",
+      "id": "docs_sop_content_settings_settings",
+      "community": 243,
+      "norm_label": "settings {#settings}"
+    },
+    {
+      "label": "Finishing up {#finishing}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L636",
+      "_origin": "ast",
+      "id": "docs_sop_content_finishing_up_finishing",
+      "community": 243,
+      "norm_label": "finishing up {#finishing}"
+    },
+    {
+      "label": "Troubleshooting {#troubleshooting}",
+      "file_type": "document",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L658",
+      "_origin": "ast",
+      "id": "docs_sop_content_troubleshooting_troubleshooting",
+      "community": 243,
+      "norm_label": "troubleshooting {#troubleshooting}"
     },
     {
       "label": "2026-06-24-android-app.md",
@@ -47873,17 +48503,6 @@
     {
       "relation": "references",
       "confidence": "EXTRACTED",
-      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/ui/login/LoginViewModelTest.kt",
-      "source_location": "L35",
-      "weight": 1.0,
-      "context": "field",
-      "source": "app_src_test_java_com_mitas_ppnam_station2aa_ui_login_loginviewmodeltest_loginviewmodeltest",
-      "target": "c_dev_clients_ppnam_andriod_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_rfid_scaneventbus_scanevent",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/ui/preparation/MixerViewModelTest.kt",
       "source_location": "L55",
       "weight": 1.0,
@@ -47932,6 +48551,17 @@
       "context": "parameter_type",
       "source": "c_dev_clients_ppnam_andriod_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_rfid_scaneventbus_scaneventbus_emit",
       "target": "c_dev_clients_ppnam_andriod_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_rfid_scaneventbus_scanevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/ui/login/LoginViewModelTest.kt",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "field",
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_ui_login_loginviewmodeltest_loginviewmodeltest",
+      "target": "c_dev_clients_ppnam_andriod_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_rfid_scaneventbus_rfidtag",
       "confidence_score": 1.0
     },
     {
@@ -90558,6 +91188,877 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_attr",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L376",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_build_html",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_builderror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L347",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_check_order",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L118",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_figure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L362",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_fonts_css",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_images",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_inline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L506",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L328",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_parse_sections",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L132",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_parser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L482",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_preview",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L446",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_print_pdf",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L457",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_section_pages",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L317",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop",
+      "target": "docs_sop_template_build_sop_split_front_matter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L380",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_builderror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_builderror",
+      "target": "exception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L352",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_check_order",
+      "target": "docs_sop_template_build_sop_builderror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L109",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_images_png",
+      "target": "docs_sop_template_build_sop_builderror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L94",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_images_screenshot",
+      "target": "docs_sop_template_build_sop_builderror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L338",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parse_sections",
+      "target": "docs_sop_template_build_sop_builderror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L138",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_err",
+      "target": "docs_sop_template_build_sop_builderror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L448",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_print_pdf",
+      "target": "docs_sop_template_build_sop_builderror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L320",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_split_front_matter",
+      "target": "docs_sop_template_build_sop_builderror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "tools/backend-sim/envelope.py",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "tools_backend_sim_envelope_rejection",
+      "target": "exception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L396",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_inline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L119",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_figure",
+      "target": "docs_sop_template_build_sop_inline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L172",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_blocks",
+      "target": "docs_sop_template_build_sop_inline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L267",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_callout",
+      "target": "docs_sop_template_build_sop_inline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L311",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_fence_pills",
+      "target": "docs_sop_template_build_sop_inline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L281",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_fence_step",
+      "target": "docs_sop_template_build_sop_inline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L237",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_listing",
+      "target": "docs_sop_template_build_sop_inline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L255",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_table",
+      "target": "docs_sop_template_build_sop_inline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_rationale_61",
+      "target": "docs_sop_template_build_sop_inline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L407",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_attr",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L120",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_figure",
+      "target": "docs_sop_template_build_sop_attr",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L386",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_images",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_images",
+      "target": "docs_sop_template_build_sop_images_init",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_images",
+      "target": "docs_sop_template_build_sop_images_png",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L91",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_images",
+      "target": "docs_sop_template_build_sop_images_screenshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L133",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_init",
+      "target": "docs_sop_template_build_sop_images",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_images_init",
+      "target": "path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L376",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_images_png",
+      "target": "path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L482",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_preview",
+      "target": "path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L446",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_print_pdf",
+      "target": "path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L457",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_section_pages",
+      "target": "path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L297",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_fence_shots",
+      "target": "docs_sop_template_build_sop_images_screenshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L285",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_fence_step",
+      "target": "docs_sop_template_build_sop_images_screenshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L425",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_images_png"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L297",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_fence_shots",
+      "target": "docs_sop_template_build_sop_figure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L286",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_fence_step",
+      "target": "docs_sop_template_build_sop_figure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L412",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_parser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L140",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser",
+      "target": "docs_sop_template_build_sop_parser_blocks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L260",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser",
+      "target": "docs_sop_template_build_sop_parser_callout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L137",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser",
+      "target": "docs_sop_template_build_sop_parser_err",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L302",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser",
+      "target": "docs_sop_template_build_sop_parser_fence_pills",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L290",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser",
+      "target": "docs_sop_template_build_sop_parser_fence_shots",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L270",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser",
+      "target": "docs_sop_template_build_sop_parser_fence_step",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L133",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser",
+      "target": "docs_sop_template_build_sop_parser_init",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L235",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser",
+      "target": "docs_sop_template_build_sop_parser_listing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L231",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser",
+      "target": "docs_sop_template_build_sop_parser_starts_block",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L243",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser",
+      "target": "docs_sop_template_build_sop_parser_table",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L156",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_blocks",
+      "target": "docs_sop_template_build_sop_parser_err",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L263",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_callout",
+      "target": "docs_sop_template_build_sop_parser_err",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L309",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_fence_pills",
+      "target": "docs_sop_template_build_sop_parser_err",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L299",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_fence_shots",
+      "target": "docs_sop_template_build_sop_parser_err",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L245",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_table",
+      "target": "docs_sop_template_build_sop_parser_err",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L412",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_parser_blocks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L167",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_blocks",
+      "target": "docs_sop_template_build_sop_parser_callout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L214",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_blocks",
+      "target": "docs_sop_template_build_sop_parser_listing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L221",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_blocks",
+      "target": "docs_sop_template_build_sop_parser_starts_block",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L191",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_blocks",
+      "target": "docs_sop_template_build_sop_parser_table",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L277",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_parser_fence_step",
+      "target": "docs_sop_template_build_sop_parser_blocks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L377",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_split_front_matter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L382",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_parse_sections",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L383",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_check_order",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L421",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_build_html",
+      "target": "docs_sop_template_build_sop_fonts_css",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L514",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_main",
+      "target": "docs_sop_template_build_sop_build_html",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L522",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_main",
+      "target": "docs_sop_template_build_sop_print_pdf",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L523",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_main",
+      "target": "docs_sop_template_build_sop_section_pages",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/build_sop.py",
+      "source_location": "L543",
+      "weight": 1.0,
+      "source": "docs_sop_template_build_sop_main",
+      "target": "docs_sop_template_build_sop_preview",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "docs/test-evidence-2026-07-23/analyze.py",
@@ -90625,7 +92126,7 @@
       "source_location": "L7",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_docs_test_evidence_2026_07_23_board_py",
-      "target": "tools_test_harness_sweep2",
+      "target": "docs_test_evidence_2026_07_23_sweep2",
       "confidence_score": 1.0
     },
     {
@@ -90790,7 +92291,7 @@
       "source_location": "L8",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_docs_test_evidence_2026_07_23_collect_py",
-      "target": "tools_test_harness_sweep2",
+      "target": "docs_test_evidence_2026_07_23_sweep2",
       "confidence_score": 1.0
     },
     {
@@ -91113,6 +92614,17 @@
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_docs_test_evidence_2026_07_23_sniffer_report_orphans",
       "target": "c_dev_ppnam_station_2_aa_docs_test_evidence_2026_07_23_sniffer_emit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tools/test-harness/ui.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_py",
+      "target": "docs_test_evidence_2026_07_23_sweep2",
       "confidence_score": 1.0
     },
     {
@@ -91700,16 +93212,6 @@
       "weight": 1.0,
       "source": "tools_backend_sim_envelope_rationale_62",
       "target": "tools_backend_sim_envelope_rejection",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "inherits",
-      "confidence": "EXTRACTED",
-      "source_file": "tools/backend-sim/envelope.py",
-      "source_location": "L61",
-      "weight": 1.0,
-      "source": "tools_backend_sim_envelope_rejection",
-      "target": "exception",
       "confidence_score": 1.0
     },
     {
@@ -95561,7 +97063,7 @@
       "source_location": "L42",
       "weight": 1.0,
       "source": "tools_backend_sim_sim",
-      "target": "c_dev_ppnam_station_2_aa_tools_backend_sim_simlog_simlogger_warn",
+      "target": "c_dev_ppnam_station_2_aa_tools_backend_sim_simlog_simlogger_tx",
       "confidence_score": 1.0
     },
     {
@@ -96894,7 +98396,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_d_login_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_bounds",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_122",
       "confidence_score": 1.0
     },
     {
@@ -96905,7 +98407,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_d_nav_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_bounds",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_122",
       "confidence_score": 1.0
     },
     {
@@ -96916,7 +98418,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_drive_login_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_bounds",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_122",
       "confidence_score": 1.0
     },
     {
@@ -96927,7 +98429,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_drive_relogin_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_bounds",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_122",
       "confidence_score": 1.0
     },
     {
@@ -97151,17 +98653,6 @@
       "weight": 1.0,
       "source": "tools_test_harness_sniffer_report_orphans",
       "target": "tools_test_harness_sniffer_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tools/test-harness/ui.py",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_py",
-      "target": "tools_test_harness_sweep2",
       "confidence_score": 1.0
     },
     {
@@ -100335,6 +101826,306 @@
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_docs_backend_2026_07_16_timestamp_acceptance_window_the_ask",
       "target": "c_dev_ppnam_station_2_aa_docs_backend_2026_07_16_timestamp_acceptance_window_option_b_remove_it_from_the_contract",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docs_sop_template_readme",
+      "target": "docs_sop_template_readme_ppnam_handheld_sop_template_1_0",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L197",
+      "weight": 1.0,
+      "source": "docs_sop_template_readme_ppnam_handheld_sop_template_1_0",
+      "target": "docs_sop_template_readme_checking_the_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "docs_sop_template_readme_ppnam_handheld_sop_template_1_0",
+      "target": "docs_sop_template_readme_content_md",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "docs_sop_template_readme_ppnam_handheld_sop_template_1_0",
+      "target": "docs_sop_template_readme_files",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "docs_sop_template_readme_ppnam_handheld_sop_template_1_0",
+      "target": "docs_sop_template_readme_how_a_repo_uses_it_the_rule",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "docs_sop_template_readme_ppnam_handheld_sop_template_1_0",
+      "target": "docs_sop_template_readme_per_app_identity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L182",
+      "weight": 1.0,
+      "source": "docs_sop_template_readme_ppnam_handheld_sop_template_1_0",
+      "target": "docs_sop_template_readme_writing_rules_keep_the_six_consistent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L134",
+      "weight": 1.0,
+      "source": "docs_sop_template_readme_content_md",
+      "target": "docs_sop_template_readme_blocks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/_template/README.md",
+      "source_location": "L109",
+      "weight": 1.0,
+      "source": "docs_sop_template_readme_content_md",
+      "target": "docs_sop_template_readme_sections_fixed_order",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_before_you_start_before",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L200",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_collecting_ingredients_workflow_collect",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L636",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_finishing_up_finishing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L144",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_job_cards_and_preparing_mixes_workflow_jobcards",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L491",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_messages_and_what_to_do_messages",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L301",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_mixing_and_production_workflow_mixer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_purpose_and_scope_purpose",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L360",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_rajoo_sessions_workflow_rajoo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L459",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_scan_sounds_and_vibration_sounds",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L605",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_settings_settings",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_signing_in_signin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_the_status_pill_and_header_status",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L658",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_troubleshooting_troubleshooting",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L422",
+      "weight": 1.0,
+      "source": "docs_sop_content",
+      "target": "docs_sop_content_when_station_2_does_not_answer_workflow_unanswered",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "docs_sop_content_purpose_and_scope_purpose",
+      "target": "docs_sop_content_what_it_does",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "docs_sop_content_purpose_and_scope_purpose",
+      "target": "docs_sop_content_what_it_does_not_do",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L138",
+      "weight": 1.0,
+      "source": "docs_sop_content_signing_in_signin",
+      "target": "docs_sop_content_automatic_sign_out",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L258",
+      "weight": 1.0,
+      "source": "docs_sop_content_collecting_ingredients_workflow_collect",
+      "target": "docs_sop_content_adding_an_ingredient_that_is_not_in_the_mix",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L238",
+      "weight": 1.0,
+      "source": "docs_sop_content_collecting_ingredients_workflow_collect",
+      "target": "docs_sop_content_when_a_pallet_cannot_be_used",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L443",
+      "weight": 1.0,
+      "source": "docs_sop_content_when_station_2_does_not_answer_workflow_unanswered",
+      "target": "docs_sop_content_the_unanswered_command_card_on_home",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/sop/content.md",
+      "source_location": "L487",
+      "weight": 1.0,
+      "source": "docs_sop_content_scan_sounds_and_vibration_sounds",
+      "target": "docs_sop_content_the_repeat_read_rule",
       "confidence_score": 1.0
     },
     {
@@ -109649,5 +111440,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "cbdc872997278854afbb0f6b512f0df82aa89d02"
+  "built_at_commit": "c5c5460037f2df5478c96371ecbd5bde47e7fd53"
 }
