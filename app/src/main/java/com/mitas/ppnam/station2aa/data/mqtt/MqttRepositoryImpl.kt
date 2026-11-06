@@ -350,7 +350,19 @@ class MqttRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Runs in the repository's own scope, so cancelling the caller no longer abandons a connect
+     * half-way. LoginViewModel calls this from viewModelScope and is cleared immediately when a
+     * restored session skips the login screen; the connect used to die with it after setting
+     * RECONNECTING, and nothing retried: the pill read "Reconnecting" until someone pressed Test &
+     * Apply in Settings (visual critique 2026-11-06, P1). async/await, not launch, so a failure
+     * still reaches a caller that is waiting.
+     */
     override suspend fun connect() {
+        scope.async { connectNow() }.await()
+    }
+
+    private suspend fun connectNow() {
         if (isTransportConnected.get()) return
         retryJob?.cancel()
         wantsConnection.set(true)

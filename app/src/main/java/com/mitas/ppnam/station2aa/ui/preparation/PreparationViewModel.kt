@@ -793,10 +793,14 @@ class PreparationViewModel @Inject constructor(
         if (result is CollectionResult.Done) {
             val fresh = takeIfNewer(seq, result.snapshot)
             val banner = doneBanner(before, result.snapshot, null) ?: machineDoneBanner(before, result.snapshot)
+            // A reply that moved the PREP to another stage retires the previous stage's banner:
+            // after "Mix complete" the mixer stage used to lead with the last capture's
+            // "Recorded … kg" (visual critique 2026-11-06, P2).
+            val stageMoved = before?.preparation?.stage != result.snapshot.preparation?.stage
             _uiState.update { s ->
                 s.copy(
                     snapshot = fresh ?: s.snapshot,
-                    banner = banner ?: s.banner,
+                    banner = banner ?: s.banner.takeUnless { stageMoved },
                     message = if (banner == null) OutcomeMessage.Info(result.snapshot.resultMessage) else s.message,
                 )
             }

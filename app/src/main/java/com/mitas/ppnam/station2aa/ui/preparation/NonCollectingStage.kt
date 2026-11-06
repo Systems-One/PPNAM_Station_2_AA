@@ -75,7 +75,7 @@ internal fun NonCollectingStage(
                 }
             }
         }
-        if (state.blocking.isNotEmpty()) item { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) { HoldBanners(state, sessionId, onRetry) } }
+        if (state.visibleHolds.isNotEmpty()) item { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) { HoldBanners(state, sessionId, onRetry) } }
         state.message?.let { item { InfoLine(it) } }
         if (prep == null) {
             if (state.loading) item { CircularProgressIndicator() }

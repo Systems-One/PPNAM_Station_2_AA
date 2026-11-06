@@ -219,7 +219,10 @@ fun LoginScreen(
                         ExposedDropdownMenu(
                             expanded = operatorsOpen && hasOperators,
                             onDismissRequest = { operatorsOpen = false },
-                            containerColor = GraphiteSurface
+                            containerColor = GraphiteSurfaceVariant,
+                            // Same colour as the card with no edge, the open list merged into the
+                            // form (visual critique 2026-11-06, P3).
+                            border = BorderStroke(1.dp, GraphiteBorder),
                         ) {
                             operators.forEach { entry ->
                                 DropdownMenuItem(
@@ -279,9 +282,12 @@ fun LoginScreen(
                             .bringIntoViewRequester(buttonIntoView)
                     ) {
                         if (uiState is LoginUiState.LoggingIn) {
+                            // White, as on Job Lookup: the button is disabled while logging in, and a
+                            // GraphiteBackground spinner on its grey fill was 1.7:1, a near-invisible
+                            // dot (visual critique 2026-11-06, P1).
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
-                                color = GraphiteBackground,
+                                color = OnBrandPrimary,
                                 strokeWidth = 2.dp
                             )
                         } else {

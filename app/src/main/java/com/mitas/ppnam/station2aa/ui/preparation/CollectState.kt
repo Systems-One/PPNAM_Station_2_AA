@@ -146,6 +146,15 @@ data class PreparationUiState(
     val decision: IngredientDecision? = null,
 ) {
     val stage: PrepStage? get() = snapshot?.preparation?.stage
+
+    /**
+     * The holds to draw. The outbox saves a command before publishing it (contract §2), so a
+     * command still on its way is already in [blocking]; drawing it then told the operator
+     * "Station 2 hasn't answered" mid-send (visual critique 2026-11-06, P1). [blocking] still
+     * gates scanning; only the banner waits until the send has settled.
+     */
+    val visibleHolds: List<PendingCommand> get() = if (inFlight) emptyList() else blocking
+
     val canScan: Boolean get() = stage == PrepStage.Collecting && !inFlight && blocking.isEmpty()
     val canScanMachine: Boolean get() = stage?.isMachineStage == true && !inFlight && blocking.isEmpty()
 

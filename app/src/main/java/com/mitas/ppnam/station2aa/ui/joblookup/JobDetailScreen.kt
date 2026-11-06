@@ -19,6 +19,7 @@ import com.mitas.ppnam.station2aa.ui.theme.GraphiteSurface
 import com.mitas.ppnam.station2aa.ui.theme.WarningOrange
 import com.mitas.ppnam.station2aa.ui.theme.TextMuted
 import com.mitas.ppnam.station2aa.ui.theme.TextPrimary
+import com.mitas.ppnam.station2aa.ui.theme.brandButtonColors
 import com.mitas.ppnam.station2aa.ui.util.formatStationTimestamp
 
 /** Read-only: no scanning, no actions, no mutations. */
@@ -92,8 +93,11 @@ fun JobDetailScreen(
                                 }
                             }
                         }
+                        // brandButtonColors(): the default filled colour is the scheme's light
+                        // BrandTint, so this was the only mint CTA in the app (visual critique 2026-11-06, P2).
                         Button(
                             onClick = { onPrepare(jobCard) },
+                            colors = brandButtonColors(),
                             enabled = !detail.closed && (detail.mixProgress?.availableToPrepareMixes ?: 0) > 0 &&
                                 state.pendingPrepare == null,
                             modifier = Modifier.fillMaxWidth(),

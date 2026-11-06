@@ -113,10 +113,13 @@ private fun StageHome(
                     }
                 }
             }
-            if (state.blocking.isNotEmpty()) {
+            if (state.visibleHolds.isNotEmpty()) {
                 item { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) { HoldBanners(state, sessionId, actions.onRetry) } }
             } else {
-                state.banner?.let { item { ResultBannerView(it, null) } }
+                // Completed has its own "Preparation complete" banner below; the reply's identical
+                // Accepted banner stacked a second copy on top (visual critique 2026-11-06, P2).
+                state.banner?.takeUnless { prep.stage == PrepStage.Completed && it is ResultBanner.Accepted }
+                    ?.let { item { ResultBannerView(it, null) } }
                 state.message?.let { item { InfoLine(it) } }
             }
             val n = prep.mixCount
@@ -316,7 +319,9 @@ private fun MachineConfirm(
             machine = scan.machine
             bannerTitle = "Mix ${scan.k} of ${scan.n}"
             action = "Start mix ${scan.k} on ${machine.name}"
-            note = if (scan.firstStart) "This mixer stays assigned for all ${scan.n} mixes." else null
+            note = if (scan.firstStart) {
+                if (scan.n == 1) "This mixer stays assigned for this mix." else "This mixer stays assigned for all ${scan.n} mixes."
+            } else null
             warn = scan.savedMixer?.takeIf { it.id != machine.id }?.let { "Saved mixer is ${it.name}" }
         }
         is MachineScan.StartProduction -> {

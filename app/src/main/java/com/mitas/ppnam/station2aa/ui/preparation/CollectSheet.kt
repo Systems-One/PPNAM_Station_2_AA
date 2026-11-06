@@ -78,7 +78,7 @@ internal fun CollectSheet(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        if (state.blocking.isNotEmpty()) HoldBanners(state, sessionId, actions.onRetry)
+        if (state.visibleHolds.isNotEmpty()) HoldBanners(state, sessionId, actions.onRetry)
         state.message?.let { InfoLine(it) }
         when (val step = state.step) {
             CollectStep.Idle -> Unit
