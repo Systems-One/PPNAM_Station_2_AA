@@ -2310,7 +2310,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2choiceanswer",
-      "community": 254,
+      "community": 196,
       "norm_label": "rev2choiceanswer"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L307",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2identifyrequest",
-      "community": 297,
+      "community": 24,
       "norm_label": "rev2identifyrequest"
     },
     {
@@ -2380,7 +2380,7 @@
       "source_location": "L331",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2generalmessages_rev2adjustment",
-      "community": 216,
+      "community": 178,
       "norm_label": "rev2adjustment"
     },
     {
@@ -2420,7 +2420,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2rajoomessages_rev2rajoocapturerequest",
-      "community": 254,
+      "community": 178,
       "norm_label": "rev2rajoocapturerequest"
     },
     {
@@ -2450,7 +2450,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2rajoomessages_rev2rajoocloserequest",
-      "community": 254,
+      "community": 178,
       "norm_label": "rev2rajoocloserequest"
     },
     {
@@ -2930,7 +2930,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_outbox_pendingcommand_pendingstatus",
-      "community": 42,
+      "community": 224,
       "norm_label": "pendingstatus"
     },
     {
@@ -2940,7 +2940,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_outbox_pendingcommand_pendingcommand",
-      "community": 224,
+      "community": 169,
       "norm_label": "pendingcommand"
     },
     {
@@ -2960,7 +2960,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_data_mqtt_outbox_pendingcommand_pendingcommand_isfromdevice",
-      "community": 224,
+      "community": 169,
       "norm_label": ".isfromdevice()"
     },
     {
@@ -4510,7 +4510,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_job_jobsummary",
-      "community": 48,
+      "community": 233,
       "norm_label": "jobsummary"
     },
     {
@@ -4560,7 +4560,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_job_joblookupsnapshot",
-      "community": 48,
+      "community": 233,
       "norm_label": "joblookupsnapshot"
     },
     {
@@ -4960,7 +4960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_preparation",
-      "community": 273,
+      "community": 2,
       "norm_label": "preparation.kt"
     },
     {
@@ -5040,7 +5040,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_preparation_collectionexceptionrecord",
-      "community": 273,
+      "community": 233,
       "norm_label": "collectionexceptionrecord"
     },
     {
@@ -5070,7 +5070,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_preparation_captureintent",
-      "community": 273,
+      "community": 2,
       "norm_label": "captureintent"
     },
     {
@@ -5080,7 +5080,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_preparation_frompayload",
-      "community": 273,
+      "community": 2,
       "norm_label": "frompayload()"
     },
     {
@@ -5090,7 +5090,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_model_preparation_kt_string",
-      "community": 273,
+      "community": 2,
       "norm_label": "string"
     },
     {
@@ -5660,7 +5660,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_commandrecoveryusecase_recoveryoutcome",
-      "community": 255,
+      "community": 42,
       "norm_label": "recoveryoutcome"
     },
     {
@@ -5750,7 +5750,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase",
-      "community": 120,
+      "community": 297,
       "norm_label": "generalcollectionusecase.kt"
     },
     {
@@ -5830,7 +5830,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_collectionresult",
-      "community": 120,
+      "community": 297,
       "norm_label": "collectionresult"
     },
     {
@@ -5840,7 +5840,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_done",
-      "community": 120,
+      "community": 297,
       "norm_label": "done"
     },
     {
@@ -5850,7 +5850,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_rejected",
-      "community": 120,
+      "community": 297,
       "norm_label": "rejected"
     },
     {
@@ -5860,7 +5860,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_unresolved",
-      "community": 120,
+      "community": 297,
       "norm_label": "unresolved"
     },
     {
@@ -5870,7 +5870,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_notsent",
-      "community": 120,
+      "community": 297,
       "norm_label": "notsent"
     },
     {
@@ -5880,7 +5880,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_alreadysettled",
-      "community": 120,
+      "community": 297,
       "norm_label": "alreadysettled"
     },
     {
@@ -6060,7 +6060,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_generalcollectionusecase_retry",
-      "community": 120,
+      "community": 297,
       "norm_label": ".retry()"
     },
     {
@@ -6090,7 +6090,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_tocollectionresult",
-      "community": 120,
+      "community": 297,
       "norm_label": "tocollectionresult()"
     },
     {
@@ -6100,7 +6100,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_rejectedtext",
-      "community": 120,
+      "community": 297,
       "norm_label": "rejectedtext()"
     },
     {
@@ -6110,7 +6110,7 @@
       "source_location": "L210",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_generalcollectionusecase_unresolvedtext",
-      "community": 120,
+      "community": 297,
       "norm_label": "unresolvedtext()"
     },
     {
@@ -6217,7 +6217,7 @@
       "label": "isPrepId()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCase.kt",
-      "source_location": "L90",
+      "source_location": "L92",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecase_isprepid",
       "community": 158,
@@ -6237,7 +6237,7 @@
       "label": "message()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCase.kt",
-      "source_location": "L96",
+      "source_location": "L98",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecase_message",
       "community": 158,
@@ -6440,7 +6440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_prepareform",
-      "community": 277,
+      "community": 196,
       "norm_label": "prepareform.kt"
     },
     {
@@ -6450,7 +6450,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_prepareform_prepareform",
-      "community": 277,
+      "community": 196,
       "norm_label": "prepareform"
     },
     {
@@ -6460,7 +6460,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_prepareform_kt_int",
-      "community": 277,
+      "community": 196,
       "norm_label": "int"
     },
     {
@@ -6470,7 +6470,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_prepareform_kt_list",
-      "community": 277,
+      "community": 196,
       "norm_label": "list"
     },
     {
@@ -6480,7 +6480,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_prepareform_kt_string",
-      "community": 277,
+      "community": 196,
       "norm_label": "string"
     },
     {
@@ -6490,7 +6490,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_prepareform_prepareform_answersforwire",
-      "community": 277,
+      "community": 196,
       "norm_label": ".answersforwire()"
     },
     {
@@ -6500,7 +6500,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_prepareform_prepareform_rebasedon",
-      "community": 277,
+      "community": 196,
       "norm_label": ".rebasedon()"
     },
     {
@@ -6510,7 +6510,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_prepareform_from",
-      "community": 277,
+      "community": 196,
       "norm_label": "from()"
     },
     {
@@ -6540,7 +6540,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_read",
-      "community": 297,
+      "community": 216,
       "norm_label": ".read()"
     },
     {
@@ -6560,7 +6560,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_lookup",
-      "community": 297,
+      "community": 216,
       "norm_label": ".lookup()"
     },
     {
@@ -6570,7 +6570,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_identify",
-      "community": 297,
+      "community": 216,
       "norm_label": ".identify()"
     },
     {
@@ -6710,7 +6710,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_retry",
-      "community": 216,
+      "community": 297,
       "norm_label": ".retry()"
     },
     {
@@ -6720,7 +6720,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_readlike",
-      "community": 297,
+      "community": 216,
       "norm_label": ".readlike()"
     },
     {
@@ -6730,7 +6730,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_kt_any",
-      "community": 297,
+      "community": 216,
       "norm_label": "any"
     },
     {
@@ -9110,7 +9110,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collectstate_outcomemessage",
-      "community": 234,
+      "community": 199,
       "norm_label": "outcomemessage"
     },
     {
@@ -9120,7 +9120,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collectstate_info",
-      "community": 234,
+      "community": 199,
       "norm_label": "info"
     },
     {
@@ -9130,7 +9130,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collectstate_preparationuistate",
-      "community": 199,
+      "community": 2,
       "norm_label": "preparationuistate"
     },
     {
@@ -9140,7 +9140,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collectstate_kt_list",
-      "community": 199,
+      "community": 2,
       "norm_label": "list"
     },
     {
@@ -9800,7 +9800,7 @@
       "source_location": "L236",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_preparationviewmodel_inhand",
-      "community": 199,
+      "community": 169,
       "norm_label": ".inhand()"
     },
     {
@@ -10180,7 +10180,7 @@
       "source_location": "L684",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_preparationviewmodel_retry",
-      "community": 224,
+      "community": 169,
       "norm_label": ".retry()"
     },
     {
@@ -10380,7 +10380,7 @@
       "source_location": "L952",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_preparationviewmodel_whynoconfirm",
-      "community": 199,
+      "community": 169,
       "norm_label": ".whynoconfirm()"
     },
     {
@@ -10390,7 +10390,7 @@
       "source_location": "L975",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodel_machinedonebanner",
-      "community": 169,
+      "community": 234,
       "norm_label": "machinedonebanner()"
     },
     {
@@ -10770,7 +10770,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_resultbanner_infoline",
-      "community": 2,
+      "community": 199,
       "norm_label": "infoline()"
     },
     {
@@ -14740,7 +14740,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_rev2generalwireshapetest_rev2generalwireshapetest_setup",
-      "community": 170,
+      "community": 123,
       "norm_label": ".setup()"
     },
     {
@@ -15700,7 +15700,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_data_mqtt_dto_rev2collectionrequesttest_rev2collectionrequesttest_identify_sends_the_prep_and_the_scanned_code",
-      "community": 297,
+      "community": 24,
       "norm_label": ".`identify sends the prep and the scanned code`()"
     },
     {
@@ -18190,7 +18190,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_commandrecoveryusecasetest_commandrecoveryusecasetest_a_different_operator_s_command_is_not_sent_for_recovery",
-      "community": 123,
+      "community": 298,
       "norm_label": ".`a different operator's command is not sent for recovery`()"
     },
     {
@@ -18734,10 +18734,20 @@
       "norm_label": ".`a prep id opens that preparation and sends nothing`()"
     },
     {
-      "label": ".`a malformed PREP id is refused with the lookup error and never becomes a route`()",
+      "label": ".`a production PREP id with underscores in its body opens that preparation`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
       "source_location": "L158",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_production_prep_id_with_underscores_in_its_body_opens_that_preparation",
+      "community": 134,
+      "norm_label": ".`a production prep id with underscores in its body opens that preparation`()"
+    },
+    {
+      "label": ".`a malformed PREP id is refused with the lookup error and never becomes a route`()",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
+      "source_location": "L165",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_malformed_prep_id_is_refused_with_the_lookup_error_and_never_becomes_a_route",
       "community": 134,
@@ -18747,7 +18757,7 @@
       "label": ".`a leading-space digit string with a letter still gives the digits error`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L168",
+      "source_location": "L175",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_leading_space_digit_string_with_a_letter_still_gives_the_digits_error",
       "community": 134,
@@ -18757,7 +18767,7 @@
       "label": ".`lookup rejects a blank job card without sending anything`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L174",
+      "source_location": "L181",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_lookup_rejects_a_blank_job_card_without_sending_anything",
       "community": 134,
@@ -18767,7 +18777,7 @@
       "label": ".`lookup rejects non-ASCII digits`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L180",
+      "source_location": "L187",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_lookup_rejects_non_ascii_digits",
       "community": 134,
@@ -18777,7 +18787,7 @@
       "label": ".`a successful lookup with no job in the reply is a failure`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L185",
+      "source_location": "L192",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_successful_lookup_with_no_job_in_the_reply_is_a_failure",
       "community": 134,
@@ -18787,7 +18797,7 @@
       "label": ".`a rev2_rejected lookup shows the operator message and keeps the snapshot`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L191",
+      "source_location": "L198",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_rev2_rejected_lookup_shows_the_operator_message_and_keeps_the_snapshot",
       "community": 134,
@@ -18797,7 +18807,7 @@
       "label": ".`outcome_unconfirmed asks the operator to try again`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L200",
+      "source_location": "L207",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_outcome_unconfirmed_asks_the_operator_to_try_again",
       "community": 134,
@@ -18807,7 +18817,7 @@
       "label": ".`operator_session_invalid says to sign in again`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L208",
+      "source_location": "L215",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_operator_session_invalid_says_to_sign_in_again",
       "community": 134,
@@ -18817,7 +18827,7 @@
       "label": ".`a rejection with no message falls back to a generic line`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L214",
+      "source_location": "L221",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_rejection_with_no_message_falls_back_to_a_generic_line",
       "community": 134,
@@ -18827,7 +18837,7 @@
       "label": ".`no response reports the transport failure`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L220",
+      "source_location": "L227",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_no_response_reports_the_transport_failure",
       "community": 134,
@@ -18837,7 +18847,7 @@
       "label": ".`only timeout and not-connected failures are retryable`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L226",
+      "source_location": "L233",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_only_timeout_and_not_connected_failures_are_retryable",
       "community": 134,
@@ -18847,7 +18857,7 @@
       "label": ".`an unparseable capture time does not fail the read`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L239",
+      "source_location": "L246",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_an_unparseable_capture_time_does_not_fail_the_read",
       "community": 134,
@@ -18857,7 +18867,7 @@
       "label": ".fixtureSnapshot()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L246",
+      "source_location": "L253",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_fixturesnapshot",
       "community": 303,
@@ -18877,7 +18887,7 @@
       "label": ".`job mix progress maps onto the list and the detail`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L251",
+      "source_location": "L258",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_job_mix_progress_maps_onto_the_list_and_the_detail",
       "community": 303,
@@ -18887,7 +18897,7 @@
       "label": ".`a reply without mix progress maps to null, not zeros`()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L265",
+      "source_location": "L272",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_reply_without_mix_progress_maps_to_null_not_zeros",
       "community": 134,
@@ -19630,7 +19640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest",
-      "community": 255,
+      "community": 42,
       "norm_label": "replacementoffertest.kt"
     },
     {
@@ -19640,7 +19650,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest",
-      "community": 255,
+      "community": 42,
       "norm_label": "replacementoffertest"
     },
     {
@@ -19650,7 +19660,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_cmd",
-      "community": 255,
+      "community": 42,
       "norm_label": ".cmd()"
     },
     {
@@ -19660,7 +19670,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_kt_string",
-      "community": 255,
+      "community": 42,
       "norm_label": "string"
     },
     {
@@ -19670,7 +19680,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_resolved",
-      "community": 255,
+      "community": 42,
       "norm_label": ".resolved()"
     },
     {
@@ -19680,7 +19690,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_a_not_executed_capture_becomes_a_capture_offer_with_the_original_code_and_quantity",
-      "community": 255,
+      "community": 42,
       "norm_label": ".`a not_executed capture becomes a capture offer with the original code and quantity`()"
     },
     {
@@ -19690,7 +19700,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_a_not_executed_confirm_becomes_a_confirm_offer",
-      "community": 255,
+      "community": 42,
       "norm_label": ".`a not_executed confirm becomes a confirm offer`()"
     },
     {
@@ -19700,7 +19710,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_committed_and_rejected_never_become_offers",
-      "community": 255,
+      "community": 42,
       "norm_label": ".`committed and rejected never become offers`()"
     },
     {
@@ -19710,7 +19720,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_a_not_executed_prepare_is_not_an_offer_but_opens_its_job",
-      "community": 255,
+      "community": 42,
       "norm_label": ".`a not_executed prepare is not an offer but opens its job`()"
     },
     {
@@ -19720,7 +19730,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_a_not_executed_capture_or_confirm_opens_its_prep_other_outcomes_open_nothing",
-      "community": 255,
+      "community": 42,
       "norm_label": ".`a not_executed capture or confirm opens its prep, other outcomes open nothing`()"
     },
     {
@@ -19730,7 +19740,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_a_capture_whose_payload_cannot_be_read_is_not_an_offer",
-      "community": 255,
+      "community": 42,
       "norm_label": ".`a capture whose payload cannot be read is not an offer`()"
     },
     {
@@ -19740,7 +19750,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_a_sealed_command_becomes_an_offer_without_a_notice",
-      "community": 273,
+      "community": 2,
       "norm_label": ".`a sealed command becomes an offer without a notice`()"
     },
     {
@@ -19750,7 +19760,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_a_not_executed_adjust_ingredient_is_never_an_offer_but_opens_its_prep",
-      "community": 255,
+      "community": 42,
       "norm_label": ".`a not_executed adjust_ingredient is never an offer but opens its prep`()"
     },
     {
@@ -19760,7 +19770,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_replacementoffertest_replacementoffertest_machine_commands_are_never_offered_as_a_replacement_but_open_their_prep",
-      "community": 255,
+      "community": 42,
       "norm_label": ".`machine commands are never offered as a replacement but open their prep`()"
     },
     {
@@ -20680,7 +20690,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_joblookup_joblookupviewmodeltest_joblookupviewmodeltest_an_empty_job_list_is_shown_as_empty_not_as_an_error",
-      "community": 48,
+      "community": 233,
       "norm_label": ".`an empty job list is shown as empty, not as an error`()"
     },
     {
@@ -20870,7 +20880,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_joblookup_joblookupviewmodeltest_joblookupviewmodeltest_a_late_successful_reply_for_a_job_left_behind_still_applies_its_job_list",
-      "community": 48,
+      "community": 233,
       "norm_label": ".`a late successful reply for a job left behind still applies its job list`()"
     },
     {
@@ -21660,7 +21670,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest",
-      "community": 236,
+      "community": 233,
       "norm_label": "preparationformattest.kt"
     },
     {
@@ -21670,7 +21680,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest",
-      "community": 236,
+      "community": 233,
       "norm_label": "preparationformattest"
     },
     {
@@ -21680,7 +21690,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_material",
-      "community": 236,
+      "community": 233,
       "norm_label": ".material()"
     },
     {
@@ -21690,7 +21700,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_kt_string",
-      "community": 236,
+      "community": 233,
       "norm_label": "string"
     },
     {
@@ -21700,7 +21710,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_kt_boolean",
-      "community": 236,
+      "community": 233,
       "norm_label": "boolean"
     },
     {
@@ -21710,7 +21720,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_a_normal_row_shows_collected_of_required_and_what_is_left",
-      "community": 236,
+      "community": 233,
       "norm_label": ".`a normal row shows collected of required and what is left`()"
     },
     {
@@ -21720,7 +21730,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_quantities_keep_exact_decimals_and_drop_trailing_zeros",
-      "community": 236,
+      "community": 233,
       "norm_label": ".`quantities keep exact decimals and drop trailing zeros`()"
     },
     {
@@ -21730,7 +21740,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_a_complete_row_says_so",
-      "community": 236,
+      "community": 233,
       "norm_label": ".`a complete row says so`()"
     },
     {
@@ -21740,7 +21750,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_an_excluded_row_shows_its_original_quantity",
-      "community": 236,
+      "community": 233,
       "norm_label": ".`an excluded row shows its original quantity`()"
     },
     {
@@ -21750,7 +21760,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_an_operator_added_row_is_marked_and_shows_its_target",
-      "community": 236,
+      "community": 233,
       "norm_label": ".`an operator-added row is marked and shows its target`()"
     },
     {
@@ -21760,7 +21770,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_record",
-      "community": 236,
+      "community": 233,
       "norm_label": ".record()"
     },
     {
@@ -21770,7 +21780,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_an_open_record_lists_header_details_reason_and_open",
-      "community": 236,
+      "community": 233,
       "norm_label": ".`an open record lists header, details, reason and open`()"
     },
     {
@@ -21780,7 +21790,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_a_record_without_a_reason_has_no_reason_line",
-      "community": 236,
+      "community": 233,
       "norm_label": ".`a record without a reason has no reason line`()"
     },
     {
@@ -21790,7 +21800,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_a_reviewed_fixture_record_names_the_reviewer_and_the_sast_time",
-      "community": 236,
+      "community": 233,
       "norm_label": ".`a reviewed fixture record names the reviewer and the sast time`()"
     },
     {
@@ -21800,7 +21810,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationformattest_preparationformattest_the_replacement_prompt_names_the_code_quantity_and_sast_time",
-      "community": 273,
+      "community": 2,
       "norm_label": ".`the replacement prompt names the code, quantity and sast time`()"
     },
     {
@@ -21960,7 +21970,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_preparation_preparationviewmodeltest_rejectionrecord",
-      "community": 273,
+      "community": 233,
       "norm_label": "rejectionrecord()"
     },
     {
@@ -22490,7 +22500,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_the_rajoo_machine_code_starts_the_first_session_answering_catalog_choices_as_include",
-      "community": 254,
+      "community": 196,
       "norm_label": ".`the rajoo machine code starts the first session, answering catalog choices as include`()"
     },
     {
@@ -22500,7 +22510,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_a_first_session_that_excludes_every_ingredient_is_refused_before_sending",
-      "community": 196,
+      "community": 209,
       "norm_label": ".`a first session that excludes every ingredient is refused before sending`()"
     },
     {
@@ -22640,7 +22650,7 @@
       "source_location": "L361",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_s1_the_rajoo_machine_card_is_silent_and_start_sounds_on_station_2_s_answer",
-      "community": 209,
+      "community": 299,
       "norm_label": ".`s1 the rajoo machine card is silent and start sounds on station 2's answer`()"
     },
     {
@@ -22680,7 +22690,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "app_src_test_java_com_mitas_ppnam_station2aa_ui_rajoo_rajoojobviewmodeltest_rajoojobviewmodeltest_s1_an_unknown_rajoo_pallet_or_a_non_machine_code_before_a_session_fails_once",
-      "community": 209,
+      "community": 299,
       "norm_label": ".`s1 an unknown rajoo pallet, or a non-machine code before a session, fails once`()"
     },
     {
@@ -45415,7 +45425,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L246",
+      "source_location": "L253",
       "weight": 1.0,
       "context": "return_type",
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_fixturesnapshot",
@@ -48561,7 +48571,7 @@
       "weight": 1.0,
       "context": "field",
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_ui_login_loginviewmodeltest_loginviewmodeltest",
-      "target": "c_dev_clients_ppnam_andriod_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_rfid_scaneventbus_rfidtag",
+      "target": "c_dev_clients_ppnam_andriod_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_rfid_scaneventbus_barcode",
       "confidence_score": 1.0
     },
     {
@@ -57938,7 +57948,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCase.kt",
-      "source_location": "L90",
+      "source_location": "L92",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecase",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecase_isprepid",
@@ -57978,7 +57988,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCase.kt",
-      "source_location": "L96",
+      "source_location": "L98",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecase",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecase_message",
@@ -58212,7 +58222,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCase.kt",
-      "source_location": "L90",
+      "source_location": "L92",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecase_isprepid",
@@ -58234,7 +58244,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCase.kt",
-      "source_location": "L96",
+      "source_location": "L98",
       "weight": 1.0,
       "context": "return_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecase_message",
@@ -58278,7 +58288,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCase.kt",
-      "source_location": "L90",
+      "source_location": "L92",
       "weight": 1.0,
       "context": "return_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecase_isprepid",
@@ -83708,7 +83718,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L168",
+      "source_location": "L175",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_leading_space_digit_string_with_a_letter_still_gives_the_digits_error",
@@ -83718,7 +83728,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L158",
+      "source_location": "L165",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_malformed_prep_id_is_refused_with_the_lookup_error_and_never_becomes_a_route",
@@ -83738,7 +83748,17 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L214",
+      "source_location": "L158",
+      "weight": 1.0,
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
+      "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_production_prep_id_with_underscores_in_its_body_opens_that_preparation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
+      "source_location": "L221",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_rejection_with_no_message_falls_back_to_a_generic_line",
@@ -83748,7 +83768,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L265",
+      "source_location": "L272",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_reply_without_mix_progress_maps_to_null_not_zeros",
@@ -83758,7 +83778,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L191",
+      "source_location": "L198",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_rev2_rejected_lookup_shows_the_operator_message_and_keeps_the_snapshot",
@@ -83768,7 +83788,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L185",
+      "source_location": "L192",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_successful_lookup_with_no_job_in_the_reply_is_a_failure",
@@ -83788,7 +83808,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L239",
+      "source_location": "L246",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_an_unparseable_capture_time_does_not_fail_the_read",
@@ -83808,7 +83828,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L246",
+      "source_location": "L253",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_fixturesnapshot",
@@ -83818,7 +83838,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L251",
+      "source_location": "L258",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_job_mix_progress_maps_onto_the_list_and_the_detail",
@@ -83828,7 +83848,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L174",
+      "source_location": "L181",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_lookup_rejects_a_blank_job_card_without_sending_anything",
@@ -83848,7 +83868,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L180",
+      "source_location": "L187",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_lookup_rejects_non_ascii_digits",
@@ -83878,7 +83898,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L220",
+      "source_location": "L227",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_no_response_reports_the_transport_failure",
@@ -83888,7 +83908,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L226",
+      "source_location": "L233",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_only_timeout_and_not_connected_failures_are_retryable",
@@ -83898,7 +83918,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L208",
+      "source_location": "L215",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_operator_session_invalid_says_to_sign_in_again",
@@ -83908,7 +83928,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L200",
+      "source_location": "L207",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_outcome_unconfirmed_asks_the_operator_to_try_again",
@@ -83999,7 +84019,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L216",
+      "source_location": "L223",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_rejection_with_no_message_falls_back_to_a_generic_line",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_stub",
@@ -84010,7 +84030,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L267",
+      "source_location": "L274",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_reply_without_mix_progress_maps_to_null_not_zeros",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_stub",
@@ -84021,7 +84041,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L193",
+      "source_location": "L200",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_rev2_rejected_lookup_shows_the_operator_message_and_keeps_the_snapshot",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_stub",
@@ -84032,7 +84052,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L187",
+      "source_location": "L194",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_a_successful_lookup_with_no_job_in_the_reply_is_a_failure",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_stub",
@@ -84054,7 +84074,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L241",
+      "source_location": "L248",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_an_unparseable_capture_time_does_not_fail_the_read",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_stub",
@@ -84076,7 +84096,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L253",
+      "source_location": "L260",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_job_mix_progress_maps_onto_the_list_and_the_detail",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_stub",
@@ -84109,7 +84129,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L222",
+      "source_location": "L229",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_no_response_reports_the_transport_failure",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_stub",
@@ -84120,7 +84140,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L228",
+      "source_location": "L235",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_only_timeout_and_not_connected_failures_are_retryable",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_stub",
@@ -84131,7 +84151,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L210",
+      "source_location": "L217",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_operator_session_invalid_says_to_sign_in_again",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_stub",
@@ -84142,7 +84162,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L202",
+      "source_location": "L209",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_outcome_unconfirmed_asks_the_operator_to_try_again",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_stub",
@@ -84251,7 +84271,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L246",
+      "source_location": "L253",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_fixturesnapshot",
@@ -84263,7 +84283,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt",
-      "source_location": "L253",
+      "source_location": "L260",
       "weight": 1.0,
       "source": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_job_mix_progress_maps_onto_the_list_and_the_detail",
       "target": "app_src_test_java_com_mitas_ppnam_station2aa_domain_usecase_joblookupusecasetest_joblookupusecasetest_fixturesnapshot",
@@ -97063,7 +97083,7 @@
       "source_location": "L42",
       "weight": 1.0,
       "source": "tools_backend_sim_sim",
-      "target": "c_dev_ppnam_station_2_aa_tools_backend_sim_simlog_simlogger_tx",
+      "target": "c_dev_ppnam_station_2_aa_tools_backend_sim_simlog_simlogger_warn",
       "confidence_score": 1.0
     },
     {
@@ -98396,7 +98416,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_d_login_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_122",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_type_into",
       "confidence_score": 1.0
     },
     {
@@ -98407,7 +98427,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_d_nav_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_122",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_type_into",
       "confidence_score": 1.0
     },
     {
@@ -98418,7 +98438,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_drive_login_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_122",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_type_into",
       "confidence_score": 1.0
     },
     {
@@ -98429,7 +98449,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_drive_relogin_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_rationale_122",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_type_into",
       "confidence_score": 1.0
     },
     {
@@ -111440,5 +111460,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c5c5460037f2df5478c96371ecbd5bde47e7fd53"
+  "built_at_commit": "34c868fa7ab5398b212da4283a8557f4ddae7451"
 }

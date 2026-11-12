@@ -212,7 +212,7 @@ private fun ErrorWithRetry(
     }
 }
 
-/** A PREP id is `PREP_` plus 32 hex characters; allow some slack. */
+/** A PREP id is `PREP_` plus 32 hex characters or `<order>_<n>_<date>_<ticks>`; allow some slack. */
 private const val PREP_INPUT_MAX = 64
 private const val PREP_PREFIX = "PREP_"
 

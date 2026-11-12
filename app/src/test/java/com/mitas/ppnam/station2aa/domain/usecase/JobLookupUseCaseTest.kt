@@ -156,8 +156,15 @@ class JobLookupUseCaseTest {
     }
 
     @Test
+    fun `a production PREP id with underscores in its body opens that preparation`() = runTest {
+        val id = "PREP_510023208_1_20261112_1348179140836"
+        assertEquals(JobLookupResult.OpenPreparation(id), useCase.lookup(id))
+        verify(mqtt, never()).request(any(), any(), any(), any<Class<Any>>())
+    }
+
+    @Test
     fun `a malformed PREP id is refused with the lookup error and never becomes a route`() = runTest {
-        for (raw in listOf("PREP_", "PREP_x/y", "PREP_ab cd", "PREP_a?b=c", "PREP_a#b")) {
+        for (raw in listOf("PREP_", "PREP__", "PREP_x/y", "PREP_ab cd", "PREP_a?b=c", "PREP_a#b")) {
             val result = useCase.lookup(raw)
             assertTrue("$raw -> $result", result is JobLookupResult.Failed)
             assertEquals(JobLookupUseCase.NOT_DIGITS_MESSAGE, (result as JobLookupResult.Failed).message)
