@@ -84,7 +84,9 @@ class JobLookupUseCase @Inject constructor(
         const val REQUEST_TYPE = "rev2_general_requested"
         const val RESPONSE_TYPE = "rev2_general_result"
         const val PREP_ID_PREFIX = "PREP_"
-        private val PREP_ID = Regex("^PREP_[A-Za-z0-9]+$")
+        // Station 2 issues both `PREP_<32 hex>` and `PREP_<order>_<n>_<date>_<ticks>`, so the body
+        // may hold underscores. Still nothing that could break a nav route (`/`, `?`, `#`, spaces).
+        private val PREP_ID = Regex("^PREP_[A-Za-z0-9][A-Za-z0-9_]*$")
 
         /** True for a `PREP_` id safe to open (and to put in a nav route). */
         fun isPrepId(value: String): Boolean = PREP_ID.matches(value)
