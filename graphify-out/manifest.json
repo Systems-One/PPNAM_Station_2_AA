@@ -10,8 +10,8 @@
     "semantic_hash": "761e04b3672b2ba11b8a7a408d04a225"
   },
   "app/build.gradle.kts": {
-    "mtime": 1793967741.5076823,
-    "ast_hash": "5b9ee352ce7de570e03e9f371752c701",
+    "mtime": 1794488477.0179057,
+    "ast_hash": "e5b8c862013bceaef7de466340546f58",
     "semantic_hash": ""
   },
   "build.gradle.kts": {
@@ -16050,13 +16050,13 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCase.kt": {
-    "mtime": 1792065826.0702953,
-    "ast_hash": "82ec230ebec27f702506dcbdaec10272",
+    "mtime": 1794488477.0049076,
+    "ast_hash": "a6ee0938f33fbb4cbd53624257fee9e7",
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/domain/usecase/JobLookupUseCaseTest.kt": {
-    "mtime": 1792065826.1237211,
-    "ast_hash": "674e1206d6d048f45ba8c8545eb31c2d",
+    "mtime": 1794488419.32472,
+    "ast_hash": "0dddb0f593498f0e24a7b324d5397788",
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/ui/joblookup/JobLookupViewModel.kt": {
@@ -16080,8 +16080,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/mitas/ppnam/station2aa/ui/joblookup/JobLookupScreen.kt": {
-    "mtime": 1793967146.6900468,
-    "ast_hash": "4b696653afdf2389c555d3c8630118fd",
+    "mtime": 1794488477.0059254,
+    "ast_hash": "8f36b3f8718ceedb083fb09f43a47ce9",
     "semantic_hash": ""
   },
   "app/src/test/java/com/mitas/ppnam/station2aa/ui/joblookup/JobFormatTest.kt": {
@@ -18870,317 +18870,317 @@
     "semantic_hash": ""
   },
   "docs/sop/_template/build_sop.py": {
-    "mtime": 1793980323.342371,
-    "ast_hash": "1a410e5a062f295445e218e3f9908be5",
+    "mtime": 1793999239.6447425,
+    "ast_hash": "bad1f42638b4c137f89f37f1b317d4df",
     "semantic_hash": ""
   },
   "docs/sop/PPNAM_Station_2_Handheld_SOP.html": {
-    "mtime": 1793980543.7084486,
+    "mtime": 1793999239.597169,
     "ast_hash": "2ee35136318aab5fa5493f87a59f355f",
     "semantic_hash": ""
   },
   "docs/sop/_template/README.md": {
-    "mtime": 1793980323.4205787,
-    "ast_hash": "23962abeda9ba4eaf959e16861781348",
+    "mtime": 1793999239.6437397,
+    "ast_hash": "363d2038bccbe63d7d664e83107f2d07",
     "semantic_hash": ""
   },
   "docs/sop/_template/template.html": {
-    "mtime": 1793980323.3610604,
-    "ast_hash": "35f208a8f3b7d2750f3d46d9368528b1",
+    "mtime": 1793999239.6487398,
+    "ast_hash": "7997b8a54a11d3677cdb9b623f087cac",
     "semantic_hash": ""
   },
   "docs/sop/content.md": {
-    "mtime": 1793980523.050578,
+    "mtime": 1793999239.649741,
     "ast_hash": "ac6d7c7b549b8311d7c8130895866281",
     "semantic_hash": ""
   },
   "docs/sop/PPNAM_Station_2_Handheld_SOP.pdf": {
-    "mtime": 1793980546.2852566,
+    "mtime": 1793999239.6417222,
     "ast_hash": "d646b460a5aff8d0c0a9ee343cf8d3cd",
     "semantic_hash": ""
   },
   "docs/sop/_template/assets/ppnam-logo.png": {
-    "mtime": 1793980323.4124749,
+    "mtime": 1793999239.6447425,
     "ast_hash": "bab30901a79fb78512601e802fb19780",
     "semantic_hash": ""
   },
   "docs/sop/images/01_login_empty.png": {
-    "mtime": 1793980339.614959,
+    "mtime": 1793999239.649741,
     "ast_hash": "242e788c232db14366ada1b8a4728c0c",
     "semantic_hash": ""
   },
   "docs/sop/images/02_home.png": {
-    "mtime": 1793980339.6436546,
+    "mtime": 1793999239.651019,
     "ast_hash": "91ca4105b61a838826ffef8d0f12388e",
     "semantic_hash": ""
   },
   "docs/sop/images/03_home_reconnecting.png": {
-    "mtime": 1793980339.672304,
+    "mtime": 1793999239.6525235,
     "ast_hash": "63a64d6f447c0a7288c9e0fbf6b7f86a",
     "semantic_hash": ""
   },
   "docs/sop/images/04_home_station_offline.png": {
-    "mtime": 1793980339.7071693,
+    "mtime": 1793999239.6525235,
     "ast_hash": "5b18076fc67a257c612720232dcbd3f8",
     "semantic_hash": ""
   },
   "docs/sop/images/05_login_offline.png": {
-    "mtime": 1793980339.7344608,
+    "mtime": 1793999239.6541753,
     "ast_hash": "5214ffaf7a1d21ba93d95891e2e1a156",
     "semantic_hash": ""
   },
   "docs/sop/images/06_login_dropdown.png": {
-    "mtime": 1793980339.7620025,
+    "mtime": 1793999239.6541753,
     "ast_hash": "13540e34c371c4148db5e85a1dd204ac",
     "semantic_hash": ""
   },
   "docs/sop/images/07_login_logging_in.png": {
-    "mtime": 1793980339.790147,
+    "mtime": 1793999239.655627,
     "ast_hash": "d108fcd1a0abe4420399e064e82393c3",
     "semantic_hash": ""
   },
   "docs/sop/images/08_login_error.png": {
-    "mtime": 1793980339.8201723,
+    "mtime": 1793999239.655627,
     "ast_hash": "4bb0788c748020570d5f3808bf277bb9",
     "semantic_hash": ""
   },
   "docs/sop/images/09_login_badge_refused.png": {
-    "mtime": 1793980339.848048,
+    "mtime": 1793999239.6566408,
     "ast_hash": "ef8e928ae575328566d14c3aa16d6e96",
     "semantic_hash": ""
   },
   "docs/sop/images/10_login_timeout.png": {
-    "mtime": 1793980339.8760679,
+    "mtime": 1793999239.6576397,
     "ast_hash": "86b6b554b2f013c9547b71cf02219d82",
     "semantic_hash": ""
   },
   "docs/sop/images/11_login_signed_out.png": {
-    "mtime": 1793980339.9044814,
+    "mtime": 1793999239.6586413,
     "ast_hash": "1eff9b989fc233ae989a7ec234e8490f",
     "semantic_hash": ""
   },
   "docs/sop/images/12_job_cards.png": {
-    "mtime": 1793980339.9324186,
+    "mtime": 1793999239.6586413,
     "ast_hash": "f9445637df3fd060f96b8c54b9dee7ca",
     "semantic_hash": ""
   },
   "docs/sop/images/13_job_detail.png": {
-    "mtime": 1793980339.9616027,
+    "mtime": 1793999239.6596398,
     "ast_hash": "d9652c9207fe819af37d9dbd1a8ec755",
     "semantic_hash": ""
   },
   "docs/sop/images/14_job_detail_bottom.png": {
-    "mtime": 1793980339.9908984,
+    "mtime": 1793999239.66064,
     "ast_hash": "ff8d5d89f658d351821f6ac611124510",
     "semantic_hash": ""
   },
   "docs/sop/images/15_lookup_refused.png": {
-    "mtime": 1793980340.0190105,
+    "mtime": 1793999239.66164,
     "ast_hash": "71949d2cfddd03bbf9cb82145a29de99",
     "semantic_hash": ""
   },
   "docs/sop/images/17_prepare_filled.png": {
-    "mtime": 1793980340.0753512,
+    "mtime": 1793999239.6627014,
     "ast_hash": "a09532e35714820f3c3d72068908d6e9",
     "semantic_hash": ""
   },
   "docs/sop/images/18_prepare_confirm.png": {
-    "mtime": 1793980340.1044114,
+    "mtime": 1793999239.663701,
     "ast_hash": "41d1e3ee0381fa679f8040b8e64ac3bb",
     "semantic_hash": ""
   },
   "docs/sop/images/20_collect_home.png": {
-    "mtime": 1793980340.1331723,
+    "mtime": 1793999239.6652038,
     "ast_hash": "465f19bb8225df0131ab99a37e92fa53",
     "semantic_hash": ""
   },
   "docs/sop/images/21_capture_sheet.png": {
-    "mtime": 1793980340.1619098,
+    "mtime": 1793999239.6662056,
     "ast_hash": "c371c54a74122428a1aee6e2526ea536",
     "semantic_hash": ""
   },
   "docs/sop/images/22_capture_result.png": {
-    "mtime": 1793980340.189905,
+    "mtime": 1793999239.6682055,
     "ast_hash": "70fd603eef6b8658d4b1a279b98e0ba9",
     "semantic_hash": ""
   },
   "docs/sop/images/23_identify_fallback.png": {
-    "mtime": 1793980340.2188344,
+    "mtime": 1793999239.6682055,
     "ast_hash": "453a2b38ff4acf68b5ecbc99582283bc",
     "semantic_hash": ""
   },
   "docs/sop/images/24_pallet_blocked.png": {
-    "mtime": 1793980340.2476592,
+    "mtime": 1793999239.6697085,
     "ast_hash": "3d045c9f82cd65a3b518e60122c7a026",
     "semantic_hash": ""
   },
   "docs/sop/images/25_pallet_excluded.png": {
-    "mtime": 1793980340.2755237,
+    "mtime": 1793999239.6697085,
     "ast_hash": "f35a40af88f1f26c39b7669ab207c749",
     "semantic_hash": ""
   },
   "docs/sop/images/26_capture_rejected.png": {
-    "mtime": 1793980340.3032105,
+    "mtime": 1793999239.6717944,
     "ast_hash": "bb263945eb43c854c579d019905060ed",
     "semantic_hash": ""
   },
   "docs/sop/images/27_add_ingredient.png": {
-    "mtime": 1793980340.3317626,
+    "mtime": 1793999239.672806,
     "ast_hash": "6fc19fb90d05452238e02ce5bd020a4a",
     "semantic_hash": ""
   },
   "docs/sop/images/28_added_recorded.png": {
-    "mtime": 1793980340.360285,
+    "mtime": 1793999239.6738007,
     "ast_hash": "cc1daf572cb78cd48c09e7e6234e880c",
     "semantic_hash": ""
   },
   "docs/sop/images/29_ingredient_decision.png": {
-    "mtime": 1793980340.386401,
+    "mtime": 1793999239.6748006,
     "ast_hash": "a3e5bb41c50f5092070a0ad89615bad4",
     "semantic_hash": ""
   },
   "docs/sop/images/30_all_collected.png": {
-    "mtime": 1793980340.42222,
+    "mtime": 1793999239.6758041,
     "ast_hash": "532d00371d8701e65d64c4629b8e6ba4",
     "semantic_hash": ""
   },
   "docs/sop/images/31_mix_complete_confirm.png": {
-    "mtime": 1793980340.4516387,
+    "mtime": 1793999239.6768029,
     "ast_hash": "2fbdc20524219773fc666fdb28e6cf8e",
     "semantic_hash": ""
   },
   "docs/sop/images/32_mixer_stage.png": {
-    "mtime": 1793980340.480578,
+    "mtime": 1793999239.677802,
     "ast_hash": "57cd113a0aa294312e2cacca2a3a4bc4",
     "semantic_hash": ""
   },
   "docs/sop/images/33_start_mix_confirm.png": {
-    "mtime": 1793980340.5097508,
+    "mtime": 1793999239.6788003,
     "ast_hash": "2c127d3ddabb0bcef409297619dbbc2f",
     "semantic_hash": ""
   },
   "docs/sop/images/34_mixing.png": {
-    "mtime": 1793980340.5383236,
+    "mtime": 1793999239.6798427,
     "ast_hash": "3c2d6077b296e11eb068b38abbbeea45",
     "semantic_hash": ""
   },
   "docs/sop/images/35_wrong_mixer.png": {
-    "mtime": 1793980340.5746233,
+    "mtime": 1793999239.6810327,
     "ast_hash": "c57e4294aaca153cb9c9c4b08440b9d2",
     "semantic_hash": ""
   },
   "docs/sop/images/36_finish_confirm.png": {
-    "mtime": 1793980340.6030383,
+    "mtime": 1793999239.68203,
     "ast_hash": "e473001ed88a7df4897ca357a369d14d",
     "semantic_hash": ""
   },
   "docs/sop/images/37_ready_production.png": {
-    "mtime": 1793980340.630673,
+    "mtime": 1793999239.683031,
     "ast_hash": "c64cc533a3bb68d9d74ccee6f2db8088",
     "semantic_hash": ""
   },
   "docs/sop/images/38_producing.png": {
-    "mtime": 1793980340.660157,
+    "mtime": 1793999239.6840308,
     "ast_hash": "68e61a079512f2852f564121bc549e96",
     "semantic_hash": ""
   },
   "docs/sop/images/39_prep_complete.png": {
-    "mtime": 1793980340.6884942,
+    "mtime": 1793999239.6850297,
     "ast_hash": "3270f4cb0bf5a4ead29925d23a52b1ca",
     "semantic_hash": ""
   },
   "docs/sop/images/40_rajoo_lookup.png": {
-    "mtime": 1793980340.7173152,
+    "mtime": 1793999239.6850297,
     "ast_hash": "f8f26420b16d34876e7440475e7d69ac",
     "semantic_hash": ""
   },
   "docs/sop/images/41_rajoo_job.png": {
-    "mtime": 1793980340.7445295,
+    "mtime": 1793999239.6865342,
     "ast_hash": "8c28ee25b41d685f873e6a0c05bdddb7",
     "semantic_hash": ""
   },
   "docs/sop/images/42_rajoo_start.png": {
-    "mtime": 1793980340.7730827,
+    "mtime": 1793999239.6876712,
     "ast_hash": "84d64ffead364d1e7d4fb143fa60c6fb",
     "semantic_hash": ""
   },
   "docs/sop/images/43_rajoo_session.png": {
-    "mtime": 1793980340.8018858,
+    "mtime": 1793999239.6886759,
     "ast_hash": "dc36026f2bb4c712525b8602da1becfe",
     "semantic_hash": ""
   },
   "docs/sop/images/44_rajoo_capture.png": {
-    "mtime": 1793980340.830279,
+    "mtime": 1793999239.6896775,
     "ast_hash": "d8bddc635a1ddc81b73526ff02781f38",
     "semantic_hash": ""
   },
   "docs/sop/images/45_rajoo_recorded.png": {
-    "mtime": 1793980340.8579514,
+    "mtime": 1793999239.6916761,
     "ast_hash": "b94448d43d183f4d59ec331726d72888",
     "semantic_hash": ""
   },
   "docs/sop/images/46_rajoo_end_confirm.png": {
-    "mtime": 1793980340.887421,
+    "mtime": 1793999239.6926758,
     "ast_hash": "6f7417eac7857cc0358eb476608468bc",
     "semantic_hash": ""
   },
   "docs/sop/images/47_rajoo_session_ended.png": {
-    "mtime": 1793980340.91639,
+    "mtime": 1793999239.693678,
     "ast_hash": "844e54909dcfbd337d21804f075fae72",
     "semantic_hash": ""
   },
   "docs/sop/images/48_rajoo_close_confirm.png": {
-    "mtime": 1793980340.9451568,
+    "mtime": 1793999239.694697,
     "ast_hash": "3061b91db42678ce8db3b998913ab55b",
     "semantic_hash": ""
   },
   "docs/sop/images/49_rajoo_closed.png": {
-    "mtime": 1793980340.973311,
+    "mtime": 1793999239.6956954,
     "ast_hash": "e27d79ef43a5a1e48af7df8faaaadbe6",
     "semantic_hash": ""
   },
   "docs/sop/images/50_capture_sending.png": {
-    "mtime": 1793980341.00026,
+    "mtime": 1793999239.6966963,
     "ast_hash": "cb141adf974196e6851f55185bbbfe8b",
     "semantic_hash": ""
   },
   "docs/sop/images/51_unanswered_hold.png": {
-    "mtime": 1793980341.0312257,
+    "mtime": 1793999239.697698,
     "ast_hash": "44a3cb49b0a738c211d40859d2cc8883",
     "semantic_hash": ""
   },
   "docs/sop/images/52_after_retry.png": {
-    "mtime": 1793980341.0613568,
+    "mtime": 1793999239.6986952,
     "ast_hash": "a3b38878f7eebcfd07f915ba25c7c3a3",
     "semantic_hash": ""
   },
   "docs/sop/images/53_home_unanswered.png": {
-    "mtime": 1793980341.089857,
+    "mtime": 1793999239.699695,
     "ast_hash": "310b2dc009cfe93029f5866c2aff2172",
     "semantic_hash": ""
   },
   "docs/sop/images/61_settings_unlocked.png": {
-    "mtime": 1793980341.1527965,
+    "mtime": 1793999239.7016947,
     "ast_hash": "dc547fb3e565897ec32a6bab9bb68aa5",
     "semantic_hash": ""
   },
   "docs/sop/images/62_settings_applied.png": {
-    "mtime": 1793980341.1814942,
+    "mtime": 1793999239.7016947,
     "ast_hash": "7fb471ff305855d78edd902165c16a90",
     "semantic_hash": ""
   },
   "docs/sop/images/70_logout_dialog.png": {
-    "mtime": 1793980341.236967,
+    "mtime": 1793999239.7031991,
     "ast_hash": "bd05d02058a7f737f2940f3f6d7a1896",
     "semantic_hash": ""
   },
   "docs/sop/images/71_exit_dialog.png": {
-    "mtime": 1793980341.2646413,
+    "mtime": 1793999239.7031991,
     "ast_hash": "68aa4442c413f2e131ab368b091ea404",
     "semantic_hash": ""
   },
   "docs/sop/images/icon.png": {
-    "mtime": 1793980323.4590223,
+    "mtime": 1793999239.7047567,
     "ast_hash": "d4dad2b59f9f23d86eb00e067ab30046",
     "semantic_hash": ""
   }
