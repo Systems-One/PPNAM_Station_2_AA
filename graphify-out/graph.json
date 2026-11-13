@@ -8597,7 +8597,7 @@
       "label": "ProgressSummary()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L183",
+      "source_location": "L185",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_progresssummary",
       "community": 199,
@@ -8617,7 +8617,7 @@
       "label": "IngredientRow()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L212",
+      "source_location": "L214",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_ingredientrow",
       "community": 199,
@@ -8637,7 +8637,7 @@
       "label": "ModifiedLabel()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L275",
+      "source_location": "L277",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_modifiedlabel",
       "community": 199,
@@ -8647,7 +8647,7 @@
       "label": "ScanZone()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L287",
+      "source_location": "L289",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanzone",
       "community": 199,
@@ -8657,7 +8657,7 @@
       "label": "ScanBox()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L301",
+      "source_location": "L304",
       "_origin": "ast",
       "id": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanbox",
       "community": 199,
@@ -23850,7 +23850,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2",
-      "community": 0,
+      "community": 236,
       "norm_label": "sweep2.py"
     },
     {
@@ -23860,7 +23860,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_sh",
-      "community": 0,
+      "community": 236,
       "norm_label": "sh()"
     },
     {
@@ -23870,7 +23870,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_dump",
-      "community": 0,
+      "community": 236,
       "norm_label": "dump()"
     },
     {
@@ -23880,7 +23880,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_nodes",
-      "community": 0,
+      "community": 236,
       "norm_label": "nodes()"
     },
     {
@@ -23890,7 +23890,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_find",
-      "community": 0,
+      "community": 236,
       "norm_label": "find()"
     },
     {
@@ -23900,7 +23900,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_tap",
-      "community": 0,
+      "community": 236,
       "norm_label": "tap()"
     },
     {
@@ -23910,7 +23910,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_shot",
-      "community": 0,
+      "community": 236,
       "norm_label": "shot()"
     },
     {
@@ -23920,7 +23920,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_app_foreground",
-      "community": 0,
+      "community": 236,
       "norm_label": "app_foreground()"
     },
     {
@@ -23930,7 +23930,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_ensure_app",
-      "community": 0,
+      "community": 236,
       "norm_label": "ensure_app()"
     },
     {
@@ -23940,7 +23940,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_goto_lookup",
-      "community": 0,
+      "community": 236,
       "norm_label": "goto_lookup()"
     },
     {
@@ -23950,7 +23950,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_lookup",
-      "community": 0,
+      "community": 236,
       "norm_label": "lookup()"
     },
     {
@@ -23960,7 +23960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_rationale_1",
-      "community": 0,
+      "community": 236,
       "norm_label": "robust job-card sweep: locates ui elements via uiautomator instead of fixed taps"
     },
     {
@@ -23970,7 +23970,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_rationale_80",
-      "community": 0,
+      "community": 236,
       "norm_label": "relaunch the app (and log back in) if it is not in the foreground."
     },
     {
@@ -23980,7 +23980,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "docs_test_evidence_2026_07_23_sweep2_rationale_94",
-      "community": 0,
+      "community": 236,
       "norm_label": "get back to the job lookup screen from wherever we are."
     },
     {
@@ -26956,7 +26956,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2",
-      "community": 316,
+      "community": 0,
       "norm_label": "sweep2.py"
     },
     {
@@ -26966,7 +26966,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_sh",
-      "community": 316,
+      "community": 0,
       "norm_label": "sh()"
     },
     {
@@ -26976,7 +26976,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_dump",
-      "community": 316,
+      "community": 0,
       "norm_label": "dump()"
     },
     {
@@ -26986,7 +26986,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_nodes",
-      "community": 316,
+      "community": 0,
       "norm_label": "nodes()"
     },
     {
@@ -26996,7 +26996,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_find",
-      "community": 316,
+      "community": 0,
       "norm_label": "find()"
     },
     {
@@ -27006,7 +27006,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_tap",
-      "community": 316,
+      "community": 0,
       "norm_label": "tap()"
     },
     {
@@ -27016,7 +27016,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_shot",
-      "community": 316,
+      "community": 0,
       "norm_label": "shot()"
     },
     {
@@ -27026,7 +27026,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_app_foreground",
-      "community": 316,
+      "community": 0,
       "norm_label": "app_foreground()"
     },
     {
@@ -27036,7 +27036,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_ensure_app",
-      "community": 316,
+      "community": 0,
       "norm_label": "ensure_app()"
     },
     {
@@ -27046,7 +27046,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_goto_lookup",
-      "community": 316,
+      "community": 0,
       "norm_label": "goto_lookup()"
     },
     {
@@ -27056,7 +27056,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_lookup",
-      "community": 316,
+      "community": 0,
       "norm_label": "lookup()"
     },
     {
@@ -27066,7 +27066,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_rationale_1",
-      "community": 316,
+      "community": 0,
       "norm_label": "robust job-card sweep: locates ui elements via uiautomator instead of fixed taps"
     },
     {
@@ -27076,7 +27076,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_rationale_80",
-      "community": 316,
+      "community": 0,
       "norm_label": "relaunch the app (and log back in) if it is not in the foreground."
     },
     {
@@ -27086,7 +27086,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "tools_test_harness_sweep2_rationale_94",
-      "community": 316,
+      "community": 0,
       "norm_label": "get back to the job lookup screen from wherever we are."
     },
     {
@@ -48460,6 +48460,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/ui/login/LoginViewModelTest.kt",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "field",
+      "source": "app_src_test_java_com_mitas_ppnam_station2aa_ui_login_loginviewmodeltest_loginviewmodeltest",
+      "target": "c_dev_clients_ppnam_andriod_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_rfid_scaneventbus_kt",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/data/rfid/ScanEventBus.kt",
@@ -48561,17 +48572,6 @@
       "context": "parameter_type",
       "source": "c_dev_clients_ppnam_andriod_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_rfid_scaneventbus_scaneventbus_emit",
       "target": "c_dev_clients_ppnam_andriod_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_rfid_scaneventbus_scanevent",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "app/src/test/java/com/mitas/ppnam/station2aa/ui/login/LoginViewModelTest.kt",
-      "source_location": "L35",
-      "weight": 1.0,
-      "context": "field",
-      "source": "app_src_test_java_com_mitas_ppnam_station2aa_ui_login_loginviewmodeltest_loginviewmodeltest",
-      "target": "c_dev_clients_ppnam_andriod_ppnam_station_2_aa_app_src_main_java_com_mitas_ppnam_station2aa_data_rfid_scaneventbus_barcode",
       "confidence_score": 1.0
     },
     {
@@ -53772,7 +53772,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L212",
+      "source_location": "L214",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_ingredientrow",
@@ -53783,7 +53783,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L183",
+      "source_location": "L185",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_progresssummary",
@@ -59484,7 +59484,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L309",
+      "source_location": "L312",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanbox",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_domain_usecase_rajoousecase_rajoousecase_close"
@@ -63289,7 +63289,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L212",
+      "source_location": "L214",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_ingredientrow",
@@ -63299,7 +63299,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L275",
+      "source_location": "L277",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_modifiedlabel",
@@ -63309,7 +63309,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L183",
+      "source_location": "L185",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_progresssummary",
@@ -63319,7 +63319,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L301",
+      "source_location": "L304",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanbox",
@@ -63329,7 +63329,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L287",
+      "source_location": "L289",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanzone",
@@ -63384,7 +63384,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L178",
+      "source_location": "L180",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_collecthome",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanzone",
@@ -63482,7 +63482,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L301",
+      "source_location": "L304",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanbox",
@@ -63493,7 +63493,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L275",
+      "source_location": "L277",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_modifiedlabel",
@@ -63504,7 +63504,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L183",
+      "source_location": "L185",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_progresssummary",
@@ -63515,7 +63515,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L212",
+      "source_location": "L214",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_ingredientrow",
@@ -63527,7 +63527,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L241",
+      "source_location": "L243",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_ingredientrow",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_modifiedlabel",
@@ -63548,7 +63548,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L301",
+      "source_location": "L304",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanbox",
@@ -63571,7 +63571,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L294",
+      "source_location": "L297",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanzone",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanbox",
@@ -63581,7 +63581,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L287",
+      "source_location": "L289",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanzone",
@@ -63594,7 +63594,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectHome.kt",
-      "source_location": "L321",
+      "source_location": "L324",
       "weight": 1.0,
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collecthome_scanbox",
       "target": "app_src_main_java_com_mitas_ppnam_station2aa_ui_theme_theme_apptextfieldcolors"
@@ -64833,7 +64833,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/mitas/ppnam/station2aa/ui/preparation/CollectState.kt",
-      "source_location": "L187",
+      "source_location": "L192",
       "weight": 1.0,
       "context": "field",
       "source": "app_src_main_java_com_mitas_ppnam_station2aa_ui_preparation_collectstate_preparationuistate",
@@ -92146,7 +92146,7 @@
       "source_location": "L7",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_docs_test_evidence_2026_07_23_board_py",
-      "target": "docs_test_evidence_2026_07_23_sweep2",
+      "target": "tools_test_harness_sweep2",
       "confidence_score": 1.0
     },
     {
@@ -92311,7 +92311,7 @@
       "source_location": "L8",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_docs_test_evidence_2026_07_23_collect_py",
-      "target": "docs_test_evidence_2026_07_23_sweep2",
+      "target": "tools_test_harness_sweep2",
       "confidence_score": 1.0
     },
     {
@@ -92634,17 +92634,6 @@
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_docs_test_evidence_2026_07_23_sniffer_report_orphans",
       "target": "c_dev_ppnam_station_2_aa_docs_test_evidence_2026_07_23_sniffer_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tools/test-harness/ui.py",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_py",
-      "target": "docs_test_evidence_2026_07_23_sweep2",
       "confidence_score": 1.0
     },
     {
@@ -97083,7 +97072,7 @@
       "source_location": "L42",
       "weight": 1.0,
       "source": "tools_backend_sim_sim",
-      "target": "c_dev_ppnam_station_2_aa_tools_backend_sim_simlog_simlogger_warn",
+      "target": "c_dev_ppnam_station_2_aa_tools_backend_sim_simlog_simlogger_transition",
       "confidence_score": 1.0
     },
     {
@@ -98416,7 +98405,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_d_login_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_type_into",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_tap",
       "confidence_score": 1.0
     },
     {
@@ -98427,7 +98416,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_d_nav_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_type_into",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_tap",
       "confidence_score": 1.0
     },
     {
@@ -98438,7 +98427,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_drive_login_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_type_into",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_tap",
       "confidence_score": 1.0
     },
     {
@@ -98449,7 +98438,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "c_dev_ppnam_station_2_aa_claude_worktrees_ui_overhaul_phase1_home_tools_test_harness_drive_relogin_py",
-      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_type_into",
+      "target": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_tap",
       "confidence_score": 1.0
     },
     {
@@ -98673,6 +98662,17 @@
       "weight": 1.0,
       "source": "tools_test_harness_sniffer_report_orphans",
       "target": "tools_test_harness_sniffer_emit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tools/test-harness/ui.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "c_dev_ppnam_station_2_aa_tools_test_harness_ui_py",
+      "target": "tools_test_harness_sweep2",
       "confidence_score": 1.0
     },
     {
@@ -111460,5 +111460,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "34c868fa7ab5398b212da4283a8557f4ddae7451"
+  "built_at_commit": "5d4883323d96e8288768b77b2c5649a4222d32f9"
 }
