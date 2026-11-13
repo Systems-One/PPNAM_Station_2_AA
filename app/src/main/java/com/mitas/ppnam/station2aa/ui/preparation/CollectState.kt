@@ -165,7 +165,12 @@ data class PreparationUiState(
      */
     val visibleHolds: List<PendingCommand> get() = if (inFlight) emptyList() else blocking
 
-    val canScan: Boolean get() = stage == PrepStage.Collecting && !inFlight && blocking.isEmpty()
+    /**
+     * Pallet scans stay open until "Mix complete" is tapped: with every row collected Station 2
+     * waits in AwaitingConfirmation, where a pallet can still be added to the mix (contract §6).
+     */
+    val canScan: Boolean
+        get() = (stage == PrepStage.Collecting || stage == PrepStage.AwaitingConfirmation) && !inFlight && blocking.isEmpty()
     val canScanMachine: Boolean get() = stage?.isMachineStage == true && !inFlight && blocking.isEmpty()
 
     /**

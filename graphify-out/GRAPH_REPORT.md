@@ -1,7 +1,7 @@
-# Graph Report - PPNAM_Station_2_AA  (2026-11-12)
+# Graph Report - PPNAM_Station_2_AA  (2026-11-13)
 
 ## Corpus Check
-- 3352 files · ~11,938,937 words
+- 3352 files · ~11,939,118 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `34c868fa`
+- Built from commit: `5d488332`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -248,6 +248,7 @@
 - RecoveryNoticeText.kt
 - OperatorEntry
 - .parse
+- sweep2.py
 - Int
 - Boolean
 - ByteArray
@@ -323,7 +324,6 @@
 - ConnectionStatus
 - ScanEvent
 - LoginViewModel.kt
-- sweep2.py
 - Boolean
 - Flow
 - Long
@@ -937,6 +937,10 @@ Nodes (22): Accepted, CollectStep, Confirm, Error, Excluded, Fallback, Identifie
 Cohesion: 0.38
 Nodes (4): BigDecimal, String, QuantityInput, WireDecimal
 
+### Community 236 - "sweep2.py"
+Cohesion: 0.34
+Nodes (13): app_foreground(), dump(), ensure_app(), find(), goto_lookup(), lookup(), nodes(), Robust job-card sweep: locates UI elements via uiautomator instead of fixed taps (+5 more)
+
 ### Community 243 - "Result"
 Cohesion: 0.09
 Nodes (21): Adding an ingredient that is not in the mix, Automatic sign-out, Before you start {#before}, Collecting ingredients {#workflow-collect}, Finishing up {#finishing}, Job Cards and preparing mixes {#workflow-jobcards}, Messages and what to do {#messages}, Mixing and production {#workflow-mixer} (+13 more)
@@ -1024,10 +1028,6 @@ Nodes (4): Barcode, RfidTag, ScanEvent, ScanEventBus
 ### Community 315 - "LoginViewModel.kt"
 Cohesion: 0.60
 Nodes (5): Error, Idle, LoggedIn, LoggingIn, LoginUiState
-
-### Community 316 - "sweep2.py"
-Cohesion: 0.34
-Nodes (13): app_foreground(), dump(), ensure_app(), find(), goto_lookup(), lookup(), nodes(), Robust job-card sweep: locates UI elements via uiautomator instead of fixed taps (+5 more)
 
 ### Community 324 - "Boolean"
 Cohesion: 0.25
