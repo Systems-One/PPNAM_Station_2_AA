@@ -174,7 +174,9 @@ internal fun CollectHome(
                 "Asks once to confirm", color = TextMuted, style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
             )
-        } else if (state.stage == PrepStage.Collecting) {
+        }
+        // The scan target stays under "Mix complete": a pallet can be added until it is tapped.
+        if (state.stage == PrepStage.Collecting || state.stage == PrepStage.AwaitingConfirmation) {
             ScanZone(state, onUseCode)
         }
     }
@@ -286,9 +288,10 @@ internal fun ModifiedLabel(modifier: Modifier = Modifier) {
 /** Dashed-style scan target with the prompt for the current moment and a small type-the-code field. */
 @Composable
 private fun ScanZone(state: PreparationUiState, onUseCode: (String) -> Unit) {
-    val prompt = when (state.banner) {
-        null -> "Scan a pallet tag"
-        is ResultBanner.Accepted -> "Scan next pallet"
+    val prompt = when {
+        state.allCollected -> "Scan a pallet to add it to the mix"
+        state.banner == null -> "Scan a pallet tag"
+        state.banner is ResultBanner.Accepted -> "Scan next pallet"
         else -> "Scan another pallet"
     }
     ScanBox(prompt, null, state.canScan, state.blocking.isNotEmpty(), onUseCode)

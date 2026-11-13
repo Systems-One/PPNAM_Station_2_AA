@@ -623,6 +623,31 @@ class PreparationViewModelTest {
         verify(useCase, never()).addIngredient(any(), any(), any(), any(), any())
     }
 
+    @Test
+    fun `with everything collected a pallet can still be added until Mix complete is tapped`() = runTest {
+        val vm = open(finalCapture)                              // AwaitingConfirmation
+        val revision = finalCapture.preparation!!.collectionRevision
+        val added = withMaterial(opened, caco3())                // Station 2 goes back to Collecting
+        whenever(useCase.addIngredient(prepId, revision, "TAG-CA", BigDecimal("5"), "Recipe correction"))
+            .thenReturn(CollectionResult.Done(added))
+        scanIdentified(vm, caSource(), finalCapture)
+        assertEquals(CollectStep.NotInMix(caSource(), "", ""), vm.step())
+        vm.onAmountChange("5")
+        vm.onReasonChange("Recipe correction")
+        vm.addToMix()
+        verify(useCase, times(1)).addIngredient(prepId, revision, "TAG-CA", BigDecimal("5"), "Recipe correction")
+        assertEquals("TAG-CA", (vm.step() as CollectStep.Identified).source.code)
+        assertFalse(vm.uiState.value.canConfirm)                 // the added row is outstanding
+    }
+
+    @Test
+    fun `after Mix complete a pallet scan is refused`() = runTest {
+        val vm = open(confirmed)                                 // ReadyForMixer
+        assertFalse(vm.uiState.value.canScan)
+        vm.onScan("TAG-CA")
+        verify(useCase, never()).identify(any(), any())
+    }
+
     // ---- Less / More / Omit on a row (contract §6) ----
 
     @Test
@@ -847,7 +872,7 @@ class PreparationViewModelTest {
     fun `confirm is offered only in AwaitingConfirmation with every included row complete`() = runTest {
         val ready = open(finalCapture)
         assertTrue(ready.uiState.value.canConfirm)
-        assertFalse(ready.uiState.value.canScan)
+        assertTrue(ready.uiState.value.canScan)             // scans stay open until Mix complete
 
         val collecting = open(afterOne)
         assertFalse(collecting.uiState.value.canConfirm)
