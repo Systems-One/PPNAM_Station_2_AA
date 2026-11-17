@@ -19,7 +19,7 @@ from decimal import Decimal
 from state import iso, utc_now
 
 SCHEMA_VERSION = "rev2.1"
-CONTRACT_REVISION = "2026-10-21"
+CONTRACT_REVISION = "2026-11-17"
 # The station's five contract suffixes, plus the simulator-only operator directory (not in the
 # 2026-10-21 contract; the app degrades to a typed username without it).
 REQUEST_SUFFIXES = (

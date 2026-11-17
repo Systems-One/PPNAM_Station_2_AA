@@ -446,6 +446,33 @@ class PreparationViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Yes on the "still in Receiving" offer: Station 2 moves the pallet to Holding (recorded against
+     * this scanner and operator), then the same code is identified again so the normal collect flow
+     * takes over. One tap sends one command; it never captures.
+     */
+    fun moveToHolding() {
+        val state = _uiState.value
+        if (state.inFlight) return
+        val offer = state.step as? CollectStep.MoveToHolding ?: return
+        if (!state.canScan) return show(OutcomeMessage.Info(whyNoScan(state)))
+        val code = offer.source.code
+        _uiState.update { it.copy(step = CollectStep.MovingToHolding(offer.source), banner = null, message = null) }
+        mutate(
+            endsStep = true, rejectedTitle = "Not moved",
+            onDone = { seq, done ->
+                applyIfNewer(seq, done.snapshot)
+                identify(code, quiet = false)
+                show(OutcomeMessage.Info("Moved to Holding"))
+            },
+        ) {
+            val result = useCase.moveToHolding(prepId, code)
+            // Nothing went out: the offer stays so the operator can tap Yes again.
+            if (result is CollectionResult.NotSent) _uiState.update { it.copy(step = offer) }
+            result
+        }
+    }
+
     // ---- Less / More / Omit on a row (contract §6) ----
 
     /** Opens the decision for the tapped row; only while the PREP still takes decisions. */
@@ -559,6 +586,7 @@ class PreparationViewModel @Inject constructor(
 
     /** What the identified pallet means for this PREP. */
     private fun stepFor(source: SourceInfo, snapshot: PrepSnapshot): CollectStep {
+        if (source.canMoveToHolding) return CollectStep.MoveToHolding(source)
         if (!source.usable) return CollectStep.Unusable(source, source.reason.ifBlank { "Station 2 can't use this pallet" })
         return when (val fit = snapshot.classify(source)) {
             is SourceFit.InMix -> identified(source, fit.material, prefill(source, fit.material))

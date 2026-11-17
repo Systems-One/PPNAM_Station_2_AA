@@ -136,6 +136,7 @@ fun RajooJobScreen(
                     onPickMaterial = {},
                     onRetry = viewModel::retry,
                     onPickSubstitute = viewModel::pickSubstitute,
+                    onMoveToHolding = viewModel::moveToHolding,
                 ),
                 body,
                 scope = "job",

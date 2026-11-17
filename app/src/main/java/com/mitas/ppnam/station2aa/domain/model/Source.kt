@@ -16,6 +16,8 @@ data class SourceInfo(
     val available: BigDecimal?,
     val usable: Boolean,
     val reason: String,
+    /** Unusable only because it is still in Receiving: the operator may move it to Holding. */
+    val canMoveToHolding: Boolean = false,
 )
 
 /** Where an identified pallet's material sits in this PREP. */

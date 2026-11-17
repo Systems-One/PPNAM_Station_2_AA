@@ -6,6 +6,7 @@ import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Adjustment
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2ChoiceAnswer
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2IdentifyRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MoveToHoldingRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2RajooAdjustIngredientRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2RajooCaptureRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2RajooCloseRequest
@@ -70,6 +71,12 @@ class RajooUseCase @Inject constructor(
         require(sessionId.isNotBlank()) { "no active session" }
         require(quantity == null || quantity.signum() > 0) { "quantity must be positive" }
         return send(Rev2RajooCaptureRequest(jobCard.trim(), code.trim(), sessionId.trim(), quantity?.let(WireDecimal::of)))
+    }
+
+    /** `move_to_holding` during a session: move the Receiving pallet [code] to Holding. Never captures. */
+    suspend fun moveToHolding(jobCard: String, code: String): CollectionResult {
+        require(code.isNotBlank()) { "blank source code" }
+        return send(Rev2MoveToHoldingRequest(jobCard.trim(), code.trim()))
     }
 
     /*

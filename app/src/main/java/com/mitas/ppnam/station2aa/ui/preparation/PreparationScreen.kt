@@ -129,6 +129,7 @@ fun PreparationScreen(
                     onCancel = viewModel::cancelCollect,
                     onPickMaterial = viewModel::pickFallbackMaterial,
                     onRetry = viewModel::retry,
+                    onMoveToHolding = viewModel::moveToHolding,
                 ),
                 body,
             )

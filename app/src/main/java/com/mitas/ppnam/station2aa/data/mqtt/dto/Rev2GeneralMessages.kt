@@ -67,6 +67,11 @@ data class Rev2Source(
     val usable: Boolean = false,
     /** Readable reason when [usable] is false, else empty. */
     val reason: String = "",
+    /**
+     * Contract 2026-11-17: the pallet's only problem is that it is still in Receiving, so the
+     * operator may be offered `move_to_holding`. False from a Station 2 that predates it.
+     */
+    val canMoveToHolding: Boolean = false,
 )
 
 data class Rev2CommandResult(
@@ -277,6 +282,17 @@ data class Rev2CaptureRequest(
     val code: String,
     val quantity: BigDecimal? = null,
     val action: String = "capture",
+)
+
+/**
+ * Contract 2026-11-17 `move_to_holding`, General ([targetId] the PREP) and Rajoo ([targetId] the
+ * JC): the operator accepted the offer to move the scanned Receiving pallet [code] to Holding.
+ * Never captures; the scanner identifies the pallet again afterwards.
+ */
+data class Rev2MoveToHoldingRequest(
+    val targetId: String,
+    val code: String,
+    val action: String = "move_to_holding",
 )
 
 data class Rev2ConfirmRequest(

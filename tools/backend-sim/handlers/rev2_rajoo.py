@@ -23,9 +23,10 @@ from envelope import Rejection
 from handlers import rev2_general as g
 from state import iso, utc_now
 
-ACTIONS = ("lookup", "read", "identify", "recover", "rajoo_start", "capture",
+ACTIONS = ("lookup", "read", "identify", "recover", "rajoo_start", "capture", "move_to_holding",
            "adjust_ingredient", "rajoo_finish", "rajoo_close")
-MUTATIONS = ("rajoo_start", "capture", "adjust_ingredient", "rajoo_finish", "rajoo_close")
+MUTATIONS = ("rajoo_start", "capture", "move_to_holding", "adjust_ingredient", "rajoo_finish",
+             "rajoo_close")
 LOADED = "Rajoo full-job BOM loaded. Scan the same machine to start a session."
 
 
@@ -376,7 +377,17 @@ def rajoo_close(world, log, req, operator_id):
             "cycleId": None}
 
 
-EXECUTORS = {"rajoo_start": rajoo_start, "capture": capture, "adjust_ingredient": adjust_ingredient,
+def move_to_holding(world, log, req, operator_id):
+    job = _rajoo_job(world, req.get("targetId"))
+    if job is None:
+        return g._fail("Load this Rajoo JC first.")
+    if job["closed"] or not job["activeSessionId"]:
+        return g._fail("Start a Rajoo session before moving a pallet for collection.")
+    return g.move_pallet_to_holding(world, log, req, job["id"])
+
+
+EXECUTORS = {"rajoo_start": rajoo_start, "capture": capture, "move_to_holding": move_to_holding,
+             "adjust_ingredient": adjust_ingredient,
              "rajoo_finish": rajoo_finish, "rajoo_close": rajoo_close}
 
 

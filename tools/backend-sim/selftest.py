@@ -508,8 +508,9 @@ def identify_and_add(hh):
     check(r and r["success"] and r["error"] == "", "identify a known pallet succeeds", r and r["operatorMessage"])
     source = exact(r)["source"]
     check(source == {"code": PAL_001, "materialCode": "1600000301", "name": "HD WHITE", "unit": "kg",
-                     "bagSize": Decimal(25), "available": source["available"], "usable": True, "reason": ""},
-          "…source carries code, materialCode, name, unit, bagSize, available, usable, reason", source)
+                     "bagSize": Decimal(25), "available": source["available"], "usable": True, "reason": "",
+                     "canMoveToHolding": False},
+          "…source carries code, materialCode, name, unit, bagSize, available, usable, reason, canMoveToHolding", source)
     check(exact(r)["preparation"]["id"] == prep_id and r["data"]["result"]["targetId"] == prep_id,
           "…and the selected preparation, as read returns it")
     check(set(r["data"]) == {"result", "preparation", "source"},
@@ -541,11 +542,22 @@ def identify_and_add(hh):
     r = identify("300833B2DDD9014000000004")
     check(r["success"] and r["data"]["source"]["usable"] is False and r["data"]["source"]["reason"],
           "identify a pallet at Station 1 -> usable false with a reason", r["data"]["source"])
+    check(r["data"]["source"]["canMoveToHolding"] is True,
+          "…and it offers the move to Holding", r["data"]["source"])
+    moved, _ = hh.request(general, {"action": "move_to_holding", "targetId": prep_id,
+                                    "code": "300833B2DDD9014000000004"})
+    check(moved and moved["success"] and "moved from Receiving to Holding" in moved["operatorMessage"],
+          "move_to_holding moves the Receiving pallet", moved and moved["operatorMessage"])
+    r = identify("300833B2DDD9014000000004")
+    check(r["success"] and r["data"]["source"]["usable"] is True
+          and r["data"]["source"]["canMoveToHolding"] is False,
+          "…and the same pallet then identifies as usable", r["data"]["source"])
     r = identify(PAL_001, target="PREP_nope")
     check(r and not r["success"] and r["data"]["source"] is None, "identify against an unknown preparation is rejected")
 
     if direct:
-        check(len(hh.sim.world.rev2_receipts) == receipts_before, "identify saves no receipt")
+        check(len(hh.sim.world.rev2_receipts) == receipts_before + 1,
+              "identify saves no receipt (only the one move_to_holding above did)")
     r, _ = hh.request(general, {"action": "read", "targetId": prep_id})
     check(len(r["data"]["collectionExceptions"]) == exceptions_before
           and r["data"]["preparation"]["collectionRevision"] == 0,

@@ -12,6 +12,7 @@ import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2GeneralRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2IdentifyRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MachineFinishRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MachineStartRequest
+import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2MoveToHoldingRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2PrepareRequest
 import com.mitas.ppnam.station2aa.data.mqtt.dto.Rev2Snapshot
 import com.mitas.ppnam.station2aa.data.mqtt.outbox.CommandOutcome
@@ -110,6 +111,15 @@ class GeneralCollectionUseCase @Inject constructor(
         require(code.isNotBlank()) { "blank source code" }
         require(quantity == null || quantity.signum() > 0) { "quantity must be positive" }
         return send(Rev2CaptureRequest(prepId, code.trim(), quantity?.let(WireDecimal::of)))
+    }
+
+    /**
+     * Contract 2026-11-17 `move_to_holding`: the operator said Yes to moving the Receiving pallet
+     * [code] to Holding. Outboxed like every command; it never captures. Identify again on Done.
+     */
+    suspend fun moveToHolding(prepId: String, code: String): CollectionResult {
+        require(code.isNotBlank()) { "blank source code" }
+        return send(Rev2MoveToHoldingRequest(prepId.trim(), code.trim()))
     }
 
     suspend fun confirm(prepId: String): CollectionResult = send(Rev2ConfirmRequest(prepId))
