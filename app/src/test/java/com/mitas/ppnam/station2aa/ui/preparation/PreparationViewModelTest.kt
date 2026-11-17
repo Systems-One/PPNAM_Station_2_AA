@@ -1539,4 +1539,76 @@ class PreparationViewModelTest {
         vm.refresh()
         assertTrue(heard.isEmpty())
     }
+
+    // ---- still in Receiving: offer the move to Holding (contract 2026-11-17) ----
+
+    private fun inReceiving() = source(usable = false, reason = "Pallet must be in Holding or Mixing.").copy(canMoveToHolding = true)
+
+    @Test
+    fun `a pallet still in Receiving offers the move to Holding and sends nothing`() = runTest {
+        val vm = open()
+        val src = inReceiving()
+        scanIdentified(vm, src)
+        assertEquals(CollectStep.MoveToHolding(src), vm.step())
+        vm.submit()
+        verify(useCase, never()).moveToHolding(any(), any())
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+    }
+
+    @Test
+    fun `Yes moves the pallet once, identifies it again and carries on collecting`() = runTest {
+        val vm = open()
+        val src = inReceiving()
+        val moved = source()
+        whenever(useCase.identify(prepId, src.code)).thenReturn(
+            IdentifyResult.Identified(src, opened), IdentifyResult.Identified(moved, opened),
+        )
+        whenever(useCase.moveToHolding(prepId, src.code)).thenReturn(CollectionResult.Done(opened))
+        vm.onScan(src.code)
+        assertEquals(CollectStep.MoveToHolding(src), vm.step())
+        vm.moveToHolding()
+        verify(useCase, times(1)).moveToHolding(prepId, src.code)
+        verify(useCase, times(2)).identify(prepId, src.code)
+        val step = vm.step()
+        assertTrue(step.toString(), step is CollectStep.Identified)
+        assertEquals(moved, (step as CollectStep.Identified).source)
+        assertFalse(vm.uiState.value.inFlight)
+        // The move never captures: that is still the operator's Submit.
+        verify(useCase, never()).capture(any(), any(), anyOrNull())
+    }
+
+    @Test
+    fun `No leaves the pallet in Receiving and sends nothing`() = runTest {
+        val vm = open()
+        scanIdentified(vm, inReceiving())
+        vm.cancelCollect()
+        assertEquals(CollectStep.Idle, vm.step())
+        verify(useCase, never()).moveToHolding(any(), any())
+    }
+
+    @Test
+    fun `a refused move is shown as Not moved and the pallet is not identified again`() = runTest {
+        val vm = open()
+        val src = inReceiving()
+        scanIdentified(vm, src)
+        whenever(useCase.moveToHolding(prepId, src.code))
+            .thenReturn(CollectionResult.Rejected(ErrorCode.REV2_REJECTED, "Pallet is blocked. Nothing was moved.", opened))
+        vm.moveToHolding()
+        assertEquals(CollectStep.Idle, vm.step())
+        val banner = vm.uiState.value.banner as ResultBanner.Rejected
+        assertEquals("Not moved", banner.title)
+        assertEquals("Pallet is blocked. Nothing was moved.", banner.text)
+        verify(useCase, times(1)).identify(prepId, src.code)
+    }
+
+    @Test
+    fun `a move that was never sent keeps the offer so Yes can be tapped again`() = runTest {
+        val vm = open()
+        val src = inReceiving()
+        scanIdentified(vm, src)
+        whenever(useCase.moveToHolding(prepId, src.code)).thenReturn(CollectionResult.NotSent("Not connected — nothing was sent"))
+        vm.moveToHolding()
+        assertEquals(CollectStep.MoveToHolding(src), vm.step())
+        assertFalse(vm.uiState.value.inFlight)
+    }
 }

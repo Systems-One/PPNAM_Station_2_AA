@@ -321,6 +321,11 @@ class RajooJobViewModel @Inject constructor(
     private fun palletScan(code: String, state: RajooUiState, quiet: Boolean) {
         if (!state.collect.canScan) return refuse(code, quiet) { show(whyBusy(state)) }
         if (state.collect.step.protectsPallet) return refuse(code, quiet) { show(PreparationViewModel.FINISH_FIRST_MESSAGE) }
+        identify(code, quiet)
+    }
+
+    /** Asks Station 2 what is on [code]; never captures. */
+    private fun identify(code: String, quiet: Boolean) {
         identifyJob?.cancel()
         updateCollect { it.copy(step = CollectStep.Identifying(code), banner = null, message = null) }
         identifyJob = viewModelScope.launch {
@@ -352,6 +357,7 @@ class RajooJobViewModel @Inject constructor(
     }
 
     private fun stepFor(source: SourceInfo, snapshot: PrepSnapshot): CollectStep {
+        if (source.canMoveToHolding) return CollectStep.MoveToHolding(source)
         if (!source.usable) return CollectStep.Unusable(source, source.reason.ifBlank { "Station 2 can't use this pallet" })
         return when (val fit = snapshot.classify(source)) {
             is SourceFit.InMix -> identified(source, fit.material, prefill(source, fit.material))
@@ -360,6 +366,32 @@ class RajooJobViewModel @Inject constructor(
             // Contract §6: an off-BOM pallet can be added, or used instead of an uncaptured row,
             // with a reason. Its amount is the full-job total, which may span several pallets.
             SourceFit.NotInMix -> CollectStep.NotInMix(source, "", "", capAtStock = false)
+        }
+    }
+
+    /**
+     * Yes on the "still in Receiving" offer: Station 2 moves the pallet to Holding, then the same
+     * code is identified again and the normal collect flow takes over. It never captures.
+     */
+    fun moveToHolding() {
+        val state = _uiState.value
+        if (state.collect.inFlight) return
+        val offer = state.collect.step as? CollectStep.MoveToHolding ?: return
+        if (!state.collect.canScan) return show(whyBusy(state))
+        val code = offer.source.code
+        updateCollect { it.copy(step = CollectStep.MovingToHolding(offer.source)) }
+        mutate(
+            endsStep = true,
+            onDone = { seq, done ->
+                applyIfNewer(seq, done.snapshot)
+                identify(code, quiet = false)
+                show("Moved to Holding")
+            },
+        ) {
+            val result = useCase.moveToHolding(jobCard, code)
+            // Nothing went out: the offer stays so the operator can tap Yes again.
+            if (result is CollectionResult.NotSent) updateCollect { it.copy(step = offer) }
+            result
         }
     }
 

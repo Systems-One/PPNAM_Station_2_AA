@@ -40,11 +40,12 @@ from decimal import Decimal
 from envelope import Rejection
 from state import iso, utc_now
 
-ACTIONS = ("lookup", "read", "identify", "recover", "prepare", "capture", "adjust_ingredient",
+ACTIONS = ("lookup", "read", "identify", "recover", "prepare", "capture", "move_to_holding",
+           "adjust_ingredient",
            "confirm", "machine_start", "machine_finish")
-SLICE_ACTIONS = ("lookup", "read", "identify", "recover", "prepare", "capture",
+SLICE_ACTIONS = ("lookup", "read", "identify", "recover", "prepare", "capture", "move_to_holding",
                  "adjust_ingredient", "confirm", "machine_start", "machine_finish")
-MUTATIONS = ("prepare", "capture", "adjust_ingredient", "confirm", "machine_start",
+MUTATIONS = ("prepare", "capture", "move_to_holding", "adjust_ingredient", "confirm", "machine_start",
              "machine_finish")
 HEX64 = re.compile(r"^[0-9A-Fa-f]{64}$")
 OPEN_STATUSES = ("boposPlanned", "boposReleased")
@@ -395,6 +396,47 @@ def pallet_usability(pallet):
     return True, ""
 
 
+RECEIVING_STATES = ("AtStation1", "Receiving")
+
+
+def can_move_to_holding(pallet):
+    """Contract 2026-11-17: still in Receiving is the pallet's only availability problem."""
+    return (not pallet["blocked"] and pallet["palletState"] in RECEIVING_STATES
+            and _dec(pallet["remainingQuantity"]) > 0)
+
+
+def move_pallet_to_holding(world, log, req, target):
+    """Shared `move_to_holding`: the operator accepted the offer. Never captures."""
+    code = req.get("code") if isinstance(req.get("code"), str) else ""
+    pallet = find_pallet(world, code)
+    if pallet is None:
+        log.fail("move_to_holding %s: unknown code %r" % (target, code))
+        return _fail("No current local pallet matches this code. Nothing was moved.",
+                     "pallet_not_found")
+    if not pallet["blocked"] and pallet["palletState"] in ("Holding", "Mixing"):
+        return {"success": True, "targetId": target, "cycleId": None,
+                "message": "Pallet %s is already in %s. Scan it again to collect."
+                           % (pallet["palletId"], pallet["palletState"])}
+    if not can_move_to_holding(pallet):
+        log.fail("move_to_holding %s: %s is blocked, empty or not in Receiving"
+                 % (target, pallet["palletId"]))
+        return _fail("Pallet %s cannot be moved to Holding by a collection scan. Nothing was moved."
+                     % pallet["palletId"])
+    pallet["palletState"] = "Holding"
+    log.transition("move_to_holding %s: %s Receiving -> Holding" % (target, pallet["palletId"]))
+    return {"success": True, "targetId": target, "cycleId": None,
+            "message": "Pallet %s moved from Receiving to Holding. Scan it again to collect."
+                       % pallet["palletId"]}
+
+
+def move_to_holding(world, log, req, operator_id):
+    target = req.get("targetId") or ""
+    batch = world.rev2_preparations.get(target)
+    if batch is None or batch["stage"] not in ("Collecting", "AwaitingConfirmation"):
+        return _fail("This preparation is not collecting ingredients.")
+    return move_pallet_to_holding(world, log, req, batch["id"])
+
+
 def _general_target(world, target):
     job = world.rev2_jobs.get(target)
     return target in world.rev2_preparations or (job is not None and job["mode"] == "General")
@@ -425,7 +467,8 @@ def identify(world, log, req, target_ok=_general_target,
     bag = pallet.get("bagSize")
     source = {"code": code, "materialCode": pallet["productCode"], "name": pallet["productName"],
               "unit": pallet["unit"], "bagSize": None if bag is None else _dec(bag),
-              "available": _dec(pallet["remainingQuantity"]), "usable": usable, "reason": reason}
+              "available": _dec(pallet["remainingQuantity"]), "usable": usable, "reason": reason,
+              "canMoveToHolding": can_move_to_holding(pallet)}
     log.step("identify %s: %r -> %s %s, usable=%s" % (target or "(standalone)", code,
                                                       pallet["palletId"], pallet["productCode"], usable))
     return {"success": True, "message": "Source identified.", "targetId": target or None,
@@ -640,7 +683,8 @@ def machine_finish(world, log, req, operator_id):
             "targetId": batch["id"], "cycleId": cycle}
 
 
-EXECUTORS = {"prepare": prepare, "capture": capture, "adjust_ingredient": adjust_ingredient,
+EXECUTORS = {"prepare": prepare, "capture": capture, "move_to_holding": move_to_holding,
+             "adjust_ingredient": adjust_ingredient,
              "confirm": confirm, "machine_start": machine_start,
              "machine_finish": machine_finish}
 

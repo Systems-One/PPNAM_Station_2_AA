@@ -65,6 +65,8 @@ internal class CollectActions(
      * null to add it as a new row. Null hides the choice (the General PREP flow only adds).
      */
     val onPickSubstitute: ((String?) -> Unit)? = null,
+    /** Yes on the "still in Receiving" offer: move the pallet to Holding, then carry on collecting. */
+    val onMoveToHolding: () -> Unit = {},
 )
 
 /**
@@ -111,6 +113,14 @@ internal fun CollectSheet(
                 )
                 CancelButton("Cancel", actions.onCancel)
             }
+            is CollectStep.MoveToHolding -> MoveToHoldingOffer(state, step.source, actions)
+            is CollectStep.MovingToHolding -> {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(Modifier.size(24.dp))
+                    Text("Moving ${step.source.name.ifBlank { step.source.code }} to Holding…", color = TextPrimary)
+                }
+                Text("Don't scan again until Station 2 answers.", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+            }
             is CollectStep.Unusable -> {
                 StatusBanner(
                     "✕", "Can't collect from this pallet", DangerRed, BannerRedBg,
@@ -125,6 +135,31 @@ internal fun CollectSheet(
             is CollectStep.Fallback -> FallbackForm(state, step, actions)
         }
     }
+}
+
+/** The pallet is fine but still in Receiving: Yes moves it to Holding and the collection carries on. */
+@Composable
+private fun MoveToHoldingOffer(state: PreparationUiState, source: SourceInfo, actions: CollectActions) {
+    StatusBanner(
+        "!", "This pallet is still in Receiving", WarningOrange, BannerAmberBg,
+        details = listOf(
+            listOf(source.name, source.materialCode).filter { it.isNotBlank() }.joinToString(" · ") to false,
+            "Pallet ${source.code}" to true,
+        ),
+    )
+    Text("Move it to Holding and collect from it?", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    Text(
+        "Station 2 records that this scanner moved the pallet from Receiving to Holding, the same as the door readers would.",
+        color = TextMuted, style = MaterialTheme.typography.bodySmall,
+    )
+    Button(
+        shape = AppButtonShape,
+        onClick = actions.onMoveToHolding,
+        enabled = state.canScan,
+        colors = brandButtonColors(),
+        modifier = Modifier.fillMaxWidth().height(56.dp),
+    ) { Text("Yes — move to Holding", fontWeight = FontWeight.Bold, fontSize = 17.sp) }
+    CancelButton("No — leave it in Receiving", actions.onCancel)
 }
 
 @Composable

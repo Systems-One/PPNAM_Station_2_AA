@@ -52,6 +52,16 @@ sealed interface CollectStep {
     /** The pallet's material is an excluded row: it cannot be collected. */
     data class Excluded(val source: SourceInfo, val materialName: String) : CollectStep
 
+    /**
+     * The pallet is still in Receiving and nothing else is wrong with it: ask the operator whether
+     * to move it to Holding (as a door passage would have). Yes sends `move_to_holding`, then the
+     * pallet is identified again and the normal flow takes over. Nothing is sent until that tap.
+     */
+    data class MoveToHolding(val source: SourceInfo) : CollectStep
+
+    /** `move_to_holding` sent for [source]; waiting for Station 2. */
+    data class MovingToHolding(val source: SourceInfo) : CollectStep
+
     /** Station 2 says the pallet cannot be used ([reason]), or its row is already complete. */
     data class Unusable(val source: SourceInfo, val reason: String) : CollectStep
 
@@ -76,7 +86,8 @@ sealed interface CollectStep {
 
     /** A pallet the operator is part-way through: a new scan is refused with "Finish or cancel". */
     val protectsPallet: Boolean
-        get() = this is Identifying || this is Identified || this is NotInMix || this is Fallback || this is Submitting
+        get() = this is Identifying || this is Identified || this is NotInMix || this is Fallback || this is Submitting ||
+            this is MovingToHolding
 
     /** The pallet code this step is working on, so its repeat reads stay silent (suite rule S3). */
     fun palletCode(): String? = when (this) {
@@ -85,6 +96,8 @@ sealed interface CollectStep {
         is NotInMix -> source.code
         is Fallback -> code
         is Submitting -> code
+        is MoveToHolding -> source.code
+        is MovingToHolding -> source.code
         else -> null
     }
 }

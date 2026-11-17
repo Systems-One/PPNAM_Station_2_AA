@@ -132,6 +132,7 @@ private fun Rev2Snapshot.toGeneralPrepSnapshot(): PrepSnapshot = PrepSnapshot(
 internal fun Rev2Source.toDomain(): SourceInfo = SourceInfo(
     code = code, materialCode = materialCode, name = name, unit = unit,
     bagSize = bagSize?.takeIf { it.signum() > 0 }, available = available, usable = usable, reason = reason,
+    canMoveToHolding = canMoveToHolding && !usable,
 )
 
 private fun Rev2CollectionException.toDomain() =CollectionExceptionRecord(
